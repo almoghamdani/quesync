@@ -30,8 +30,6 @@ BOOL CALLBACK recordHandleProc(HRECORD handle, const void *buffer, DWORD length,
     // Encode the captured data
     dataLen = opus_encode_float(opusEncoder, (const float *)buffer, 2880, encodedData, length);
 
-    std::cout << dataLen << std::endl;
-
     // If the socket is valid, send the encoded data through it
     if (ConnectSocket != INVALID_SOCKET)
     {
@@ -59,11 +57,13 @@ int main()
     OpusEncoder *opusEncoder;
     HRECORD recordHandle;
 
+    std::cout << "Initializing Winsock..." << std::endl;
     //* Initialize Winsock
     if ((socketError = WSAStartup(MAKEWORD(2,2), &wsaData)) != 0) {
         std::cout << "WSAStartup failed, Error code: " << socketError << ". Exiting.." << std::endl;
         return 1;
     }
+    std::cout << "Winsock Initialized!" << std::endl;
 
     // Zero the memory of the hints address and set the connection type as UDP
     ZeroMemory(&hints, sizeof(hints));
@@ -77,6 +77,7 @@ int main()
         WSACleanup();
         return 1;
     }
+    std::cout << "Converted Server IP and Port successfully!" << std::endl;
 
     // The address should be the first item returned to the result
     ptr=result;
@@ -89,6 +90,8 @@ int main()
         WSACleanup();
         return 1;
     }
+    std::cout << "Created socket successfully!" << std::endl;
+    std::cout << "Connecting to server..." << std::endl;
 
     // Connect to server.
     if ((socketError = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen)) == SOCKET_ERROR) {
@@ -104,7 +107,6 @@ int main()
         WSACleanup();
         return 1;
     }
-
     std::cout << "Socket connected to server!" << std::endl;
 
     //* Check if the correct version of the BASS library has been loaded
