@@ -61,7 +61,7 @@ int main()
     //* Initialize Winsock
     if ((socketError = WSAStartup(MAKEWORD(2,2), &wsaData)) != 0) {
         std::cout << "WSAStartup failed, Error code: " << socketError << ". Exiting.." << std::endl;
-        return 1;
+        exit(EXIT_FAILURE);
     }
     std::cout << "Winsock Initialized!" << std::endl;
 
@@ -75,7 +75,7 @@ int main()
     if ((socketError = getaddrinfo("127.0.0.1", "55556", &hints, &result)) != 0) {
         std::cout << "Failed to get address info, Error Code: " << socketError << ". Exiting.." << std::endl;
         WSACleanup();
-        return 1;
+        exit(EXIT_FAILURE);
     }
     std::cout << "Converted Server IP and Port successfully!" << std::endl;
 
@@ -88,7 +88,7 @@ int main()
         std::cout << "Error at creating a socket, Error code: " << WSAGetLastError() << ". Exiting.." << std::endl;
         freeaddrinfo(result);
         WSACleanup();
-        return 1;
+        exit(EXIT_FAILURE);
     }
     std::cout << "Created socket successfully!" << std::endl;
     std::cout << "Connecting to server..." << std::endl;
@@ -105,7 +105,7 @@ int main()
     if (ConnectSocket == INVALID_SOCKET) {
         std::cout << "Unable to connect to server, Error code: " << socketError << ". Exiting.." << std::endl;
         WSACleanup();
-        return 1;
+        exit(EXIT_FAILURE);
     }
     std::cout << "Socket connected to server!" << std::endl;
 
@@ -113,7 +113,7 @@ int main()
     if (HIWORD(BASS_GetVersion()) != BASSVERSION)
     {
         std::cout << "Incorrect version of BASS library has been loaded! Exiting.." << std::endl;
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     // Print BASS version
@@ -154,7 +154,7 @@ int main()
     {
         std::cout << "IDK" << std::endl;
 
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     // Infinity loop for this main thread
