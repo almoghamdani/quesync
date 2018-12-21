@@ -13,15 +13,24 @@
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
 
+#define RECORD_FREQUENCY 48000
+#define RECORD_CHANNELS 2
+
 int main()
 {
     int socketError;
     WSADATA wsaData;
     struct sockaddr_in server, clientAddr;
     SOCKET serverSocket = INVALID_SOCKET;
-    unsigned char *buffer[2048] = {0};
+    unsigned char buffer[2048] = {0};
+    float pcm[5760] = {0};
     unsigned int recvLen = 0;
     int clientAddrLen = sizeof(clientAddr);
+    OpusDecoder *opusDecoder;
+    int opusError = 0;
+    
+    // Print Opus library version
+    std::cout << "Opus library version: " << opus_get_version_string() << std::endl;
 
     std::cout << "Initializing Winsock..." << std::endl;
     //* Initialize Winsock
@@ -55,6 +64,9 @@ int main()
     }
     std::cout << "IP and Port bind completed!" << std::endl;
 
+    // Create the opus decoder for the recording
+    opusDecoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, &opusError);
+
     while (1)
     {
         // Clean buffer
@@ -67,7 +79,9 @@ int main()
             continue;
         }
 
-        std::cout << buffer << std::endl;
+        // Decode the current sample from the client
+        opusError = opus_decode_float(opusDecoder, buffer, recvLen, pcm, 5760, 0);
+        std::cout << opusError << std::endl;
     }
 
     closesocket(serverSocket);
