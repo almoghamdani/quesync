@@ -1,5 +1,5 @@
 #include <iostream>
-#include "bass.h"
+#include "include/bass.h"
 
 BOOL CALLBACK recordHandleProc(HRECORD handle, const void *buffer, DWORD length, void *user)
 {
