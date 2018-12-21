@@ -1,10 +1,24 @@
+#define WIN32_LEAN_AND_MEAN
+#define _WIN32_WINNT 0x501
+
 #include <iostream>
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <stdlib.h>
+
 #include "include/bass.h"
 #include "include/opus.h"
+
+#pragma comment (lib, "Ws2_32.lib")
+#pragma comment (lib, "Mswsock.lib")
+#pragma comment (lib, "AdvApi32.lib")
 
 #define RECORD_FREQUENCY 48000
 #define RECORD_CHANNELS 2
 #define BASS_RECORD_UPDATE_TIME 10
+
+SOCKET ConnectSocket = INVALID_SOCKET;
 
 BOOL CALLBACK recordHandleProc(HRECORD handle, const void *buffer, DWORD length, void *user)
 {
@@ -19,9 +33,62 @@ BOOL CALLBACK recordHandleProc(HRECORD handle, const void *buffer, DWORD length,
 
 int main()
 {
+    int socketError;
+    WSADATA wsaData;
+    struct addrinfo *result = NULL,
+                    *ptr = NULL,
+                    hints;
     int opusError;
     OpusEncoder *opusEncoder;
     HRECORD recordHandle;
+
+    //* Initialize Winsock
+    if ((socketError = WSAStartup(MAKEWORD(2,2), &wsaData)) != 0) {
+        std::cout << "WSAStartup failed, Error code: " << socketError << ". Exiting.." << std::endl;
+        return 1;
+    }
+
+    // Zero the memory of the hints address and set the connection type as UDP
+    ZeroMemory(&hints, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
+
+    // Resolve the server address and port
+    if ((socketError = getaddrinfo("127.0.0.1", "55556", &hints, &result)) != 0) {
+        std::cout << "Failed to get address info, Error Code: " << socketError << ". Exiting.." << std::endl;
+        WSACleanup();
+        return 1;
+    }
+
+    // The address should be the first item returned to the result
+    ptr=result;
+
+    // Create a SOCKET for connecting to server
+    ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+    if (ConnectSocket == INVALID_SOCKET) {
+        std::cout << "Error at creating a socket, Error code: " << WSAGetLastError() << ". Exiting.." << std::endl;
+        freeaddrinfo(result);
+        WSACleanup();
+        return 1;
+    }
+
+    // Connect to server.
+    if ((socketError = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen)) == SOCKET_ERROR) {
+        // If failed close socket
+        closesocket(ConnectSocket);
+        ConnectSocket = INVALID_SOCKET;
+    }
+
+    // Clear the address info for the connection details and check if there was an error
+    freeaddrinfo(result);
+    if (ConnectSocket == INVALID_SOCKET) {
+        std::cout << "Unable to connect to server, Error code: " << socketError << ". Exiting.." << std::endl;
+        WSACleanup();
+        return 1;
+    }
+
+    std::cout << "Socket connected to server!" << std::endl;
 
     //* Check if the correct version of the BASS library has been loaded
     if (HIWORD(BASS_GetVersion()) != BASSVERSION)
@@ -35,8 +102,6 @@ int main()
 
     // Print Opus library version
     std::cout << "Opus library version: " << opus_get_version_string() << std::endl;
-
-    
 
     // TODO: Add record device selection
     // Try to init the default record device
