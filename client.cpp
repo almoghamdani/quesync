@@ -25,8 +25,25 @@ BOOL CALLBACK recordHandleProc(HRECORD handle, const void *buffer, DWORD length,
     // Get the encoder sent as an argument
     OpusEncoder *opusEncoder = (OpusEncoder *)user;
     unsigned char *encodedData = (unsigned char *)malloc(length);
+    unsigned int dataLen = 0;
 
-    std::cout << opus_encode_float(opusEncoder, (const float *)buffer, 960, encodedData, length) << std::endl;
+    // Encode the captured data
+    dataLen = opus_encode_float(opusEncoder, (const float *)buffer, 2880, encodedData, length);
+
+    std::cout << dataLen << std::endl;
+
+    // If the socket is valid, send the encoded data through it
+    if (ConnectSocket != INVALID_SOCKET)
+    {
+        // Try to send the data
+        if (send(ConnectSocket, (const char *)encodedData, dataLen, 0) == SOCKET_ERROR)
+        {
+            std::cout << "Send to server failed, Error code: " << WSAGetLastError() << ". Skipping.." << std::endl;
+        }
+    }
+
+    // Free the encoded data buffer
+    free(encodedData);
 
     return TRUE;
 }
