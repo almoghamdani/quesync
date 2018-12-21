@@ -1,8 +1,16 @@
 #include <iostream>
 #include "bass.h"
 
+BOOL CALLBACK recordHandleProc(HRECORD handle, const void *buffer, DWORD length, void *user)
+{
+    std::cout << (*(char *)buffer) << std::endl;
+    return TRUE;
+}
+
 int main()
 {
+    HRECORD recordHandle;
+
     //* Check if the correct version of the BASS library has been loaded
     if (HIWORD(BASS_GetVersion()) != BASSVERSION)
     {
@@ -34,6 +42,21 @@ int main()
         }
 
         return 1;
+    }
+
+    // Try and start recording
+    recordHandle = BASS_RecordStart(44100, 2, MAKELONG(0, 5), recordHandleProc, NULL);
+    if (!recordHandle)
+    {
+        std::cout << "IDK" << std::endl;
+
+        return 1;
+    }
+
+    // Infinity loop for this main thread
+    while (true)
+    {
+
     }
 
     return 0;
