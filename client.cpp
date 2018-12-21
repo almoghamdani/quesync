@@ -7,6 +7,7 @@ int main()
     if (HIWORD(BASS_GetVersion()) != BASSVERSION)
     {
         std::cout << "Incorrect version of BASS library has been loaded! Exiting.." << std::endl;
+        return 1;
     }
 
     // Print BASS version
