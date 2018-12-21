@@ -1,8 +1,9 @@
 #include <iostream>
+#include "bass.h"
 
 int main()
 {
-    std::cout << "Sima";
+    std::cout << BASS_GetVersion() << std::endl;
 
     return 0;
 }
