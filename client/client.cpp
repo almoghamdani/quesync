@@ -6,9 +6,9 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-#include "include/al.h"
-#include "include/alc.h"
-#include "include/opus.h"
+#include <al.h>
+#include <alc.h>
+#include <opus.h>
 
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")

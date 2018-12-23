@@ -7,8 +7,8 @@
 #include <ws2tcpip.h>
 #include <stdlib.h>
 
-#include "include/opus.h"
-#include "include/bass.h"
+#include <opus.h>
+#include <bass.h>
 
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
