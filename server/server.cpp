@@ -28,7 +28,7 @@ int main()
     int recvLen;
     int clientAddrLen = sizeof(clientAddr);
     OpusDecoder *opusDecoder;
-    int opusError = 0;
+    int decodedSize = 0;
     HSTREAM stream;
     int cnt = 0;
     
@@ -71,7 +71,7 @@ int main()
     std::cout << "IP and Port bind completed!" << std::endl;
 
     // Create the opus decoder for the recording
-    opusDecoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, &opusError);
+    opusDecoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, NULL);
 
     // Init the BASS library with the default device
     BASS_Init(-1, RECORD_FREQUENCY, 0, 0, NULL);
@@ -93,26 +93,15 @@ int main()
             continue;
         }
 
-        std::cout << recvLen << std::endl;
-        // Decode the current sample from the client
-        opusError = opus_decode(opusDecoder, buffer, recvLen, (opus_int16 *)pcm, 960, 0);
-        std::cout << opusError << std::endl;
-
+        // If the buffer isn't empty, decode the pcm info and put it in the stream
         if (recvLen != 0)
         {
-            std::cout << BASS_StreamPutData(stream, pcm, opusError * sizeof(opus_int16) * 2) << std::endl;
+            // Decode the current sample from the client
+            decodedSize = opus_decode(opusDecoder, buffer, recvLen, (opus_int16 *)pcm, 960, 0);
+
+            // Put the decoded pcm data in the stream
+            std::cout << BASS_StreamPutData(stream, pcm, decodedSize * sizeof(opus_int16) * 2) << std::endl;
         }
-
-        //std::cout << BASS_ChannelUpdate(stream, 0) << std::endl;
-        //std::cout << BASS_ErrorGetCode() << std::endl;
-
-        /*cnt++;
-        if (cnt == 10)
-        { 
-            std::cout << BASS_Update(200) << std::endl;
-            std::cout << BASS_ErrorGetCode() << std::endl;
-            cnt = 0;
-        }*/
     }
 
     closesocket(serverSocket);
