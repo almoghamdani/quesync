@@ -44,6 +44,12 @@
         "unordered_map": "cpp",
         "vector": "cpp",
         "xhash": "cpp",
-        "atomic": "cpp"
+        "atomic": "cpp",
+        "algorithm": "cpp",
+        "condition_variable": "cpp",
+        "future": "cpp",
+        "mutex": "cpp",
+        "shared_mutex": "cpp",
+        "string": "cpp"
     }
 }
