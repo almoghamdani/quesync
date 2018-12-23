@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 #include "include/opus.h"
+#include "include/bass.h"
 
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
@@ -22,13 +23,18 @@ int main()
     WSADATA wsaData;
     struct sockaddr_in server, clientAddr;
     SOCKET serverSocket = INVALID_SOCKET;
-    unsigned char buffer[2048] = {0};
-    float pcm[5760] = {0};
-    unsigned int recvLen = 0;
+    unsigned char buffer[5000] = {0};
+    opus_int16 pcm[12000] = {0};
+    int recvLen;
     int clientAddrLen = sizeof(clientAddr);
     OpusDecoder *opusDecoder;
     int opusError = 0;
+    HSTREAM stream;
+    int cnt = 0;
     
+    // Print BASS version
+    std::cout << "BASS library version: " << BASS_GetVersion() << std::endl;
+
     // Print Opus library version
     std::cout << "Opus library version: " << opus_get_version_string() << std::endl;
 
@@ -67,21 +73,46 @@ int main()
     // Create the opus decoder for the recording
     opusDecoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, &opusError);
 
-    while (1)
-    {
-        // Clean buffer
-        memset(buffer, 0, 2048);
+    // Init the BASS library with the default device
+    BASS_Init(-1, RECORD_FREQUENCY, 0, 0, NULL);
+    std::cout << BASS_ErrorGetCode() << std::endl;
 
+    // Create a stream to the speakers
+    stream = BASS_StreamCreate(RECORD_FREQUENCY, 2, BASS_SAMPLE_FX, STREAMPROC_PUSH, NULL);
+    std::cout << BASS_ErrorGetCode() << std::endl;
+
+    // Start the BASS library
+    std::cout << BASS_ChannelPlay(stream, 0) << std::endl;
+
+    while (true)
+    {
         // Get data from client
-        if ((recvLen = recvfrom(serverSocket, (char *)buffer, 2048, 0, (struct sockaddr *)&clientAddr, &clientAddrLen)) == SOCKET_ERROR)
+        if ((recvLen = recvfrom(serverSocket, (char *)buffer, 5000, 0, (struct sockaddr *)&clientAddr, &clientAddrLen)) == SOCKET_ERROR)
         {
             std::cout << "Failed to receive data, Error code: " << WSAGetLastError() << ". Skipping.." << std::endl;
             continue;
         }
 
+        std::cout << recvLen << std::endl;
         // Decode the current sample from the client
-        opusError = opus_decode_float(opusDecoder, buffer, recvLen, pcm, 5760, 0);
+        opusError = opus_decode(opusDecoder, buffer, recvLen, (opus_int16 *)pcm, 960, 0);
         std::cout << opusError << std::endl;
+
+        if (recvLen != 0)
+        {
+            std::cout << BASS_StreamPutData(stream, pcm, opusError * sizeof(opus_int16) * 2) << std::endl;
+        }
+
+        //std::cout << BASS_ChannelUpdate(stream, 0) << std::endl;
+        //std::cout << BASS_ErrorGetCode() << std::endl;
+
+        /*cnt++;
+        if (cnt == 10)
+        { 
+            std::cout << BASS_Update(200) << std::endl;
+            std::cout << BASS_ErrorGetCode() << std::endl;
+            cnt = 0;
+        }*/
     }
 
     closesocket(serverSocket);
