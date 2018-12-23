@@ -1,7 +1,7 @@
 import socket
 import sys
 
-HOST = "127.0.0.1"
+HOST = "0.0.0.0"
 PORT = 55556
 
 connected = []
@@ -18,6 +18,8 @@ while True:
         break
     except:
         continue
+
+    print(addr)
 
     # If the sender address isn't a connected client in the server, save it as one
     if b"THIS_IS_PORT_MESSAGE" in data and addr not in connected:
