@@ -20,10 +20,10 @@ while True:
         continue
 
     # If the sender address isn't a connected client in the server, save it as one
-    if addr not in connected:
+    if b"THIS_IS_PORT_MESSAGE" in data and addr not in connected:
         connected.append(addr)
 
     # Send the voice chat to info to each connected client
     for connected_client in connected:
-        if connected_client != addr:
-            voice_socket.sendto(connected_client, data)
+        if connected_client[0] != addr[0]:
+            voice_socket.sendto(data, connected_client)
