@@ -1,18 +1,29 @@
 import socket
 import sys
-import opuslib
 
 HOST = "127.0.0.1"
 PORT = 55556
 
+connected = []
+
 # Create a UDP socket
-listen_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-listen_socket.bind((HOST, PORT))
+voice_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+voice_socket.bind((HOST, PORT))
 
-decoder = opuslib.Decoder(48000, 2)
+while True:
+    try:   
+        # Get from a client voice chat info
+        data, addr = voice_socket.recvfrom(5000)
+    except KeyboardInterrupt:
+        break
+    except:
+        continue
 
-while 1:
-    data, addr = listen_socket.recvfrom(5000)
-    print(data)
-    print(decoder.decode(data, 2880, False))
-    #print(data)
+    # If the sender address isn't a connected client in the server, save it as one
+    if addr not in connected:
+        connected.append(addr)
+
+    # Send the voice chat to info to each connected client
+    for connected_client in connected:
+        if connected_client != addr:
+            voice_socket.sendto(connected_client, data)
