@@ -16,7 +16,7 @@
 
 #define RECORD_FREQUENCY 48000
 #define RECORD_CHANNELS 2
-#define FRAMERATE 960
+#define FRAMERATE 480
 
 using std::cout;
 using std::endl;
@@ -111,13 +111,13 @@ int main()
         alcGetIntegerv(captureDevice, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
 
         //cout << sample << endl;
-        if (sample >= FRAMERATE * RECORD_CHANNELS)
+        if (sample > 0)
         {
             // Get the capture samples
-            alcCaptureSamples(captureDevice, (ALCvoid *)buffer, FRAMERATE * RECORD_CHANNELS);
+            alcCaptureSamples(captureDevice, (ALCvoid *)buffer, sample);
             
             // Encode the captured data
-            dataLen = opus_encode(opusEncoder, (const opus_int16 *)buffer, FRAMERATE, encodedBuffer, sample);
+            dataLen = opus_encode(opusEncoder, (const opus_int16 *)buffer, sample, encodedBuffer, FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16));
             cout << dataLen << endl;
 
             // If the socket is valid, send the encoded data through it
