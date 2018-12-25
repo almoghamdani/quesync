@@ -28,6 +28,7 @@ class VoiceChat
 {
 public:
     VoiceChat(const char *serverIP);
+    ~VoiceChat();
 
 private:
     SOCKET _voiceSocket;

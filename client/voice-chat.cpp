@@ -21,6 +21,13 @@ VoiceChat::VoiceChat(const char *serverIP)
     sendThread.detach();
 }
 
+VoiceChat::~VoiceChat()
+{
+    // Close and free the voice chat socket and set it invalid for the threads to be closed
+    closesocket(_voiceSocket);
+    _voiceSocket = INVALID_SOCKET;
+}
+
 void VoiceChat::receiveVoiceThread() const
 {
     unsigned char buffer[RECV_BUFFER_SIZE] = {0};
@@ -45,8 +52,8 @@ void VoiceChat::receiveVoiceThread() const
     // Start the BASS library
     BASS_ChannelPlay(stream, 0);
 
-    // Infinity thread
-    while (true)
+    // Infinity thread while the socket isn't closed (this class deleted from memory)
+    while (_voiceSocket != INVALID_SOCKET)
     {
         // Get data from client, check if the buffer isn't empty by getting the winsock error
         if ((recvLen = recv(_voiceSocket, (char *)buffer, RECV_BUFFER_SIZE, 0)) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
@@ -93,8 +100,8 @@ void VoiceChat::sendVoiceThread() const
     // Start to capture using the default device
     alcCaptureStart(captureDevice);
 
-    // Infinity thread
-    while (true)
+    // Infinity thread while the socket isn't closed (this class deleted from memory)
+    while (_voiceSocket != INVALID_SOCKET)
     {
         // Get the amount of samples waiting in the device's buffer
         alcGetIntegerv(captureDevice, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
