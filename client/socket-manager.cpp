@@ -4,7 +4,8 @@
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
 
-using std::cout, std::endl;
+using std::cout;
+using std::endl;
 
 void SocketManager::initWinsock()
 {

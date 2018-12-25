@@ -1,6 +1,7 @@
 #include "include/voice-chat.hpp"
 
-using std::cout, std::endl;
+using std::cout;
+using std::endl;
 
 VoiceChat::VoiceChat(const char *serverIP)
 {

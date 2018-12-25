@@ -8,7 +8,7 @@
 #include <opus.h>
 #include <bass.h>
 
-#include "include/socket-manager.hpp"
+#include "socket-manager.hpp"
 
 #define VOICE_CHAT_PORT 61111
 
@@ -29,4 +29,4 @@ private:
 
     void receiveVoiceThread() const;
     void sendVoiceThread() const;
-}
+};

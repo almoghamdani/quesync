@@ -21,4 +21,4 @@ public:
 private:
     std::string _errorMsg;
     int _errorCode;
-}
+};
