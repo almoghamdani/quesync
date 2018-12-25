@@ -11,4 +11,6 @@ class SocketManager
 {
 public:
     static void initWinsock();
+
+    static SOCKET createUDPSocket(const char *ipAddress, const char *port, bool nonBlocking);
 }
