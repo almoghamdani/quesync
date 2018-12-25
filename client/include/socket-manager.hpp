@@ -7,6 +7,8 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
+#include "socket-error.hpp"
+
 class SocketManager
 {
 public:
