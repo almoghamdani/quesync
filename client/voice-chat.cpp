@@ -12,11 +12,11 @@ VoiceChat::VoiceChat(const char *serverIP)
     _voiceSocket = SocketManager::createUDPSocket(serverIP, portStr, true);
     
     // Create the receive voice chat thread and detach it
-    recvThread = std::thread(&VoiceChat::receiveVoiceThread);
+    recvThread = std::thread(&VoiceChat::receiveVoiceThread, this);
     recvThread.detach();
 
     // Create the send voice chat thread and detach it
-    sendThread = std::thread(&VoiceChat::sendVoiceThread);
+    sendThread = std::thread(&VoiceChat::sendVoiceThread, this);
     sendThread.detach();
 }
 
