@@ -24,6 +24,6 @@ public:
 private:
     SOCKET _voiceSocket;
 
-    void receiveVoiceThread();
-    void sendVoiceThread();
+    void receiveVoiceThread() const;
+    void sendVoiceThread() const;
 }
