@@ -1,6 +1,11 @@
 #pragma once
+#include <SDKDDKVer.h>
+#undef _WIN32_WINNT
+#define _WIN32_WINNT _WIN32_WINNT_WINXP // Define min sockets version of Windows XP
+
 #include <iostream>
 #include <string>
+#include <windows.h>
 
 #include <mingw.thread.h>
 #include <al.h>
