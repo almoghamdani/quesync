@@ -49,17 +49,19 @@ void VoiceChat::receiveVoiceThread() const
     while (true)
     {
         // Get data from client, check if the buffer isn't empty by getting the winsock error
-        if ((recvLen = recv(_voiceSocket, (char *)buffer, RECV_BUFFER_SIZE, 0)) == SOCKET_ERROR && ((socketError = WSAGetLastError()) != WSAEWOULDBLOCK))
+        if ((recvLen = recv(_voiceSocket, (char *)buffer, RECV_BUFFER_SIZE, 0)) == SOCKET_ERROR && WSAGetLastError() != 10035)
         {
             std::cout << "Failed to receive data, Error code: " << WSAGetLastError() << ". Skipping.." << std::endl;
             continue;
         }
 
         // If the buffer isn't empty, decode the pcm info and put it in the stream
-        if (recvLen != 0 && socketError != WSAEWOULDBLOCK)
+        if (recvLen > 0)
         {
             // Decode the current sample from the client
             decodedSize = opus_decode(opusDecoder, buffer, recvLen, (opus_int16 *)pcm, FRAMERATE, 0);
+
+            cout << decodedSize << endl;
 
             // Put the decoded pcm data in the stream
             BASS_StreamPutData(stream, pcm, decodedSize * sizeof(opus_int16) * RECORD_CHANNELS);
