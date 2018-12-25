@@ -16,6 +16,8 @@
 #define RECORD_CHANNELS 2
 #define FRAMERATE 960
 
+#define RECV_BUFFER_SIZE 500
+
 class VoiceChat
 {
 public:
