@@ -49,7 +49,7 @@ void VoiceChat::receiveVoiceThread() const
     while (true)
     {
         // Get data from client, check if the buffer isn't empty by getting the winsock error
-        if ((recvLen = recv(_voiceSocket, (char *)buffer, RECV_BUFFER_SIZE, 0)) == SOCKET_ERROR && WSAGetLastError() != 10035)
+        if ((recvLen = recv(_voiceSocket, (char *)buffer, RECV_BUFFER_SIZE, 0)) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
         {
             std::cout << "Failed to receive data, Error code: " << WSAGetLastError() << ". Skipping.." << std::endl;
             continue;
