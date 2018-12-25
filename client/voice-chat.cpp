@@ -65,3 +65,55 @@ void VoiceChat::receiveVoiceThread() const
         }
     }
 }
+
+void VoiceChat::sendVoiceThread() const
+{
+    ALbyte buffer[MAX_FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
+    unsigned char encodedBuffer[FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
+    ALint sample = 0;
+    ALCdevice *captureDevice;
+    int opusError;
+    OpusEncoder *opusEncoder;
+    int dataLen = 0;
+
+    // Create the opus encoder for the recording
+    opusEncoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opusError);
+
+    // Try to open the default capture device
+    captureDevice = alcCaptureOpenDevice(NULL, RECORD_FREQUENCY, AL_FORMAT_STEREO16, FRAMERATE);
+    if (alGetError() != AL_NO_ERROR)
+    {
+        cout << "An error occurred opening default capture device! Exiting.." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Start to capture using the default device
+    alcCaptureStart(captureDevice);
+
+    // Infinity thread
+    while (true)
+    {
+        // Get the amount of samples waiting in the device's buffer
+        alcGetIntegerv(captureDevice, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
+
+        // If there is enough samples to send the server to match the server's framerate, send it
+        if (sample >= FRAMERATE)
+        {
+            // Get the capture samples
+            alcCaptureSamples(captureDevice, (ALCvoid *)buffer, FRAMERATE);
+            
+            // Encode the captured data
+            dataLen = opus_encode(opusEncoder, (const opus_int16 *)buffer, FRAMERATE, encodedBuffer, FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16));
+
+            // If the socket is valid, send the encoded data through it
+            if (_voiceSocket != INVALID_SOCKET)
+            {
+                // Try to send the data
+                if (send(_voiceSocket, (const char *)encodedBuffer, dataLen, 0) == SOCKET_ERROR)
+                {
+                    cout << "Send to server failed, Error code: " << WSAGetLastError() << ". Skipping.." << endl;
+                }
+            }
+        }
+    }
+}
