@@ -61,8 +61,6 @@ void VoiceChat::receiveVoiceThread() const
             // Decode the current sample from the client
             decodedSize = opus_decode(opusDecoder, buffer, recvLen, (opus_int16 *)pcm, FRAMERATE, 0);
 
-            cout << decodedSize << endl;
-
             // Put the decoded pcm data in the stream
             BASS_StreamPutData(stream, pcm, decodedSize * sizeof(opus_int16) * RECORD_CHANNELS);
         }
