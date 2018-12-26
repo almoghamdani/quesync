@@ -19,7 +19,7 @@ void SocketManager::initWinsock()
     cout << "Winsock Initialized!" << endl;
 }
 
-SOCKET SocketManager::createUDPSocket(const char *ipAddress, const char *port, bool nonBlocking)
+SOCKET SocketManager::createSocket(const char *ipAddress, const char *port, bool isTCP, bool nonBlocking)
 {
     SOCKET udpSocket = INVALID_SOCKET;
     int socketError;
@@ -30,8 +30,8 @@ SOCKET SocketManager::createUDPSocket(const char *ipAddress, const char *port, b
     // Zero the memory of the hints address and set the connection type as UDP
     ZeroMemory(&hints, sizeof(hints));
     hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_protocol = IPPROTO_UDP;
+    hints.ai_socktype = isTCP ? SOCK_STREAM : SOCK_DGRAM;
+    hints.ai_protocol = isTCP ? IPPROTO_TCP : IPPROTO_UDP;
 
     // Resolve the server address and port, if failed throw exception
     if ((socketError = getaddrinfo(ipAddress, port, &hints, &result)) != 0) {
