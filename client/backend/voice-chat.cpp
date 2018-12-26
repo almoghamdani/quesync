@@ -10,7 +10,7 @@ VoiceChat::VoiceChat(const char *serverIP)
 
     // * Create the UDP socket for communication with the voice chat server, a non-blocking port
     cout << "Initalizing voice chat socket" << endl;
-    _voiceSocket = SocketManager::createUDPSocket(serverIP, portStr, true);
+    _voiceSocket = SocketManager::createSocket(serverIP, portStr, false, true);
     
     // Create the receive voice chat thread and detach it
     recvThread = std::thread(&VoiceChat::receiveVoiceThread, this);
@@ -67,8 +67,6 @@ void VoiceChat::receiveVoiceThread() const
         {
             // Decode the current sample from the client
             decodedSize = opus_decode(opusDecoder, buffer, recvLen, (opus_int16 *)pcm, FRAMERATE, 0);
-
-            cout << decodedSize << endl;
 
             // Put the decoded pcm data in the stream
             BASS_StreamPutData(stream, pcm, decodedSize * sizeof(opus_int16) * RECORD_CHANNELS);
