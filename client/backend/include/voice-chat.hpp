@@ -3,17 +3,17 @@
 #undef _WIN32_WINNT
 #define _WIN32_WINNT _WIN32_WINNT_WINXP // Define min sockets version of Windows XP
 
+#include "socket-manager.hpp"
+
 #include <iostream>
 #include <string>
 #include <windows.h>
 
-#include <mingw.thread.h>
+#include <thread>
 #include <al.h>
 #include <alc.h>
 #include <opus.h>
 #include <bass.h>
-
-#include "socket-manager.hpp"
 
 #define VOICE_CHAT_PORT 61111
 
