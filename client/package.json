@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://gitlab.com/almogh52/quesync/issues"
   },
-  "homepage": "https://gitlab.com/almogh52/quesync#readme"
+  "homepage": "https://gitlab.com/almogh52/quesync#readme",
+  "dependencies": {
+    "node-gyp": "^3.8.0"
+  }
 }
