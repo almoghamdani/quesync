@@ -3,7 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "C:/Users/Almog/.node-gyp/10.14.2/include/node"
             ],
             "defines": [
                 "_DEBUG",
