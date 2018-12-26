@@ -4,8 +4,8 @@
       "target_name": "hello",
       "sources": [ 
         "backend/hello.cc", 
-        "backend/socket-manager.cpp", 
-        "backend/voice-chat.cpp", 
+        "backend/socket-manager.cc", 
+        "backend/voice-chat.cc", 
         "backend/include/socket-manager.hpp",
         "backend/include/socket-error.hpp",
         "backend/include/voice-chat.hpp" ],
