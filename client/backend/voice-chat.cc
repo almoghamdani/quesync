@@ -9,13 +9,13 @@ VoiceChat::VoiceChat(const char *serverIP)
 
     // * Create the UDP socket for communication with the voice chat server, a non-blocking port
     cout << "Initalizing voice chat socket" << endl;
-    _voiceSocket = SocketManager::createSocket(serverIP, portStr, false, true);
+    _voiceSocket = SocketManager::createSocket(serverIP, portStr, false, false);
     
     // Create the receive voice chat thread
-    uv_thread_create(&_recvThread, (uv_thread_cb)&VoiceChat::receiveVoiceThread, &_voiceSocket);
+    uv_thread_create(&_recvThread, (uv_thread_cb)&VoiceChat::receiveVoiceThread, this);
 
     // Create the send voice chat thread
-    uv_thread_create(&_sendThread, (uv_thread_cb)&VoiceChat::sendVoiceThread, &_voiceSocket);
+    uv_thread_create(&_sendThread, (uv_thread_cb)&VoiceChat::sendVoiceThread, this);
 }
 
 VoiceChat::~VoiceChat()
@@ -25,7 +25,7 @@ VoiceChat::~VoiceChat()
     _voiceSocket = INVALID_SOCKET;
 }
 
-void VoiceChat::receiveVoiceThread(SOCKET *voiceSocket)
+void VoiceChat::receiveVoiceThread(VoiceChat *voiceChat)
 {
     unsigned char buffer[RECV_BUFFER_SIZE] = {0};
     opus_int16 pcm[FRAMERATE * RECORD_CHANNELS] = {0};
@@ -50,14 +50,16 @@ void VoiceChat::receiveVoiceThread(SOCKET *voiceSocket)
     BASS_ChannelPlay(stream, 0);
 
     // Infinity thread while the socket isn't closed (this class deleted from memory)
-    while (*voiceSocket != INVALID_SOCKET)
+    while (voiceChat->_voiceSocket != INVALID_SOCKET)
     {
         // Get data from client, check if the buffer isn't empty by getting the winsock error
-        if ((recvLen = recv(*voiceSocket, (char *)buffer, RECV_BUFFER_SIZE, 0)) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
+        if ((recvLen = recv(voiceChat->_voiceSocket, (char *)buffer, RECV_BUFFER_SIZE, 0)) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
         {
             std::cout << "Failed to receive data, Error code: " << WSAGetLastError() << ". Skipping.." << std::endl;
             continue;
         }
+
+        cout << recvLen << endl;
 
         // If the buffer isn't empty, decode the pcm info and put it in the stream
         if (recvLen > 0)
@@ -71,7 +73,7 @@ void VoiceChat::receiveVoiceThread(SOCKET *voiceSocket)
     }
 }
 
-void VoiceChat::sendVoiceThread(SOCKET *voiceSocket)
+void VoiceChat::sendVoiceThread(VoiceChat *voiceChat)
 {
     ALbyte buffer[MAX_FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
     unsigned char encodedBuffer[FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
@@ -96,7 +98,7 @@ void VoiceChat::sendVoiceThread(SOCKET *voiceSocket)
     alcCaptureStart(captureDevice);
 
     // Infinity thread while the socket isn't closed (this class deleted from memory)
-    while (*voiceSocket != INVALID_SOCKET)
+    while (voiceChat->_voiceSocket != INVALID_SOCKET)
     {
         // Get the amount of samples waiting in the device's buffer
         alcGetIntegerv(captureDevice, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
@@ -111,10 +113,10 @@ void VoiceChat::sendVoiceThread(SOCKET *voiceSocket)
             dataLen = opus_encode(opusEncoder, (const opus_int16 *)buffer, FRAMERATE, encodedBuffer, FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16));
 
             // If the socket is valid, send the encoded data through it
-            if (*voiceSocket != INVALID_SOCKET)
+            if (voiceChat->_voiceSocket != INVALID_SOCKET)
             {
                 // Try to send the data
-                if (send(*voiceSocket, (const char *)encodedBuffer, dataLen, 0) == SOCKET_ERROR)
+                if (send(voiceChat->_voiceSocket, (const char *)encodedBuffer, dataLen, 0) == SOCKET_ERROR)
                 {
                     cout << "Send to server failed, Error code: " << WSAGetLastError() << ". Skipping.." << endl;
                 }

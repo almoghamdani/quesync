@@ -35,6 +35,6 @@ private:
 
     uv_thread_t _recvThread, _sendThread;
 
-    static void receiveVoiceThread(SOCKET *voiceSocket);
-    static void sendVoiceThread(SOCKET *voiceSocket);
+    static void receiveVoiceThread(VoiceChat *voiceChat);
+    static void sendVoiceThread(VoiceChat *voiceChat);
 };
