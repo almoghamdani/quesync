@@ -28,7 +28,7 @@ VoiceChat::~VoiceChat()
     _voiceSocket = INVALID_SOCKET;
 }
 
-void VoiceChat::receiveVoiceThread() const
+void VoiceChat::receiveVoiceThread(SOCKET *voiceSocket)
 {
     unsigned char buffer[RECV_BUFFER_SIZE] = {0};
     opus_int16 pcm[FRAMERATE * RECORD_CHANNELS] = {0};
@@ -53,10 +53,10 @@ void VoiceChat::receiveVoiceThread() const
     BASS_ChannelPlay(stream, 0);
 
     // Infinity thread while the socket isn't closed (this class deleted from memory)
-    while (_voiceSocket != INVALID_SOCKET)
+    while (*voiceSocket != INVALID_SOCKET)
     {
         // Get data from client, check if the buffer isn't empty by getting the winsock error
-        if ((recvLen = recv(_voiceSocket, (char *)buffer, RECV_BUFFER_SIZE, 0)) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
+        if ((recvLen = recv(*voiceSocket, (char *)buffer, RECV_BUFFER_SIZE, 0)) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)
         {
             std::cout << "Failed to receive data, Error code: " << WSAGetLastError() << ". Skipping.." << std::endl;
             continue;
@@ -74,7 +74,7 @@ void VoiceChat::receiveVoiceThread() const
     }
 }
 
-void VoiceChat::sendVoiceThread() const
+void VoiceChat::sendVoiceThread(SOCKET *voiceSocket)
 {
     ALbyte buffer[MAX_FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
     unsigned char encodedBuffer[FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
@@ -99,7 +99,7 @@ void VoiceChat::sendVoiceThread() const
     alcCaptureStart(captureDevice);
 
     // Infinity thread while the socket isn't closed (this class deleted from memory)
-    while (_voiceSocket != INVALID_SOCKET)
+    while (*voiceSocket != INVALID_SOCKET)
     {
         // Get the amount of samples waiting in the device's buffer
         alcGetIntegerv(captureDevice, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
@@ -114,10 +114,10 @@ void VoiceChat::sendVoiceThread() const
             dataLen = opus_encode(opusEncoder, (const opus_int16 *)buffer, FRAMERATE, encodedBuffer, FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16));
 
             // If the socket is valid, send the encoded data through it
-            if (_voiceSocket != INVALID_SOCKET)
+            if (*voiceSocket != INVALID_SOCKET)
             {
                 // Try to send the data
-                if (send(_voiceSocket, (const char *)encodedBuffer, dataLen, 0) == SOCKET_ERROR)
+                if (send(*voiceSocket, (const char *)encodedBuffer, dataLen, 0) == SOCKET_ERROR)
                 {
                     cout << "Send to server failed, Error code: " << WSAGetLastError() << ". Skipping.." << endl;
                 }

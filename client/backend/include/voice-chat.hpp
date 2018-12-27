@@ -33,6 +33,6 @@ public:
 private:
     SOCKET _voiceSocket;
 
-    void receiveVoiceThread() const;
-    void sendVoiceThread() const;
+    static void receiveVoiceThread(SOCKET *voiceSocket);
+    static void sendVoiceThread(SOCKET *voiceSocket);
 };
