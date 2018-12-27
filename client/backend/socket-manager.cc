@@ -9,6 +9,12 @@ using std::endl;
 
 static uv_loop_t *eventLoop;
 
+void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
+{
+    buf->base = (char *)malloc(suggested_size);
+    buf->len = suggested_size;
+}
+
 void SocketManager::initWinsock()
 {
     WSADATA wsaData;
@@ -19,6 +25,18 @@ void SocketManager::initWinsock()
         throw SocketError("WSAStartup failed", WSAGetLastError());
     }
     cout << "Winsock Initialized!" << endl;
+}
+
+void SocketManager::InitReadFunction(uv_udp_t socket, uv_udp_recv_cb readFunction)
+{
+    int socketError = 0;
+
+    // Start receiving on the socket and setting the callback function as the read function
+    if((socketError = uv_udp_recv_start(&socket, alloc_buffer, readFunction)))
+    {
+        throw SocketError("Unable to open the stream for receiving!", socketError);
+    }
+    cout << "Receiving on socket enabled!" << endl;
 }
 
 void SocketManager::InitSocketManager()

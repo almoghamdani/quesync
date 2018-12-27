@@ -19,4 +19,5 @@ public:
 
     static SOCKET createSocket(const char *ipAddress, const char *port, bool isTCP, bool nonBlocking);
     static uv_udp_t createUDPSocket();
+    static void InitReadFunction(uv_udp_t socket, uv_udp_recv_cb readFunction);
 };
