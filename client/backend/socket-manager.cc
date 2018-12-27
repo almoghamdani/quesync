@@ -7,6 +7,8 @@
 using std::cout;
 using std::endl;
 
+static uv_loop_t *eventLoop;
+
 void SocketManager::initWinsock()
 {
     WSADATA wsaData;
@@ -17,6 +19,42 @@ void SocketManager::initWinsock()
         throw SocketError("WSAStartup failed", WSAGetLastError());
     }
     cout << "Winsock Initialized!" << endl;
+}
+
+void SocketManager::InitSocketManager()
+{
+    int socketError = 0;
+
+    // Setting the event loop as the default event loop and starting it
+    eventLoop = uv_default_loop();
+    cout << "Event loop Initialized!" << endl;
+
+    // Try to start the event loop
+    if((socketError = uv_run(eventLoop, UV_RUN_DEFAULT)))
+    {
+        throw SocketError("Unable to start event loop!", socketError);
+    }
+    cout << "Event loop Started!" << endl;
+}
+
+uv_udp_t SocketManager::createUDPSocket()
+{
+    int socketError = 0;
+    uv_udp_t udpSocket;
+    struct sockaddr_in addr;
+
+    // Initialize the socket
+    cout << "Initializing UDP socket.." << endl;
+    if((socketError = uv_udp_init(eventLoop, &udpSocket))) {
+        throw SocketError("Unable to initiate UDP socket!", socketError);
+    }
+    cout << "UDP Socket successfully initialized!" << endl;
+
+    // Bind the socket to listen on all incoming traffic with a random port (port 0 generates a random port)
+    uv_ip4_addr("0.0.0.0", 0, (sockaddr_in *)&addr);
+    uv_udp_bind(&udpSocket, (const struct sockaddr *)&addr, 0);
+
+    return udpSocket;
 }
 
 SOCKET SocketManager::createSocket(const char *ipAddress, const char *port, bool isTCP, bool nonBlocking)

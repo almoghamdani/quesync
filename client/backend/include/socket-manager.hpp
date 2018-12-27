@@ -7,13 +7,16 @@
 #include <WinSock2.h>
 #include <ws2def.h>
 #include <ws2tcpip.h>
+#include <uv.h>
 
 #include "socket-error.hpp"
 
 class SocketManager
 {
 public:
+    static void InitSocketManager();
     static void initWinsock();
 
     static SOCKET createSocket(const char *ipAddress, const char *port, bool isTCP, bool nonBlocking);
+    static uv_udp_t createUDPSocket();
 };
