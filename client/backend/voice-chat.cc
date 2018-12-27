@@ -5,20 +5,17 @@ using std::endl;
 
 VoiceChat::VoiceChat(const char *serverIP)
 {
-    std::thread recvThread, sendThread;
     const char *portStr = std::to_string(VOICE_CHAT_PORT).c_str();
 
     // * Create the UDP socket for communication with the voice chat server, a non-blocking port
     cout << "Initalizing voice chat socket" << endl;
     _voiceSocket = SocketManager::createSocket(serverIP, portStr, false, true);
     
-    // Create the receive voice chat thread and detach it
-    recvThread = std::thread(&VoiceChat::receiveVoiceThread, this);
-    recvThread.detach();
+    // Create the receive voice chat thread
+    uv_thread_create(&_recvThread, (uv_thread_cb)&VoiceChat::receiveVoiceThread, &_voiceSocket);
 
-    // Create the send voice chat thread and detach it
-    sendThread = std::thread(&VoiceChat::sendVoiceThread, this);
-    sendThread.detach();
+    // Create the send voice chat thread
+    uv_thread_create(&_sendThread, (uv_thread_cb)&VoiceChat::sendVoiceThread, &_voiceSocket);
 }
 
 VoiceChat::~VoiceChat()

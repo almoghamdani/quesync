@@ -8,8 +8,8 @@
 #include <iostream>
 #include <string>
 #include <windows.h>
+#include <uv.h>
 
-#include <thread>
 #include <al.h>
 #include <alc.h>
 #include <opus.h>
@@ -32,6 +32,8 @@ public:
 
 private:
     SOCKET _voiceSocket;
+
+    uv_thread_t _recvThread, _sendThread;
 
     static void receiveVoiceThread(SOCKET *voiceSocket);
     static void sendVoiceThread(SOCKET *voiceSocket);
