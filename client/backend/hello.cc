@@ -4,12 +4,6 @@
 #include "include/socket-manager.hpp"
 #include "include/voice-chat.hpp"
 
-void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
-{
-    buf->base = (char *)malloc(suggested_size);
-    buf->len = suggested_size;
-}
-
 void on_read(uv_udp_t* handle, ssize_t nread, const uv_buf_t* buf, const struct sockaddr* addr, unsigned flags) {
   std::cout << "Yovel tembel" << std::endl;
     
@@ -41,9 +35,10 @@ napi_value Method(napi_env env, napi_callback_info args) {
 
   //SocketManager::initWinsock();
 
-  //voiceChatManager = new VoiceChat("127.0.0.1");
+  SocketManager::InitSocketManager();
+  voiceChatManager = new VoiceChat("127.0.0.1");
 
-  std::cout << napi_get_uv_event_loop(env, &loop) << std::endl;
+  /*std::cout << napi_get_uv_event_loop(env, &loop) << std::endl;
 
   uv_udp_init(loop, &socket);
 
@@ -64,7 +59,7 @@ napi_value Method(napi_env env, napi_callback_info args) {
 
   std::cout << uv_udp_recv_start(&socket, alloc_buffer, on_read) << std::endl;
 
-  uv_run(loop, UV_RUN_DEFAULT);
+  uv_run(loop, UV_RUN_DEFAULT);*/
 
   status = napi_create_string_utf8(env, "hello", NAPI_AUTO_LENGTH, &greeting);
   if (status != napi_ok) return nullptr;
