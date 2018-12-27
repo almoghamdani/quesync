@@ -1,14 +1,19 @@
 // hello.cc using N-API
 #include <iostream>
 #include <node_api.h>
+#include "include/socket-manager.hpp"
+#include "include/voice-chat.hpp"
 
 namespace demo {
 
 napi_value Method(napi_env env, napi_callback_info args) {
   napi_value greeting;
   napi_status status;
+  VoiceChat *voiceChatManager;
 
-  std::cout << "Sima" << std::endl;
+  SocketManager::initWinsock();
+
+  voiceChatManager = new VoiceChat("127.0.0.1");
 
   status = napi_create_string_utf8(env, "hello", NAPI_AUTO_LENGTH, &greeting);
   if (status != napi_ok) return nullptr;
