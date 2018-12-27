@@ -10,9 +10,6 @@ VoiceChat::VoiceChat(const char *serverIP)
     // * Create the UDP socket for communication with the voice chat server, a non-blocking port
     cout << "Initalizing voice chat socket" << endl;
     _voiceSocket = SocketManager::createSocket(serverIP, portStr, false, false);
-    
-    // Create the receive voice chat thread
-    uv_thread_create(&_recvThread, (uv_thread_cb)&VoiceChat::receiveVoiceThread, this);
 
     // Create the send voice chat thread
     uv_thread_create(&_sendThread, (uv_thread_cb)&VoiceChat::sendVoiceThread, this);

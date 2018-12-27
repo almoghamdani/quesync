@@ -33,7 +33,7 @@ public:
 private:
     SOCKET _voiceSocket;
 
-    uv_thread_t _recvThread, _sendThread;
+    uv_thread_t _sendThread;
 
     static void receiveVoiceThread(VoiceChat *voiceChat);
     static void sendVoiceThread(VoiceChat *voiceChat);
