@@ -21,7 +21,6 @@
         'libraries': [
           '-lopus',
           '-lbass',
-          '-lws2_32',
           '-lOpenAL32'
         ],
         'library_dirs': [
