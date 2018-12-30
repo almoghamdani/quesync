@@ -31,10 +31,11 @@ public:
     ~VoiceChat();
 
 private:
-    uv_udp_t _voiceSocket;
-
+    uv_udp_t _sendSocket, _recvSocket;
     uv_thread_t _sendThread;
 
-    static void receiveVoiceThread(VoiceChat *voiceChat);
+    void InitVoiceStreeam();
+
+    static void receiveVoiceThread(uv_udp_t* handle, ssize_t nread, const uv_buf_t* buf, const struct sockaddr* addr, unsigned flags);
     static void sendVoiceThread(VoiceChat *voiceChat);
 };
