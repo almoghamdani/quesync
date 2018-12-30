@@ -4,7 +4,7 @@
   "description": "VoIP application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node-gyp --python C:/Python27 configure build"
   },
   "repository": {
     "type": "git",
