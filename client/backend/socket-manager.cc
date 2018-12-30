@@ -7,8 +7,6 @@ static uv_loop_t *eventLoop;
 
 void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
 {
-    std::cout << "IDK" << std::endl;
-
     buf->base = (char *)malloc(suggested_size);
     buf->len = suggested_size;
 }
@@ -48,7 +46,7 @@ void SocketManager::InitReadFunction(uv_udp_t *socket, uv_udp_recv_cb readFuncti
     cout << "Receiving on socket enabled!" << endl;
 }
 
-void SocketManager::createUDPSocket(uv_udp_t *socket)
+void SocketManager::CreateUDPSocket(uv_udp_t *socket)
 {
     int socketError = 0;
     struct sockaddr_in addr;
