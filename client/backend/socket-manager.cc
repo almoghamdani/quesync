@@ -29,12 +29,12 @@ void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf)
     buf->len = suggested_size;
 }
 
-void SocketManager::InitReadFunction(uv_udp_t socket, uv_udp_recv_cb readFunction)
+void SocketManager::InitReadFunction(uv_udp_t *socket, uv_udp_recv_cb readFunction)
 {
     int socketError = 0;
 
     // Start receiving on the socket and setting the callback function as the read function
-    if((socketError = uv_udp_recv_start(&socket, alloc_buffer, readFunction)))
+    if((socketError = uv_udp_recv_start(socket, alloc_buffer, readFunction)))
     {
         throw SocketError("Unable to open the stream for receiving!", socketError);
     }
@@ -47,7 +47,7 @@ void runLoop(uv_loop_t *loop)
     while (true)
     {
         // Run the event loop in it's default mode and print loop error code
-        cout << "Event loop started, error code: " << uv_run(loop, UV_RUN_DEFAULT) << "\n";
+        /*cout << "Event loop started, error code: " <<*/ uv_run(loop, UV_RUN_DEFAULT) /*<< "\n"*/;
     }
 }
 
@@ -81,7 +81,7 @@ void SocketManager::createUDPSocket(uv_udp_t *sendSocket, uv_udp_t *recvSocket)
 
     // Bind the socket to a random port (port 0 generates a random port)
     uv_ip4_addr("0.0.0.0", 0, (sockaddr_in *)&addr);
-    uv_udp_bind(sendSocket, (const struct sockaddr *)&addr, 0);
+    uv_udp_bind(sendSocket, (const struct sockaddr *)&addr, UV_UDP_REUSEADDR);
 
     // If a receive socket was requested, initialize
     if (recvSocket)
@@ -92,7 +92,7 @@ void SocketManager::createUDPSocket(uv_udp_t *sendSocket, uv_udp_t *recvSocket)
         }
 
         cout << uv_udp_getsockname(sendSocket, (sockaddr *)&idk, &addrLen) << endl;
-        cout << idk.sin_port << endl;
+        cout << ntohs(idk.sin_port) << endl;
 
         // Bind the socket to listen on all incoming traffic with the send port
         cout << uv_udp_bind(recvSocket, (const struct sockaddr *)&idk, UV_UDP_REUSEADDR) << endl;
