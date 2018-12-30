@@ -21,7 +21,15 @@ void SocketManager::initWinsock()
     cout << "Winsock Initialized!" << endl;
 }
 
-/*void SocketManager::InitReadFunction(uv_udp_t socket, uv_udp_recv_cb readFunction)
+void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
+{
+    std::cout << "IDK" << std::endl;
+
+    buf->base = (char *)malloc(suggested_size);
+    buf->len = suggested_size;
+}
+
+void SocketManager::InitReadFunction(uv_udp_t socket, uv_udp_recv_cb readFunction)
 {
     int socketError = 0;
 
@@ -31,7 +39,7 @@ void SocketManager::initWinsock()
         throw SocketError("Unable to open the stream for receiving!", socketError);
     }
     cout << "Receiving on socket enabled!" << endl;
-}*/
+}
 
 void runLoop(uv_loop_t *loop)
 {
