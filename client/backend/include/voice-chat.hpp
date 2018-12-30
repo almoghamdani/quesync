@@ -31,7 +31,7 @@ public:
     ~VoiceChat();
 
 private:
-    uv_udp_t _sendSocket, _recvSocket;
+    uv_udp_t _socket;
     uv_thread_t _sendThread;
 
     void InitVoiceStreeam();

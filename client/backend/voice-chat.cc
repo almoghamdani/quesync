@@ -10,10 +10,10 @@ VoiceChat::VoiceChat(const char *serverIP)
 {
     // * Create the UDP socket for communication with the voice chat server, a non-blocking port
     cout << "Initalizing voice chat socket" << endl;
-    SocketManager::createUDPSocket(&_sendSocket, &_recvSocket);
+    SocketManager::createUDPSocket(&_socket);
 
     InitVoiceStreeam();
-    SocketManager::InitReadFunction(&_sendSocket, receiveVoiceThread);
+    SocketManager::InitReadFunction(&_socket, receiveVoiceThread);
 
     // Create the send voice chat thread
     uv_thread_create(&_sendThread, (uv_thread_cb)&VoiceChat::sendVoiceThread, this);
@@ -113,7 +113,7 @@ void VoiceChat::sendVoiceThread(VoiceChat *voiceChat)
             socketBuffer.len = dataLen;
 
             // Try to send the data
-            if (uv_udp_send(&send_req, &voiceChat->_sendSocket, &socketBuffer, 1, (const sockaddr *)&server_addr, NULL))
+            if (uv_udp_send(&send_req, &voiceChat->_socket, &socketBuffer, 1, (const sockaddr *)&server_addr, NULL))
             {
                 cout << "Send to server failed, Error code: " << WSAGetLastError() << ". Skipping.." << endl;
             }
