@@ -9,12 +9,6 @@ using std::endl;
 
 static uv_loop_t *eventLoop;
 
-void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
-{
-    buf->base = (char *)malloc(suggested_size);
-    buf->len = suggested_size;
-}
-
 void SocketManager::initWinsock()
 {
     WSADATA wsaData;
@@ -27,7 +21,7 @@ void SocketManager::initWinsock()
     cout << "Winsock Initialized!" << endl;
 }
 
-void SocketManager::InitReadFunction(uv_udp_t socket, uv_udp_recv_cb readFunction)
+/*void SocketManager::InitReadFunction(uv_udp_t socket, uv_udp_recv_cb readFunction)
 {
     int socketError = 0;
 
@@ -37,7 +31,7 @@ void SocketManager::InitReadFunction(uv_udp_t socket, uv_udp_recv_cb readFunctio
         throw SocketError("Unable to open the stream for receiving!", socketError);
     }
     cout << "Receiving on socket enabled!" << endl;
-}
+}*/
 
 void SocketManager::InitSocketManager()
 {
@@ -55,24 +49,44 @@ void SocketManager::InitSocketManager()
     cout << "Event loop Started!" << endl;
 }
 
-uv_udp_t SocketManager::createUDPSocket()
+void SocketManager::createUDPSocket(uv_udp_t *sendSocket, uv_udp_t *recvSocket)
 {
     int socketError = 0;
-    uv_udp_t udpSocket;
     struct sockaddr_in addr;
+    struct sockaddr_in idk;
+    int addrLen = sizeof(idk);
+    uv_udp_send_t send_req;
+    char *tryingData = "TRYING";
+    uv_buf_t buf;
 
-    // Initialize the socket
+    buf.base = tryingData;
+    buf.len = 7;
+
+    // Initialize the send socket
     cout << "Initializing UDP socket.." << endl;
-    if((socketError = uv_udp_init(eventLoop, &udpSocket))) {
-        throw SocketError("Unable to initiate UDP socket!", socketError);
+    if((socketError = uv_udp_init(eventLoop, sendSocket))) {
+        throw SocketError("Unable to initiate UDP Send socket!", socketError);
     }
     cout << "UDP Socket successfully initialized!" << endl;
 
-    // Bind the socket to listen on all incoming traffic with a random port (port 0 generates a random port)
+    // Bind the socket to a random port (port 0 generates a random port)
     uv_ip4_addr("0.0.0.0", 0, (sockaddr_in *)&addr);
-    uv_udp_bind(&udpSocket, (const struct sockaddr *)&addr, 0);
+    uv_udp_bind(sendSocket, (const struct sockaddr *)&addr, 0);
 
-    return udpSocket;
+    // If a receive socket was requested, initialize
+    if (recvSocket)
+    {
+        // Initialize the receive socket
+        if((socketError = uv_udp_init(eventLoop, recvSocket))) {
+            throw SocketError("Unable to initiate UDP Receive socket!", socketError);
+        }
+
+        cout << uv_udp_getsockname(sendSocket, (sockaddr *)&idk, &addrLen) << endl;
+        cout << idk.sin_port << endl;
+
+        // Bind the socket to listen on all incoming traffic with the send port
+        cout << uv_udp_bind(recvSocket, (const struct sockaddr *)&idk, UV_UDP_REUSEADDR) << endl;
+    }
 }
 
 SOCKET SocketManager::createSocket(const char *ipAddress, const char *port, bool isTCP, bool nonBlocking)
