@@ -48,8 +48,6 @@ void VoiceChat::receiveVoiceThread(uv_udp_t* handle, ssize_t nread, const uv_buf
     static opus_int16 pcm[FRAMERATE * RECORD_CHANNELS] = {0};
     static int decodedSize = 0;
 
-    cout << "IDK" << endl;
-
     // If the buffer isn't empty, decode the pcm info and put it in the stream
     if (nread > 0)
     {
