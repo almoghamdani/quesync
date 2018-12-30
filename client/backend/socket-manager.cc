@@ -68,7 +68,6 @@ void SocketManager::createUDPSocket(uv_udp_t *socket)
 {
     int socketError = 0;
     struct sockaddr_in addr;
-    uv_udp_send_t send_req;
 
     // Initialize the send socket
     cout << "Initializing UDP socket.." << endl;
