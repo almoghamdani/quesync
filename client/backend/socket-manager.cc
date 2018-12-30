@@ -64,39 +64,22 @@ void SocketManager::InitSocketManager()
     uv_thread_create(&loopThread, (uv_thread_cb)runLoop, eventLoop);
 }
 
-void SocketManager::createUDPSocket(uv_udp_t *sendSocket, uv_udp_t *recvSocket)
+void SocketManager::createUDPSocket(uv_udp_t *socket)
 {
     int socketError = 0;
     struct sockaddr_in addr;
-    struct sockaddr_in idk;
-    int addrLen = sizeof(idk);
     uv_udp_send_t send_req;
 
     // Initialize the send socket
     cout << "Initializing UDP socket.." << endl;
-    if((socketError = uv_udp_init(eventLoop, sendSocket))) {
+    if((socketError = uv_udp_init(eventLoop, socket))) {
         throw SocketError("Unable to initiate UDP Send socket!", socketError);
     }
     cout << "UDP Socket successfully initialized!" << endl;
 
     // Bind the socket to a random port (port 0 generates a random port)
     uv_ip4_addr("0.0.0.0", 0, (sockaddr_in *)&addr);
-    uv_udp_bind(sendSocket, (const struct sockaddr *)&addr, UV_UDP_REUSEADDR);
-
-    // If a receive socket was requested, initialize
-    if (recvSocket)
-    {
-        // Initialize the receive socket
-        if((socketError = uv_udp_init(eventLoop, recvSocket))) {
-            throw SocketError("Unable to initiate UDP Receive socket!", socketError);
-        }
-
-        cout << uv_udp_getsockname(sendSocket, (sockaddr *)&idk, &addrLen) << endl;
-        cout << ntohs(idk.sin_port) << endl;
-
-        // Bind the socket to listen on all incoming traffic with the send port
-        cout << uv_udp_bind(recvSocket, (const struct sockaddr *)&idk, UV_UDP_REUSEADDR) << endl;
-    }
+    uv_udp_bind(socket, (const struct sockaddr *)&addr, 0);
 }
 
 SOCKET SocketManager::createSocket(const char *ipAddress, const char *port, bool isTCP, bool nonBlocking)
