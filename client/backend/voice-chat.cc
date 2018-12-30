@@ -113,7 +113,7 @@ void VoiceChat::sendVoiceThread(VoiceChat *voiceChat)
             // Try to send the data
             if (uv_udp_send(&send_req, &voiceChat->_socket, &socketBuffer, 1, (const sockaddr *)&server_addr, NULL))
             {
-                cout << "Send to server failed, Error code: " << WSAGetLastError() << ". Skipping.." << endl;
+                cout << "Send to server failed. Skipping.." << endl;
             }
         }
     }
