@@ -33,20 +33,27 @@ void SocketManager::initWinsock()
     cout << "Receiving on socket enabled!" << endl;
 }*/
 
+void runLoop(uv_loop_t *loop)
+{
+    // Run the loop infinity times until the thread is closed
+    while (true)
+    {
+        // Run the event loop in it's default mode and print loop error code
+        cout << "Event loop started, error code: " << uv_run(loop, UV_RUN_DEFAULT) << "\n";
+    }
+}
+
 void SocketManager::InitSocketManager()
 {
     int socketError = 0;
+    uv_thread_t loopThread;
 
     // Setting the event loop as the default event loop and starting it
     eventLoop = uv_default_loop();
     cout << "Event loop Initialized!" << endl;
 
-    // Try to start the event loop
-    if((socketError = uv_run(eventLoop, UV_RUN_DEFAULT)))
-    {
-        throw SocketError("Unable to start event loop!", socketError);
-    }
-    cout << "Event loop Started!" << endl;
+    // Create a thread that will run the event loop
+    uv_thread_create(&loopThread, (uv_thread_cb)runLoop, eventLoop);
 }
 
 void SocketManager::createUDPSocket(uv_udp_t *sendSocket, uv_udp_t *recvSocket)
@@ -56,11 +63,6 @@ void SocketManager::createUDPSocket(uv_udp_t *sendSocket, uv_udp_t *recvSocket)
     struct sockaddr_in idk;
     int addrLen = sizeof(idk);
     uv_udp_send_t send_req;
-    char *tryingData = "TRYING";
-    uv_buf_t buf;
-
-    buf.base = tryingData;
-    buf.len = 7;
 
     // Initialize the send socket
     cout << "Initializing UDP socket.." << endl;
