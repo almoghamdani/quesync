@@ -1,36 +1,19 @@
-// hello.cc using N-API
-#include <iostream>
-#include <node_api.h>
+#include <nan.h>
 #include "include/socket-manager.hpp"
 #include "include/voice-chat.hpp"
 
-namespace demo {
-
-napi_value Method(napi_env env, napi_callback_info args) {
-  napi_value greeting;
-  napi_status status;
+void Method(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   VoiceChat *voiceChatManager;
 
   SocketManager::InitSocketManager();
   voiceChatManager = new VoiceChat("127.0.0.1");
 
-  status = napi_create_string_utf8(env, "hello", NAPI_AUTO_LENGTH, &greeting);
-  if (status != napi_ok) return nullptr;
-  return greeting;
+  info.GetReturnValue().Set(Nan::New("world").ToLocalChecked());
 }
 
-napi_value init(napi_env env, napi_value exports) {
-  napi_status status;
-  napi_value fn;
-
-  status = napi_create_function(env, nullptr, 0, Method, nullptr, &fn);
-  if (status != napi_ok) return nullptr;
-
-  status = napi_set_named_property(env, exports, "hello", fn);
-  if (status != napi_ok) return nullptr;
-  return exports;
+void Init(v8::Local<v8::Object> exports) {
+  exports->Set(Nan::New("hello").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(Method)->GetFunction());
 }
 
-NAPI_MODULE(NODE_GYP_MODULE_NAME, init)
-
-}  // namespace demo
+NODE_MODULE(hello, Init)

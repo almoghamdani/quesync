@@ -9,7 +9,10 @@
         "backend/include/socket-manager.hpp",
         "backend/include/socket-error.hpp",
         "backend/include/voice-chat.hpp" ],
-      "include_dirs": [ "../include" ],
+      "include_dirs": [ 
+        "../include",
+        "<!(node -e \"require('nan')\")"
+      ],
       "cflags": [
         "-std=c++17",
         "-stdlib=libc++",

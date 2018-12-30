@@ -17,6 +17,7 @@
   },
   "homepage": "https://gitlab.com/almogh52/quesync#readme",
   "dependencies": {
+    "nan": "^2.12.1",
     "node-gyp": "^3.8.0"
   }
 }
