@@ -5,10 +5,12 @@
       "sources": [ 
         "backend/hello.cc", 
         "backend/socket-manager.cc", 
-        "backend/voice-chat.cc", 
+        "backend/voice-chat.cc",
+        "backend/client.cc",
         "backend/include/socket-manager.hpp",
         "backend/include/socket-error.hpp",
-        "backend/include/voice-chat.hpp" ],
+        "backend/include/voice-chat.hpp",
+        "backend/include/client.hpp" ],
       "include_dirs": [ 
         "../include",
         "<!(node -e \"require('nan')\")"

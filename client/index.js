@@ -1,6 +1,7 @@
 hello = require("./build/Release/hello.node")
 
-hello.hello()
+smth = hello.Client
+console.log(smth)
 
 while (true)
 {

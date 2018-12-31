@@ -1,19 +1,21 @@
 #include <nan.h>
 #include "include/socket-manager.hpp"
 #include "include/voice-chat.hpp"
+#include "include/client.hpp"
 
-void Method(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+/*void Method(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   VoiceChat *voiceChatManager;
 
   SocketManager::InitSocketManager();
   voiceChatManager = new VoiceChat("127.0.0.1");
 
   info.GetReturnValue().Set(Nan::New("world").ToLocalChecked());
-}
+}*/
 
 void Init(v8::Local<v8::Object> exports) {
-  exports->Set(Nan::New("hello").ToLocalChecked(),
-               Nan::New<v8::FunctionTemplate>(Method)->GetFunction());
+  /*exports->Set(Nan::New("hello").ToLocalChecked(),
+               Nan::New<v8::FunctionTemplate>(Method)->GetFunction());*/
+  Client::Init(exports);
 }
 
 NODE_MODULE(hello, Init)
