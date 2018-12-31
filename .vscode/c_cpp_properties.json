@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/Users/Almog/.node-gyp/10.14.2/include/node"
+                "C:/Users/${env:username}/.node-gyp/**"
             ],
             "defines": [
                 "_DEBUG",
