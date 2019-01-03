@@ -16,8 +16,12 @@ void runLoop(uv_loop_t *loop)
     // Run the loop infinity times until the thread is closed
     while (true)
     {
-        // Run the event loop in it's default mode and print loop error code
-        uv_run(loop, UV_RUN_DEFAULT);
+        // If the loop has active handles, active it
+        if (uv_loop_alive(loop))
+        {
+            // Run the event loop in it's default mode
+            uv_run(loop, UV_RUN_ONCE);
+        }
     }
 }
 
