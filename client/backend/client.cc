@@ -10,6 +10,10 @@ Client::Client()
 
 void Client::connect(const Nan::FunctionCallbackInfo<v8::Value>& info)
 {
+  // Get the object
+  Client* obj = ObjectWrap::Unwrap<Client>(info.Holder());
+
+  // Convert first parameter to string
   Nan::Utf8String ip(info[0]);
 
   // If the first parameter which should be the IP address is undefined send error
@@ -19,7 +23,7 @@ void Client::connect(const Nan::FunctionCallbackInfo<v8::Value>& info)
   }
 
   // Create a voice chat manager just as an example
-  VoiceChat *voiceChatManager = new VoiceChat((const char *)*ip);
+  obj->_voiceChatManager = new VoiceChat((const char *)*ip);
 }
 
 void Client::Init(v8::Local<v8::Object> exports) {
