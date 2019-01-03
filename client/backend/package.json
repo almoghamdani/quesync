@@ -1,0 +1,23 @@
+{
+  "name": "quesync-backend",
+  "version": "1.0.0",
+  "description": "VoIP application",
+  "main": "index.js",
+  "scripts": {
+    "build": "node-gyp --python C:/Python27 configure build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/almogh52/quesync.git"
+  },
+  "author": "Almog Hamdani",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/almogh52/quesync/issues"
+  },
+  "homepage": "https://gitlab.com/almogh52/quesync#readme",
+  "dependencies": {
+    "nan": "^2.12.1",
+    "node-gyp": "^3.8.0"
+  }
+}

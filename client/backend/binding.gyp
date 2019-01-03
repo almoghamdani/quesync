@@ -3,16 +3,16 @@
     {
       "target_name": "quesync",
       "sources": [ 
-        "backend/quesync-backend.cc", 
-        "backend/socket-manager.cc", 
-        "backend/voice-chat.cc",
-        "backend/client.cc",
-        "backend/include/socket-manager.hpp",
-        "backend/include/socket-error.hpp",
-        "backend/include/voice-chat.hpp",
-        "backend/include/client.hpp" ],
+        "src/quesync-backend.cc", 
+        "src/socket-manager.cc", 
+        "src/voice-chat.cc",
+        "src/client.cc",
+        "src/include/socket-manager.hpp",
+        "src/include/socket-error.hpp",
+        "src/include/voice-chat.hpp",
+        "src/include/client.hpp" ],
       "include_dirs": [ 
-        "../include",
+        "../../include",
         "<!(node -e \"require('nan')\")"
       ],
       "cflags": [
@@ -26,7 +26,7 @@
           '-lOpenAL32'
         ],
         'library_dirs': [
-          '../lib',
+          '../../lib',
         ],
       },
     }
