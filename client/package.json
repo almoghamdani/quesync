@@ -18,7 +18,7 @@
   "scripts": {
     "react-start": "react-scripts start",
     "react-build": "react-scripts build",
-    "dev": "concurrently \"set BROWSER=none&& npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "dev": "concurrently \"set BROWSER=none&& npm run react-start\" \"wait-on http://localhost:3000 && electron .\"",
     "electron-pack": "build",
     "build": "npm run react-build && npm run electron-pack"
   },
