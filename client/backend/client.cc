@@ -8,11 +8,27 @@ Client::Client()
   SocketManager::InitSocketManager();
 }
 
+void Client::connect(const Nan::FunctionCallbackInfo<v8::Value>& info)
+{
+  Nan::Utf8String ip(info[0]);
+
+  // If the first parameter which should be the IP address is undefined send error
+  if (info[0]->IsUndefined())
+  {
+    Nan::ThrowError(Nan::Error("Missing IP address parameter!"));
+  }
+
+  // Create a voice chat manager just as an example
+  VoiceChat *voiceChatManager = new VoiceChat((const char *)*ip);
+}
+
 void Client::Init(v8::Local<v8::Object> exports) {
   // Prepare constructor template
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("Client").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+  Nan::SetPrototypeMethod(tpl, "connect", connect);
 
   // Set the constructor function + Export it as a function for js
   constructor.Reset(tpl->GetFunction());
