@@ -1,4 +1,4 @@
-hello = require("./build/Release/hello.node")
+hello = require("./build/Release/quesync.node")
 
 smth = hello.Client()
 console.log(smth)

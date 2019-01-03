@@ -1,9 +1,9 @@
 {
   "targets": [
     {
-      "target_name": "hello",
+      "target_name": "quesync",
       "sources": [ 
-        "backend/hello.cc", 
+        "backend/quesync-backend.cc", 
         "backend/socket-manager.cc", 
         "backend/voice-chat.cc",
         "backend/client.cc",
