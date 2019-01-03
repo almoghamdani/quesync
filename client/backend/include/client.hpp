@@ -5,6 +5,7 @@
 
 class Client : public Nan::ObjectWrap {
     public:
+        Client();
         static void Init(v8::Local<v8::Object> exports);
 
     private:

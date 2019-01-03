@@ -2,14 +2,19 @@
 
 Nan::Persistent<v8::Function> Client::constructor;
 
+Client::Client()
+{
+  // Initiate the socket manager
+  SocketManager::InitSocketManager();
+}
+
 void Client::Init(v8::Local<v8::Object> exports) {
   // Prepare constructor template
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("Client").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-  SocketManager::InitSocketManager();
-
+  // Set the constructor function + Export it as a function for js
   constructor.Reset(tpl->GetFunction());
   exports->Set(Nan::New("Client").ToLocalChecked(), tpl->GetFunction());
 }
