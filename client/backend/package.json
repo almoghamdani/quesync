@@ -4,7 +4,8 @@
   "description": "VoIP application",
   "main": "index.js",
   "scripts": {
-    "build": "node-gyp --python C:/Python27 configure build"
+    "build": "node-gyp --python C:/Python27 configure build",
+    "electron-rebuild": "HOME=~/.electron-gyp node-gyp rebuild --target=4.0.0 --arch=x64 --dist-url=https://atom.io/download/electron"
   },
   "repository": {
     "type": "git",
