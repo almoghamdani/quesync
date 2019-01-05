@@ -6,9 +6,9 @@ const path = require('path');
 const url = require('url');
 const isDev = require('electron-is-dev');
 
-//const quesync = require('./quesync.node');
-//var client = new quesync.Client();
-//client.connect("127.0.0.1");
+const quesync = require('./backend.node');
+var client = new quesync.Client();
+client.connect("127.0.0.1");
 
 let mainWindow;
 
