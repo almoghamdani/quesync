@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "node-gyp --python C:/Python27 configure build",
-    "electron-rebuild": "HOME=~/.electron-gyp node-gyp rebuild --target=4.0.0 --arch=x64 --dist-url=https://atom.io/download/electron"
+    "electron-rebuild": "electron-rebuild"
   },
   "repository": {
     "type": "git",
@@ -20,5 +20,8 @@
   "dependencies": {
     "nan": "^2.12.1",
     "node-gyp": "^3.8.0"
+  },
+  "devDependencies": {
+    "electron-rebuild": "^1.8.2"
   }
 }
