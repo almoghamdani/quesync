@@ -46,7 +46,7 @@ class App extends Component {
         <div className="login-div" style={{ width: "350px", display: "flex", flexDirection: "column" }} >
           <TextField outlined label="E-Mail" />
           <TextField outlined label="Password" type="password" style={{ marginTop: "18px" }} />
-          <TextField outlined label="Server IP" style={{ marginTop: "18px" }} />
+          <TextField outlined label="Server IP" style={{ marginTop: "18px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
             <Button raised style={{ marginTop: "18px", width: "160px" }} onClick={this.loginClicked}>
               {
