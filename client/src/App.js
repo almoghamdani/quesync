@@ -7,6 +7,8 @@ import { CircularProgress } from '@rmwc/circular-progress';
 import 'material-components-web/dist/material-components-web.css'
 import '@rmwc/circular-progress/circular-progress.css'
 
+const electron = window.require("electron")
+
 class App extends Component {
   /**
    * This function is the constructor of the App class
@@ -35,9 +37,13 @@ class App extends Component {
    */
   loginClicked()
   {
+    // Set connecting as true to disable all input
     this.setState({
       connecting: true
     })
+
+    // Call the login event with the server IP to connect to
+    electron.ipcRenderer.send('login-event', this.refs.serverIP.input_.value)
   }
 
   render() {
@@ -46,7 +52,7 @@ class App extends Component {
         <div className="login-div" style={{ width: "350px", display: "flex", flexDirection: "column" }} >
           <TextField outlined label="E-Mail" />
           <TextField outlined label="Password" type="password" style={{ marginTop: "18px" }} />
-          <TextField outlined label="Server IP" style={{ marginTop: "18px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
+          <TextField outlined label="Server IP" ref="serverIP" style={{ marginTop: "18px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
             <Button raised style={{ marginTop: "18px", width: "160px" }} onClick={this.loginClicked}>
               {
