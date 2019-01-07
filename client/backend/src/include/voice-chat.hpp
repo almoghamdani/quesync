@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <string>
 #include <windows.h>
 #include <uv.h>
 
@@ -33,6 +34,7 @@ public:
 private:
     uv_udp_t _socket;
     uv_thread_t _sendThread;
+    std::string _ipAddress;
 
     void InitVoiceStreeam();
 

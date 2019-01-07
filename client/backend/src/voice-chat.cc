@@ -6,12 +6,13 @@ static HSTREAM playStream;
 using std::cout;
 using std::endl;
 
-VoiceChat::VoiceChat(const char *serverIP)
+VoiceChat::VoiceChat(const char *serverIP) : _ipAddress(serverIP)
 {
     // * Create the UDP socket for communication with the voice chat server, a non-blocking port
     cout << "Initalizing voice chat socket" << endl;
     SocketManager::CreateUDPSocket(&_socket);
 
+    // Initiate the local voice stream and set the receive function on the socket
     InitVoiceStreeam();
     SocketManager::InitReadFunction(&_socket, receiveVoiceThread);
 
@@ -76,7 +77,7 @@ void VoiceChat::sendVoiceThread(VoiceChat *voiceChat)
     socketBuffer.base = (char *)encodedBuffer;
 
     // Set the dest
-    uv_ip4_addr("127.0.0.1", VOICE_CHAT_PORT, (sockaddr_in *)&server_addr);
+    uv_ip4_addr(voiceChat->_ipAddress.c_str(), VOICE_CHAT_PORT, (sockaddr_in *)&server_addr);
 
     // Create the opus encoder for the recording
     opusEncoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opusError);
