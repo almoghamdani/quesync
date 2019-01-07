@@ -8,6 +8,12 @@ import 'material-components-web/dist/material-components-web.css'
 import '@rmwc/circular-progress/circular-progress.css'
 
 class App extends Component {
+  /**
+   * This function is the constructor of the App class
+   * 
+   * @param props The props to pass to the component
+   * @return None
+   */
   constructor(props)
   {
     // Initialize the component super-class
