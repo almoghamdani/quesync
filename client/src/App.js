@@ -17,7 +17,22 @@ class App extends Component {
     this.state = { 
       connecting: false
     }
-  } 
+
+    // Make 'this' work in the event funcion
+    this.loginClicked = this.loginClicked.bind(this);
+  }
+
+  /**
+   * This function is an event function that will be called when the login button was clicked.
+   * 
+   * @return None
+   */
+  loginClicked()
+  {
+    this.setState({
+      connecting: true
+    })
+  }
 
   render() {
     return (
@@ -27,7 +42,7 @@ class App extends Component {
           <TextField outlined label="Password" type="password" style={{ marginTop: "18px" }} />
           <TextField outlined label="Server IP" style={{ marginTop: "18px" }} />
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-            <Button raised style={{ marginTop: "18px", width: "160px" }}>
+            <Button raised style={{ marginTop: "18px", width: "160px" }} onClick={this.loginClicked}>
               {
                 this.state.connecting ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
               }
