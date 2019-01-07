@@ -1,14 +1,24 @@
 import React, { Component } from 'react';
 import './App.css';
 import { TextField } from '@rmwc/textfield';
+import { Button } from '@rmwc/button';
+import { ThemeProvider, Theme } from '@rmwc/theme';
 import 'material-components-web/dist/material-components-web.css'
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <TextField outlined label="E-Mail" />
-      </div>
+      <ThemeProvider className="App" options={{ primary: "blue" }} style={{ width: "100vw", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div className="login-div" style={{ width: "350px", display: "flex", flexDirection: "column" }} >
+          <TextField outlined label="E-Mail" />
+          <TextField outlined label="Password" type="password" style={{ marginTop: "18px" }} />
+          <TextField outlined label="Server IP" style={{ marginTop: "18px" }} />
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+            <Button raised style={{ marginTop: "18px", width: "160px" }}>Login</Button>
+            <Button raised style={{ marginTop: "18px", width: "160px" }}>Register</Button>
+          </div>
+        </div>
+      </ThemeProvider>
     );
   }
 }
