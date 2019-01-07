@@ -42,7 +42,7 @@ class App extends Component {
 
   render() {
     return (
-      <ThemeProvider className="App" options={{ primary: "blue" }} style={{ width: "100vw", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <ThemeProvider className="App" options={{ primary: "#ff3d00", secondary:"white" }} style={{ width: "100vw", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <div className="login-div" style={{ width: "350px", display: "flex", flexDirection: "column" }} >
           <TextField outlined label="E-Mail" />
           <TextField outlined label="Password" type="password" style={{ marginTop: "18px" }} />
