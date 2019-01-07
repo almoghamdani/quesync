@@ -13,7 +13,10 @@ class App extends Component {
           <TextField outlined label="E-Mail" />
           <TextField outlined label="Password" type="password" style={{ marginTop: "18px" }} />
           <TextField outlined label="Server IP" style={{ marginTop: "18px" }} />
-          <Button raised style={{ marginTop: "18px" }}>Login</Button>
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+            <Button raised style={{ marginTop: "18px", width: "160px" }}>Login</Button>
+            <Button raised style={{ marginTop: "18px", width: "160px" }}>Register</Button>
+          </div>
         </div>
       </ThemeProvider>
     );
