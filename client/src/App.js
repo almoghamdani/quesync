@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import { TextField } from '@rmwc/textfield';
 import { Button } from '@rmwc/button';
-import { ThemeProvider, Theme } from '@rmwc/theme';
+import { ThemeProvider } from '@rmwc/theme';
 import 'material-components-web/dist/material-components-web.css'
 
 class App extends Component {
