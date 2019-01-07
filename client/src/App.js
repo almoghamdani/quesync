@@ -7,7 +7,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <div className="login-div" style={{ display: "flex", flexDirection: "column" }} >
+        <div className="login-div" style={{ width: "350px", display: "flex", flexDirection: "column" }} >
           <TextField outlined label="E-Mail" />
           <TextField outlined label="Password" type="password" />
         </div>
