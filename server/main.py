@@ -8,7 +8,9 @@ class Server(object):
     SERVER_MAIN_PORT = 61110
     BUFFER_SIZE = 1024
 
-    """This function initiates the server object"""
+    """
+    This function initiates the server object
+    """
     def __init__(self):
         # Create a listening port of TCP/IP type
         self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -25,7 +27,9 @@ class Server(object):
         # Create a cursor to the database
         self.cursor = self.db_conn.cursor()
 
-    """This function starts the server by listening to incoming clients"""
+    """
+    This function starts the server by listening to incoming clients
+    """
     def start(self):
         # Start listening to incoming connections with 1 client in queue
         self.listen_socket.listen(1)
@@ -47,6 +51,14 @@ class Server(object):
 
             # Create a thread that will handle the client
             Thread(target=self.handle_client, args=(conn_socket, addr)).start()
+
+    """
+    This function handles a given client
+
+    Args:
+        conn_socket (socket): The socket of the server with the client
+        addr (tuple): The address of the client
+    """
 
     def handle_client(self, conn_socket, addr):
         # Main loop of handling each client
