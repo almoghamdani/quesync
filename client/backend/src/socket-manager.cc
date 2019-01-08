@@ -68,3 +68,26 @@ void SocketManager::CreateUDPSocket(uv_udp_t *socket)
     uv_ip4_addr("0.0.0.0", 0, (sockaddr_in *)&addr);
     uv_udp_bind(socket, (const struct sockaddr *)&addr, 0);
 }
+
+void SocketManager::CreateTCPSocket(uv_tcp_t *socket, const char *serverIP, const int port)
+{
+    uv_connect_t* connect;
+    int socketError = 0;
+    struct sockaddr_in server_addr;
+
+    // Initialize the TCP socket
+    cout << "Initializing TCP socket.." << endl;
+    if((socketError = uv_tcp_init(eventLoop, socket))) {
+        throw SocketError("Unable to initiate TCP socket!", socketError);
+    }
+    cout << "TCP Socket successfully initialized!" << endl;
+
+    // Allocate memory for the connect request type
+    connect = (uv_connect_t*)malloc(sizeof(uv_connect_t));
+
+    // Set dest server IP and port
+    uv_ip4_addr(serverIP, port, &server_addr);
+
+    // Connect to the server
+    uv_tcp_connect(connect, socket, (const struct sockaddr *)&server_addr, NULL);
+}
