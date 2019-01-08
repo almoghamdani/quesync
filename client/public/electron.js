@@ -28,7 +28,12 @@ function createWindow() {
 // Listen to a login event
 ipcMain.on('login-event', (event, serverIP) => {
   // Try to connect to the server
-  client.connect(serverIP)
+  try {
+    client.connect(serverIP)
+  } catch (ex)
+  {
+    console.log(ex)
+  }
 })
 
 // When the electron app is ready, create the browser window
