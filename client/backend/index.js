@@ -1,7 +1,13 @@
 quesync = require("./build/Release/quesync.node")
 
 var smth = new quesync.Client()
-smth.connect("127.0.0.1");
+try {
+    smth.connect("127.0.0.1");
+} catch (ex)
+{
+    console.log(ex)
+}
+
 //console.log(smth)
 
 function idk(hex)
