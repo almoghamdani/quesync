@@ -46,3 +46,11 @@ class Server(object):
         while True:
             # Get data from the client
             data = conn_socket.recv(self.BUFFER_SIZE)
+
+def main():
+    # Create a server object and start the server
+    Server().start()
+
+# If ran as the main module, run the main function
+if __name__ == "__main__":
+    main()
