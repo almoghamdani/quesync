@@ -89,5 +89,8 @@ void SocketManager::CreateTCPSocket(uv_tcp_t *socket, const char *serverIP, cons
     uv_ip4_addr(serverIP, port, &server_addr);
 
     // Connect to the server
-    uv_tcp_connect(connect, socket, (const struct sockaddr *)&server_addr, NULL);
+    if ((socketError = uv_tcp_connect(connect, socket, (const struct sockaddr *)&server_addr, NULL)))
+    {
+        throw SocketError("Unable to connect to the server!", socketError);
+    }
 }
