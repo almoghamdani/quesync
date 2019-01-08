@@ -32,6 +32,21 @@ void Client::connect(const Nan::FunctionCallbackInfo<v8::Value>& info)
   }
 }
 
+void Client::login(const Nan::FunctionCallbackInfo<v8::Value>& info)
+{
+  // Get the object
+  Client* obj = ObjectWrap::Unwrap<Client>(info.Holder());
+
+  // Convert parameters to string
+  Nan::Utf8String email(info[0]), password(info[1]);
+
+  // If one of the parameters is undefined, send error
+  if (info[0]->IsUndefined() || info[1]->IsUndefined())
+  {
+    Nan::ThrowError(Nan::Error("Missing parameters!"));
+  }
+}
+
 void Client::Init(v8::Local<v8::Object> exports) {
   // Prepare constructor template
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
@@ -39,6 +54,7 @@ void Client::Init(v8::Local<v8::Object> exports) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   Nan::SetPrototypeMethod(tpl, "connect", connect);
+  Nan::SetPrototypeMethod(tpl, "login", login);
 
   // Set the constructor function + Export it as a function for js
   constructor.Reset(tpl->GetFunction());
