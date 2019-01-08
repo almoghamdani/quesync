@@ -1,4 +1,5 @@
 import socket
+import sqlite3
 from threading import Thread
 
 """This is the main server class"""
@@ -17,6 +18,12 @@ class Server(object):
 
         # Init the list of connected clients
         self.connected_clients = []
+
+        # Connect to the database
+        self.db_conn = sqlite3.connect("../db/quesync-db.db")
+
+        # Create a cursor to the database
+        self.cursor = self.db_conn.cursor()
 
     """This function starts the server by listening to incoming clients"""
     def start(self):
