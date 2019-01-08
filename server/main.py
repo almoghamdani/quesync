@@ -1,4 +1,5 @@
 import socket
+from threading import Thread
 
 """This is the main server class"""
 class Server(object):
@@ -21,5 +22,15 @@ class Server(object):
         
         # Main loop of the server
         while True:
-            # Accept of a connection of a client
+            # Accept of a connection of a client and print it
             conn_socket, addr = self.listen_socket.accept()
+            print(f"Incoming connection from {addr[0]}")
+
+            # Create a thread that will handle the client
+            Thread(target=self.handle_client, args=(conn_socket, addr))
+
+    def handle_client(self, conn_socket, addr):
+        # Main loop of handling each client
+        while True:
+            # Get data from the client
+            data = conn_socket.recv(self.BUFFER_SIZE)
