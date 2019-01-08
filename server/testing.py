@@ -14,8 +14,6 @@ while True:
     try:   
         # Get from a client voice chat info
         data, addr = voice_socket.recvfrom(5000)
-    except KeyboardInterrupt:
-        break
     except:
         continue
 
