@@ -15,6 +15,9 @@ class Server(object):
         # Bind the listen socket to listen to all traffic on 61110 port
         self.listen_socket.bind((self.SERVER_LISTEN_PORT, self.SERVER_MAIN_PORT))
 
+        # Init the list of connected clients
+        self.connected_clients = []
+
     """This function starts the server by listening to incoming clients"""
     def start(self):
         # Start listening to incoming connections with 1 client in queue
@@ -25,6 +28,15 @@ class Server(object):
             # Accept of a connection of a client and print it
             conn_socket, addr = self.listen_socket.accept()
             print(f"Incoming connection from {addr[0]}")
+
+            # If the client is already connected, ignore his connection
+            if addr[0] in self.connected_clients:
+                # Close socket and continue with the loop
+                conn_socket.close()
+                continue
+
+            # Add the client to the connected clients
+            self.connected_clients.append(addr[0])
 
             # Create a thread that will handle the client
             Thread(target=self.handle_client, args=(conn_socket, addr))
