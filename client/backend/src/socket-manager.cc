@@ -100,4 +100,8 @@ void SocketManager::CreateTCPSocket(uv_tcp_t *socket, const char *serverIP, cons
     {
         throw SocketError("Unable to connect to the server!", socketError);
     }
+    cout << "Successfully connected to the server!" << endl;
+
+    // Start the event loop
+    run = true;
 }
