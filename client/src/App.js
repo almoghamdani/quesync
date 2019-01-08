@@ -60,7 +60,7 @@ class App extends Component {
               }
               Login
             </Button>
-            <Button raised style={{ marginTop: "18px", width: "160px" }}>Register</Button>
+            <Button raised style={{ marginTop: "18px", width: "160px", backgroundColor: "#00b0ff" }}>Register</Button>
           </div>
         </div>
       </ThemeProvider>
