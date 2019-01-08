@@ -39,7 +39,7 @@ class Server(object):
             self.connected_clients.append(addr[0])
 
             # Create a thread that will handle the client
-            Thread(target=self.handle_client, args=(conn_socket, addr))
+            Thread(target=self.handle_client, args=(conn_socket, addr)).start()
 
     def handle_client(self, conn_socket, addr):
         # Main loop of handling each client
