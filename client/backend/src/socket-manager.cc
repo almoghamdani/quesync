@@ -4,6 +4,7 @@ using std::cout;
 using std::endl;
 
 static uv_loop_t *eventLoop;
+static bool run = false;
 
 void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
 {
@@ -19,10 +20,13 @@ void runLoop(uv_loop_t *loop)
         Sleep(1);
 
         // If the loop has active handles, active it
-        if (uv_loop_alive(loop))
+        if (run)
         {
             // Run the event loop in it's default mode
             uv_run(loop, UV_RUN_ONCE);
+
+            // Reset the boolean since the loop has finished
+            run = false;
         }
     }
 }
@@ -50,6 +54,9 @@ void SocketManager::InitReadFunction(uv_udp_t *socket, uv_udp_recv_cb readFuncti
         throw SocketError("Unable to open the stream for receiving!", socketError);
     }
     cout << "Receiving on socket enabled!" << endl;
+
+    // Start the event loop
+    run = true;
 }
 
 void SocketManager::CreateUDPSocket(uv_udp_t *socket)
