@@ -1,4 +1,4 @@
-#include "include\client.hpp"
+#include "include/client.hpp"
 
 Nan::Persistent<v8::Function> Client::constructor;
 
