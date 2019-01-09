@@ -35,6 +35,11 @@
           '../../lib',
         ],
       },
+      "msvs_settings": {
+        "VCCLCompilerTool": {
+          "ExceptionHandling": 1
+        }
+      }
     }
   ]
 }
