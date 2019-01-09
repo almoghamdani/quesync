@@ -19,6 +19,12 @@
         "-std=c++17",
         "-stdlib=libc++",
       ],
+      "cflags_cc": [
+        '-fexceptions'
+      ],
+      'xcode_settings': {
+          'GCC_ENABLE_CPP_EXCEPTIONS': 'YES'        # -fno-exceptions
+      },
       'link_settings': {
         'libraries': [
           '-lopus',
