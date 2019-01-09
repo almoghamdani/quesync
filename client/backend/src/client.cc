@@ -51,6 +51,9 @@ void Client::login(const Nan::FunctionCallbackInfo<v8::Value>& info)
   // Set login packet as a login request + Set data as the email and password
   login_packet.type = LOGIN_REQUEST;
   sprintf(login_packet.data, "%s;;;%s", (const char *)*email, (const char *)*password);
+
+  // Send to the server the login request
+  SocketManager::Send(&obj->_socket, &login_packet, sizeof(login_packet));
 }
 
 void Client::Init(v8::Local<v8::Object> exports) {
