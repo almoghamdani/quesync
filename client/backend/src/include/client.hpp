@@ -1,8 +1,8 @@
 #pragma once
 #include <nan.h>
 
-#include "include/socket-manager.hpp"
-#include "include/voice-chat.hpp"
+#include "socket-manager.hpp"
+#include "voice-chat.hpp"
 
 #define SERVER_PORT 61110
 
