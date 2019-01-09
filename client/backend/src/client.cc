@@ -50,10 +50,13 @@ void Client::login(const Nan::FunctionCallbackInfo<v8::Value>& info)
 
   // Set login packet as a login request + Set data as the email and password
   login_packet.type = LOGIN_REQUEST;
-  sprintf(login_packet.data, "%s;;;%s", email, password);
+  sprintf(login_packet.data, "%s;;;%s", (const char *)*email, (const char *)*password);
 }
 
 void Client::Init(v8::Local<v8::Object> exports) {
+  // Create scope for client
+  Nan::HandleScope scope;
+
   // Prepare constructor template
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("Client").ToLocalChecked());
