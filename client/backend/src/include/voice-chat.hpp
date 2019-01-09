@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <string>
-#include <string>
+#include <thread>
 #include <uv.h>
 
 #include <al.h>

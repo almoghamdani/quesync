@@ -96,7 +96,7 @@ void VoiceChat::sendVoiceThread(VoiceChat *voiceChat)
     // Infinity thread while the socket isn't closed (this class deleted from memory)
     while (true)
     {
-        Sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         // Get the amount of samples waiting in the device's buffer
         alcGetIntegerv(captureDevice, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
