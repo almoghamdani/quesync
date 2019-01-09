@@ -17,7 +17,7 @@ void runLoop(uv_loop_t *loop)
     // Run the loop infinity times until the thread is closed
     while (true)
     {
-        Sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         // If the loop has active handles, active it
         if (run)
