@@ -31,6 +31,12 @@ void runLoop(uv_loop_t *loop)
     }
 }
 
+void on_tcp_connect (uv_connect_t* req, int status)
+{
+    // Print successful connection to the server
+    cout << "Successfully connected to the server!" << endl;
+}
+
 void SocketManager::InitSocketManager()
 {
     int socketError = 0;
@@ -96,11 +102,10 @@ void SocketManager::CreateTCPSocket(uv_tcp_t *socket, const char *serverIP, cons
     uv_ip4_addr(serverIP, port, &server_addr);
 
     // Connect to the server
-    if ((socketError = uv_tcp_connect(connect, socket, (const struct sockaddr *)&server_addr, NULL)))
+    if ((socketError = uv_tcp_connect(connect, socket, (const struct sockaddr *)&server_addr, on_tcp_connect)))
     {
         throw SocketError("Unable to connect to the server!", socketError);
     }
-    cout << "Successfully connected to the server!" << endl;
 
     // Start the event loop
     run = true;
