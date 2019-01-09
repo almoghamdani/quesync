@@ -110,3 +110,22 @@ void SocketManager::CreateTCPSocket(uv_tcp_t *socket, const char *serverIP, cons
     // Start the event loop
     run = true;
 }
+
+void SocketManager::Send(uv_tcp_t *socket, void *data, unsigned int nbytes)
+{
+    uv_write_t *write_req;
+    uv_buf_t *buf;
+
+    // Allocate memory for the write req and the buffer
+    write_req = (uv_write_t *)malloc(sizeof(uv_write_t));
+    buf = (uv_buf_t *)malloc(sizeof(uv_buf_t));
+
+    // Allocate buffer's base to hold the data
+    alloc_buffer(NULL, nbytes, buf);
+
+    // Copy all data to buffer
+    memcpy(buf->base, data, nbytes);
+
+    // Write to the TCP socket
+    uv_write(write_req, (uv_stream_t *)socket, buf, 1, NULL);
+}

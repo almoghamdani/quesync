@@ -14,4 +14,5 @@ public:
     static void InitReadFunction(uv_udp_t *socket, uv_udp_recv_cb readFunction);
 
     static void CreateTCPSocket(uv_tcp_t *socket, const char *serverIP, const int port);
+    static void Send(uv_tcp_t *socket, void *data, unsigned int nbytes);
 };
