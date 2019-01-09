@@ -22,6 +22,7 @@
     "react-start": "cross-env SASS_PATH=./node_modules react-scripts start",
     "react-build": "react-scripts build",
     "dev": "concurrently \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron": "electron .",
     "electron-pack": "build",
     "build": "npm run react-build && npm run electron-pack"
   },
