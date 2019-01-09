@@ -12,7 +12,7 @@ try {
 
 function idk(hex)
 {
-
+    hex.login("sdsd", "asdasd")
 }
 
-setInterval(idk, 10, smth)
+setInterval(idk, 1000, smth)
