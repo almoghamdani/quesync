@@ -10,7 +10,8 @@
         "src/include/socket-manager.hpp",
         "src/include/socket-error.hpp",
         "src/include/voice-chat.hpp",
-        "src/include/client.hpp" ],
+        "src/include/client.hpp",
+        "src/include/structs.hpp" ],
       "include_dirs": [ 
         "../../include",
         "<!(node -e \"require('nan')\")"
