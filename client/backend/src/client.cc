@@ -34,6 +34,8 @@ void Client::connect(const Nan::FunctionCallbackInfo<v8::Value>& info)
 
 void Client::login(const Nan::FunctionCallbackInfo<v8::Value>& info)
 {
+  quesync_packet_t login_packet;
+
   // Get the object
   Client* obj = ObjectWrap::Unwrap<Client>(info.Holder());
 
@@ -45,6 +47,10 @@ void Client::login(const Nan::FunctionCallbackInfo<v8::Value>& info)
   {
     Nan::ThrowError(Nan::Error("Missing parameters!"));
   }
+
+  // Set login packet as a login request + Set data as the email and password
+  login_packet.type = LOGIN_REQUEST;
+  sprintf(login_packet.data, "%s;;;%s", email, password);
 }
 
 void Client::Init(v8::Local<v8::Object> exports) {

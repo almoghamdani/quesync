@@ -3,6 +3,7 @@
 
 #include "socket-manager.hpp"
 #include "voice-chat.hpp"
+#include "structs.hpp"
 
 #define SERVER_PORT 61110
 
