@@ -3,10 +3,8 @@
 using std::cout;
 using std::endl;
 
-VoiceChat::VoiceChat(const char *serverIP)
+VoiceChat::VoiceChat(const char *serverIP) : _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0))
 {
-    // Create the socket that will be used for the communication of the voice client with the server
-    _socket = SocketManager::CreateUDPSocket();
 }
 
 /*static OpusDecoder *opusDecoder;
