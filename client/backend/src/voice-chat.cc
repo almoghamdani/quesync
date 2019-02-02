@@ -5,6 +5,8 @@ using std::endl;
 
 VoiceChat::VoiceChat(const char *serverIP) : _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0))
 {
+    // Get the endpoint of the server using the given server IP and default voice chat port
+    _endpoint = SocketManager::GetUDPEndpoint(serverIP, VOICE_CHAT_PORT);
 }
 
 /*static OpusDecoder *opusDecoder;
