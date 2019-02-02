@@ -16,13 +16,15 @@ VoiceChat::VoiceChat(const char *serverIP) :
 
 void VoiceChat::sendVoiceThread()
 {
-    ALbyte buffer[MAX_FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
+    int dataLen = 0;
     unsigned char encodedBuffer[FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
+
+    ALbyte buffer[MAX_FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
     ALint sample = 0;
     ALCdevice *captureDevice;
+
     int opusError;
     OpusEncoder *opusEncoder;
-    int dataLen = 0;
 
     // Create the opus encoder for the recording
     opusEncoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opusError);
