@@ -18,7 +18,7 @@ public:
     //static void InitSocketManager();
 
     static udp::socket CreateUDPSocket();
-    static udp::endpoint ConnectToUDPServer(const char *ipAddress, int port);
+    static udp::endpoint GetUDPEndpoint(const char *ipAddress, int port);
 
     //static udp::resolver::results_type ConnectToUDPServer(const char *ipAddress, int port);
 

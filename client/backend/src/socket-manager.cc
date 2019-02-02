@@ -15,7 +15,7 @@ udp::socket SocketManager::CreateUDPSocket()
 udp::endpoint SocketManager::GetUDPEndpoint(const char *ipAddress, int port)
 {
     // Create an endpoint from the ip address given and the port
-    return udp::endpoint(ip::address::from_string(ipAddress), port);
+    return udp::endpoint(asio::ip::address::from_string(ipAddress), port);
 }
 
 /*udp::resolver::results_type SocketManager::ConnectToUDPServer(const char *ipAddress, int port)
