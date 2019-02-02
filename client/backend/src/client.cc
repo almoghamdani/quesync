@@ -22,6 +22,9 @@ void Client::connect(const Nan::FunctionCallbackInfo<v8::Value>& info)
     Nan::ThrowError(Nan::Error("Missing IP address parameter!"));
   }
 
+    // Create the voice chat manager and start a communication with the server
+    obj->_voiceChatManager = new VoiceChat((const char *)*ip);
+
   // Try to create a tcp socket with the server
   try {
     //SocketManager::CreateTCPSocket(&obj->_socket, (const char *)*ip, SERVER_PORT);
