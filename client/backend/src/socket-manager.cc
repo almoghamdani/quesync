@@ -3,6 +3,12 @@
 using std::cout;
 using std::endl;
 
+udp::socket SocketManager::CreateUDPSocket()
+{
+    // Create a IPv4 UDP socket with a random port (it is specified by the 0 in the port parameter)
+    return udp::socket(udp::v4(), 0);
+}
+
 /*static uv_loop_t *eventLoop;
 static bool run = false;
 
