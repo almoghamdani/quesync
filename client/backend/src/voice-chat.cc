@@ -12,6 +12,10 @@ VoiceChat::VoiceChat(const char *serverIP) :
     // Create the thread of sending the voice from the client to the server and detach it
     sendThread = std::thread(&VoiceChat::sendVoiceThread, this);
     sendThread.detach();
+
+    // Create the thread of receiving the voice from the server and detach it
+    recvThread = std::thread(&VoiceChat::recvVoiceThread, this);
+    recvThread.detach();
 }
 
 void VoiceChat::sendVoiceThread()
