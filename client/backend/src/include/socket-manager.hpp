@@ -6,7 +6,6 @@
 
 #include <iostream>
 #include <thread>
-#include <uv.h>
 
 #include "socket-error.hpp"
 
@@ -18,19 +17,7 @@ class SocketManager
 public:
     static asio::io_context io_context;
 
-    //static void InitSocketManager();
-
-    //static udp::socket CreateUDPSocket();
-
     template <typename T>
     static void GetEndpoint(const char *ipAddress, int port, T& endpoint);
-
-    //static udp::resolver::results_type ConnectToUDPServer(const char *ipAddress, int port);
-
-    /*static void CreateUDPSocket(uv_udp_t *socket);
-    static void InitReadFunction(uv_udp_t *socket, uv_udp_recv_cb readFunction);
-
-    static void CreateTCPSocket(uv_tcp_t *socket, const char *serverIP, const int port);
-    static void Send(uv_tcp_t *socket, void *data, unsigned int nbytes);*/
 
 };
