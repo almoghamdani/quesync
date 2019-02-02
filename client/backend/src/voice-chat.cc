@@ -98,11 +98,15 @@ void VoiceChat::recvVoiceThread()
         // Receive from the server the encoded voice sample into the recv buffer
         recvBytes = _socket.receive_from(asio::buffer(recvBuffer, RECV_BUFFER_SIZE), sender_endpoint);
 
-        // Decode the current sample from the client
-        decodedSize = opus_decode(opusDecoder, (const unsigned char *)recvBuffer, recvBytes, (opus_int16 *)pcm, FRAMERATE, 0);
+        // If the sender is the server endpoint handle the voice sample
+        if (sender_endpoint == _endpoint)
+        {
+            // Decode the current sample from the client
+            decodedSize = opus_decode(opusDecoder, (const unsigned char *)recvBuffer, recvBytes, (opus_int16 *)pcm, FRAMERATE, 0);
 
-        // Put the decoded pcm data in the stream
-        BASS_StreamPutData(playStream, pcm, decodedSize * sizeof(opus_int16) * RECORD_CHANNELS);
+            // Put the decoded pcm data in the stream
+            BASS_StreamPutData(playStream, pcm, decodedSize * sizeof(opus_int16) * RECORD_CHANNELS);
+        }
     }
 }
 
