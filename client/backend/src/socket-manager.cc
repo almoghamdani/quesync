@@ -12,11 +12,16 @@ asio::io_context SocketManager::io_context;
     return new udp::socket(io_context, udp::endpoint(udp::v4(), 0));
 }*/
 
-udp::endpoint SocketManager::GetUDPEndpoint(const char *ipAddress, int port)
+template <typename T>
+void SocketManager::GetEndpoint(const char *ipAddress, int port, T& endpoint)
 {
     // Create an endpoint from the ip address given and the port
-    return udp::endpoint(asio::ip::address::from_string(ipAddress), port);
+    endpoint = T(asio::ip::address::from_string(ipAddress), port);
 }
+
+// Declaring 2 templates for the GetEndpoint for the 2 possible classes of endpoints to fix link errors
+template void SocketManager::GetEndpoint(const char *ipAddress, int port, udp::endpoint& endpoint);
+template void SocketManager::GetEndpoint(const char *ipAddress, int port, tcp::endpoint& endpoint);
 
 /*udp::resolver::results_type SocketManager::ConnectToUDPServer(const char *ipAddress, int port)
 {

@@ -7,7 +7,7 @@ VoiceChat::VoiceChat(const char *serverIP) :
     _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)) // Create an IPv4 UDP socket with a random port
 {
     // Get the endpoint of the server using the given server IP and default voice chat port
-    _endpoint = SocketManager::GetUDPEndpoint(serverIP, VOICE_CHAT_PORT);
+    SocketManager::GetEndpoint(serverIP, VOICE_CHAT_PORT, _endpoint);
 
     // Create the thread of sending the voice from the client to the server and detach it
     sendThread = std::thread(&VoiceChat::sendVoiceThread, this);

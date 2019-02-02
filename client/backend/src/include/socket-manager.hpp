@@ -11,6 +11,7 @@
 #include "socket-error.hpp"
 
 using asio::ip::udp;
+using asio::ip::tcp;
 
 class SocketManager
 {
@@ -20,7 +21,9 @@ public:
     //static void InitSocketManager();
 
     //static udp::socket CreateUDPSocket();
-    static udp::endpoint GetUDPEndpoint(const char *ipAddress, int port);
+
+    template <typename T>
+    static void GetEndpoint(const char *ipAddress, int port, T& endpoint);
 
     //static udp::resolver::results_type ConnectToUDPServer(const char *ipAddress, int port);
 
