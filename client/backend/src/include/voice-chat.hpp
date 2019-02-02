@@ -36,6 +36,7 @@ public:
 private:
     udp::socket _socket;
     udp::endpoint _endpoint;
+    std::thread sendThread;
 
     void sendVoiceThread();
 
