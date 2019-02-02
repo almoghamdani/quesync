@@ -15,9 +15,11 @@ using asio::ip::udp;
 class SocketManager
 {
 public:
+    static asio::io_context io_context;
+
     //static void InitSocketManager();
 
-    static udp::socket CreateUDPSocket();
+    //static udp::socket CreateUDPSocket();
     static udp::endpoint GetUDPEndpoint(const char *ipAddress, int port);
 
     //static udp::resolver::results_type ConnectToUDPServer(const char *ipAddress, int port);
@@ -27,8 +29,5 @@ public:
 
     static void CreateTCPSocket(uv_tcp_t *socket, const char *serverIP, const int port);
     static void Send(uv_tcp_t *socket, void *data, unsigned int nbytes);*/
-
-private:
-    static asio::io_context io_context;
 
 };
