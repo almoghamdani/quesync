@@ -3,6 +3,12 @@
 using std::cout;
 using std::endl;
 
+VoiceChat::VoiceChat(const char *serverIP)
+{
+    // Create the socket that will be used for the communication of the voice client with the server
+    _socket = SocketManager::CreateUDPSocket();
+}
+
 /*static OpusDecoder *opusDecoder;
 static HSTREAM playStream;
 

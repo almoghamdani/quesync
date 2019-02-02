@@ -51,6 +51,27 @@
         "mutex": "cpp",
         "shared_mutex": "cpp",
         "string": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "array": "cpp",
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "codecvt": "cpp",
+        "csignal": "cpp",
+        "cstdarg": "cpp",
+        "ctime": "cpp",
+        "deque": "cpp",
+        "resumable": "cpp",
+        "iterator": "cpp",
+        "locale": "cpp",
+        "map": "cpp",
+        "optional": "cpp",
+        "queue": "cpp",
+        "sstream": "cpp",
+        "string_view": "cpp",
+        "xlocbuf": "cpp",
+        "xlocmes": "cpp",
+        "xlocmon": "cpp",
+        "xloctime": "cpp",
+        "xtree": "cpp"
     }
 }
