@@ -3,7 +3,7 @@
 using std::cout;
 using std::endl;
 
-static uv_loop_t *eventLoop;
+/*static uv_loop_t *eventLoop;
 static bool run = false;
 
 void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
@@ -128,4 +128,4 @@ void SocketManager::Send(uv_tcp_t *socket, void *data, unsigned int nbytes)
 
     // Write to the TCP socket
     uv_write(write_req, (uv_stream_t *)socket, buf, 1, NULL);
-}
+}*/

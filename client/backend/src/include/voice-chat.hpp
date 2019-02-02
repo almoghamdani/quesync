@@ -34,12 +34,12 @@ public:
     ~VoiceChat();
 
 private:
-    uv_udp_t _socket;
+    /*uv_udp_t _socket;
     uv_thread_t _sendThread;
     std::string _ipAddress;
 
     void InitVoiceStreeam();
 
     static void receiveVoiceThread(uv_udp_t* handle, ssize_t nread, const uv_buf_t* buf, const struct sockaddr* addr, unsigned flags);
-    static void sendVoiceThread(VoiceChat *voiceChat);
+    static void sendVoiceThread(VoiceChat *voiceChat);*/
 };

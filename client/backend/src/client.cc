@@ -5,7 +5,7 @@ Nan::Persistent<v8::Function> Client::constructor;
 Client::Client()
 {
   // Initiate the socket manager
-  SocketManager::InitSocketManager();
+  //SocketManager::InitSocketManager();
 }
 
 void Client::connect(const Nan::FunctionCallbackInfo<v8::Value>& info)
@@ -24,7 +24,7 @@ void Client::connect(const Nan::FunctionCallbackInfo<v8::Value>& info)
 
   // Try to create a tcp socket with the server
   try {
-    SocketManager::CreateTCPSocket(&obj->_socket, (const char *)*ip, SERVER_PORT);
+    //SocketManager::CreateTCPSocket(&obj->_socket, (const char *)*ip, SERVER_PORT);
   } catch (std::exception ex)
   {
     // Throw error on excpetion
@@ -53,7 +53,7 @@ void Client::login(const Nan::FunctionCallbackInfo<v8::Value>& info)
   sprintf(login_packet.data, "%s;;;%s", (const char *)*email, (const char *)*password);
 
   // Send to the server the login request
-  SocketManager::Send(&obj->_socket, &login_packet, sizeof(login_packet));
+  //SocketManager::Send(&obj->_socket, &login_packet, sizeof(login_packet));
 }
 
 void Client::Init(v8::Local<v8::Object> exports) {

@@ -1,10 +1,10 @@
 #include "include/voice-chat.hpp"
 
-static OpusDecoder *opusDecoder;
-static HSTREAM playStream;
-
 using std::cout;
 using std::endl;
+
+/*static OpusDecoder *opusDecoder;
+static HSTREAM playStream;
 
 VoiceChat::VoiceChat(const char *serverIP) : _ipAddress(serverIP)
 {
@@ -120,4 +120,4 @@ void VoiceChat::sendVoiceThread(VoiceChat *voiceChat)
             }
         }
     }
-}
+}*/
