@@ -18,6 +18,7 @@ public:
     //static void InitSocketManager();
 
     static udp::socket CreateUDPSocket();
+    static udp::resolver::results_type ConnectToUDPServer(const char *ipAddress, int port);
 
     /*static void CreateUDPSocket(uv_udp_t *socket);
     static void InitReadFunction(uv_udp_t *socket, uv_udp_recv_cb readFunction);

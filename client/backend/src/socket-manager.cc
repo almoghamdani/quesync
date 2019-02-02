@@ -9,6 +9,16 @@ udp::socket SocketManager::CreateUDPSocket()
     return udp::socket(udp::v4(), 0);
 }
 
+udp::resolver::results_type SocketManager::ConnectToUDPServer(const char *ipAddress, int port)
+{
+    udp::resolver resolver(io_context);
+
+    // Try to resolve the server's entry and get the endpoints of the server
+    udp::resolver::results_type endpoints = resolver.resolve(udp::v4(), ipAddress, std::to_string(port).c_str());
+
+    return endpoints;
+}
+
 /*static uv_loop_t *eventLoop;
 static bool run = false;
 
