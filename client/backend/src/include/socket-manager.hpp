@@ -27,6 +27,6 @@ public:
     static void Send(uv_tcp_t *socket, void *data, unsigned int nbytes);*/
 
 private:
-    static asio::io_context _context;
+    static asio::io_context io_context;
 
 };

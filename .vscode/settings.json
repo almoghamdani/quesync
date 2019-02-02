@@ -50,6 +50,7 @@
         "future": "cpp",
         "mutex": "cpp",
         "shared_mutex": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "*.ipp": "cpp"
     }
 }

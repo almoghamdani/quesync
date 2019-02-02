@@ -3,6 +3,9 @@
 using std::cout;
 using std::endl;
 
+// Declare the io context of the socket mananger since it's a static member of the class
+asio::io_context SocketManager::io_context;
+
 udp::socket SocketManager::CreateUDPSocket()
 {
     // Create a IPv4 UDP socket with a random port (it is specified by the 0 in the port parameter)
