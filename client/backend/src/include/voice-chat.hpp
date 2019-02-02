@@ -1,17 +1,10 @@
 #pragma once
 
-#ifdef _WIN32
-#include <SDKDDKVer.h>
-#undef _WIN32_WINNT
-#define _WIN32_WINNT _WIN32_WINNT_WINXP // Define min sockets version of Windows XP
-#endif
-
 #include "socket-manager.hpp"
 
 #include <iostream>
 #include <string>
 #include <thread>
-#include <uv.h>
 
 #include <al.h>
 #include <alc.h>
@@ -34,12 +27,12 @@ public:
     ~VoiceChat();
 
 private:
-    uv_udp_t _socket;
-    uv_thread_t _sendThread;
-    std::string _ipAddress;
+    udp::socket _socket;
+    udp::endpoint _endpoint;
 
-    void InitVoiceStreeam();
+    std::thread sendThread;
+    std::thread recvThread;
 
-    static void receiveVoiceThread(uv_udp_t* handle, ssize_t nread, const uv_buf_t* buf, const struct sockaddr* addr, unsigned flags);
-    static void sendVoiceThread(VoiceChat *voiceChat);
+    void sendVoiceThread();
+    void recvVoiceThread();
 };
