@@ -6,7 +6,7 @@ using std::endl;
 udp::socket SocketManager::CreateUDPSocket()
 {
     // Create a IPv4 UDP socket with a random port (it is specified by the 0 in the port parameter)
-    return udp::socket(udp::v4(), 0);
+    return udp::socket(io_context, udp::endpoint(udp::v4(), 0));
 }
 
 udp::resolver::results_type SocketManager::ConnectToUDPServer(const char *ipAddress, int port)
