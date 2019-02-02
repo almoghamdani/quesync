@@ -18,7 +18,6 @@
       ],
       "cflags": [
         "-std=c++17",
-        "-stdlib=libc++",
       ],
       "cflags_cc": [
         '-fexceptions'
@@ -40,7 +39,10 @@
         "VCCLCompilerTool": {
           "ExceptionHandling": 1
         }
-      }
+      },
+      "defines": [
+          'ASIO_STANDALONE'
+      ]
     }
   ]
 }
