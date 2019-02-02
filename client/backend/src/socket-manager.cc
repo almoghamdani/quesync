@@ -12,7 +12,13 @@ udp::socket SocketManager::CreateUDPSocket()
     return udp::socket(io_context, udp::endpoint(udp::v4(), 0));
 }
 
-udp::resolver::results_type SocketManager::ConnectToUDPServer(const char *ipAddress, int port)
+udp::endpoint SocketManager::GetUDPEndpoint(const char *ipAddress, int port)
+{
+    // Create an endpoint from the ip address given and the port
+    return udp::endpoint(ip::address::from_string(ipAddress), port);
+}
+
+/*udp::resolver::results_type SocketManager::ConnectToUDPServer(const char *ipAddress, int port)
 {
     udp::resolver resolver(io_context);
 
@@ -20,7 +26,7 @@ udp::resolver::results_type SocketManager::ConnectToUDPServer(const char *ipAddr
     udp::resolver::results_type endpoints = resolver.resolve(udp::v4(), ipAddress, std::to_string(port).c_str());
 
     return endpoints;
-}
+}*/
 
 /*static uv_loop_t *eventLoop;
 static bool run = false;
