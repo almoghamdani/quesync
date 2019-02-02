@@ -10,6 +10,53 @@ VoiceChat::VoiceChat(const char *serverIP) :
     _endpoint = SocketManager::GetUDPEndpoint(serverIP, VOICE_CHAT_PORT);
 }
 
+void VoiceChat::sendVoiceThread()
+{
+    ALbyte buffer[MAX_FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
+    unsigned char encodedBuffer[FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
+    ALint sample = 0;
+    ALCdevice *captureDevice;
+    int opusError;
+    OpusEncoder *opusEncoder;
+    int dataLen = 0;
+
+    // Create the opus encoder for the recording
+    opusEncoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opusError);
+
+    // Try to open the default capture device
+    captureDevice = alcCaptureOpenDevice(NULL, RECORD_FREQUENCY, AL_FORMAT_STEREO16, FRAMERATE);
+    if (alGetError() != AL_NO_ERROR)
+    {
+        cout << "An error occurred opening default capture device! Exiting.." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Start to capture using the default device
+    alcCaptureStart(captureDevice);
+
+    // Infinity thread while the socket isn't closed (this class deleted from memory)
+    while (true)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+        // Get the amount of samples waiting in the device's buffer
+        alcGetIntegerv(captureDevice, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
+
+        // If there is enough samples to send the server to match the server's framerate, send it
+        if (sample >= FRAMERATE)
+        {
+            // Get the capture samples
+            alcCaptureSamples(captureDevice, (ALCvoid *)buffer, FRAMERATE);
+
+            // Encode the captured data
+            dataLen = opus_encode(opusEncoder, (const opus_int16 *)buffer, FRAMERATE, encodedBuffer, FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16));
+
+            // Send the encoded buffer to the server
+            _socket.send_to(asio::buffer(encodedBuffer, dataLen), _endpoint);
+        }
+    }
+}
+
 /*static OpusDecoder *opusDecoder;
 static HSTREAM playStream;
 

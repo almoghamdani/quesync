@@ -37,6 +37,8 @@ private:
     udp::socket _socket;
     udp::endpoint _endpoint;
 
+    void sendVoiceThread();
+
     /*uv_udp_t _socket;
     uv_thread_t _sendThread;
     std::string _ipAddress;
