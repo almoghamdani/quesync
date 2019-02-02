@@ -39,6 +39,7 @@ private:
     std::thread sendThread;
 
     void sendVoiceThread();
+    void recvVoiceThread();
 
     /*uv_udp_t _socket;
     uv_thread_t _sendThread;

@@ -61,6 +61,45 @@ void VoiceChat::sendVoiceThread()
     }
 }
 
+void VoiceChat::recvVoiceThread()
+{
+    int decodedSize = 0, recvBytes = 0;
+    char recvBuffer[RECV_BUFFER_SIZE] = { 0 };
+
+    OpusDecoder *opusDecoder;
+    opus_int16 pcm[FRAMERATE * RECORD_CHANNELS] = {0};
+    
+    HSTREAM playStream;
+
+    udp::endpoint sender_endpoint;
+
+    // Create the opus decoder for the recording
+    opusDecoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, NULL);
+
+    // Init the BASS library with the default device
+    BASS_Init(-1, RECORD_FREQUENCY, 0, 0, NULL);
+    BASS_ErrorGetCode();
+
+    // Create a stream to the speakers
+    playStream = BASS_StreamCreate(RECORD_FREQUENCY, RECORD_CHANNELS, BASS_SAMPLE_FX, STREAMPROC_PUSH, NULL);
+    BASS_ErrorGetCode();
+
+    // Start the BASS library to play on the stream
+    BASS_ChannelPlay(playStream, 0);
+
+    while (true)
+    {
+        // Receive from the server the encoded voice sample into the recv buffer
+        recvBytes = _socket.receive_from(asio::buffer(recvBuffer, RECV_BUFFER_SIZE), sender_endpoint);
+
+        // Decode the current sample from the client
+        decodedSize = opus_decode(opusDecoder, (const unsigned char *)recvBuffer, recvBytes, (opus_int16 *)pcm, FRAMERATE, 0);
+
+        // Put the decoded pcm data in the stream
+        BASS_StreamPutData(playStream, pcm, decodedSize * sizeof(opus_int16) * RECORD_CHANNELS);
+    }
+}
+
 /*static OpusDecoder *opusDecoder;
 static HSTREAM playStream;
 
