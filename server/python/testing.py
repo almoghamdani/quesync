@@ -17,6 +17,8 @@ while True:
     except:
         continue
 
+    print(data)
+
     # If the sender address isn't a connected client in the server, save it as one
     if addr not in connected:
         print(addr)
@@ -24,5 +26,5 @@ while True:
 
     # Send the voice chat to info to each connected client
     for connected_client in connected:
-        if connected_client != addr:
-            voice_socket.sendto(data, connected_client)
+        #if connected_client != addr:
+        voice_socket.sendto(data, connected_client)
