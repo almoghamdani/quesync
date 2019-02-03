@@ -1,10 +1,10 @@
 #include <iostream>
 
+#include <asio.hpp>
+
 using std::cout;
 
 int main()
 {
-    cout << "trying\n";
-
     return 0;
 }

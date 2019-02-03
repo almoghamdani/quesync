@@ -16,4 +16,4 @@ SET LIB=%~dp0\..\lib;%LIB%
 
 :: Re-compile the server side
 IF EXIST build\server.exe del build\server.exe
-cl server.cpp -I..\include /EHsc /Fe"build\server.exe"
+cl server.cpp -I..\include -DASIO_STANDALONE /EHsc /Fe"build\server.exe"
