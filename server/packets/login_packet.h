@@ -10,4 +10,4 @@ public:
 private:
     std::string _email;
     std::string _password;
-}
+};

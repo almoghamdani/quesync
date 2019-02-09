@@ -16,4 +16,4 @@ public:
 
 protected:
     PacketType _type;
-}
+};
