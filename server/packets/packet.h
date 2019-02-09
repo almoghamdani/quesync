@@ -13,6 +13,6 @@ public:
     virtual std::string encode() = 0;
     virtual void decode (std::string packet) = 0;
 
-private:
+protected:
     PacketType _type;
 }
