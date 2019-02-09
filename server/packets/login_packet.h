@@ -1,3 +1,4 @@
+#pragma once
 #include "packet.h"
 
 class LoginPacket : public Packet
