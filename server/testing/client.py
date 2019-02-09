@@ -8,4 +8,4 @@ server_address = ('localhost', 61110)
 print('connecting to {} port {}'.format(*server_address))
 sock.connect(server_address)
 
-sock.send(b"HELLO")
+sock.send(b"QUESYNC|000|mail@gmail.com|123456789")
