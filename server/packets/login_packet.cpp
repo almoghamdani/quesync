@@ -7,8 +7,8 @@ void LoginPacket::decode (std::string packet)
     std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
 
     // Set the email and password from the params
-    _email = params[1];
-    _password = params[2];
+    _email = params[0];
+    _password = params[1];
 }
 
 std::string LoginPacket::encode()
