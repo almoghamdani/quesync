@@ -1,4 +1,3 @@
-#include <vector>
 #include <sstream>
 
 #include "utils.h"
