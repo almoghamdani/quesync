@@ -3,6 +3,7 @@
 
 #include "packet_types.h"
 
+#define PACKET_IDENTIFIER "QUESYNC"
 #define PACKET_DELIMETER '|'
 
 class Packet
