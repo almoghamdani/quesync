@@ -7,3 +7,5 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ('localhost', 61110)
 print('connecting to {} port {}'.format(*server_address))
 sock.connect(server_address)
+
+sock.send(b"HELLO")
