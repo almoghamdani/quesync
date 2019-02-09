@@ -15,13 +15,13 @@ Packet *Utils::ParsePacket(std::string packet)
     }
 
     // Remove the packet identifier from the packet str
-    packet = packet.substr(strlen(PACKET_IDENTIFIER) + 1, packet.length);
+    packet = packet.substr(strlen(PACKET_IDENTIFIER) + 1, packet.length());
 
     // Get the packet type
     packet_type = GetPacketType(packet);
 
     // Remove the packet type from the packet str
-    packet = packet.substr(4, packet.length);
+    packet = packet.substr(4, packet.length());
 
     // By the packet type create the correct packet type
     switch (packet_type)
