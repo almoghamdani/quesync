@@ -1,3 +1,4 @@
+#pragma once
 #include <asio.hpp>
 
 #define MAIN_SERVER_PORT 61110
@@ -12,5 +13,7 @@ public:
     void start();
 
 private:
-    tcp::acceptor _socket;
+    tcp::acceptor _acceptor;
+
+    void acceptClient();
 };
