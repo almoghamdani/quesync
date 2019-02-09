@@ -16,4 +16,4 @@ SET LIB=%~dp0\..\lib;%LIB%
 
 :: Re-compile the server side
 IF EXIST build\server.exe del build\server.exe
-cl quesync.cpp -I..\include -DASIO_STANDALONE /EHsc /Fe"build\server.exe"
+cl session.cpp quesync.cpp -I..\include -DASIO_STANDALONE -D_WIN32_WINNT=0x0501 /EHsc /Fo"build/" /Fe"build\server.exe"
