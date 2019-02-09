@@ -1,3 +1,6 @@
 Build
 node_modules
 *.obj
+GTAGS
+GPATH
+GRTAGS
