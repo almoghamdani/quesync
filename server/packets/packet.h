@@ -3,6 +3,8 @@
 
 #include "packet_types.h"
 
+#define PACKET_DELIMETER '|'
+
 class Packet
 {
 public:
