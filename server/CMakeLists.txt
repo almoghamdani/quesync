@@ -8,8 +8,8 @@ include_directories(../include)
 add_definitions(-DASIO_STANDALONE) # Build ASIO without boost
 add_definitions(-D_WIN32_WINNT=0x0501) # Set Windows version
 
-# Set C++17 standard
-set (CMAKE_CXX_STANDARD 17)
+# Set C++14 standard
+set (CMAKE_CXX_STANDARD 14)
 
 # Get all the cpp files
 file(GLOB SOURCES "*.cpp")
