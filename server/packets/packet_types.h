@@ -2,5 +2,9 @@
 
 typedef enum PacketType
 {
-    LOGIN_PACKET
+    // Requests
+    LOGIN_PACKET,
+
+    // Respones
+    AUTHENTICATED_PACKET
 } PacketType;
