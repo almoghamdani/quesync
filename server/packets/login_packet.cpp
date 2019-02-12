@@ -14,13 +14,8 @@ void LoginPacket::decode (std::string packet)
 
 std::string LoginPacket::handle (Quesync *server)
 {
-    ResponePacket responePacket;
-
-    // Create a response packet with authenticated code
-    responePacket = ResponsePacket(AUTHENTICATED_PACKET);
-
     // Encode the response packet
-    return responsePacket.encode();
+    return ResponsePacket(AUTHENTICATED_PACKET).encode();
 }
 
 std::string LoginPacket::encode()
