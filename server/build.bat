@@ -12,8 +12,15 @@ IF NOT DEFINED DevEnvDir (
     call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %ARCH%
 )
 
-SET LIB=%~dp0\..\lib;%LIB%
+::SET LIB=%~dp0\..\lib;%LIB%
 
 :: Re-compile the server side
-IF EXIST build\server.exe del build\server.exe
-cl packets\login_packet.cpp utils.cpp session.cpp quesync.cpp main.cpp -I..\include -DASIO_STANDALONE -D_WIN32_WINNT=0x0501 /std:c++17 /EHsc /Fo"build/" /Fe"build\server.exe"
+::IF EXIST build\server.exe del build\server.exe
+::cl packets\login_packet.cpp utils.cpp session.cpp quesync.cpp main.cpp -I..\include -DASIO_STANDALONE -D_WIN32_WINNT=0x0501 /std:c++17 /EHsc /Fo"build/" /Fe"build\server.exe"
+
+:: Create the cmake project
+cd build
+cmake ..
+
+:: Build the solution
+devenv /build Debug Quesync.sln
