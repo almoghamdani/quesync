@@ -75,7 +75,8 @@
         "xtree": "cpp",
         "iomanip": "cpp",
         "random": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "variant": "cpp"
     },
     "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/"
 }
