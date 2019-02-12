@@ -1,7 +1,7 @@
 #pragma once
 #include "packet.h"
 
-#include <format>
+#include <sstream>
 
 class ResponsePacket : public Packet
 {
@@ -12,8 +12,16 @@ public:
     
     virtual std::string encode()
     {
+        std::stringstream encodedPacket;
+
+        // Set the packet identifier
+        encodedPacket << PACKET_IDENTIFIER << PACKET_DELIMETER;
+
+        // Set the type of the response
+        encodedPacket << _type << PACKET_DELIMETER;
+
         // Format the response type in the packet
-        return fmt::format("{1}{0}{2}", PACKET_DELIMETER, PACKET_IDENTIFIER, _type);
+        return encodedPacket.str();
     };
 
     virtual void decode (std::string packet)
@@ -22,5 +30,6 @@ public:
 
     virtual std::string handle (Quesync *server)
     {
+        return nullptr;
     };
 };
