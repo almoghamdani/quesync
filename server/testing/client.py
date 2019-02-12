@@ -9,3 +9,5 @@ print('connecting to {} port {}'.format(*server_address))
 sock.connect(server_address)
 
 sock.send(b"QUESYNC|000|mail@gmail.com|123456789")
+
+print(sock.recv(512))
