@@ -24,3 +24,6 @@ cmake ..
 
 :: Build the solution
 devenv /build Debug Quesync.sln
+
+:: Return to server folder
+cd ..

@@ -1,6 +1,16 @@
 cmake_minimum_required(VERSION 3.0)
 project(Quesync)
 
+# Add the include folder
+include_directories(../include)
+
+# Preprocessor defines
+add_definitions(-DASIO_STANDALONE) # Build ASIO without boost
+add_definitions(-D_WIN32_WINNT=0x0501) # Set Windows version
+
+# Set C++17 standard
+set (CMAKE_CXX_STANDARD 17)
+
 # Get all the cpp files
 file(GLOB SOURCES "*.cpp")
 
