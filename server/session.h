@@ -15,6 +15,7 @@ public:
 
     void start();
     void recv();
+    void send(std::string data);
 
 private:
     tcp::socket _socket;
