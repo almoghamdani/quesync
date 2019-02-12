@@ -10,6 +10,10 @@
 class Packet
 {
 public:
+    Packet()
+    {
+    };
+
     Packet(PacketType type) : _type(type)
     {
     };
