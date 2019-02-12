@@ -42,7 +42,7 @@ Packet *Utils::ParsePacket(std::string packet)
 PacketType Utils::GetPacketType(std::string packet)
 {
     // Convert first 3 characters of string to the packet type (The first three should be the packet type)
-    return (PacketType)std::stoi(packet.substr(0, 3));
+    return (PacketType)std::stoi(packet.substr(0, PACKET_TYPE_LEN));
 }
 
 std::vector<std::string> Utils::Split(const std::string& s, char delimiter)

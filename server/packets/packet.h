@@ -6,6 +6,7 @@
 
 #define PACKET_IDENTIFIER "QUESYNC"
 #define PACKET_DELIMETER '|'
+#define PACKET_TYPE_LEN 3
 
 class Packet
 {
