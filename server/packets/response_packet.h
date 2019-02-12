@@ -1,3 +1,4 @@
+#pragma once
 #include "packet.h"
 
 #include <format>
@@ -5,7 +6,7 @@
 class ResponsePacket : public Packet
 {
 public:
-    ResponsePacket(PacketType type) : _type(type)
+    ResponsePacket(PacketType type) : Packet(type)
     {
     };
     
