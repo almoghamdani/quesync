@@ -10,6 +10,10 @@
 class Packet
 {
 public:
+    Packet(PacketType type) : _type(type)
+    {
+    };
+
     virtual std::string encode() = 0;
     virtual void decode (std::string packet) = 0;
     virtual std::string handle (Quesync *server) = 0;
