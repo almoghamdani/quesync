@@ -61,7 +61,7 @@ void Session::send(std::string data)
     copyString(data, _data, data.length());
 
     // Send the data to the client
-    asio::async_write(_socket, asio::buffer(data, data.length() + 1),
+    asio::async_write(_socket, asio::buffer(_data, data.length() + 1),
         [this, self](std::error_code ec, std::size_t)
         {
             // If no error occurred, return to the receiving function
