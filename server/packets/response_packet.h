@@ -18,7 +18,7 @@ public:
         encodedPacket << PACKET_IDENTIFIER << PACKET_DELIMETER;
 
         // Set the type of the response
-        encodedPacket << _type << PACKET_DELIMETER;
+        encodedPacket << setfill('0') << setw(PACKET_TYPE_LEN) << _type << PACKET_DELIMETER;
 
         // Format the response type in the packet
         return encodedPacket.str();
