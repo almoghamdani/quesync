@@ -16,4 +16,4 @@ SET LIB=%~dp0\..\lib;%LIB%
 
 :: Re-compile the server side
 IF EXIST build\server.exe del build\server.exe
-cl packets\login_packet.cpp utils.cpp session.cpp quesync.cpp main.cpp -I..\include -DASIO_STANDALONE -D_WIN32_WINNT=0x0501 /EHsc /Fo"build/" /Fe"build\server.exe"
+cl packets\login_packet.cpp utils.cpp session.cpp quesync.cpp main.cpp -I..\include -DASIO_STANDALONE -D_WIN32_WINNT=0x0501 /std:c++17 /EHsc /Fo"build/" /Fe"build\server.exe"
