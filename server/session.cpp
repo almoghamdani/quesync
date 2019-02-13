@@ -58,7 +58,7 @@ void Session::send(std::string data)
     auto self(shared_from_this());
 
     // Copy the data string to the data array
-    copyString(data, _data, data.length());
+    copyString(data, _data, data.length() + 1);
 
     // Send the data to the client
     asio::async_write(_socket, asio::buffer(_data, data.length() + 1),
