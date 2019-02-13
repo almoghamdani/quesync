@@ -10,6 +10,7 @@ class Quesync
 {
 public:
     Quesync(asio::io_context& io_context);
+    ~Quesync();
 
     void start();
 

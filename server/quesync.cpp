@@ -9,6 +9,15 @@ Quesync::Quesync(asio::io_context& io_context) : _acceptor(io_context, tcp::endp
     initDB();
 }
 
+Quesync::~Quesync()
+{
+    // Close all socket handlers
+    _acceptor.cancel();
+
+    // Free the database and close it
+    delete _db;
+}
+
 void Quesync::initDB()
 {
     std::cout << "Connecting to database.." << std::endl;
