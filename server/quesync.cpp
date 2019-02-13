@@ -19,10 +19,10 @@ void Quesync::initDB()
     // If the connection to the database failed
     if (!_db->is_open())
     {
-        std::cout << "Failed to connect to the sqlite database!" << std::endl;
+        throw std::string("Failed to connect to the SQLite database!");
     } else 
     {
-        std::cout << "SQLite Connection was successful" << std::endl;
+        std::cout << "SQLite Connection was successful!" << std::endl;
     }
 }
 

@@ -21,7 +21,13 @@ int main()
     } catch (std::exception& ex)
     {
         std::cout << "Exception occurred: " << ex.what() << std::endl;
+    } catch (std::string& ex)
+    {
+        std::cout << "Exception occurred: " << ex << std::endl;
     }
+
+    // Wait for key press
+    system("pause");
 
     return 0;
 }
