@@ -1,5 +1,6 @@
 #pragma once
 #include <asio.hpp>
+#include <sqlitepp.h>
 
 #define MAIN_SERVER_PORT 61110
 
@@ -14,6 +15,8 @@ public:
 
 private:
     tcp::acceptor _acceptor;
+    sqlitepp::db *_db;
 
+    void initDB();
     void acceptClient();
 };

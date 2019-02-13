@@ -7,6 +7,23 @@ Quesync::Quesync(asio::io_context& io_context) : _acceptor(io_context, tcp::endp
 {
 }
 
+void Quesync::initDB()
+{
+    std::cout << "Connecting to database.." << std::endl;
+
+    // Connecting to the quesync database
+    _db = new sqlitepp::db("db/quesync-db.db");
+
+    // If the connection to the database failed
+    if (!_db->is_open())
+    {
+        std::cout << "Failed to connect to the sqlite database!" << std::endl;
+    } else 
+    {
+        std::cout << "SQLite Connection was successful" << std::endl;
+    }
+}
+
 void Quesync::start()
 {
     std::cout << "Listening for TCP connections.." << std::endl;
