@@ -76,7 +76,8 @@
         "iomanip": "cpp",
         "random": "cpp",
         "set": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "fstream": "cpp"
     },
     "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/"
 }
