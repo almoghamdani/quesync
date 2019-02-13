@@ -4,6 +4,11 @@ project(Quesync)
 # Add the include folder
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../include)
 
+# If on windows include the openssl headers files for windows
+IF (WIN32)
+    include_directories(C:/OpenSSL-Win64/include)
+ENDIF()
+
 # Preprocessor defines
 add_definitions(-DASIO_STANDALONE) # Build ASIO without boost
 add_definitions(-D_WIN32_WINNT=0x0501) # Set Windows version
