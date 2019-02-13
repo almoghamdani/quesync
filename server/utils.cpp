@@ -1,7 +1,7 @@
 #include <sstream>
 
 #include "utils.h"
-#include "packets\login_packet.h"
+#include "packets/login_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {

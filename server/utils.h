@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 
-#include "packets\packet.h"
-#include "packets\packet_types.h"
+#include "packets/packet.h"
+#include "packets/packet_types.h"
 
 class Utils
 {

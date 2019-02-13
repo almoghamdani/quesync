@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include "..\quesync.h"
+#include "../quesync.h"
 #include "packet_types.h"
 
 #define PACKET_IDENTIFIER "QUESYNC"

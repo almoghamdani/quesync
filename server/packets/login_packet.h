@@ -2,7 +2,7 @@
 #include "packet.h"
 
 #include "response_packet.h"
-#include "..\utils.h"
+#include "../utils.h"
 
 class LoginPacket : public Packet
 {
