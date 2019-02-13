@@ -5,6 +5,8 @@
 
 Quesync::Quesync(asio::io_context& io_context) : _acceptor(io_context, tcp::endpoint(tcp::v4(), MAIN_SERVER_PORT))
 {
+    // Initialize the database
+    initDB();
 }
 
 void Quesync::initDB()
