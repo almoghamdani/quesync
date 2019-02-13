@@ -10,7 +10,7 @@ IF NOT DEFINED DevEnvDir (
 
 :: Create the cmake project
 cd build
-cmake ..
+cmake -DCMAKE_GENERATOR_PLATFORM=x64 ..
 
 :: Build the solution
 devenv /build Debug Quesync.sln
