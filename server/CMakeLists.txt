@@ -4,9 +4,15 @@ project(Quesync)
 # Add the include folder
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../include)
 
-# If on windows include the openssl headers files for windows
+# If on windows set the openssl folder
 IF (WIN32)
-    include_directories(C:/OpenSSL-Win64/include)
+    set (OPENSLL_DIR C:/OpenSSL-Win64)
+ENDIF()
+
+# If there is an openssl dir, set the include and lib directory
+if (OPENSLL_DIR)
+    include_directories(${OPENSLL_DIR}/include)
+    link_directories(${OPENSLL_DIR}/lib)
 ENDIF()
 
 # Preprocessor defines
@@ -24,3 +30,6 @@ file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../include/*.c
 
 # Add the server as an executable to be compiled
 add_executable(server ${SOURCES} ${INCLUDE_CPP})
+
+# Link the server to the openssl lib
+target_link_libraries(server VC/libeay32MT VC/ssleay32MT)
