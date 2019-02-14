@@ -24,14 +24,16 @@ public:
 
     virtual std::string handle (Quesync *server)
     {
+        QuesyncError error;
+
         // Try to authenticate the user
-        if (server->authenticateUser(_username, _password) == SUCCESS)
+        if ((error = server->authenticateUser(_username, _password)) == SUCCESS)
         {
             // Encode the response packet if the authentication was successful
             return ResponsePacket(AUTHENTICATED_PACKET).encode();
         }
 
-        return "";
+        return std::to_string(error);
     };
 
 private:
