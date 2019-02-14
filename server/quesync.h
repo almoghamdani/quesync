@@ -2,6 +2,8 @@
 #include <asio.hpp>
 #include <sqlitepp.h>
 
+#include "errors.h"
+
 #define MAIN_SERVER_PORT 61110
 
 using asio::ip::tcp;
@@ -13,6 +15,7 @@ public:
     ~Quesync();
 
     void start();
+    QuesyncError authenticateUser(std::string username, std::string password);
 
 private:
     tcp::acceptor _acceptor;

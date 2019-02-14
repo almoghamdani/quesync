@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "quesync.h"
+#include "utils.h"
 #include "session.h"
 
 Quesync::Quesync(asio::io_context& io_context) : _acceptor(io_context, tcp::endpoint(tcp::v4(), MAIN_SERVER_PORT))
@@ -70,4 +71,30 @@ void Quesync::acceptClient()
             // Accept the next client
             acceptClient();
         });
+}
+
+QuesyncError Quesync::authenticateUser(std::string username, std::string password)
+{
+    sqlitepp::query userQuery(*_db);
+    sqlitepp::result userRes;
+    std::string userPasswordHash;
+
+    // Try to get the password hash of the user
+    userQuery << "SELECT password FROM users WHERE username=" << username;
+    userRes = userQuery.store();
+
+    // If the user is not found
+    if (userRes.size() == 0)
+    {
+        return USER_NOT_FOUND;
+    } 
+    
+    // If the password the user entered doesn't match the user's password
+    userPasswordHash = userRes[0]["password"];
+    if (Utils::SHA256(password) != userPasswordHash)
+    {
+        return INCORRECT_PASSWORD;
+    }
+
+    return SUCCESS;
 }
