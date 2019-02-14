@@ -1,6 +1,13 @@
 #pragma once
 #include <asio.hpp>
+
+#ifdef _MSC_VER
+#pragma warning(disable: 4267) // disable warning 4267
+#endif
 #include <sqlitepp.h>
+#ifdef _MSC_VER
+#pragma warning(default: 4267) // enable warning 4267 back
+#endif
 
 #include "../shared/user.h"
 
