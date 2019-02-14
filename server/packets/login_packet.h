@@ -18,17 +18,23 @@ public:
         std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
 
         // Set the email and password from the params
-        _email = params[0];
+        _username = params[0];
         _password = params[1];
     };
 
     virtual std::string handle (Quesync *server)
     {
-        // Encode the response packet
-        return ResponsePacket(AUTHENTICATED_PACKET).encode();
+        // Try to authenticate the user
+        if (server->authenticateUser(_username, _password) == SUCCESS)
+        {
+            // Encode the response packet if the authentication was successful
+            return ResponsePacket(AUTHENTICATED_PACKET).encode();
+        }
+
+        return "";
     };
 
 private:
-    std::string _email;
+    std::string _username;
     std::string _password;
 };
