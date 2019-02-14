@@ -3,6 +3,7 @@
 #include "quesync.h"
 #include "utils.h"
 #include "session.h"
+#include "quesync_exception.h"
 
 Quesync::Quesync(asio::io_context& io_context) : _acceptor(io_context, tcp::endpoint(tcp::v4(), MAIN_SERVER_PORT))
 {
@@ -73,9 +74,11 @@ void Quesync::acceptClient()
         });
 }
 
-QuesyncError Quesync::authenticateUser(std::string username, std::string password)
+User *Quesync::authenticateUser(std::string username, std::string password)
 {
-    sqlitepp::query userQuery(*_db, "SELECT password FROM users WHERE username=?");
+    User *user = nullptr;
+
+    sqlitepp::query userQuery(*_db, "SELECT * FROM users WHERE username=?");
     sqlitepp::result userRes;
 
     // Try to get the password hash of the user
@@ -85,13 +88,19 @@ QuesyncError Quesync::authenticateUser(std::string username, std::string passwor
     // If the user is not found
     if (userRes.size() == 0)
     {
-        return USER_NOT_FOUND;
+        throw QuesyncException(USER_NOT_FOUND);
     } 
     // If the password the user entered doesn't match the user's password
     else if (Utils::SHA256(password) != std::string(userRes[0]["password"]))
     {
-        return INCORRECT_PASSWORD;
+        throw QuesyncException(INCORRECT_PASSWORD);
     }
 
-    return SUCCESS;
+    // Create the user from the db response
+    user = new User(userRes[0]["username"],
+                    userRes[0]["email"],
+                    userRes[0]["nickname"],
+                    userRes[0]["id"]);
+
+    return user;
 }
