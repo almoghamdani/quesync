@@ -34,6 +34,6 @@ public:
         return nullptr;
     };
 
-private:
+protected:
     std::string _data;
 };

@@ -2,6 +2,7 @@
 #include "packet.h"
 
 #include "response_packet.h"
+#include "error_packet.h"
 #include "../utils.h"
 #include "../quesync_exception.h"
 
@@ -33,7 +34,7 @@ public:
 
             return ResponsePacket(AUTHENTICATED_PACKET, user->serialize()).encode();
         } catch (QuesyncException& ex) {
-            return std::to_string(ex.getErrorCode());
+            return ErrorPacket(ex.getErrorCode()).encode();
         }  
     };
 
