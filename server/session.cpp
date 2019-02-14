@@ -2,6 +2,7 @@
 
 #include "session.h"
 #include "utils.h"
+#include "packets/error_packet.h"
 
 void copyString(const std::string& input, char *dst, size_t dst_size)
 {
@@ -47,7 +48,8 @@ void Session::recv()
                     // Handle the client's request and get a respond
                     response = packet->handle(_server);
                 } else {
-                    response = "";
+                    // Return an invalid packet error packet
+                    response = ErrorPacket(INVALID_PACKET).encode();
                 }
 
                 // Send the server's response to the server

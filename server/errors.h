@@ -3,6 +3,7 @@
 typedef enum QuesyncError
 {
     SUCCESS,
+    INVALID_PACKET,
     USER_NOT_FOUND,
     INCORRECT_PASSWORD
 } QuesyncError;
