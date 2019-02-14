@@ -55,8 +55,14 @@ void Session::recv()
                 // Send the server's response to the server
                 send(response);
             } else {
-                // Print error
-                std::cout << "An error occurred: " << ec << std::endl;
+                // If the client closed the connection, close the client
+                if (ec == asio::error::misc_errors::eof)
+                {
+                    std::cout << "The client " << _socket.remote_endpoint().address().to_string() << ":" << (int)_socket.remote_endpoint().port() << " disconnected!" << std::endl;
+                } else {
+                    // Print error
+                    std::cout << "An error occurred: " << ec << std::endl;
+                }
             }
         });
 }
@@ -78,8 +84,14 @@ void Session::send(std::string data)
                 recv();
             } else 
             {
-                // Print error
-                std::cout << "An error occurred: " << ec << std::endl;
+                // If the client closed the connection, close the client
+                if (ec == asio::error::misc_errors::eof)
+                {
+                    std::cout << "The client " << _socket.remote_endpoint().address().to_string() << ":" << (int)_socket.remote_endpoint().port() << " disconnected!" << std::endl;
+                } else {
+                    // Print error
+                    std::cout << "An error occurred: " << ec << std::endl;
+                }
             }
         });
 }
