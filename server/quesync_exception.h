@@ -9,7 +9,7 @@
 class QuesyncException : public std::exception
 {
 public:
-    QuesyncException(QuesyncError ec)
+    QuesyncException(QuesyncError ec) : _ec(ec)
     {
         // Set the error message by the error code
         sprintf(_errorMsg, "An error occurred, error code: %d", ec);
@@ -19,6 +19,12 @@ public:
        return _errorMsg;
     }
 
+    QuesyncError getErrorCode()
+    {
+        return _ec;
+    }
+
 private:
     char _errorMsg[MAX_ERROR_MSG_LEN];
+    QuesyncError _ec;
 };
