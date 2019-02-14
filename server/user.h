@@ -18,4 +18,4 @@ public:
     GET_FUNCTION(email, std::string)
     GET_FUNCTION(nickname, std::string)
     GET_FUNCTION(id, std::string)
-}
+};
