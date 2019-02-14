@@ -21,4 +21,4 @@ public:
 
 private:
     char _errorMsg[MAX_ERROR_MSG_LEN];
-}
+};
