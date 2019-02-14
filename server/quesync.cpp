@@ -75,12 +75,11 @@ void Quesync::acceptClient()
 
 QuesyncError Quesync::authenticateUser(std::string username, std::string password)
 {
-    sqlitepp::query userQuery(*_db);
+    sqlitepp::query userQuery(*_db, "SELECT password FROM users WHERE username=?");
     sqlitepp::result userRes;
-    std::string userPasswordHash;
 
     // Try to get the password hash of the user
-    userQuery << "SELECT password FROM users WHERE username=" << username;
+    userQuery.bind(1, username);
     userRes = userQuery.store();
 
     // If the user is not found
@@ -88,10 +87,8 @@ QuesyncError Quesync::authenticateUser(std::string username, std::string passwor
     {
         return USER_NOT_FOUND;
     } 
-    
     // If the password the user entered doesn't match the user's password
-    userPasswordHash = userRes[0]["password"];
-    if (Utils::SHA256(password) != userPasswordHash)
+    else if (Utils::SHA256(password) != std::string(userRes[0]["password"]))
     {
         return INCORRECT_PASSWORD;
     }
