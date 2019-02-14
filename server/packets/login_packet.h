@@ -3,6 +3,7 @@
 
 #include "response_packet.h"
 #include "../utils.h"
+#include "../quesync_exception.h"
 
 class LoginPacket : public Packet
 {
@@ -30,9 +31,9 @@ public:
             // Authenticate the usetr, if failed an exception will be thrown
             user = server->authenticateUser(_username, _password);
 
-            return ResponsePacket(AUTHENTICATED_PACKET);
+            return ResponsePacket(AUTHENTICATED_PACKET).encode();
         } catch (QuesyncException& ex) {
-            return std::to_string(ex.geErrorCode());
+            return std::to_string(ex.getErrorCode());
         }  
     };
 
