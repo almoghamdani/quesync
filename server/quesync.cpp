@@ -1,9 +1,9 @@
 #include <iostream>
 
 #include "quesync.h"
-#include "utils.h"
 #include "session.h"
-#include "quesync_exception.h"
+#include "../shared/utils.h"
+#include "../shared/quesync_exception.h"
 
 Quesync::Quesync(asio::io_context& io_context) : _acceptor(io_context, tcp::endpoint(tcp::v4(), MAIN_SERVER_PORT))
 {

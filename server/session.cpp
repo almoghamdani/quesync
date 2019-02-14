@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "session.h"
-#include "utils.h"
-#include "packets/error_packet.h"
+#include "../shared/utils.h"
+#include "../shared/packets/error_packet.h"
 
 void copyString(const std::string& input, char *dst, size_t dst_size)
 {

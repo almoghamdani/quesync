@@ -2,7 +2,7 @@
 #include <asio.hpp>
 #include <sqlitepp.h>
 
-#include "user.h"
+#include "../shared/user.h"
 
 #define MAIN_SERVER_PORT 61110
 

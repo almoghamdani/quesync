@@ -22,14 +22,17 @@ add_definitions(-D_WIN32_WINNT=0x0501) # Set Windows version
 # Set C++14 standard
 set (CMAKE_CXX_STANDARD 14)
 
-# Get all the cpp files
+# Get all the cpp files for the server
 file(GLOB SOURCES "*.cpp")
+
+# Get all the cpp files for the shared source
+file(GLOB SHARED_SOURCES "../shared/*.cpp")
 
 # Get all c files that are associated with the libraries used
 file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../include/*.c")
 
 # Add the server as an executable to be compiled
-add_executable(server ${SOURCES} ${INCLUDE_CPP})
+add_executable(server ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})
 
 # Link the server to the openssl lib
 target_link_libraries(server VC/libeay32MT VC/ssleay32MT)
