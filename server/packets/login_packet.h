@@ -31,7 +31,7 @@ public:
             // Authenticate the usetr, if failed an exception will be thrown
             user = server->authenticateUser(_username, _password);
 
-            return ResponsePacket(AUTHENTICATED_PACKET).encode();
+            return ResponsePacket(AUTHENTICATED_PACKET, user->serialize()).encode();
         } catch (QuesyncException& ex) {
             return std::to_string(ex.getErrorCode());
         }  
