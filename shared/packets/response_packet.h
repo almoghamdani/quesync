@@ -29,10 +29,13 @@ public:
     {
     };
 
+    // A handle function for the server
+    #ifdef QUESYNC_SERVER
     virtual std::string handle (Quesync *server)
     {
         return nullptr;
     };
+    #endif
 
 protected:
     std::string _data;

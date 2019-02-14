@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 project(Quesync)
 
+# Make the shared headers compile for the server
+add_definitions (-DQUESYNC_SERVER)
+
 # Add the include folder
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../include)
 

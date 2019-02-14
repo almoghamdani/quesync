@@ -24,6 +24,8 @@ public:
         _password = params[1];
     };
 
+    // A handle function for the server
+    #ifdef QUESYNC_SERVER
     virtual std::string handle (Quesync *server)
     {
         User *user;
@@ -37,6 +39,7 @@ public:
             return ErrorPacket(ex.getErrorCode()).encode();
         }  
     };
+    #endif
 
 private:
     std::string _username;

@@ -1,7 +1,11 @@
 #pragma once
 #include <string>
 
+// Only include quesync server if built with server
+#ifdef QUESYNC_SERVER
 #include "../../server/quesync.h"
+#endif
+
 #include "packet_types.h"
 
 #define PACKET_IDENTIFIER "QUESYNC"
@@ -21,7 +25,11 @@ public:
 
     virtual std::string encode() = 0;
     virtual void decode (std::string packet) = 0;
+
+    // A handle function for the server
+    #ifdef QUESYNC_SERVER
     virtual std::string handle (Quesync *server) = 0;
+    #endif
 
 protected:
     PacketType _type;
