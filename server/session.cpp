@@ -41,8 +41,14 @@ void Session::recv()
                 // Parse the packet
                 packet = Utils::ParsePacket(_data);
 
-                // Handle the client's request and get a respond
-                response = packet->handle(_server);
+                // If the packet has parsed successfully handle it
+                if (packet)
+                {
+                    // Handle the client's request and get a respond
+                    response = packet->handle(_server);
+                } else {
+                    response = "";
+                }
 
                 // Send the server's response to the server
                 send(response);
