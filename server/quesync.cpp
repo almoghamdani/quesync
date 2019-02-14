@@ -38,7 +38,7 @@ void Quesync::initDB()
     std::cout << "Initializing SQLite database.." << std::endl;
 
     // Create the users table if not exists
-    sqlitepp::query(*_db, "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT, password TEXT)").exec();
+    sqlitepp::query(*_db, "CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY UNIQUE NOT NULL, username TEXT NOT NULL, password TEXT NOT NULL, email TEXT NOT NULL, nickname TEXT)").exec();
 }
 
 void Quesync::start()
