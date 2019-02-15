@@ -105,3 +105,20 @@ std::vector<std::string> Utils::Split(const std::string& s, char delimiter)
 
    return tokens;
 }
+
+#ifdef QUESYNC_CLIENT
+Napi::Object Utils::JsonToObject(Napi::Env env, nlohmann::json& json)
+{
+    // Create a new instance of a js object
+    Napi::Object res = Napi::Object::New(env);
+
+    // Go through the items in the original json
+    for (auto& element : json.items())
+    {
+        // Set the value in the element's key in the new js object
+        res[element.key()] = element.value();
+    }
+
+    return res;
+}
+#endif
