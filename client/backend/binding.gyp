@@ -36,7 +36,8 @@
         }
       },
       "defines": [
-          'ASIO_STANDALONE'
+          'ASIO_STANDALONE',
+          'QUESYNC_CLIENT'
       ]
     }
   ]
