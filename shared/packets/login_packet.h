@@ -26,14 +26,20 @@ public:
                                    << _password << PACKET_DELIMETER).str();
     };
 
-    virtual void decode (std::string packet)
+    virtual bool decode (std::string packet)
     {
         // Split the packet
         std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
 
         // Set the email and password from the params
-        _username = params[0];
-        _password = params[1];
+        try {
+            _username = params[0];
+            _password = params[1];
+        } catch (...) {
+            return false;
+        }
+
+        return true;
     };
 
     // A handle function for the server

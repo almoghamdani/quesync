@@ -24,7 +24,7 @@ public:
     };
 
     virtual std::string encode() = 0;
-    virtual void decode (std::string packet) = 0;
+    virtual bool decode (std::string packet) = 0;
 
     // A handle function for the server
     #ifdef QUESYNC_SERVER

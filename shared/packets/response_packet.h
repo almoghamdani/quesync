@@ -25,8 +25,9 @@ public:
         return encodedPacket.str();
     };
 
-    virtual void decode (std::string packet)
+    virtual bool decode (std::string packet)
     {
+        return false;
     };
 
     // A handle function for the server
