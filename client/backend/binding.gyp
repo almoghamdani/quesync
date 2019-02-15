@@ -7,11 +7,11 @@
         "src/socket-manager.cc", 
         "src/voice-chat.cc",
         "src/client.cc",
-        "src/include/socket-manager.hpp",
-        "src/include/socket-error.hpp",
-        "src/include/voice-chat.hpp",
-        "src/include/client.hpp",
-        "src/include/structs.hpp" ],
+        "src/socket-manager.hpp",
+        "src/socket-error.hpp",
+        "src/voice-chat.hpp",
+        "src/lient.hpp",
+        "src/structs.hpp" ],
       "include_dirs": [ 
         "../../include",
         "<!(node -e \"require('nan')\")"
