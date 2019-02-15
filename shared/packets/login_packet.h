@@ -21,7 +21,7 @@ public:
     {
         // Format the login packet
         return (std::stringstream() << PACKET_IDENTIFIER << PACKET_DELIMETER
-                                   << std::setw(3) << std::setfill('0') << LOGIN_PACKET
+                                   << std::setw(3) << std::setfill('0') << LOGIN_PACKET << PACKET_DELIMETER
                                    << _username << PACKET_DELIMETER
                                    << _password << PACKET_DELIMETER).str();
     };
