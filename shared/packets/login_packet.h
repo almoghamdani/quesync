@@ -34,8 +34,13 @@ public:
             // Authenticate the usetr, if failed an exception will be thrown
             user = session->server()->authenticateUser(_username, _password);
 
+            // Set the user in the client's session
+            session->setUser(user);
+
+            // Return autheticated packet with the user's info
             return ResponsePacket(AUTHENTICATED_PACKET, user->serialize()).encode();
         } catch (QuesyncException& ex) {
+            // Return the error code
             return ErrorPacket(ex.getErrorCode()).encode();
         }  
     };

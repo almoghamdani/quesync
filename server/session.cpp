@@ -19,6 +19,15 @@ Session::Session(tcp::socket socket, Quesync *server) :
 {
 }
 
+Session::~Session()
+{
+    // If the user authenticated delete the user object
+    if (_user)
+    {
+        delete _user;
+    }
+}
+
 void Session::start()
 {
     // Start receiving from the client
@@ -97,7 +106,12 @@ void Session::send(std::string data)
         });
 }
 
-Quesync *Session::server()
+Quesync *Session::server() const
 {
     return _server;
+}
+
+void Session::setUser(User *user)
+{
+    _user = user;
 }
