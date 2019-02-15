@@ -1,5 +1,8 @@
 #include "client.hpp"
 
+#include "socket-manager.hpp"
+#include "../../../shared/packets/login_packet.h"
+
 Nan::Persistent<v8::Function> Client::constructor;
 
 Client::Client() : _socket(SocketManager::io_context)
@@ -47,7 +50,10 @@ void Client::login(const Nan::FunctionCallbackInfo<v8::Value>& info)
     Client* obj = ObjectWrap::Unwrap<Client>(info.Holder());
 
     // Convert parameters to string
-    Nan::Utf8String email(info[0]), password(info[1]);
+    Nan::Utf8String username(info[0]), password(info[1]);
+
+    // Create a login packet from the username and password
+    LoginPacket loginPacket((const char *)*username, (const char *)*password);
 
     // If one of the parameters is undefined, send error
     if (info[0]->IsUndefined() || info[1]->IsUndefined())
@@ -55,8 +61,8 @@ void Client::login(const Nan::FunctionCallbackInfo<v8::Value>& info)
         Nan::ThrowError(Nan::Error("Missing parameters!"));
     }
 
-    // Send to the server the login request
-    //SocketManager::Send(&obj->_socket, &login_packet, sizeof(login_packet));
+    // Send the server the login packet
+    obj->_socket.write_some(asio::buffer(loginPacket.encode(), loginPacket.encode().length()));
 }
 
 void Client::Init(v8::Local<v8::Object> exports) {
