@@ -11,9 +11,9 @@
 class LoginPacket : public Packet
 {
 public:
-    LoginPacket() {};
+    LoginPacket() : Packet(LOGIN_PACKET) {};
 
-    LoginPacket(std::string username, std::string password) : _username(username), _password(password)
+    LoginPacket(std::string username, std::string password) : Packet(LOGIN_PACKET), _username(username), _password(password)
     {
     };
 

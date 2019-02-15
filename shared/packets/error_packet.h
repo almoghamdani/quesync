@@ -7,7 +7,7 @@
 class ErrorPacket : public ResponsePacket
 {
 public:
-    ErrorPacket() {};
+    ErrorPacket() : ResponsePacket(ERROR_PACKET, "") {};
 
     ErrorPacket(QuesyncError ec) : _ec(ec), 
         ResponsePacket(ERROR_PACKET, 
@@ -20,16 +20,14 @@ public:
         // Split the packet
         std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
 
-        // Check if the string contains only digits (valid error code)
-        if (strspn(params[0].c_str(), "0123456789"))
-        {
+        try {
             // Decode the error code
-            _ec = std::to_string(params[0]);
-
-            return true;
-        } else {
+            _ec = (QuesyncError)std::stoi(params[0]);
+        } catch (...) {
             return false;
         }
+
+        return true;
     };
 
     QuesyncError error() const
