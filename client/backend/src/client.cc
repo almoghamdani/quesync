@@ -46,11 +46,12 @@ void Client::connect(const Napi::CallbackInfo& info)
     }
 }
 
-void Client::login(const Napi::CallbackInfo& info)
+Napi::Value Client::login(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
 
     Packet *responsePacket;
+    Napi::Object res = Napi::Object::New(env);
 
     // Convert parameters to string
     std::string username = info[0].As<Napi::String>(), password = info[1].As<Napi::String>();
@@ -79,8 +80,14 @@ void Client::login(const Napi::CallbackInfo& info)
     // If the response is an error, handle the error
     if (responsePacket && responsePacket->type() == ERROR_PACKET)
     {
-        std::cout << ((ErrorPacket *)responsePacket)->error() << std::endl;
+        // Set the error code from the response packet
+        res["error"] = Napi::Number::New(env, ((ErrorPacket *)responsePacket)->error());
+
+        // Set no user since an error occurred
+        res["user"] = env.Null();
     }
+
+    return res;
 }
 
 Napi::Object Client::Init(Napi::Env env, Napi::Object exports) {
