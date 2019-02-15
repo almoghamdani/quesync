@@ -1,6 +1,8 @@
 #pragma once
 #include "packet.h"
 
+#include <sstream>
+
 #include "response_packet.h"
 #include "error_packet.h"
 #include "../utils.h"
@@ -9,9 +11,17 @@
 class LoginPacket : public Packet
 {
 public:
+    LoginPacket(std::string username, std::string password) : _username(username), _password(password)
+    {
+    };
+
     virtual std::string encode()
     {
-        return std::string("");
+        // Format the login packet
+        return (std::stringstream() << PACKET_IDENTIFIER << PACKET_DELIMETER
+                                   << std::setw(3) << std::setfill('0') << LOGIN_PACKET
+                                   << _username << PACKET_DELIMETER
+                                   << _password << PACKET_DELIMETER).str();
     };
 
     virtual void decode (std::string packet)
