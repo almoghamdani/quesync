@@ -26,13 +26,13 @@ public:
 
     // A handle function for the server
     #ifdef QUESYNC_SERVER
-    virtual std::string handle (Quesync *server)
+    virtual std::string handle (Session *session)
     {
         User *user;
 
         try {
             // Authenticate the usetr, if failed an exception will be thrown
-            user = server->authenticateUser(_username, _password);
+            user = session->server()->authenticateUser(_username, _password);
 
             return ResponsePacket(AUTHENTICATED_PACKET, user->serialize()).encode();
         } catch (QuesyncException& ex) {

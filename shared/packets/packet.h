@@ -3,7 +3,7 @@
 
 // Only include quesync server if built with server
 #ifdef QUESYNC_SERVER
-#include "../../server/quesync.h"
+#include "../../server/session.h"
 #endif
 
 #include "packet_types.h"
@@ -28,7 +28,7 @@ public:
 
     // A handle function for the server
     #ifdef QUESYNC_SERVER
-    virtual std::string handle (Quesync *server) = 0;
+    virtual std::string handle (Session *session) = 0;
     #endif
 
 protected:

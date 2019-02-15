@@ -1,6 +1,8 @@
 #pragma once
 #include <asio.hpp>
 
+#include <map>
+
 #ifdef _MSC_VER
 #pragma warning(disable: 4267) // disable warning 4267
 #endif

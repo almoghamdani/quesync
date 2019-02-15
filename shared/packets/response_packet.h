@@ -31,7 +31,7 @@ public:
 
     // A handle function for the server
     #ifdef QUESYNC_SERVER
-    virtual std::string handle (Quesync *server)
+    virtual std::string handle (Session *session)
     {
         return nullptr;
     };

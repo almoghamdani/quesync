@@ -17,6 +17,8 @@ public:
     void recv();
     void send(std::string data);
 
+    Quesync *server();
+
 private:
     tcp::socket _socket;
     Quesync *_server;

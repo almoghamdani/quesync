@@ -46,7 +46,7 @@ void Session::recv()
                 if (packet)
                 {
                     // Handle the client's request and get a respond
-                    response = packet->handle(_server);
+                    response = packet->handle(this);
                 } else {
                     // Return an invalid packet error packet
                     response = ErrorPacket(INVALID_PACKET).encode();
@@ -66,6 +66,7 @@ void Session::recv()
             }
         });
 }
+
 
 void Session::send(std::string data)
 {
@@ -94,4 +95,9 @@ void Session::send(std::string data)
                 }
             }
         });
+}
+
+Quesync *Session::server()
+{
+    return _server;
 }
