@@ -30,11 +30,14 @@ void Client::connect(const Nan::FunctionCallbackInfo<v8::Value>& info)
 
     try {
         // Try to connect to the server
-        asio::connect(obj->_socket, &serverEndpoint);
-    } catch (std::exception ex)
+        obj->_socket.connect(serverEndpoint);
+    } catch (std::system_error& ex)
     {
+        // Format the error message
+        std::string error = (std::stringstream() << ex.code().message() << " [" << ex.code() << "]").str();
+
         // Throw error on excpetion
-        Nan::ThrowError(Nan::Error(ex.what()));
+        Nan::ThrowError(Nan::Error(error.c_str()));
     }
 }
 
