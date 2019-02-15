@@ -1,4 +1,5 @@
 #include <nan.h>
+
 #include "client.hpp"
 
 void Init(v8::Local<v8::Object> exports) {
