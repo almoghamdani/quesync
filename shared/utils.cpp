@@ -40,13 +40,13 @@ Packet *Utils::ParsePacket(std::string packet)
     return p;
 }
 
-void Utils::CopyString(const std::string& input, char *dst, size_t dst_size)
+void Utils::CopyString(const std::string& input, char *dst)
 {
     // Copy the string
-    strncpy(dst, input.c_str(), dst_size - 1);
+    strncpy(dst, input.c_str(), input.length());
 
     // Null-terminate the string
-    dst[dst_size - 1] = '\0';
+    dst[input.length()] = '\0';
 }
 
 std::string Utils::SHA256(const std::string str)
