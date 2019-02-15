@@ -15,7 +15,8 @@ void copyString(const std::string& input, char *dst, size_t dst_size)
 
 Session::Session(tcp::socket socket, Quesync *server) : 
     _socket(std::move(socket)), // Copy the client's socket
-    _server(server) // Save the server for data transfer
+    _server(server), // Save the server for data transfer,
+    _user(nullptr)
 {
 }
 
