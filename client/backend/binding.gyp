@@ -8,7 +8,7 @@
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")", 
-        "../../include",
+        "../../include"
       ],
       "cflags": [
         "-std=c++17",
@@ -20,6 +20,25 @@
         "CLANG_CXX_LIBRARY": "libc++",
         "MACOSX_DEPLOYMENT_TARGET": "10.7",
       },
+      'conditions': [
+            ["OS=='win'", {
+                'include_dirs': [
+                    "C:/OpenSSL-Win64/include"
+                ],
+                'library_dirs': [
+                    'C:/OpenSSL-Win64/lib'
+                ],
+                'link_settings': {
+                    'libraries': [
+                        '-lVC/libeay32MT',
+                        '-lVC/ssleay32MT'
+                    ]
+                },
+                'defines': [
+                    '_WIN32_WINNT=0x0501'
+                ]
+            }]
+      ],
       'link_settings': {
         'libraries': [
           '-lopus',
@@ -27,7 +46,7 @@
           '-lOpenAL32'
         ],
         'library_dirs': [
-          '../../lib',
+          '../../lib'
         ],
       },
       "msvs_settings": {
