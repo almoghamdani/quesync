@@ -9,5 +9,5 @@ typedef enum PacketType
     AUTHENTICATED_PACKET = 200,
 
     // When an error occurred
-    QUESYNC_ERROR = 400
+    ERROR_PACKET = 400
 } PacketType;
