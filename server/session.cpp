@@ -4,15 +4,6 @@
 #include "../shared/utils.h"
 #include "../shared/packets/error_packet.h"
 
-void copyString(const std::string& input, char *dst, size_t dst_size)
-{
-    // Copy the string
-    strncpy(dst, input.c_str(), dst_size - 1);
-
-    // Null-terminate the string
-    dst[dst_size - 1] = '\0';
-}
-
 Session::Session(tcp::socket socket, Quesync *server) : 
     _socket(std::move(socket)), // Copy the client's socket
     _server(server), // Save the server for data transfer,
@@ -88,7 +79,7 @@ void Session::send(std::string data)
     auto self(shared_from_this());
 
     // Copy the data string to the data array
-    copyString(data, _data, data.length() + 1);
+    Utils::CopyString(data, _data, data.length() + 1);
 
     // Send the data to the client
     asio::async_write(_socket, asio::buffer(_data, data.length() + 1),

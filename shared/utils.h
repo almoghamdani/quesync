@@ -8,6 +8,7 @@
 class Utils
 {
 public:
+    static void CopyString(const std::string& input, char *dst, size_t dst_size);
     static std::string SHA256(const std::string str);
     static Packet *ParsePacket(std::string packet);
     static PacketType GetPacketType(std::string packet);

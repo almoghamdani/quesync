@@ -40,6 +40,15 @@ Packet *Utils::ParsePacket(std::string packet)
     return p;
 }
 
+void Utils::CopyString(const std::string& input, char *dst, size_t dst_size)
+{
+    // Copy the string
+    strncpy(dst, input.c_str(), dst_size - 1);
+
+    // Null-terminate the string
+    dst[dst_size - 1] = '\0';
+}
+
 std::string Utils::SHA256(const std::string str)
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
