@@ -50,7 +50,7 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
 
-    Packet *responsePacket;
+    ResponsePacket *responsePacket;
     Napi::Object res = Napi::Object::New(env);
 
     // Convert parameters to string
@@ -75,7 +75,7 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
 
     // Parse the response packet
-    responsePacket = Utils::ParsePacket(_data);
+    responsePacket = (ResponsePacket *)Utils::ParsePacket(_data);
 
     // If the response is an error, handle the error
     if (responsePacket && responsePacket->type() == ERROR_PACKET)
@@ -85,6 +85,19 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
 
         // Set no user since an error occurred
         res["user"] = env.Null();
+    } else if (responsePacket && responsePacket->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
+    {
+        // Create a new user
+        _user = new User();
+
+        // Deserialize the user data from the response data
+        _user->deserialize(responsePacket->data());
+
+        // Set success error code
+        res["error"] = Napi::Number::New(env, SUCCESS);
+
+        // Return the user serialized
+        res["user"] = Utils::JsonToObject(env, _user->json());
     }
 
     return res;

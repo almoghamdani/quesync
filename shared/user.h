@@ -4,7 +4,7 @@
 class User : public SerializedObject
 {
 public:
-    User() : User(nullptr, nullptr, nullptr, nullptr) {};
+    User() : User("", "", "", "") {};
 
     User(std::string username, std::string email, std::string nickname, std::string id)
     {

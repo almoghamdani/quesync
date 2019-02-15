@@ -3,6 +3,7 @@
 #include <uv.h>
 
 #include "voice-chat.hpp"
+#include "../../../shared/user.h"
 
 #define SERVER_PORT 61110
 #define MAX_DATA_LEN 1000
@@ -19,6 +20,8 @@ class Client : public Napi::ObjectWrap<Client> {
 
     private:
         static Napi::FunctionReference constructor;
+
+        User *_user;
 
         VoiceChat *_voiceChatManager;
         
