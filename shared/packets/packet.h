@@ -31,6 +31,11 @@ public:
     virtual std::string handle (Session *session) = 0;
     #endif
 
+    PacketType type() const
+    {
+        return _type;
+    };
+
 protected:
     PacketType _type;
 };

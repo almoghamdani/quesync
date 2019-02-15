@@ -24,12 +24,17 @@ public:
         if (strspn(params[0].c_str(), "0123456789"))
         {
             // Decode the error code
-            ec = std::to_string(params[0]);
+            _ec = std::to_string(params[0]);
 
             return true;
         } else {
             return false;
         }
+    };
+
+    QuesyncError error() const
+    {
+        return _ec;
     };
 
 protected:
