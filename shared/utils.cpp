@@ -29,15 +29,18 @@ Packet *Utils::ParsePacket(std::string packet)
     {
     case LOGIN_PACKET:
         p = new LoginPacket();
+
+    case ERROR_PACKET:
+        p = new ErrorPacket();
     }
 
-    // If the type was found, decode the packet
-    if (p != nullptr)
+    // If the type was found, decode the packet, if the decode was a success, return the packet type
+    if (p != nullptr && p->decode(packet))
     {
-        p->decode(packet);
+        return p;
+    } else {
+        return nullptr;
     }
-
-    return p;
 }
 
 void Utils::CopyString(const std::string& input, char *dst)
