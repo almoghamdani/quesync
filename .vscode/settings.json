@@ -80,7 +80,9 @@
         "fstream": "cpp",
         "forward_list": "cpp",
         "numeric": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "stack": "cpp",
+        "unordered_set": "cpp"
     },
     "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/"
 }

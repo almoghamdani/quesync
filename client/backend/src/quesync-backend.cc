@@ -1,9 +1,11 @@
-#include <nan.h>
+#include <napi.h>
+#include <uv.h>
 
 #include "client.hpp"
 
-void Init(v8::Local<v8::Object> exports) {
-  Client::Init(exports);
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
+    Client::Init(env, exports);
+    return exports;
 }
 
-NODE_MODULE(quesync, Init)
+NODE_API_MODULE(quesync, Init)

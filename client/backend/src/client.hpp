@@ -1,25 +1,27 @@
 #pragma once
-#include <nan.h>
+#include <napi.h>
+#include <uv.h>
 
 #include "voice-chat.hpp"
 
 #define SERVER_PORT 61110
+#define MAX_DATA_LEN 1000
 
 using asio::ip::tcp;
 
-class Client : public Nan::ObjectWrap {
+class Client : public Napi::ObjectWrap<Client> {
     public:
-        static void Init(v8::Local<v8::Object> exports);
-        Client();
+        static Napi::Object Init(Napi::Env env, Napi::Object exports);
+        Client(const Napi::CallbackInfo &info);
 
-        static void connect(const Nan::FunctionCallbackInfo<v8::Value>& info);
-        static void login(const Nan::FunctionCallbackInfo<v8::Value>& info);
+        void connect(const Napi::CallbackInfo& info);
+        void login(const Napi::CallbackInfo& info);
 
     private:
-        static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
-        static Nan::Persistent<v8::Function> constructor;
+        static Napi::FunctionReference constructor;
 
         VoiceChat *_voiceChatManager;
         
         tcp::socket _socket;
+        char _data[MAX_DATA_LEN];
 };
