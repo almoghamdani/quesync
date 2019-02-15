@@ -26,6 +26,11 @@ Session::~Session()
     {
         delete _user;
     }
+
+    // Close the client's socket in case it's not closed
+    try {
+        _socket.close();
+    } catch (...) { }
 }
 
 void Session::start()
