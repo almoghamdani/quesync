@@ -3,9 +3,10 @@
 
 #include "socket-manager.hpp"
 #include "voice-chat.hpp"
-#include "structs.hpp"
 
 #define SERVER_PORT 61110
+
+using asio::ip::tcp;
 
 class Client : public Nan::ObjectWrap {
     public:
@@ -20,5 +21,6 @@ class Client : public Nan::ObjectWrap {
         static Nan::Persistent<v8::Function> constructor;
 
         VoiceChat *_voiceChatManager;
-        uv_tcp_t _socket;
+        
+        tcp::socket _socket;
 };
