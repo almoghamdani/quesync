@@ -2,16 +2,10 @@
   "targets": [
     {
       "target_name": "quesync",
-      "sources": [ 
-        "src/quesync-backend.cc", 
-        "src/socket-manager.cc", 
-        "src/voice-chat.cc",
-        "src/client.cc",
-        "src/socket-manager.hpp",
-        "src/socket-error.hpp",
-        "src/voice-chat.hpp",
-        "src/lient.hpp",
-        "src/structs.hpp" ],
+      "sources": [
+        "<!@(node -p \"require('fs').readdirSync('./src').map(f=>'src/'+f).join(' ')\")",
+        "<!@(node -p \"require('fs').readdirSync('../../shared').map(f=>'../../shared/'+f).join(' ')\")"
+      ],
       "include_dirs": [ 
         "../../include",
         "<!(node -e \"require('nan')\")"
