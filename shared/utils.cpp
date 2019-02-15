@@ -30,9 +30,15 @@ Packet *Utils::ParsePacket(std::string packet)
     {
     case LOGIN_PACKET:
         p = new LoginPacket();
+        break;
 
     case ERROR_PACKET:
         p = new ErrorPacket();
+        break;
+
+    case AUTHENTICATED_PACKET:
+        p = new ResponsePacket(packet_type, "");
+        break;
     }
 
     // If the type was found, decode the packet, if the decode was a success, return the packet type

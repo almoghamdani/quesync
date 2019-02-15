@@ -27,7 +27,17 @@ public:
 
     virtual bool decode (std::string packet)
     {
-        return false;
+        // Split the packet
+        std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
+
+        try {
+            // Get the data from the packet, it should be the first parameter
+            _data = params[0];
+        } catch (...) {
+            return false;
+        }
+
+        return true;
     };
 
     // A handle function for the server
@@ -37,6 +47,11 @@ public:
         return nullptr;
     };
     #endif
+
+    std::string data() const
+    {
+        return _data;
+    };
 
 protected:
     std::string _data;

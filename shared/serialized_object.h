@@ -16,6 +16,12 @@ public:
         return _json.dump();
     };
 
+    void deserialize(std::string json)
+    {
+        // Parse the json serialized string to the class's json
+        _json = nlohmann::json::parse(json);
+    };
+
 protected:
     nlohmann::json _json;
 };
