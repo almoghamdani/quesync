@@ -13,7 +13,7 @@ cd build
 cmake -DCMAKE_GENERATOR_PLATFORM=x64 ..
 
 :: Build the solution
-devenv /build Debug Quesync.sln
+msbuild Quesync.sln
 
 :: Return to server folder
 cd ..
