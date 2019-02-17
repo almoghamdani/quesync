@@ -1,6 +1,7 @@
 #pragma once
 #include "packet.h"
 
+#include <iostream>
 #include <sstream>
 
 #include "response_packet.h"
@@ -11,10 +12,12 @@
 class LoginPacket : public Packet
 {
 public:
-    LoginPacket() : Packet(LOGIN_PACKET) {};
+    LoginPacket() : LoginPacket("", "") {};
 
-    LoginPacket(std::string username, std::string password) : Packet(LOGIN_PACKET), _username(username), _password(password)
+    LoginPacket(std::string username, std::string password) : Packet(LOGIN_PACKET)
     {
+        _data["username"] = username;
+        _data["password"] = password;
     };
 
     virtual std::string encode()
@@ -22,8 +25,7 @@ public:
         // Format the login packet
         return (std::stringstream() << PACKET_IDENTIFIER << PACKET_DELIMETER
                                    << std::setw(3) << std::setfill('0') << LOGIN_PACKET << PACKET_DELIMETER
-                                   << _username << PACKET_DELIMETER
-                                   << _password << PACKET_DELIMETER).str();
+                                   << _data.dump() << PACKET_DELIMETER).str();
     };
 
     virtual bool decode (std::string packet)
@@ -31,10 +33,15 @@ public:
         // Split the packet
         std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
 
-        // Set the email and password from the params
+        // Try to parse the data as a json
         try {
-            _username = params[0];
-            _password = params[1];
+            _data = nlohmann::json::parse(params[0]);
+
+            // Check if a valid data has entered (username and password)
+            if (_data.find("username") == _data.end() || _data.find("password") == _data.end())
+            {
+                throw "";
+            }
         } catch (...) {
             return false;
         }
@@ -50,7 +57,7 @@ public:
 
         try {
             // Authenticate the usetr, if failed an exception will be thrown
-            user = session->server()->authenticateUser(_username, _password);
+            user = session->server()->authenticateUser(_data["username"], _data["password"]);
 
             // Set the user in the client's session
             session->setUser(user);
@@ -65,6 +72,5 @@ public:
     #endif
 
 private:
-    std::string _username;
-    std::string _password;
+    nlohmann::json _data;
 };
