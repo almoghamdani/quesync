@@ -6,15 +6,16 @@
 
 #include "response_packet.h"
 #include "error_packet.h"
+#include "serialized_packet.h"
 #include "../utils.h"
 #include "../quesync_exception.h"
 
-class LoginPacket : public Packet
+class LoginPacket : public SerializedPacket
 {
 public:
     LoginPacket() : LoginPacket("", "") {};
 
-    LoginPacket(std::string username, std::string password) : Packet(LOGIN_PACKET)
+    LoginPacket(std::string username, std::string password) : SerializedPacket(LOGIN_PACKET)
     {
         _data["username"] = username;
         _data["password"] = password;
@@ -28,25 +29,10 @@ public:
                                    << _data.dump() << PACKET_DELIMETER).str();
     };
 
-    virtual bool decode (std::string packet)
+    virtual bool verify() const
     {
-        // Split the packet
-        std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
-
-        // Try to parse the data as a json
-        try {
-            _data = nlohmann::json::parse(params[0]);
-
-            // Check if a valid data has entered (username and password)
-            if (_data.find("username") == _data.end() || _data.find("password") == _data.end())
-            {
-                throw "";
-            }
-        } catch (...) {
-            return false;
-        }
-
-        return true;
+        return (exists("username") &&
+                exists("password"));
     };
 
     // A handle function for the server
@@ -70,7 +56,4 @@ public:
         }  
     };
     #endif
-
-private:
-    nlohmann::json _data;
 };
