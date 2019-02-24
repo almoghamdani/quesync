@@ -21,14 +21,6 @@ public:
         _data["password"] = password;
     };
 
-    virtual std::string encode()
-    {
-        // Format the login packet
-        return (std::stringstream() << PACKET_IDENTIFIER << PACKET_DELIMETER
-                                   << std::setw(3) << std::setfill('0') << LOGIN_PACKET << PACKET_DELIMETER
-                                   << _data.dump() << PACKET_DELIMETER).str();
-    };
-
     virtual bool verify() const
     {
         return (exists("username") &&
