@@ -21,6 +21,7 @@ public:
 
     Quesync *server() const;
 
+    bool authenticated() const;
     void setUser(User *user);
 
 private:

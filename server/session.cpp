@@ -112,3 +112,8 @@ void Session::setUser(User *user)
 {
     _user = user;
 }
+
+bool Session::authenticated() const
+{
+    return (_user != nullptr);
+};

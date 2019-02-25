@@ -33,6 +33,12 @@ public:
     {
         User *user;
 
+        // If the user is already authenticated, return error
+        if (session->authenticated())
+        {
+            return ErrorPacket(ALREADY_AUTHENTICATED).encode();
+        }
+
         try {
             // Authenticate the usetr, if failed an exception will be thrown
             user = session->server()->authenticateUser(_data["username"], _data["password"]);
