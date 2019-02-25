@@ -46,6 +46,10 @@ Packet *Utils::ParsePacket(std::string packet)
     {
         return p;
     } else {
+        // Free the packet
+        if (p)
+            delete p;
+
         return nullptr;
     }
 }

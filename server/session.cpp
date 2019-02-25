@@ -53,6 +53,8 @@ void Session::recv()
                 {
                     // Handle the client's request and get a respond
                     response = packet->handle(this);
+
+                    delete packet;
                 } else {
                     // Return an invalid packet error packet
                     response = ErrorPacket(INVALID_PACKET).encode();

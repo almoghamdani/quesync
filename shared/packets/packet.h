@@ -23,6 +23,11 @@ public:
     {
     };
 
+    virtual ~Packet()
+    {
+
+    };
+
     virtual std::string encode() = 0;
     virtual bool decode (std::string packet) = 0;
 
