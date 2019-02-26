@@ -1,6 +1,8 @@
-#include <iostream>
-
 #include "quesync.h"
+
+#include <iostream>
+#include <sole.hpp>
+
 #include "session.h"
 #include "../shared/utils.h"
 #include "../shared/quesync_exception.h"
@@ -101,6 +103,79 @@ User *Quesync::authenticateUser(std::string username, std::string password)
                     userRes[0]["email"],
                     userRes[0]["nickname"],
                     userRes[0]["id"]);
+
+    return user;
+}
+
+User *Quesync::registerUser(std::string username, 
+                            std::string password,
+                            std::string email,
+                            std::string nickname)
+{
+    User *user = nullptr;
+    std::string id, password_hashed;
+
+    sqlitepp::query userQuery(*_db, "SELECT * FROM users WHERE username=? OR email=?"),
+                    newUserQuery(*_db, "INSERT INTO users(id, username, password, email, nickname) VALUES(?, ?, ?, ?, ?)");
+    sqlitepp::result userRes;
+
+    // Check if the entered username is a valid username
+    if (!Utils::isValidUsername(username))
+    {
+        throw QuesyncException(INVALID_USERNAME);
+    }
+
+    // Check if the entered e-mail is a valid e-mail
+    if (!Utils::isValidEmail(email))
+    {
+        throw QuesyncException(INVALID_EMAIL);
+    }
+
+    // Check if there are any users with the username/email/nickname of the new user
+    userQuery.bind(1, username);
+    userQuery.bind(2, email);
+    userRes = userQuery.store();
+
+    // If no user found, create the new user
+    if (userRes.size() == 0)
+    {
+        // Create an ID for the user
+        id = sole::uuid4().str();
+
+        // Hash the user's password
+        password_hashed = Utils::SHA256(password);
+
+        // Set user's details
+        newUserQuery.bind(1, id);
+        newUserQuery.bind(2, username);
+        newUserQuery.bind(3, password_hashed);
+        newUserQuery.bind(4, email);
+        newUserQuery.bind(5, nickname);
+
+        // Execute the add query, if failed throw unknown error
+        if (newUserQuery.exec())
+        {
+            throw QuesyncException(UNKNOWN_ERROR);
+        } else {
+            // Create the object for the user
+            user = new User(username, email, nickname, id);
+        }
+    } else {
+        // If the username is already taken
+        if (std::string(userRes[0]["username"]) == username)
+        {
+            throw QuesyncException(USERNAME_ALREADY_IN_USE);
+        }
+        // If the email is already taken 
+        else if (std::string(userRes[0]["email"]) == email) 
+        {
+            throw QuesyncException(EMAIL_ALREADY_IN_USE);
+        }
+        // We shouldn't get here
+        else {
+            throw QuesyncException(UNKNOWN_ERROR);
+        }
+    }
 
     return user;
 }

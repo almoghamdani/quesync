@@ -24,6 +24,8 @@ public:
     ~Quesync();
 
     void start();
+
+    User *registerUser(std::string username, std::string password, std::string email, std::string nickname);
     User *authenticateUser(std::string username, std::string password);
 
 private:
