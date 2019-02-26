@@ -57,7 +57,7 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     std::string username = info[0].As<Napi::String>(), password = info[1].As<Napi::String>();
 
     // Create a login packet from the username and password
-    LoginPacket loginPacket(username, password);
+    LoginPacket login_packet(username, password);
 
     // Check parameters
     if (info.Length() < 2 || !info[0].IsString() || !info[1].IsString())
@@ -66,7 +66,7 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     }
 
     // Copy the login packet to the data buffer
-    Utils::CopyString(loginPacket.encode(), _data);
+    Utils::CopyString(login_packet.encode(), _data);
 
     // Send the server the login packet
     _socket.write_some(asio::buffer(_data, strlen(_data)));
@@ -75,7 +75,7 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
 
     // Parse the response packet
-    response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+    response_packet = (response_packet *)Utils::ParsePacket(_data);
 
     // If the response is an error, handle the error
     if (response_packet && response_packet->type() == ERROR_PACKET)
