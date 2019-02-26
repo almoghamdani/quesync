@@ -75,7 +75,7 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
 
     // Parse the response packet
-    response_packet = (response_packet *)Utils::ParsePacket(_data);
+    response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
 
     // If the response is an error, handle the error
     if (response_packet && response_packet->type() == ERROR_PACKET)
