@@ -1,9 +1,12 @@
+#include "utils.h"
+
 #include <sstream>
+#include <regex>
 #include <openssl/sha.h>
 
-#include "utils.h"
 #include "packets/login_packet.h"
 #include "packets/error_packet.h"
+#include "packets/register_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -30,6 +33,10 @@ Packet *Utils::ParsePacket(std::string packet)
     {
     case LOGIN_PACKET:
         p = new LoginPacket();
+        break;
+    
+    case REGISTER_PACKET:
+        p = new RegisterPacket();
         break;
 
     case ERROR_PACKET:
@@ -108,6 +115,18 @@ std::vector<std::string> Utils::Split(const std::string& s, char delimiter)
    }
 
    return tokens;
+}
+
+bool Utils::isValidUsername(std::string username)
+{
+    // Check if the username is a valid username using the username regex
+    return std::regex_search(username, std::regex(R"(^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$)"));
+}
+
+bool Utils::isValidEmail(std::string email)
+{
+    // Check if the e-mail is a valid e-mail using the e-mail regex
+    return std::regex_search(email, std::regex(R"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"));
 }
 
 #ifdef QUESYNC_CLIENT
