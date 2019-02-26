@@ -19,6 +19,7 @@ Quesync::~Quesync()
     _acceptor.cancel();
 
     // Free the database and close it
+    _db->close();
     delete _db;
 }
 
