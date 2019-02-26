@@ -74,7 +74,7 @@ std::string Utils::SHA256(const std::string str)
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
-    std::stringstream encryptedStream;
+    std::stringstream encrypted_stream;
 
     // Initialzie the SHA-256 encryptor
     SHA256_Init(&sha256);
@@ -88,11 +88,11 @@ std::string Utils::SHA256(const std::string str)
     // Copy the hashed string to the encrypted stream to create a string
     for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
     {
-        encryptedStream << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+        encrypted_stream << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
     }
 
     // Return the encrypted string
-    return encryptedStream.str();
+    return encrypted_stream.str();
 }
 
 PacketType Utils::GetPacketType(std::string packet)
@@ -105,10 +105,10 @@ std::vector<std::string> Utils::Split(const std::string& s, char delimiter)
 {
    std::vector<std::string> tokens;
    std::string token;
-   std::istringstream tokenStream(s);
+   std::istringstream token_stream(s);
 
    // While the string hasn't ended, get a "line" from it ending with the delimeter
-   while (std::getline(tokenStream, token, delimiter))
+   while (std::getline(token_stream, token, delimiter))
    {
         // Save "line"/token in tokens vector
         tokens.push_back(token);

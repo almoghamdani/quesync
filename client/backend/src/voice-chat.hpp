@@ -23,7 +23,7 @@
 class VoiceChat
 {
 public:
-    VoiceChat(const char *serverIP);
+    VoiceChat(const char *server_ip);
     ~VoiceChat();
 
 private:

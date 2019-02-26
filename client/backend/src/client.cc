@@ -16,7 +16,7 @@ void Client::connect(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
 
-    tcp::endpoint serverEndpoint;
+    tcp::endpoint server_endpoint;
 
     // Convert first parameter to string
     std::string ip = info[0].As<Napi::String>();
@@ -28,14 +28,14 @@ void Client::connect(const Napi::CallbackInfo& info)
     }
 
     // Get the endpoint of the server to connect to
-    SocketManager::GetEndpoint(ip.c_str(), SERVER_PORT, serverEndpoint);
+    SocketManager::GetEndpoint(ip.c_str(), SERVER_PORT, server_endpoint);
 
     // Create the voice chat manager and start a communication with the server
     //_voiceChatManager = new VoiceChat((const char *)*ip);
 
     try {
         // Try to connect to the server
-        _socket.connect(serverEndpoint);
+        _socket.connect(server_endpoint);
     } catch (std::system_error& ex)
     {
         // Format the error message
@@ -50,7 +50,7 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
 
-    ResponsePacket *responsePacket;
+    ResponsePacket *response_packet;
     Napi::Object res = Napi::Object::New(env);
 
     // Convert parameters to string
@@ -75,23 +75,23 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
 
     // Parse the response packet
-    responsePacket = (ResponsePacket *)Utils::ParsePacket(_data);
+    response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
 
     // If the response is an error, handle the error
-    if (responsePacket && responsePacket->type() == ERROR_PACKET)
+    if (response_packet && response_packet->type() == ERROR_PACKET)
     {
         // Set the error code from the response packet
-        res["error"] = Napi::Number::New(env, ((ErrorPacket *)responsePacket)->error());
+        res["error"] = Napi::Number::New(env, ((ErrorPacket *)response_packet)->error());
 
         // Set no user since an error occurred
         res["user"] = env.Null();
-    } else if (responsePacket && responsePacket->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
+    } else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
     {
         // Create a new user
         _user = new User();
 
         // Deserialize the user data from the response data
-        _user->deserialize(responsePacket->data());
+        _user->deserialize(response_packet->data());
 
         // Set success error code
         res["error"] = Napi::Number::New(env, SUCCESS);

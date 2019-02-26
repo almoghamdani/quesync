@@ -23,7 +23,7 @@ class Client : public Napi::ObjectWrap<Client> {
 
         User *_user;
 
-        VoiceChat *_voiceChatManager;
+        VoiceChat *_voice_chat_manager;
         
         tcp::socket _socket;
         char _data[MAX_DATA_LEN];

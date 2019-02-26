@@ -18,6 +18,6 @@ public:
     static asio::io_context io_context;
 
     template <typename T>
-    static void GetEndpoint(const char *ipAddress, int port, T& endpoint);
+    static void GetEndpoint(const char *ip_address, int port, T& endpoint);
 
 };

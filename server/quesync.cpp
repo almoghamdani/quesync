@@ -81,29 +81,29 @@ User *Quesync::authenticateUser(std::string username, std::string password)
 {
     User *user = nullptr;
 
-    sqlitepp::query userQuery(*_db, "SELECT * FROM users WHERE username=?");
-    sqlitepp::result userRes;
+    sqlitepp::query user_query(*_db, "SELECT * FROM users WHERE username=?");
+    sqlitepp::result user_res;
 
     // Try to get the password hash of the user
-    userQuery.bind(1, username);
-    userRes = userQuery.store();
+    user_query.bind(1, username);
+    user_res = user_query.store();
 
     // If the user is not found
-    if (userRes.size() == 0)
+    if (user_res.size() == 0)
     {
         throw QuesyncException(USER_NOT_FOUND);
     } 
     // If the password the user entered doesn't match the user's password
-    else if (Utils::SHA256(password) != std::string(userRes[0]["password"]))
+    else if (Utils::SHA256(password) != std::string(user_res[0]["password"]))
     {
         throw QuesyncException(INCORRECT_PASSWORD);
     }
 
     // Create the user from the db response
-    user = new User(userRes[0]["username"],
-                    userRes[0]["email"],
-                    userRes[0]["nickname"],
-                    userRes[0]["id"]);
+    user = new User(user_res[0]["username"],
+                    user_res[0]["email"],
+                    user_res[0]["nickname"],
+                    user_res[0]["id"]);
 
     return user;
 }
@@ -116,9 +116,9 @@ User *Quesync::registerUser(std::string username,
     User *user = nullptr;
     std::string id, password_hashed;
 
-    sqlitepp::query userQuery(*_db, "SELECT * FROM users WHERE username=? OR email=?"),
-                    newUserQuery(*_db, "INSERT INTO users(id, username, password, email, nickname) VALUES(?, ?, ?, ?, ?)");
-    sqlitepp::result userRes;
+    sqlitepp::query user_query(*_db, "SELECT * FROM users WHERE username=? OR email=?"),
+                    new_user_query(*_db, "INSERT INTO users(id, username, password, email, nickname) VALUES(?, ?, ?, ?, ?)");
+    sqlitepp::result user_res;
 
     // Check if the entered username is a valid username
     if (!Utils::isValidUsername(username))
@@ -133,12 +133,12 @@ User *Quesync::registerUser(std::string username,
     }
 
     // Check if there are any users with the username/email/nickname of the new user
-    userQuery.bind(1, username);
-    userQuery.bind(2, email);
-    userRes = userQuery.store();
+    user_query.bind(1, username);
+    user_query.bind(2, email);
+    user_res = user_query.store();
 
     // If no user found, create the new user
-    if (userRes.size() == 0)
+    if (user_res.size() == 0)
     {
         // Create an ID for the user
         id = sole::uuid4().str();
@@ -147,14 +147,14 @@ User *Quesync::registerUser(std::string username,
         password_hashed = Utils::SHA256(password);
 
         // Set user's details
-        newUserQuery.bind(1, id);
-        newUserQuery.bind(2, username);
-        newUserQuery.bind(3, password_hashed);
-        newUserQuery.bind(4, email);
-        newUserQuery.bind(5, nickname);
+        new_user_query.bind(1, id);
+        new_user_query.bind(2, username);
+        new_user_query.bind(3, password_hashed);
+        new_user_query.bind(4, email);
+        new_user_query.bind(5, nickname);
 
         // Execute the add query, if failed throw unknown error
-        if (newUserQuery.exec())
+        if (new_user_query.exec())
         {
             throw QuesyncException(UNKNOWN_ERROR);
         } else {
@@ -163,12 +163,12 @@ User *Quesync::registerUser(std::string username,
         }
     } else {
         // If the username is already taken
-        if (std::string(userRes[0]["username"]) == username)
+        if (std::string(user_res[0]["username"]) == username)
         {
             throw QuesyncException(USERNAME_ALREADY_IN_USE);
         }
         // If the email is already taken 
-        else if (std::string(userRes[0]["email"]) == email) 
+        else if (std::string(user_res[0]["email"]) == email) 
         {
             throw QuesyncException(EMAIL_ALREADY_IN_USE);
         }

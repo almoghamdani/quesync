@@ -13,16 +13,16 @@ public:
     
     virtual std::string encode()
     {
-        std::stringstream encodedPacket;
+        std::stringstream encoded_packet;
 
         // Set the packet identifier
-        encodedPacket << PACKET_IDENTIFIER << PACKET_DELIMETER;
+        encoded_packet << PACKET_IDENTIFIER << PACKET_DELIMETER;
 
         // Set the type of the response and the data of the response
-        encodedPacket << std::setfill('0') << std::setw(PACKET_TYPE_LEN) << _type << PACKET_DELIMETER << _data << PACKET_DELIMETER;
+        encoded_packet << std::setfill('0') << std::setw(PACKET_TYPE_LEN) << _type << PACKET_DELIMETER << _data << PACKET_DELIMETER;
 
         // Format the response type in the packet
-        return encodedPacket.str();
+        return encoded_packet.str();
     };
 
     virtual bool decode (std::string packet)
