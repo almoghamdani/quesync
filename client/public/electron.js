@@ -6,7 +6,7 @@ const ipcMain = electron.ipcMain;
 const path = require('path');
 const isDev = require('electron-is-dev');
 
-const quesync = require('./backend.node');
+const quesync = require('../backend/bin/win32-x64-64/backend.node');
 
 // Set the main window as a global var
 let mainWindow;
