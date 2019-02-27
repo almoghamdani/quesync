@@ -10,6 +10,15 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/../include)
 # If on windows set the openssl folder
 IF (WIN32)
     set (OPENSLL_DIR C:/OpenSSL-Win64)
+
+    set (OPENSSL_LIBS "VC/libeay32MT VC/ssleay32MT")
+ENDIF()
+
+# If on macos set the openssl dir
+IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set (OPENSLL_DIR /usr/local/opt/openssl)
+
+    set (OPENSSL_LIBS "crypto")
 ENDIF()
 
 # If there is an openssl dir, set the include and lib directory
@@ -39,4 +48,4 @@ file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../include/*.c
 add_executable(server ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})
 
 # Link the server to the openssl lib
-target_link_libraries(server VC/libeay32MT VC/ssleay32MT)
+target_link_libraries(server ${OPENSSL_LIBS})
