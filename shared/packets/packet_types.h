@@ -5,6 +5,7 @@ typedef enum PacketType
     // Requests
     LOGIN_PACKET = 1,
     REGISTER_PACKET,
+    SEARCH_PACKET,
 
     // Respones
     AUTHENTICATED_PACKET = 200,

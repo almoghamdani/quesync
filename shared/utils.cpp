@@ -11,6 +11,7 @@
 #include "packets/login_packet.h"
 #include "packets/error_packet.h"
 #include "packets/register_packet.h"
+#include "packets/search_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -41,6 +42,10 @@ Packet *Utils::ParsePacket(std::string packet)
     
     case REGISTER_PACKET:
         p = new RegisterPacket();
+        break;
+
+    case SEARCH_PACKET:
+        p = new SearchPacket();
         break;
 
     case ERROR_PACKET:
