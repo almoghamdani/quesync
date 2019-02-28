@@ -11,14 +11,14 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/../include)
 IF (WIN32)
     set (OPENSLL_DIR C:/OpenSSL-Win64)
 
-    set (OPENSSL_LIBS "VC/libeay32MT VC/ssleay32MT")
+    set (OPENSSL_LIBS VC/libeay32MT VC/ssleay32MT)
 ENDIF()
 
 # If on macos set the openssl dir
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set (OPENSLL_DIR /usr/local/opt/openssl)
 
-    set (OPENSSL_LIBS "crypto")
+    set (OPENSSL_LIBS ssl crypto)
 ENDIF()
 
 # If there is an openssl dir, set the include and lib directory
