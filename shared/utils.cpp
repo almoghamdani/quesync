@@ -1,7 +1,11 @@
 #include "utils.h"
 
+#include <iostream>
+#include <random>
 #include <sstream>
 #include <regex>
+#include <vector>
+#include <algorithm>
 #include <openssl/sha.h>
 
 #include "packets/login_packet.h"
@@ -128,6 +132,50 @@ bool Utils::isValidEmail(std::string email)
     // Check if the e-mail is a valid e-mail using the e-mail regex
     return std::regex_search(email, std::regex(R"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"));
 }
+
+int Utils::RandomNumber(int min, int max)
+{
+    std::random_device rd; // Obtain a random number from hardware
+    std::mt19937 gen(rd()); // Seed the generator
+    std::uniform_int_distribution<> distr(min, max); // Define the range
+
+    // Get a random number from the generator using the distr
+    return distr(gen);
+}
+
+#ifdef QUESYNC_SERVER
+int Utils::GenerateTag(std::string nickname, sqlitepp::db *db)
+{
+    int tag;
+    std::vector<int> tags;
+
+    sqlitepp::result res;
+    sqlitepp::query nick_query(*db, "SELECT tag FROM users WHERE nickname=?");
+
+    // Get all tags of the wanted nickname
+    nick_query.bind(1, nickname);
+    res = nick_query.store();
+
+    // Move all tags found into a vector
+    for (int i = 0; i < res.size(); i++)
+    {
+        tags.push_back(res[i]["tag"]);
+    }
+
+    // If all the tags are used, throw exception
+    if (tags.size() == MAX_TAG)
+    {
+        throw QuesyncException(NICKNAME_FULL);
+    }
+
+    // Generate tags until found one that is free
+    do {
+        tag = RandomNumber(0, MAX_TAG);
+    } while (find(tags.begin(), tags.end(), tag) != tags.end());
+    
+    return tag;
+}
+#endif
 
 #ifdef QUESYNC_CLIENT
 Napi::Object Utils::JsonToObject(Napi::Env env, nlohmann::json& json)

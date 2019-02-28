@@ -3,6 +3,12 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
+#ifdef QUESYNC_SERVER
+#include <sqlitepp.h>
+
+#define MAX_TAG 9999
+#endif
+
 #ifdef QUESYNC_CLIENT
 #include <napi.h>
 #include <uv.h>
@@ -24,7 +30,13 @@ public:
 
     static Packet *ParsePacket(std::string packet);
     static PacketType GetPacketType(std::string packet);
+
+    static int RandomNumber(int min, int max);
     
+    #ifdef QUESYNC_SERVER
+    static int GenerateTag(std::string nickname, sqlitepp::db *db);
+    #endif
+
     #ifdef QUESYNC_CLIENT
     static Napi::Object JsonToObject(Napi::Env env, nlohmann::json& json);
     #endif

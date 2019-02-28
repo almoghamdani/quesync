@@ -42,7 +42,7 @@ void Quesync::initDB()
     std::cout << "Initializing SQLite database.." << std::endl;
 
     // Create the users table if not exists
-    sqlitepp::query(*_db, "CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY UNIQUE NOT NULL, username TEXT NOT NULL, password TEXT NOT NULL, email TEXT NOT NULL, nickname TEXT)").exec();
+    sqlitepp::query(*_db, "CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY UNIQUE NOT NULL, username TEXT NOT NULL, password TEXT NOT NULL, email TEXT NOT NULL, nickname TEXT NOT NULL, tag INTEGER NOT NULL)").exec();
 }
 
 void Quesync::start()
@@ -100,10 +100,11 @@ User *Quesync::authenticateUser(std::string username, std::string password)
     }
 
     // Create the user from the db response
-    user = new User(user_res[0]["username"],
+    user = new User(user_res[0]["id"],
+                    user_res[0]["username"],
                     user_res[0]["email"],
                     user_res[0]["nickname"],
-                    user_res[0]["id"]);
+                    user_res[0]["tag"]);
 
     return user;
 }
@@ -114,10 +115,11 @@ User *Quesync::registerUser(std::string username,
                             std::string nickname)
 {
     User *user = nullptr;
-    std::string id, password_hashed;
+    std::string id, password_hashed, tag_str;
+    int tag;
 
     sqlitepp::query user_query(*_db, "SELECT * FROM users WHERE username=? OR email=?"),
-                    new_user_query(*_db, "INSERT INTO users(id, username, password, email, nickname) VALUES(?, ?, ?, ?, ?)");
+                    new_user_query(*_db, "INSERT INTO users(id, username, password, email, nickname, tag) VALUES(?, ?, ?, ?, ?, ?)");
     sqlitepp::result user_res;
 
     // Check if the entered username is a valid username
@@ -146,12 +148,17 @@ User *Quesync::registerUser(std::string username,
         // Hash the user's password
         password_hashed = Utils::SHA256(password);
 
+        // Generate the random user tag
+        tag = Utils::GenerateTag(nickname, _db);
+        tag_str = std::to_string(tag);
+
         // Set user's details
         new_user_query.bind(1, id);
         new_user_query.bind(2, username);
         new_user_query.bind(3, password_hashed);
         new_user_query.bind(4, email);
         new_user_query.bind(5, nickname);
+        new_user_query.bind(6, tag_str);
 
         // Execute the add query, if failed throw unknown error
         if (new_user_query.exec())
@@ -159,7 +166,7 @@ User *Quesync::registerUser(std::string username,
             throw QuesyncException(UNKNOWN_ERROR);
         } else {
             // Create the object for the user
-            user = new User(username, email, nickname, id);
+            user = new User(id, username, email, nickname, tag);
         }
     } else {
         // If the username is already taken

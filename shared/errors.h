@@ -11,5 +11,6 @@ typedef enum QuesyncError
     INVALID_USERNAME,
     INVALID_EMAIL,
     USERNAME_ALREADY_IN_USE,
-    EMAIL_ALREADY_IN_USE
+    EMAIL_ALREADY_IN_USE,
+    NICKNAME_FULL
 } QuesyncError;
