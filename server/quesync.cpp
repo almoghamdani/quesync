@@ -187,3 +187,8 @@ User *Quesync::registerUser(std::string username,
 
     return user;
 }
+
+sqlitepp::db *Quesync::db()
+{
+    return _db;
+}

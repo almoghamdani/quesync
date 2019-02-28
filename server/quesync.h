@@ -28,6 +28,8 @@ public:
     User *registerUser(std::string username, std::string password, std::string email, std::string nickname);
     User *authenticateUser(std::string username, std::string password);
 
+    sqlitepp::db *db();
+
 private:
     tcp::acceptor _acceptor;
     sqlitepp::db *_db;
