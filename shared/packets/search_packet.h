@@ -61,7 +61,7 @@ public:
         // Format the results in the json type
         for (int i = 0; i < res.size(); i++)
         {
-            results[res[i]["id"]] = nlohmann::json({ { "nickname", res[i]["nickname"] }, { "tag", res[i]["tag"] } });
+            results[std::string(res[i]["id"])] = nlohmann::json({ { "nickname", res[i]["nickname"] }, { "tag", res[i]["tag"] } });
         }
         
         try {
