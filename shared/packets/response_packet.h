@@ -28,7 +28,7 @@ public:
         // If data was entered add it to the encoded response packet
         if (_data.length())
         {
-            encoded_packet << _data << PACKET_DELIMETER
+            encoded_packet << _data << PACKET_DELIMETER;
         }
 
         // Format the response type in the packet
