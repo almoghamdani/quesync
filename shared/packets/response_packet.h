@@ -7,6 +7,10 @@
 class ResponsePacket : public Packet
 {
 public:
+    ResponsePacket(PacketType type) : ResponsePacket(type, "")
+    {
+    };
+
     ResponsePacket(PacketType type, std::string data) : Packet(type), _data(data)
     {
     };
@@ -18,8 +22,14 @@ public:
         // Set the packet identifier
         encoded_packet << PACKET_IDENTIFIER << PACKET_DELIMETER;
 
-        // Set the type of the response and the data of the response
-        encoded_packet << std::setfill('0') << std::setw(PACKET_TYPE_LEN) << _type << PACKET_DELIMETER << _data << PACKET_DELIMETER;
+        // Set the type of the response
+        encoded_packet << std::setfill('0') << std::setw(PACKET_TYPE_LEN) << _type << PACKET_DELIMETER;
+
+        // If data was entered add it to the encoded response packet
+        if (_data.length())
+        {
+            encoded_packet << _data << PACKET_DELIMETER
+        }
 
         // Format the response type in the packet
         return encoded_packet.str();
