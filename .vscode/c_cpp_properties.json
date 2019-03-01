@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/Users/${env:username}/.node-gyp/**"
+                "C:/Users/${env:username}/.node-gyp/**",
+                "C:/Program Files/MySQL/Connector C++ 8.0/include/**"
             ],
             "defines": [
                 "_DEBUG",

@@ -34,7 +34,7 @@ public:
     static int RandomNumber(int min, int max);
     
     #ifdef QUESYNC_SERVER
-    static int GenerateTag(std::string nickname, sqlitepp::db *db);
+    static int GenerateTag(std::string nickname, sql::Table &users_table);
     #endif
 
     #ifdef QUESYNC_CLIENT

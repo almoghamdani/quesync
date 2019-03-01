@@ -149,22 +149,20 @@ int Utils::RandomNumber(int min, int max)
 }
 
 #ifdef QUESYNC_SERVER
-int Utils::GenerateTag(std::string nickname, sqlitepp::db *db)
+int Utils::GenerateTag(std::string nickname, sql::Table& users_table)
 {
     int tag;
     std::vector<int> tags;
 
-    sqlitepp::result res;
-    sqlitepp::query nick_query(*db, "SELECT tag FROM users WHERE nickname=?");
-
-    // Get all tags of the wanted nickname
-    nick_query.bind(1, nickname);
-    res = nick_query.store();
+    // Get all tags from the users table
+    std::list<sql::Row> res = users_table.select("tag")
+        .where("nickname = :nickname")
+        .bind("nickname", nickname).execute().fetchAll();
 
     // Move all tags found into a vector
-    for (int i = 0; i < res.size(); i++)
+    for (auto it = res.begin(); it != res.end(); it++)
     {
-        tags.push_back(res[i]["tag"]);
+        tags.push_back((*it)[0]);
     }
 
     // If all the tags are used, throw exception

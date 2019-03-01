@@ -2,20 +2,15 @@
 #include <asio.hpp>
 
 #include <map>
-
-#ifdef _MSC_VER
-#pragma warning(disable: 4267) // disable warning 4267
-#endif
-#include <sqlitepp.h>
-#ifdef _MSC_VER
-#pragma warning(default: 4267) // enable warning 4267 back
-#endif
+#include <mysqlx/xdevapi.h>
 
 #include "../shared/user.h"
 
 #define MAIN_SERVER_PORT 61110
 
 using asio::ip::tcp;
+
+namespace sql = mysqlx;
 
 class Quesync
 {
@@ -28,11 +23,13 @@ public:
     User *registerUser(std::string username, std::string password, std::string email, std::string nickname);
     User *authenticateUser(std::string username, std::string password);
 
-    sqlitepp::db *db();
+    sql::Schema& db();
 
 private:
     tcp::acceptor _acceptor;
-    sqlitepp::db *_db;
+
+    sql::Session _sess;
+    sql::Schema _db;
 
     void initDB();
     void acceptClient();

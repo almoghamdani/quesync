@@ -35,33 +35,33 @@ public:
     {
         nlohmann::json results;
 
-        sqlitepp::query search_query(*session->server()->db(), "SELECT id, nickname, tag FROM users WHERE nickname LIKE ?");
-        sqlitepp::result res;
+        std::string nickname = _data["nickname"];
 
-        int tag = _data["tag"];
-        std::string nickname = _data["nickname"], tag_str = std::to_string(tag);
+        sql::Table users_table = session->server()->db().getTable("users");
+        std::vector<sql::Row> res;
 
-        // Add % and % before and after the nickname to make the search of the sqlite search for all possible matches
+        // Insert % before and after the string to match any string containing the nickname
         nickname.insert(0, "%");
         nickname.append("%");
 
-        // Set the nickname
-        search_query.bind(1, nickname);
-
-        // If a tag was entered, set it as a requirement
-        if (tag != -1)
+        // If a tag was entered, select with it as a requirement
+        if ((int)_data["tag"] != -1)
         {
-            // Set the tag requirement
-            search_query << " AND tag=?" << tag_str;
+            // Get all users matching the searched nickname and tag
+            res = users_table.select("id", "nickname", "tag")
+                .where("nickname LIKE :nickname AND tag = :tag")
+                .bind("nickname", nickname).bind("tag", (int)_data["tag"]).execute().fetchAll();
+        } else {
+            // Get all users matching the searched nickname
+            res = users_table.select("id", "nickname", "tag")
+                .where("nickname LIKE :nickname")
+                .bind("nickname", nickname).execute().fetchAll();
         }
-
-        // Search for the nicknames in the database
-        res = search_query.store();
 
         // Format the results in the json type
         for (int i = 0; i < res.size(); i++)
         {
-            results[std::string(res[i]["id"])] = nlohmann::json({ { "nickname", res[i]["nickname"] }, { "tag", res[i]["tag"] } });
+            results[std::string(res[i][0])] = nlohmann::json({ { "nickname", res[i][1] }, { "tag", std::to_string((int)res[i][2]) } });
         }
         
         try {
@@ -70,7 +70,7 @@ public:
         } catch (QuesyncException& ex) {
             // Return the error code
             return ErrorPacket(ex.getErrorCode()).encode();
-        }  
+        }
     };
     #endif
 };
