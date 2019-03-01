@@ -14,6 +14,7 @@ public:
     User *authenticateUser(std::string username, std::string password);
 
     void sendFriendRequest(std::string requester_id, std::string recipient_id);
+    void setFriendshipStatus(std::string requester_id, std::string friend_id, bool status);
 
 private:
     sql::Table users_table;

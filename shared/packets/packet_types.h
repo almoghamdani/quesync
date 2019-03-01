@@ -7,6 +7,7 @@ typedef enum PacketType
     REGISTER_PACKET,
     SEARCH_PACKET,
     FRIEND_REQUEST_PACKET,
+    FRIENDSHIP_STATUS_PACKET,
 
     // Respones
     AUTHENTICATED_PACKET = 200,

@@ -141,3 +141,12 @@ void UserManagement::sendFriendRequest(std::string requester_id, std::string rec
         throw QuesyncException(UNKNOWN_ERROR);
     }
 }
+
+void UserManagement::setFriendshipStatus(std::string requester_id, std::string friend_id, bool status)
+{
+    // Check if the recipient exists
+    if (!users_table.select("1").where("id = :id").bind("id", friend_id).execute().count())
+    {
+        throw QuesyncException(USER_NOT_FOUND);
+    }
+}
