@@ -12,6 +12,7 @@
 #include "packets/error_packet.h"
 #include "packets/register_packet.h"
 #include "packets/search_packet.h"
+#include "packets/friend_request_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -46,6 +47,10 @@ Packet *Utils::ParsePacket(std::string packet)
 
     case SEARCH_PACKET:
         p = new SearchPacket();
+        break;
+
+    case FRIEND_REQUEST_PACKET:
+        p = new FriendRequestPacket();
         break;
 
     case ERROR_PACKET:

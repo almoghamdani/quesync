@@ -116,3 +116,28 @@ User *UserManagement::registerUser(std::string username,
 
     return user;
 }
+
+void UserManagement::sendFriendRequest(std::string requester_id, std::string recipient_id)
+{
+    // Check if the recipient exists
+    if (!users_table.select("1").where("id = :id").bind("id", recipient_id).execute().count())
+    {
+        throw QuesyncException(USER_NOT_FOUND);
+    }
+
+    // Check if the 2 users are already friends
+    if (friendships_table.select("1")
+        .where("(requester_id = :requester_id AND recipient_id = :recipient_id) OR (requester_id = :recipient_id AND recipient_id = :requester_id)")
+        .bind("requester_id", requester_id).bind("recipient_id", recipient_id).execute().count())
+    {
+        throw QuesyncException(ALREADY_FRIENDS);
+    }
+
+    try {
+        // Add the friend request to the friendships table (approved field is default to false)
+        friendships_table.insert("requester_id", "recipient_id")
+            .values(requester_id, recipient_id).execute();
+    } catch (...) {
+        throw QuesyncException(UNKNOWN_ERROR);
+    }
+}

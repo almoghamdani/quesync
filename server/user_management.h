@@ -13,6 +13,8 @@ public:
     User *registerUser(std::string username, std::string password, std::string email, std::string nickname);
     User *authenticateUser(std::string username, std::string password);
 
+    void sendFriendRequest(std::string requester_id, std::string recipient_id);
+
 private:
     sql::Table users_table;
     sql::Table friendships_table;
