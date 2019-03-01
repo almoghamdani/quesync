@@ -89,8 +89,8 @@ User *UserManagement::registerUser(std::string username,
 
         try {
             // Insert the new user to the users table
-            users_table.insert("id", "username", "password", "email", "nickname", "tag", "friends")
-                .values(id, username, password_hashed, email, nickname, tag, "[]").execute();
+            users_table.insert("id", "username", "password", "email", "nickname", "tag")
+                .values(id, username, password_hashed, email, nickname, tag).execute();
         } catch (...) {
             throw QuesyncException(UNKNOWN_ERROR);
         }
