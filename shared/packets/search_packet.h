@@ -61,7 +61,7 @@ public:
         }
         
         try {
-            // Return autheticated packet with the user's info
+            // Return the search results found
             return ResponsePacket(SEARCH_RESULTS_PACKET, results.dump()).encode();
         } catch (QuesyncException& ex) {
             // Return the error code
