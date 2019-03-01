@@ -4,8 +4,6 @@
 #include <nlohmann/json.hpp>
 
 #ifdef QUESYNC_SERVER
-#include <sqlitepp.h>
-
 #define MAX_TAG 9999
 #endif
 

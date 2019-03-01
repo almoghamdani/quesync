@@ -4,10 +4,6 @@
 #include <vector>
 #include <sstream>
 
-#ifdef QUESYNC_SERVER
-#include <sqlitepp.h>
-#endif
-
 #include "response_packet.h"
 #include "error_packet.h"
 #include "../quesync_exception.h"
