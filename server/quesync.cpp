@@ -1,16 +1,14 @@
 #include "quesync.h"
 
 #include <iostream>
-#include <sole.hpp>
 
 #include "session.h"
-#include "../shared/utils.h"
-#include "../shared/quesync_exception.h"
 
 Quesync::Quesync(asio::io_context& io_context) : 
     _acceptor(io_context, tcp::endpoint(tcp::v4(), MAIN_SERVER_PORT)),
     _sess("localhost", 33060, "server", "123456789"),
-    _db(_sess, "quesync")
+    _db(_sess, "quesync"),
+    _userManagement(_db)
 {
 }
 
@@ -56,112 +54,9 @@ void Quesync::acceptClient()
         });
 }
 
-User *Quesync::authenticateUser(std::string username, std::string password)
+UserManagement& Quesync::userManagement()
 {
-    User *user = nullptr;
-
-    sql::Table users_table = _db.getTable("users");
-    sql::Row user_res;
-
-    // Search for the user row in the database
-    user_res = users_table.select("*")
-        .where("username = :username")
-        .bind("username", username).execute().fetchOne();
-
-    // If the user is not found
-    if (user_res.isNull())
-    {
-        throw QuesyncException(USER_NOT_FOUND);
-    } 
-    // If the password the user entered doesn't match the user's password
-    else if (Utils::SHA256(password) != std::string(user_res[2]))
-    {
-        throw QuesyncException(INCORRECT_PASSWORD);
-    }
-
-    // Create the user from the db response
-    user = new User(user_res[0],
-                    user_res[1],
-                    user_res[3],
-                    user_res[4],
-                    user_res[5]);
-
-    return user;
-}
-
-User *Quesync::registerUser(std::string username, 
-                            std::string password,
-                            std::string email,
-                            std::string nickname)
-{
-    User *user = nullptr;
-    std::string id, password_hashed;
-    int tag;
-
-    sql::Table users_table = _db.getTable("users");
-    sql::Row user_res;
-
-    // Check if the entered username is a valid username
-    if (!Utils::isValidUsername(username))
-    {
-        throw QuesyncException(INVALID_USERNAME);
-    }
-
-    // Check if the entered e-mail is a valid e-mail
-    if (!Utils::isValidEmail(email))
-    {
-        throw QuesyncException(INVALID_EMAIL);
-    }
-
-    // Check if there are any users with the username/email/nickname of the new user
-    try {
-        user_res = users_table.select("*")
-            .where("username = :username OR email = :email")
-            .bind("username", username).bind("email", email).execute().fetchOne();
-    } catch (...) {
-        throw QuesyncException(UNKNOWN_ERROR);
-    }
-
-    // If no user found, create the new user
-    if (user_res.isNull())
-    {
-        // Create an ID for the user
-        id = sole::uuid4().str();
-
-        // Hash the user's password
-        password_hashed = Utils::SHA256(password);
-
-        // Generate the random user tag
-        tag = Utils::GenerateTag(nickname, users_table);
-
-        try {
-            // Insert the new user to the users table
-            users_table.insert("id", "username", "password", "email", "nickname", "tag", "friends")
-                .values(id, username, password_hashed, email, nickname, tag, "[]").execute();
-        } catch (...) {
-            throw QuesyncException(UNKNOWN_ERROR);
-        }
-
-        // Create the object for the user
-        user = new User(id, username, email, nickname, tag);
-    } else {
-        // If the username is already taken
-        if (std::string(user_res[1]) == username)
-        {
-            throw QuesyncException(USERNAME_ALREADY_IN_USE);
-        }
-        // If the email is already taken 
-        else if (std::string(user_res[3]) == email) 
-        {
-            throw QuesyncException(EMAIL_ALREADY_IN_USE);
-        }
-        // We shouldn't get here
-        else {
-            throw QuesyncException(UNKNOWN_ERROR);
-        }
-    }
-
-    return user;
+    return _userManagement;
 }
 
 sql::Schema& Quesync::db()

@@ -41,7 +41,7 @@ public:
 
         try {
             // Authenticate the usetr, if failed an exception will be thrown
-            user = session->server()->authenticateUser(_data["username"], _data["password"]);
+            user = session->server()->userManagement().authenticateUser(_data["username"], _data["password"]);
 
             // Set the user in the client's session
             session->setUser(user);

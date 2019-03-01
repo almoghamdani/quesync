@@ -45,10 +45,10 @@ public:
 
         try {
             // Register the new user, if failed an exception will be thrown
-            user = session->server()->registerUser(_data["username"], 
-                                                    _data["password"],
-                                                    _data["email"],
-                                                    _data["nickname"]);
+            user = session->server()->userManagement().registerUser(_data["username"], 
+                                                                    _data["password"],
+                                                                    _data["email"],
+                                                                    _data["nickname"]);
 
             // Set the user in the client's session
             session->setUser(user);

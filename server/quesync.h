@@ -1,16 +1,16 @@
 #pragma once
+
 #include <asio.hpp>
-
 #include <map>
-#include <mysqlx/xdevapi.h>
 
-#include "../shared/user.h"
+#include <mysqlx/xdevapi.h>
+namespace sql = mysqlx;
+
+#include "user_management.h"
 
 #define MAIN_SERVER_PORT 61110
 
 using asio::ip::tcp;
-
-namespace sql = mysqlx;
 
 class Quesync
 {
@@ -20,9 +20,7 @@ public:
 
     void start();
 
-    User *registerUser(std::string username, std::string password, std::string email, std::string nickname);
-    User *authenticateUser(std::string username, std::string password);
-
+    UserManagement& userManagement();
     sql::Schema& db();
 
 private:
@@ -31,6 +29,7 @@ private:
     sql::Session _sess;
     sql::Schema _db;
 
-    void initDB();
+    UserManagement _userManagement;
+
     void acceptClient();
 };
