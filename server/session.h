@@ -23,6 +23,7 @@ public:
 
     bool authenticated() const;
     void setUser(User *user);
+    User *user() const;
 
 private:
     User *_user;
