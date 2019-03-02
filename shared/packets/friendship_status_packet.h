@@ -28,6 +28,12 @@ public:
     #ifdef QUESYNC_SERVER
     virtual std::string handle (Session *session)
     {
+        // If the user is not authenticed, send error
+        if (!session->user())
+        {
+            throw QuesyncException(NOT_AUTHENTICATED);
+        }
+
         // If the friend id is the user's id, return error
         if (session->user()->id() == _data["friend_id"])
         {

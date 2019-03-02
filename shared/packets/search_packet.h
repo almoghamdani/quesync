@@ -40,6 +40,12 @@ public:
         nickname.insert(0, "%");
         nickname.append("%");
 
+        // If the user is not authenticed, send error
+        if (!session->user())
+        {
+            throw QuesyncException(NOT_AUTHENTICATED);
+        }
+
         // If a tag was entered, select with it as a requirement
         if ((int)_data["tag"] != -1)
         {
