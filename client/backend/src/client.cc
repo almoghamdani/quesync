@@ -54,19 +54,13 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     ResponsePacket *response_packet;
     Napi::Object res = Napi::Object::New(env);
 
-    // Convert parameters to string
+    // Convert parameters to satring
     std::string username = info[0].As<Napi::String>(), password = info[1].As<Napi::String>();
 
     // Create a login packet from the username and password
     LoginPacket login_packet(username, password);
 
-    // Check parameters
-    if (info.Length() < 2 || !info[0].IsString() || !info[1].IsString())
-    {
-        throw Napi::Error::New(env, "Missing parameters!");
-    }
-
-    // Copy the login packet to the data buffer
+    // Copy the login packet to the dat buffer
     Utils::CopyString(login_packet.encode(), _data);
 
     // Send the server the login packet
@@ -117,12 +111,6 @@ Napi::Value Client::signup(const Napi::CallbackInfo& info)
 
     // Create a login packet from the username and password
     RegisterPacket register_packet(username, password, email, nickname);
-
-    // Check parameters
-    if (info.Length() < 4 || !info[0].IsString() || !info[1].IsString() || !info[2].IsString() || !info[3].IsString())
-    {
-        throw Napi::Error::New(env, "Missing parametes!");
-    }
 
     // Copy the register packet to the data buffer
     Utils::CopyString(register_packet.encode(), _data);
