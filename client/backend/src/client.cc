@@ -22,12 +22,6 @@ void Client::connect(const Napi::CallbackInfo& info)
     // Convert first parameter to string
     std::string ip = info[0].As<Napi::String>();
 
-    // If the first parameter which should be the IP address is undefined send error
-    if (info[0].IsUndefined())
-    {
-        throw Napi::Error::New(env, "Missing IP address parameter!");
-    }
-
     // Get the endpoint of the server to connect to
     SocketManager::GetEndpoint(ip.c_str(), SERVER_PORT, server_endpoint);
 
