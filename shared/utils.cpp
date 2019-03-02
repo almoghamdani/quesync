@@ -6,7 +6,6 @@
 #include <regex>
 #include <vector>
 #include <algorithm>
-#include <cctype>
 #include <openssl/sha.h>
 
 #include "packets/login_packet.h"
@@ -64,6 +63,9 @@ Packet *Utils::ParsePacket(std::string packet)
         break;
 
     case AUTHENTICATED_PACKET:
+    case SEARCH_RESULTS_PACKET:
+    case FRIEND_REQUEST_SENT_PACKET:
+    case FRIENDSHIP_STATUS_SET_PACKET:
         p = new ResponsePacket(packet_type, "");
         break;
     }
@@ -190,12 +192,6 @@ int Utils::GenerateTag(std::string nickname, sql::Table& users_table)
     return tag;
 }
 #endif
-
-bool is_number(const std::string& s)
-{
-    return !s.empty() && std::find_if(s.begin(), 
-        s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
-}
 
 #ifdef QUESYNC_CLIENT
 Napi::Object Utils::JsonToObject(Napi::Env env, nlohmann::json& json)
