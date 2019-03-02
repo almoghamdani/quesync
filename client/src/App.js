@@ -23,7 +23,10 @@ class App extends Component {
 
     // Set initial state of component
     this.state = { 
-      connecting: false
+      connecting: false,
+      usernameError: false,
+      passwordError: false,
+      serverIPError: false
     }
 
     // Make 'this' work in the event funcion
@@ -37,6 +40,42 @@ class App extends Component {
    */
   loginClicked()
   {
+    // Reset errors
+    this.setState({
+        usernameError: false,
+        passwordError: false,
+        serverIPError: false
+    });
+
+    // If username empty, set it as invalid
+    if (this.refs.username.input_.value.length == 0)
+    {
+        // Set it as invalid
+        this.setState({
+            usernameError: true
+        })
+        return;
+    }
+    // If password empty, set it as invalid
+    else if (this.refs.password.input_.value.length == 0)
+    {
+        // Set it as invalid
+        this.setState({
+            passwordError: true
+        })
+        return;
+    }
+    // If server IP empty or not matching the validation pattern, set it as invalid
+    else if (this.refs.serverIP.input_.value.length == 0 || 
+        !/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/.test(this.refs.serverIP.input_.value))
+    {
+        // Set it as invalid
+        this.setState({
+            serverIPError: true
+        })
+        return;
+    }
+
     // Set connecting as true to disable all input
     this.setState({
       connecting: true
@@ -66,9 +105,9 @@ class App extends Component {
     return (
       <ThemeProvider className="App" options={{ primary: "#ff3d00", secondary:"white" }} style={{ width: "100vw", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <div className="login-div" style={{ width: "350px", display: "flex", flexDirection: "column" }} >
-          <TextField outlined label="Username" ref="username" />
-          <TextField outlined label="Password" ref="password" type="password" style={{ marginTop: "18px" }} />
-          <TextField outlined label="Server IP" ref="serverIP" style={{ marginTop: "18px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
+          <TextField invalid={this.state.usernameError} outlined label="Username" ref="username" />
+          <TextField invalid={this.state.passwordError} outlined label="Password" ref="password" type="password" style={{ marginTop: "18px" }} />
+          <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "18px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
             <Button raised style={{ marginTop: "18px", width: "160px" }} onClick={this.loginClicked}>
               {
