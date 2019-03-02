@@ -55,6 +55,14 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     // Create a login packet from the username and password
     LoginPacket login_packet(username, password);
 
+    // If already authenticated, return error
+    if (_user)
+    {
+        res["error"] = Napi::Number::New(env, ALREADY_AUTHENTICATED);
+
+        return res;
+    }
+
     // Copy the login packet to the dat buffer
     Utils::CopyString(login_packet.encode(), _data);
 
@@ -107,6 +115,14 @@ Napi::Value Client::signup(const Napi::CallbackInfo& info)
     // Create a login packet from the username and password
     RegisterPacket register_packet(username, password, email, nickname);
 
+    // If already authenticated, return error
+    if (_user)
+    {
+        res["error"] = Napi::Number::New(env, ALREADY_AUTHENTICATED);
+
+        return res;
+    }
+
     // Copy the register packet to the data buffer
     Utils::CopyString(register_packet.encode(), _data);
 
@@ -157,6 +173,14 @@ Napi::Value Client::search(const Napi::CallbackInfo& info)
     int tag = info[1].IsUndefined() ? -1 : info[0].As<Napi::Number>();
 
     SearchPacket search_packet(nickname, tag);
+
+    // If not authenticated, return error
+    if (!_user)
+    {
+        res["error"] = Napi::Number::New(env, NOT_AUTHENTICATED);
+
+        return res;
+    }
 
     // Copy the search packet to the data buffer
     Utils::CopyString(search_packet.encode(), _data);
