@@ -21,6 +21,7 @@ class Client : public Napi::ObjectWrap<Client> {
         Napi::Value signup(const Napi::CallbackInfo& info);
 
         Napi::Value search(const Napi::CallbackInfo& info);
+        Napi::Value sendFriendRequest(const Napi::CallbackInfo& info);
 
     private:
         static Napi::FunctionReference constructor;

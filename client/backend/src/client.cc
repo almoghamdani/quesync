@@ -6,10 +6,14 @@
 #include "../../../shared/packets/register_packet.h"
 #include "../../../shared/packets/error_packet.h"
 #include "../../../shared/packets/search_packet.h"
+#include "../../../shared/packets/friend_request_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
-Client::Client(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Client>(info), _socket(SocketManager::io_context)
+Client::Client(const Napi::CallbackInfo &info) : 
+    Napi::ObjectWrap<Client>(info), 
+    _socket(SocketManager::io_context),
+    _user(nullptr)
 {
     Napi::Env env = info.Env();
 }
@@ -202,13 +206,63 @@ Napi::Value Client::search(const Napi::CallbackInfo& info)
 
         // Set no search results since an error occurred
         res["search_results"] = env.Null();
-    } else if (response_packet && response_packet->type() == SEARCH_RESULTS_PACKET) // If the response packet is a valid authentication response, get the user from it
+    }
+    // If the response packet is a valid search results response, get the user from it
+    else if (response_packet && response_packet->type() == SEARCH_RESULTS_PACKET)
     {       
         // Set success error code
         res["error"] = Napi::Number::New(env, SUCCESS);
 
         // Return the search results in an object
         res["search_results"] = Utils::JsonToObject(env, nlohmann::json::parse(response_packet->data()));
+    }
+
+    return res;
+}
+
+Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo& info)
+{
+Napi::Env env = info.Env();
+
+    ResponsePacket *response_packet;
+    Napi::Object res = Napi::Object::New(env);
+
+    // Convert parameters to string
+    std::string friend_id = info[0].As<Napi::String>();
+
+    FriendRequestPacket friend_request_packet(friend_id);
+
+    // If not authenticated, return error
+    if (!_user)
+    {
+        res["error"] = Napi::Number::New(env, NOT_AUTHENTICATED);
+
+        return res;
+    }
+
+    // Copy the friend request packet to the data buffer
+    Utils::CopyString(friend_request_packet.encode(), _data);
+
+    // Send the server the friend request packet
+    _socket.write_some(asio::buffer(_data, strlen(_data)));
+
+    // Get a response from the server
+    _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
+
+    // Parse the response packet
+    response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+
+    // If the response is an error, handle the error
+    if (response_packet && response_packet->type() == ERROR_PACKET)
+    {
+        // Set the error code from the response packet
+        res["error"] = Napi::Number::New(env, ((ErrorPacket *)response_packet)->error());
+    }
+    // If the response packet is a friend request confirmation response, get the user from it
+    else if (response_packet && response_packet->type() == FRIEND_REQUEST_SENT_PACKET)
+    {       
+        // Set success error code
+        res["error"] = Napi::Number::New(env, SUCCESS);
     }
 
     return res;
@@ -223,7 +277,8 @@ Napi::Object Client::Init(Napi::Env env, Napi::Object exports) {
         InstanceMethod("connect", &Client::connect),
         InstanceMethod("login", &Client::login),
         InstanceMethod("register", &Client::signup),
-        InstanceMethod("search", &Client::search)
+        InstanceMethod("search", &Client::search),
+        InstanceMethod("sendFriendRequest", &Client::sendFriendRequest)
     });
 
     // Create a peristent reference to the class constructor. This will allow
