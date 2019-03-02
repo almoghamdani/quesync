@@ -43,7 +43,7 @@ public:
         // If the user is not authenticed, send error
         if (!session->user())
         {
-            throw QuesyncException(NOT_AUTHENTICATED);
+            return ErrorPacket(NOT_AUTHENTICATED).encode();
         }
 
         // If a tag was entered, select with it as a requirement

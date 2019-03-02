@@ -31,7 +31,7 @@ public:
         // If the user is not authenticed, send error
         if (!session->user())
         {
-            throw QuesyncException(NOT_AUTHENTICATED);
+            return ErrorPacket(NOT_AUTHENTICATED).encode();
         }
 
         // If the friend id is the user's id, return error
