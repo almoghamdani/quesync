@@ -142,11 +142,64 @@ void UserManagement::sendFriendRequest(std::string requester_id, std::string rec
     }
 }
 
-void UserManagement::setFriendshipStatus(std::string requester_id, std::string friend_id, bool status)
+void UserManagement::setFriendshipStatus(std::string user_id, std::string friend_id, bool status)
 {
-    // Check if the recipient exists
+    std::string requester, recipient;
+    bool approved = false;
+    sql::Row friendship_row;
+
+    // Check if the friend exists
     if (!users_table.select("1").where("id = :id").bind("id", friend_id).execute().count())
     {
         throw QuesyncException(USER_NOT_FOUND);
+    }
+
+    // Get the friendship between the user and the friend
+    friendship_row = friendships_table.select("requester_id", "recipient_id", "approved")
+        .where("(requester_id = :requester_id AND recipient_id = :recipient_id) OR (requester_id = :recipient_id AND recipient_id = :requester_id)")
+        .bind("requester_id", user_id).bind("recipient_id", friend_id).execute().fetchOne();
+
+    // If the user doesn't have the friend as his friend throw an error
+    if (friendship_row.isNull())
+    {
+        throw QuesyncException(NOT_FRIENDS);
+    }
+
+    // Get the fields from the row for easier usage
+    requester = friendship_row[0];
+    recipient = friendship_row[1];
+    approved = friendship_row[2];
+
+    // If the user wish to disable a pending friend request or just remove a friend, remove the friendship
+    if (status == false)
+    {
+        try {
+            // Remove the friendship row
+            friendships_table.remove()
+                .where("requester_id = :requester_id AND recipient_id = :recipient_id")
+                .bind("requester_id", requester).bind("recipient_id", recipient).execute();
+        } catch (...) {
+            throw QuesyncException(UNKNOWN_ERROR);
+        }
+    }
+    // If the user is the requester and he is trying to self-approve his friend request
+    else if (requester == user_id && approved == false)
+    {
+        throw QuesyncException(SELF_APPROVE_FRIEND_REQUEST);
+    }
+    // If the user is trying to approve a friend request where he is already friends with
+    else if (approved == status == true)
+    {
+        throw QuesyncException(ALREADY_FRIENDS);
+    } else {
+        try {
+            // Set the approved field in the friendship row
+            friendships_table.update()
+                .set("approved", true)
+                .where("requester_id = :requester_id AND recipient_id = :recipient_id")
+                .bind("requester_id", requester).bind("recipient_id", recipient).execute();
+        } catch (...) {
+            throw QuesyncException(UNKNOWN_ERROR);
+        }
     }
 }

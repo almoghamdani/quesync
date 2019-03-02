@@ -13,6 +13,7 @@
 #include "packets/register_packet.h"
 #include "packets/search_packet.h"
 #include "packets/friend_request_packet.h"
+#include "packets/friendship_status_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -51,6 +52,10 @@ Packet *Utils::ParsePacket(std::string packet)
 
     case FRIEND_REQUEST_PACKET:
         p = new FriendRequestPacket();
+        break;
+
+    case FRIENDSHIP_STATUS_PACKET:
+        p = new FriendshipStatusPacket();
         break;
 
     case ERROR_PACKET:

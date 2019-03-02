@@ -28,18 +28,18 @@ public:
     #ifdef QUESYNC_SERVER
     virtual std::string handle (Session *session)
     {
-        // If the recipient id is the user's id, return error
+        // If the friend id is the user's id, return error
         if (session->user()->id() == _data["friend_id"])
         {
             return ErrorPacket(SELF_FRIEND_REQUEST).encode();
         }
 
         try {
-            // Send the user a friend request, if failed an exception will be thrown
-            session->server()->userManagement().sendFriendRequest(session->user()->id(), _data["recipient_id"]);
+            // Set the friendship status, if failed an exception will be thrown
+            session->server()->userManagement().setFriendshipStatus(session->user()->id(), _data["friend_id"], _data["status"]);
 
-            // Return confirmation for the friend request
-            return ResponsePacket(FRIEND_REQUEST_SENT_PACKET).encode();
+            // Return confirmation for the friendship status
+            return ResponsePacket(FRIENDSHIP_STATUS_SET_PACKET).encode();
         } catch (QuesyncException& ex) {
             // Return the error code
             return ErrorPacket(ex.getErrorCode()).encode();

@@ -13,6 +13,7 @@ typedef enum PacketType
     AUTHENTICATED_PACKET = 200,
     SEARCH_RESULTS_PACKET,
     FRIEND_REQUEST_SENT_PACKET,
+    FRIENDSHIP_STATUS_SET_PACKET,
 
     // When an error occurred
     ERROR_PACKET = 400
