@@ -26,13 +26,20 @@ function createWindow() {
 }
 
 // Listen to a login event
-ipcMain.on('login-event', (event, serverIP) => {
-  // Try to connect to the server
+ipcMain.on('client-connect', (event, serverIP) => {
   try {
+    // Try to connect to the server
     client.connect(serverIP)
+
+    // Save the client as a global var
+    global.client = client;
+
+    // Send confirmation
+    event.returnValue = { error: 0 }
   } catch (ex)
   {
-    console.log(ex)
+    // Send the error to the client
+    event.returnValue = { error: ex }
   }
 })
 

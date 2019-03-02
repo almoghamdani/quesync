@@ -43,15 +43,31 @@ class App extends Component {
     })
 
     // Call the login event with the server IP to connect to
-    electron.ipcRenderer.send('login-event', this.refs.serverIP.input_.value)
+    var {error} = electron.ipcRenderer.sendSync('client-connect', this.refs.serverIP.input_.value)
+
+    // If an error occurred, print it
+    if (error)
+    {
+        console.log(error);
+    } else {
+        console.log("Connected to ", this.refs.serverIP.input_.value);
+
+        // Save client in window
+        window.client = electron.remote.getGlobal("client");
+
+        // Try to login with the username and password
+        var {error, user} = window.client.login(this.refs.username.input_.value, this.refs.password.input_.value);
+
+        console.log(user)
+    }
   }
 
   render() {
     return (
       <ThemeProvider className="App" options={{ primary: "#ff3d00", secondary:"white" }} style={{ width: "100vw", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <div className="login-div" style={{ width: "350px", display: "flex", flexDirection: "column" }} >
-          <TextField outlined label="E-Mail" />
-          <TextField outlined label="Password" type="password" style={{ marginTop: "18px" }} />
+          <TextField outlined label="Username" ref="username" />
+          <TextField outlined label="Password" ref="password" type="password" style={{ marginTop: "18px" }} />
           <TextField outlined label="Server IP" ref="serverIP" style={{ marginTop: "18px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
             <Button raised style={{ marginTop: "18px", width: "160px" }} onClick={this.loginClicked}>
