@@ -40,11 +40,10 @@ public:
         // Split the packet
         std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
 
-        try {
+        if (params.size())
+        {
             // Get the data from the packet, it should be the first parameter
             _data = params[0];
-        } catch (...) {
-            return false;
         }
 
         return true;
