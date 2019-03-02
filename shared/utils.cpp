@@ -6,6 +6,7 @@
 #include <regex>
 #include <vector>
 #include <algorithm>
+#include <cctype>
 #include <openssl/sha.h>
 
 #include "packets/login_packet.h"
@@ -190,19 +191,26 @@ int Utils::GenerateTag(std::string nickname, sql::Table& users_table)
 }
 #endif
 
+bool is_number(const std::string& s)
+{
+    return !s.empty() && std::find_if(s.begin(), 
+        s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
+}
+
 #ifdef QUESYNC_CLIENT
 Napi::Object Utils::JsonToObject(Napi::Env env, nlohmann::json& json)
 {
-    // Create a new instance of a js object
-    Napi::Object res = Napi::Object::New(env);
+    // Convert the json dump to a Napi string object
+    Napi::String json_dump = Napi::String::New(env, json.dump());
 
-    // Go through the items in the original json
-    for (auto& element : json.items())
-    {
-        // Set the value in the element's key in the new js object
-        res[element.key()] = element.value();
-    }
+    // Get it's value
+    napi_value json_value = json_dump.operator napi_value();
 
-    return res;
+    // Get the JavaScript json parse function
+    Napi::Object json_obj = Napi::Object(env, env.Global().Get("JSON"));
+    Napi::Function parse = Napi::Function(env, json_obj.Get("parse"));
+
+    // Parse the json dump to a JavaScript Object using the function
+    return Napi::Object(env, parse.Call(1, (napi_value *)&json_value));
 }
 #endif
