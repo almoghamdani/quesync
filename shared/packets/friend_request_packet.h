@@ -27,7 +27,7 @@ public:
     virtual std::string handle (Session *session)
     {
         // If the user is not authenticed, send error
-        if (!session->user())
+        if (!session->authenticated())
         {
             return ErrorPacket(NOT_AUTHENTICATED).encode();
         }
