@@ -5,6 +5,7 @@
 #include "../../../shared/packets/login_packet.h"
 #include "../../../shared/packets/register_packet.h"
 #include "../../../shared/packets/error_packet.h"
+#include "../../../shared/packets/search_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
@@ -144,6 +145,51 @@ Napi::Value Client::signup(const Napi::CallbackInfo& info)
     return res;
 }
 
+Napi::Value Client::search(const Napi::CallbackInfo& info)
+{
+    Napi::Env env = info.Env();
+
+    ResponsePacket *response_packet;
+    Napi::Object res = Napi::Object::New(env);
+
+    // Convert parameters to string
+    std::string nickname = info[0].As<Napi::String>();
+    int tag = info[1].IsUndefined() ? -1 : info[0].As<Napi::Number>();
+
+    SearchPacket search_packet(nickname, tag);
+
+    // Copy the search packet to the data buffer
+    Utils::CopyString(search_packet.encode(), _data);
+
+    // Send the server the search packet
+    _socket.write_some(asio::buffer(_data, strlen(_data)));
+
+    // Get a response from the server
+    _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
+
+    // Parse the response packet
+    response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+
+    // If the response is an error, handle the error
+    if (response_packet && response_packet->type() == ERROR_PACKET)
+    {
+        // Set the error code from the response packet
+        res["error"] = Napi::Number::New(env, ((ErrorPacket *)response_packet)->error());
+
+        // Set no search results since an error occurred
+        res["search_results"] = env.Null();
+    } else if (response_packet && response_packet->type() == SEARCH_RESULTS_PACKET) // If the response packet is a valid authentication response, get the user from it
+    {       
+        // Set success error code
+        res["error"] = Napi::Number::New(env, SUCCESS);
+
+        // Return the search results in an object
+        res["search_results"] = Utils::JsonToObject(env, nlohmann::json::parse(response_packet->data()));
+    }
+
+    return res;
+}
+
 Napi::Object Client::Init(Napi::Env env, Napi::Object exports) {
     // Create scope for Client object
     Napi::HandleScope scope(env);
@@ -152,7 +198,8 @@ Napi::Object Client::Init(Napi::Env env, Napi::Object exports) {
     Napi::Function func = DefineClass(env, "Client", {
         InstanceMethod("connect", &Client::connect),
         InstanceMethod("login", &Client::login),
-        InstanceMethod("register", &Client::signup)
+        InstanceMethod("register", &Client::signup),
+        InstanceMethod("search", &Client::search)
     });
 
     // Create a peristent reference to the class constructor. This will allow
