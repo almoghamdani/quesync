@@ -6,6 +6,7 @@ import { Button, ButtonIcon } from '@rmwc/button';
 import { ThemeProvider } from '@rmwc/theme';
 import { CircularProgress } from '@rmwc/circular-progress';
 import { Elevation } from '@rmwc/elevation';
+import anime from 'animejs/lib/anime.es.js';
 
 import '@rmwc/circular-progress/circular-progress.css'
 
@@ -26,8 +27,10 @@ class StartPage extends Component {
     // Set initial state of component
     this.state = { 
       connecting: false,
+      loggingIn: false,
 
-      serverIPError: false
+      serverIPError: false,
+      connectError: ""
     }
 
     // Make 'this' work in the event funcion
@@ -68,35 +71,56 @@ class StartPage extends Component {
     // If an error occurred, print it
     if (error)
     {
-        console.log(error);
+        // If the error is that the client couldn't connect to the server, set the error label
+        if (error === "10061")
+        {
+            this.setState({ connectError: "Unable to find the Quesync Server!" });
+        }
     } else {
         console.log("Connected to ", this.refs.serverIP.input_.value);
 
         // Save client in window
         window.client = electron.remote.getGlobal("client");
+
+        // Disable all events to the connect form
+        this.refs.connectForm.style.pointerEvents = "none"
+
+        // Enable all events to the login form
+        this.refs.loginForm.style.pointerEvents = ""
+
+        // Make a fade out animation
+        anime({
+            targets: ".connect-form",
+            opacity: 0,
+            duration: 800,
+            easing: "easeInOutCirc",
+            delay: 250
+        })
+
+        // Make a fade out animation
+        anime({
+            targets: ".login-form",
+            opacity: 1,
+            duration: 800,
+            easing: "easeInOutCirc",
+            delay: 250
+        })
+
+        // Make the form holder height bigger
+        anime({
+            targets: ".form-holder",
+            height: "27rem",
+            duration: 800,
+            easing: "easeInOutCirc"
+        })
     }
   }
 
   render() {
     return (
       <ThemeProvider className="App" options={{ primary: "#00b0ff", secondary:"#e0e0e0" }} style={{ width: "100vw", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        {/*<div className="login-div" style={{ width: "350px", display: "flex", flexDirection: "column" }} >
-          <TextField invalid={this.state.usernameError} outlined label="Username" ref="username" />
-          <TextField invalid={this.state.passwordError} outlined label="Password" ref="password" type="password" style={{ marginTop: "18px" }} />
-          
-          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-            <Button raised style={{ marginTop: "18px", width: "160px" }} onClick={this.loginClicked}>
-              {
-                this.state.connecting ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
-              }
-              Login
-            </Button>
-            <Button raised style={{ marginTop: "18px", width: "160px", backgroundColor: "#00b0ff" }}>Register</Button>
-          </div>
-        </div>*/}
-
-        <Elevation style={{ width: "25rem", height: "20rem", background: "var(--mdc-theme-secondary)" }} z="8">
-            <div className="connect-form" style={{ minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <Elevation className="form-holder" style={{ position: "relative", width: "25rem", height: "20rem", background: "var(--mdc-theme-secondary)" }} z="8">
+            <div className="connect-form" ref="connectForm" style={{ position: "absolute", minWidth: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Quesync</Typography>
                 <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "50px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
                 <Button raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']} onClick={this.connectBtnClicked}>
@@ -104,6 +128,22 @@ class StartPage extends Component {
                     this.state.connecting ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
                 }
                 Connect
+                </Button>
+                <Typography ref="connectErrorLbl" use="body2" style={{ color: "#ff1744", paddingTop: "8px" }}>{this.state.connectError}</Typography>
+            </div>
+
+            <div className="login-form" ref="loginForm" style={{ position: "absolute", minWidth: "100%", minHeight: "100%", opacity: "0", pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
+                <TextField outlined label="Username" style={{ marginTop: "50px", width: "300px" }} />
+                <TextField outlined label="Password" style={{ marginTop: "25px", width: "300px" }} />
+                <Button raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']} onClick={this.connectBtnClicked}>
+                {
+                    this.state.loggingIn ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
+                }
+                Login
+                </Button>
+                <Button raised style={{ marginTop: "25px", width: "300px", background: "#ff9100" }} theme={['secondary']} onClick={this.connectBtnClicked}>
+                Don't have an account yet?
                 </Button>
             </div>
         </Elevation>
