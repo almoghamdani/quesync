@@ -38,11 +38,8 @@ void Client::connect(const Napi::CallbackInfo& info)
         _socket.connect(server_endpoint);
     } catch (std::system_error& ex)
     {
-        // Format the error message
-        std::string error = (std::stringstream() << ex.code().message() << " [" << ex.code() << "]").str();
-
         // Throw error on excpetion
-        throw Napi::Error::New(env, error);
+        throw Napi::Error::New(env, std::to_string(ex.code().value()));
     }
 }
 

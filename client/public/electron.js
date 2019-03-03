@@ -39,7 +39,7 @@ ipcMain.on('client-connect', (event, serverIP) => {
   } catch (ex)
   {
     // Send the error to the client
-    event.returnValue = { error: ex }
+    event.returnValue = { error: ex.message }
   }
 })
 
