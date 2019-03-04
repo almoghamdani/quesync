@@ -7,6 +7,7 @@ import { ThemeProvider } from '@rmwc/theme';
 import { CircularProgress } from '@rmwc/circular-progress';
 import { Elevation } from '@rmwc/elevation';
 import anime from 'animejs/lib/anime.es.js';
+import Particles from 'react-particles-js';
 
 import '@rmwc/circular-progress/circular-progress.css'
 
@@ -66,7 +67,9 @@ class StartPage extends Component {
     })
 
     // Call the login event with the server IP to connect to
-    var {error} = electron.ipcRenderer.sendSync('client-connect', this.refs.serverIP.input_.value)
+    //var {error} = electron.ipcRenderer.sendSync('client-connect', this.refs.serverIP.input_.value)
+
+    var error = 0
 
     // If an error occurred, print it
     if (error)
@@ -119,6 +122,7 @@ class StartPage extends Component {
   render() {
     return (
       <ThemeProvider className="App" options={{ primary: "#00b0ff", secondary:"#e0e0e0" }} style={{ width: "100vw", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Particles style={{ position: "absolute", top: "0", left: "0", minWidth: "100%", minHeight: "100%" }}/>
         <Elevation className="form-holder" style={{ position: "relative", width: "25rem", height: "20rem", background: "var(--mdc-theme-secondary)" }} z="8">
             <div className="connect-form" ref="connectForm" style={{ position: "absolute", minWidth: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Quesync</Typography>

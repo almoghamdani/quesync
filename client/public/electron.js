@@ -6,13 +6,13 @@ const ipcMain = electron.ipcMain;
 const path = require('path');
 const isDev = require('electron-is-dev');
 
-const quesync = require('../backend/bin/win32-x64-64/backend.node');
+//const quesync = require('../backend/bin/win32-x64-64/backend.node');
 
 // Set the main window as a global var
 let mainWindow;
 
 // Create a new backend client
-var client = new quesync.Client();
+//var client = new quesync.Client();
 
 function createWindow() {
   // Create a new browser window with a fixed initial size
