@@ -38,6 +38,19 @@ class StartPage extends Component {
     this.connectBtnClicked = this.connectBtnClicked.bind(this);
   }
 
+  componentDidMount()
+  {
+      // Add an animation for the background that will run in loops
+      anime({
+          targets: "body",
+          direction: 'alternate',
+          loop: true,
+          easing: 'easeInOutQuad',
+          backgroundPosition: 100,
+          duration: 7500
+      })
+  }
+
   /**
    * This function is an event function that will be called when the connect button was clicked.
    * 
@@ -122,7 +135,44 @@ class StartPage extends Component {
   render() {
     return (
       <ThemeProvider className="App" options={{ primary: "#00b0ff", secondary:"#e0e0e0" }} style={{ width: "100vw", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <Particles style={{ position: "absolute", top: "0", left: "0", minWidth: "100%", minHeight: "100%" }}/>
+        <Particles params={{
+            "particles": {
+                "number": {
+                    "value": 50, 
+                    "density": {
+                        "enable": true,
+                        "value_area": 500
+                    }
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 1.8,
+                    "direction": "none",
+                    "random": true,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 180,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    }
+                }
+            }
+        }} style={{ position: "absolute", top: "0", left: "0", minWidth: "100%", minHeight: "100%" }}/>
         <Elevation className="form-holder" style={{ position: "relative", width: "25rem", height: "20rem", background: "var(--mdc-theme-secondary)" }} z="8">
             <div className="connect-form" ref="connectForm" style={{ position: "absolute", minWidth: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Quesync</Typography>

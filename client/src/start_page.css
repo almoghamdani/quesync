@@ -1,3 +1,8 @@
 .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
     color: var(--mdc-theme-primary) !important;
 }
+
+body {
+    background: linear-gradient(to right top, #102977, #288437);
+    background-size: 200% 200%;
+}
