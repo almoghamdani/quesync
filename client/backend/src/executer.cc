@@ -1,7 +1,5 @@
 #include "executer.hpp"
 
-#include <iostream>
-
 #include "../../../shared/utils.h"
 
 // This function will be the fake callback to be fed into the NAPI api
