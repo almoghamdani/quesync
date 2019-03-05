@@ -41,8 +41,15 @@ void Executer::Execute()
 
 void Executer::OnOK()
 {
-    // Convert the return data json to an object and send it back to the frontend
-    _deferred.Resolve(Utils::JsonToObject(Env(), _return_data));
+    // If no error occurred, resolve the promise
+    if (_return_data["error"] == 0)
+    {
+        // Convert the return data json to an object and send it back to the frontend
+        _deferred.Resolve(Utils::JsonToObject(Env(), _return_data));
+    } else {
+        // Convert the return data json to an object and send it back to the frontend
+        _deferred.Reject(Utils::JsonToObject(Env(), _return_data));
+    }
 }
 
 void Executer::OnError(const Napi::Error& e)
