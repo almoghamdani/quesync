@@ -80,56 +80,56 @@ class StartPage extends Component {
     })
 
     // Call the login event with the server IP to connect to
-    //var {error} = electron.ipcRenderer.sendSync('client-connect', this.refs.serverIP.input_.value)
+    electron.ipcRenderer.send('client-connect', this.refs.serverIP.input_.value)
 
-    var error = 0
-
-    // If an error occurred, print it
-    if (error)
-    {
-        // If the error is that the client couldn't connect to the server, set the error label
-        if (error === "10061")
+    electron.ipcRenderer.on("client-connect-callback", (event, error) => {
+        // If an error occurred, print it
+        if (error)
         {
-            this.setState({ connectError: "Unable to find the Quesync Server!" });
+            // If the error is that the client couldn't connect to the server, set the error label
+            if (error === 10061)
+            {
+                this.setState({ connectError: "Unable to find the Quesync Server!" });
+            }
+        } else {
+            console.log("Connected to ", this.refs.serverIP.input_.value);
+
+            // Save client in window
+            window.client = electron.remote.getGlobal("client");
+
+            // Disable all events to the connect form
+            this.refs.connectForm.style.pointerEvents = "none"
+
+            // Enable all events to the login form
+            this.refs.loginForm.style.pointerEvents = ""
+
+            // Make a fade out animation
+            anime({
+                targets: ".connect-form",
+                opacity: 0,
+                duration: 800,
+                easing: "easeInOutCirc",
+                delay: 250
+            })
+
+            // Make a fade out animation
+            anime({
+                targets: ".login-form",
+                opacity: 1,
+                duration: 800,
+                easing: "easeInOutCirc",
+                delay: 250
+            })
+
+            // Make the form holder height bigger
+            anime({
+                targets: ".form-holder",
+                height: "27rem",
+                duration: 800,
+                easing: "easeInOutCirc"
+            })
         }
-    } else {
-        console.log("Connected to ", this.refs.serverIP.input_.value);
-
-        // Save client in window
-        window.client = electron.remote.getGlobal("client");
-
-        // Disable all events to the connect form
-        this.refs.connectForm.style.pointerEvents = "none"
-
-        // Enable all events to the login form
-        this.refs.loginForm.style.pointerEvents = ""
-
-        // Make a fade out animation
-        anime({
-            targets: ".connect-form",
-            opacity: 0,
-            duration: 800,
-            easing: "easeInOutCirc",
-            delay: 250
-        })
-
-        // Make a fade out animation
-        anime({
-            targets: ".login-form",
-            opacity: 1,
-            duration: 800,
-            easing: "easeInOutCirc",
-            delay: 250
-        })
-
-        // Make the form holder height bigger
-        anime({
-            targets: ".form-holder",
-            height: "27rem",
-            duration: 800,
-            easing: "easeInOutCirc"
-        })
-    }
+    })
   }
 
   render() {

@@ -6,13 +6,13 @@ const ipcMain = electron.ipcMain;
 const path = require('path');
 const isDev = require('electron-is-dev');
 
-//const quesync = require('../backend/bin/win32-x64-64/backend.node');
+const quesync = require('../backend/bin/win32-x64-64/backend.node');
 
 // Set the main window as a global var
 let mainWindow;
 
 // Create a new backend client
-//var client = new quesync.Client();
+var client = new quesync.Client();
 
 function createWindow() {
   // Create a new browser window with a fixed initial size
@@ -27,20 +27,15 @@ function createWindow() {
 
 // Listen to a login event
 ipcMain.on('client-connect', (event, serverIP) => {
-  try {
     // Try to connect to the server
     client.connect(serverIP)
+        .then(({ error }) => {
+            // Save the client as a global var
+            global.client = client;
 
-    // Save the client as a global var
-    global.client = client;
-
-    // Send confirmation
-    event.returnValue = { error: 0 }
-  } catch (ex)
-  {
-    // Send the error to the client
-    event.returnValue = { error: ex.message }
-  }
+            // Send error code
+            event.sender.send("client-connect-callback", error)
+        })
 })
 
 // When the electron app is ready, create the browser window
