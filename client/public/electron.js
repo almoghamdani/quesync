@@ -29,11 +29,14 @@ function createWindow() {
 ipcMain.on('client-connect', (event, serverIP) => {
     // Try to connect to the server
     client.connect(serverIP)
-        .then(({ error }) => {
+        .then(() => {
             // Save the client as a global var
             global.client = client;
 
-            // Send error code
+            // Send confirmation
+            event.sender.send("client-connect-callback", 0)
+        })
+        .catch(() => {
             event.sender.send("client-connect-callback", error)
         })
 })
