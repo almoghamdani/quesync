@@ -1,6 +1,8 @@
 #include "client.hpp"
 
 #include "socket-manager.hpp"
+#include "executer.hpp"
+
 #include "../../../shared/utils.h"
 #include "../../../shared/packets/login_packet.h"
 #include "../../../shared/packets/register_packet.h"
@@ -18,29 +20,39 @@ Client::Client(const Napi::CallbackInfo &info) :
     Napi::Env env = info.Env();
 }
 
-void Client::connect(const Napi::CallbackInfo& info)
+Napi::Value Client::connect(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
-
-    tcp::endpoint server_endpoint;
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
 
     // Convert first parameter to string
     std::string ip = info[0].As<Napi::String>();
+    
+    // Create a new executer worker that will make the connection to the server
+    Executer *e = new Executer([this, ip]() {
+        int error = 0;
+        tcp::endpoint server_endpoint;
 
-    // Get the endpoint of the server to connect to
-    SocketManager::GetEndpoint(ip.c_str(), SERVER_PORT, server_endpoint);
+        // Get the endpoint of the server to connect to
+        SocketManager::GetEndpoint(ip.c_str(), SERVER_PORT, server_endpoint);
 
-    // Create the voice chat manager and start a communication with the server
-    //_voiceChatManager = new VoiceChat((const char *)*ip);
+        try {
+            // Try to connect to the server
+            _socket.connect(server_endpoint);
+        } catch (std::system_error& ex)
+        {
+            // Get error code and throw it
+            error = ex.code().value();
+        }
 
-    try {
-        // Try to connect to the server
-        _socket.connect(server_endpoint);
-    } catch (std::system_error& ex)
-    {
-        // Throw error on excpetion
-        throw Napi::Error::New(env, std::to_string(ex.code().value()));
-    }
+        return nlohmann::json{ { "error", error } };
+    }, deferred);
+
+    // Queue the executer worker
+    e->Queue();
+
+    // Return the promise
+    return deferred.Promise();
 }
 
 Napi::Value Client::login(const Napi::CallbackInfo& info)
