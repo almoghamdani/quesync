@@ -36,7 +36,7 @@ ipcMain.on('client-connect', (event, serverIP) => {
             // Send confirmation
             event.sender.send("client-connect-callback", 0)
         })
-        .catch(() => {
+        .catch(({ error }) => {
             event.sender.send("client-connect-callback", error)
         })
 })
