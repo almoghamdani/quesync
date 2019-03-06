@@ -172,7 +172,7 @@ class StartPage extends Component {
   render() {
     return (
       <ThemeProvider className="App" options={{ primary: "#00b0ff", secondary:"#e0e0e0" }} style={{ width: "100vw", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <Particles params={{
+        <ParticlesNoUpdate params={{
             "particles": {
                 "number": {
                     "value": 50, 
@@ -241,6 +241,21 @@ class StartPage extends Component {
       </ThemeProvider>
     );
   }
+}
+
+class ParticlesNoUpdate extends Component
+{
+    shouldComponentUpdate()
+    {
+        return false;
+    }
+
+    render() 
+    {
+        return (
+            <Particles params={this.props.params} style={this.props.style} />
+        )
+    }
 }
 
 export default StartPage;
