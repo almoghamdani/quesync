@@ -36,6 +36,7 @@ class StartPage extends Component {
 
     // Make 'this' work in the event funcion
     this.connectBtnClicked = this.connectBtnClicked.bind(this);
+    this.loginBtnClicked = this.loginBtnClicked.bind(this);
   }
 
   componentDidMount()
@@ -91,6 +92,11 @@ class StartPage extends Component {
             {
                 this.setState({ connectError: "Unable to find the Quesync Server!" });
             }
+
+            // Disable the loading indicator
+            this.setState({
+                connecting: false
+            })
         } else {
             console.log("Connected to ", this.refs.serverIP.input_.value);
 
@@ -102,6 +108,11 @@ class StartPage extends Component {
 
             // Enable all events to the login form
             this.refs.loginForm.style.pointerEvents = ""
+
+            // Disable the loading indicator
+            this.setState({
+                connecting: false
+            })
 
             // Make a fade out animation
             anime({
@@ -130,6 +141,32 @@ class StartPage extends Component {
             })
         }
     })
+  }
+
+  loginBtnClicked()
+  {
+    // Set logging in as true to disable all input
+    this.setState({
+        loggingIn: true
+    })
+
+    window.client.login(this.refs.username.input_.value, this.refs.password.input_.value)
+        .then(({ user }) => {
+            console.log(user)
+
+            // Disable the loading indicator
+            this.setState({
+                loggingIn: false
+            })
+        })
+        .catch(({ error }) => {
+            console.log(error)
+
+            // Disable the loading indicator
+            this.setState({
+                loggingIn: false
+            })
+        })
   }
 
   render() {
@@ -177,7 +214,7 @@ class StartPage extends Component {
             <div className="connect-form" ref="connectForm" style={{ position: "absolute", minWidth: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Quesync</Typography>
                 <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "50px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
-                <Button raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']} onClick={this.connectBtnClicked}>
+                <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']} onClick={this.connectBtnClicked}>
                 {
                     this.state.connecting ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
                 }
@@ -188,9 +225,9 @@ class StartPage extends Component {
 
             <div className="login-form" ref="loginForm" style={{ position: "absolute", minWidth: "100%", minHeight: "100%", opacity: "0", pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
-                <TextField outlined label="Username" style={{ marginTop: "50px", width: "300px" }} />
-                <TextField outlined label="Password" style={{ marginTop: "25px", width: "300px" }} />
-                <Button raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']} onClick={this.connectBtnClicked}>
+                <TextField outlined label="Username" ref="username" style={{ marginTop: "50px", width: "300px" }} />
+                <TextField type="password" outlined label="Password" ref="password" style={{ marginTop: "25px", width: "300px" }} />
+                <Button raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']} onClick={this.loginBtnClicked}>
                 {
                     this.state.loggingIn ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
                 }
