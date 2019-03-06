@@ -214,7 +214,7 @@ class StartPage extends Component {
                 },
                 "move": {
                     "enable": true,
-                    "speed": 0.6,
+                    "speed": 0.3,
                     "direction": "top",
                     "random": true,
                     "straight": false,
