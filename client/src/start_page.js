@@ -44,8 +44,11 @@ class StartPage extends Component {
    * 
    * @return None
    */
-  connectBtnClicked()
+  connectBtnClicked(event)
   {
+    // Disable the form's redirect
+    event.preventDefault();
+
     // Reset errors
     this.setState({
         serverIPError: false
@@ -239,17 +242,17 @@ class StartPage extends Component {
             }
         }} style={{ position: "absolute", top: "0", left: "0", minWidth: "100%", minHeight: "100%" }}/>
         <Elevation className="form-holder" style={{ position: "relative", width: "25rem", height: "20rem", background: "var(--mdc-theme-secondary)" }} z="8">
-            <div className="connect-form" ref="connectForm" style={{ position: "absolute", minWidth: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Quesync</Typography>
+            <form className="connect-form" ref="connectForm" onSubmit={this.connectBtnClicked} style={{ position: "absolute", minWidth: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Quesync</Typography>
                 <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "50px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
-                <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']} onClick={this.connectBtnClicked}>
+                <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']}>
                 {
                     this.state.connecting ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
                 }
                 Connect
                 </Button>
                 <Typography ref="connectErrorLbl" use="body2" style={{ color: "#ff1744", paddingTop: "8px" }}>{this.state.connectError}</Typography>
-            </div>
+            </form>
 
             <div className="login-form" ref="loginForm" style={{ position: "absolute", minWidth: "100%", minHeight: "100%", opacity: "0", pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
