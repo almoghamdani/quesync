@@ -3,6 +3,7 @@
 }
 
 body {
-    background: linear-gradient(to right top, #102977, #288437);
-    background-size: 200% 200%;
+    background: url(./start_menu_bg.png);
+    background-position: center;
+    background-size: 125% 125%;
 }
