@@ -133,8 +133,11 @@ class StartPage extends Component {
     })
   }
 
-  loginBtnClicked()
+  loginBtnClicked(event)
   {
+    // Disable the form's redirect
+    event.preventDefault();
+
     // Set logging in as true to disable all input
     this.setState({
         loggingIn: true
@@ -241,20 +244,20 @@ class StartPage extends Component {
                         <Typography ref="connectErrorLbl" use="body2" style={{ color: "#ff1744", paddingTop: "20px", userSelect: "none" }}>{this.state.connectError}</Typography>
                     </div>
                 </form>
-                <div className="quesync-form quesync-login-form" ref="loginForm" style={{ opacity: "0", pointerEvents: "none" }}>
+                <form className="quesync-form quesync-login-form" ref="loginForm" onSubmit={this.loginBtnClicked} style={{ opacity: "0", pointerEvents: "none" }}>
                     <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
                     <TextField outlined label="Username" ref="username" style={{ marginTop: "50px", width: "300px" }} />
                     <TextField type="password" outlined label="Password" ref="password" style={{ marginTop: "25px", width: "300px" }} />
-                    <Button raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']} onClick={this.loginBtnClicked}>
+                    <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']}>
                     {
                         this.state.loggingIn ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
                     }
                     Login
                     </Button>
-                    <Button raised style={{ marginTop: "25px", width: "300px", background: "#ff9100" }} theme={['secondary']} onClick={this.connectBtnClicked}>
+                    <Button raised style={{ marginTop: "25px", width: "300px", background: "#ff9100" }} onClick={this.connectBtnClicked}>
                     Don't have an account yet?
                     </Button>
-                </div>
+                </form>
             </div>
         </Elevation>
       </ThemeProvider>
