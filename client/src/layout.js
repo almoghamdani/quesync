@@ -10,29 +10,29 @@ class Layout extends Component
 {
     close()
     {
-        // Close the current window
-        currentWindow.close()
-
         // Blur active element
         document.activeElement.blur();
+
+        // Close the current window
+        currentWindow.close()
     }
 
     maximize()
     {
-        // Maximize or unmaximize the current window by the current maximized state
-        currentWindow.isMaximized() ? currentWindow.unmaximize() : currentWindow.maximize()
-
         // Blur active element
         document.activeElement.blur();
+
+        // Maximize or unmaximize the current window by the current maximized state
+        currentWindow.isMaximized() ? currentWindow.unmaximize() : currentWindow.maximize()
     }
 
     minimize()
     {
-        // Minimize the current window
-        currentWindow.minimize()
-
         // Blur active element
         document.activeElement.blur();
+
+        // Minimize the current window
+        currentWindow.minimize()
     }
 
     render()
