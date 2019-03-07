@@ -78,7 +78,7 @@ class StartPage extends Component {
         if (error)
         {
             // If the error is that the client couldn't connect to the server, set the error label
-            if (error === 10061)
+            if (error === 10061 || error === 10057)
             {
                 this.setState({ connectError: "Unable to find the Quesync Server!" });
             }
@@ -165,7 +165,7 @@ class StartPage extends Component {
         <ParticlesNoUpdate className="quesync-bg-particles" params={{
             "particles": {
                 "number": {
-                    "value": 160,
+                    "value": 80,
                     "density": {
                         "enable": true,
                         "value_area": 800
@@ -219,25 +219,7 @@ class StartPage extends Component {
                     "random": true,
                     "straight": false,
                     "out_mode": "out",
-                    "bounce": true,
-                }
-            },
-            "interactivity": {
-                "detect_on": "canvas",
-                "events": {
-                    "onhover": {
-                        "enable": true,
-                        "mode": "bubble"
-                    }
-                },
-                "modes": {
-                    "bubble": {
-                        "distance": 75,
-                        "size": 0,
-                        "duration": 2.2,
-                        "opacity": 0,
-                        "speed": 3
-                    }
+                    "bounce": false,
                 }
             }
         }} style={{ position: "absolute", top: "0", left: "0", minWidth: "100%", minHeight: "100%", zIndex: "-1" }}/>
@@ -255,7 +237,9 @@ class StartPage extends Component {
                     }
                     Connect
                     </Button>
-                    <Typography ref="connectErrorLbl" use="body2" style={{ color: "#ff1744", paddingTop: "8px" }}>{this.state.connectError}</Typography>
+                    <div style={{ width: "100%", height: "10px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <Typography ref="connectErrorLbl" use="body2" style={{ color: "#ff1744", paddingTop: "20px", userSelect: "none" }}>{this.state.connectError}</Typography>
+                    </div>
                 </form>
                 <div className="quesync-form" ref="loginForm" style={{ opacity: "0", pointerEvents: "none" }}>
                     <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
