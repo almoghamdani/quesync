@@ -1,0 +1,61 @@
+@import "@material/icon-button/mdc-icon-button";
+
+.quesync-layout {
+    // Fill the window
+    max-height: 100%; 
+    max-width: 100%;
+}
+
+.quesync-drag-holder {
+    // Position it in the top of the screen
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    // Make the children align horizontally
+    display: flex;
+    flex-direction: row;
+
+    // Fill the entire width of the screen + Fixed height of the drag holder
+    height: 30px;
+    min-width: 100%;
+
+    background: rgba(0, 0, 0, 0.35);
+
+    // Make on top of all other elements
+    z-index: 9999;
+}
+
+.quesync-drag-zone {
+    // Set it as drag zone
+    -webkit-app-region: drag;
+
+    // Fill the flexbox parent
+    flex: 1;
+}
+
+.quesync-drag-zone-button {
+    @include mdc-icon-button-size(15px, 15px);
+    @include mdc-icon-button-ink-color(white);
+}
+
+// Change ripple from circle to square
+.quesync-drag-zone-button::after {
+    border-radius: 0px !important;
+}
+
+// Change ripple from circle to square
+.quesync-drag-zone-button::before {
+    border-radius: 0px !important;
+
+    // Fix size and position issue of the initial hover
+    left: 6px !important;
+    top: 6px !important;
+    height: 18px !important;
+    width: 18px !important;
+}
+
+// Set font size to match the size of the material icon button
+.quesync-drag-zone-button .material-icons {
+    font-size: 15px !important;
+}
