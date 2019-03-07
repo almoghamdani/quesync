@@ -1,13 +1,10 @@
 #pragma once
 #include "packet.h"
 
-#include <iostream>
+#include <iomanip>
 #include <sstream>
 
-#include "response_packet.h"
-#include "error_packet.h"
 #include "../utils.h"
-#include "../quesync_exception.h"
 
 class SerializedPacket : public Packet
 {
@@ -16,7 +13,7 @@ public:
 
     virtual std::string encode()
     {
-        // Format the login packet
+        // Format the serialized packet by it's data
         return (std::stringstream() << PACKET_IDENTIFIER << PACKET_DELIMETER
                                    << std::setw(PACKET_TYPE_LEN) << std::setfill('0') << _type << PACKET_DELIMETER
                                    << _data.dump() << PACKET_DELIMETER).str();

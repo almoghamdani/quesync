@@ -14,6 +14,7 @@
 #include "packets/search_packet.h"
 #include "packets/friend_request_packet.h"
 #include "packets/friendship_status_packet.h"
+#include "packets/ping_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -38,6 +39,10 @@ Packet *Utils::ParsePacket(std::string packet)
     // By the packet type create the correct packet type
     switch (packet_type)
     {
+    case PING_PACKET:
+        p = new PingPacket();
+        break;
+
     case LOGIN_PACKET:
         p = new LoginPacket();
         break;

@@ -2,6 +2,8 @@
 
 typedef enum PacketType
 {
+    PING_PACKET = 0,
+
     // Requests
     LOGIN_PACKET = 1,
     REGISTER_PACKET,
@@ -16,5 +18,7 @@ typedef enum PacketType
     FRIENDSHIP_STATUS_SET_PACKET,
 
     // When an error occurred
-    ERROR_PACKET = 400
+    ERROR_PACKET = 400,
+
+    PONG_PACKET = 999
 } PacketType;
