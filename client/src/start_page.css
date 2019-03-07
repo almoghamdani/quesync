@@ -1,9 +1,0 @@
-.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
-    color: var(--mdc-theme-primary) !important;
-}
-
-body {
-    background: url(./start_menu_bg.png);
-    background-position: center;
-    background-size: 125% 125%;
-}

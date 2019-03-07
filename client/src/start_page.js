@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './start_page.css';
+import './start_page.scss';
 import { Typography } from '@rmwc/typography';
 import { TextField } from '@rmwc/textfield';
 import { Button, ButtonIcon } from '@rmwc/button';
@@ -161,8 +161,8 @@ class StartPage extends Component {
 
   render() {
     return (
-      <ThemeProvider className="App" options={{ primary: "#00b0ff", secondary:"#e0e0e0" }} style={{ width: "100vw", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <ParticlesNoUpdate params={{
+      <ThemeProvider className="quesync-start-page" options={{ primary: "#00b0ff", secondary:"#e0e0e0" }}>
+        <ParticlesNoUpdate className="quesync-bg-particles" params={{
             "particles": {
                 "number": {
                     "value": 160,
@@ -240,33 +240,37 @@ class StartPage extends Component {
                     }
                 }
             }
-        }} style={{ position: "absolute", top: "0", left: "0", minWidth: "100%", minHeight: "100%" }}/>
-        <Elevation className="form-holder" style={{ position: "relative", width: "25rem", height: "20rem", background: "var(--mdc-theme-secondary)", borderRadius: "5px" }} z="8">
-            <form className="connect-form" ref="connectForm" onSubmit={this.connectBtnClicked} style={{ position: "absolute", minWidth: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Quesync</Typography>
-                <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "50px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
-                <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']}>
-                {
-                    this.state.connecting ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
-                }
-                Connect
-                </Button>
-                <Typography ref="connectErrorLbl" use="body2" style={{ color: "#ff1744", paddingTop: "8px" }}>{this.state.connectError}</Typography>
-            </form>
+        }}/>
+        <Elevation className="quesync-form" z="8">
+            <div className="quesync-form-side">
 
-            <div className="login-form" ref="loginForm" style={{ position: "absolute", minWidth: "100%", minHeight: "100%", opacity: "0", pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
-                <TextField outlined label="Username" ref="username" style={{ marginTop: "50px", width: "300px" }} />
-                <TextField type="password" outlined label="Password" ref="password" style={{ marginTop: "25px", width: "300px" }} />
-                <Button raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']} onClick={this.loginBtnClicked}>
-                {
-                    this.state.loggingIn ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
-                }
-                Login
-                </Button>
-                <Button raised style={{ marginTop: "25px", width: "300px", background: "#ff9100" }} theme={['secondary']} onClick={this.connectBtnClicked}>
-                Don't have an account yet?
-                </Button>
+            </div>
+            <div className="form-holder" style={{ display: "inline-block" }}>
+                <form className="connect-form" ref="connectForm" onSubmit={this.connectBtnClicked} style={{ position: "relative", minWidth: "25rem", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                    <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Quesync</Typography>
+                    <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "50px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
+                    <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']}>
+                    {
+                        this.state.connecting ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
+                    }
+                    Connect
+                    </Button>
+                    <Typography ref="connectErrorLbl" use="body2" style={{ color: "#ff1744", paddingTop: "8px" }}>{this.state.connectError}</Typography>
+                </form>
+                <div className="login-form" ref="loginForm" style={{ position: "relative", minWidth: "100%", minHeight: "100%", opacity: "0", pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                    <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
+                    <TextField outlined label="Username" ref="username" style={{ marginTop: "50px", width: "300px" }} />
+                    <TextField type="password" outlined label="Password" ref="password" style={{ marginTop: "25px", width: "300px" }} />
+                    <Button raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']} onClick={this.loginBtnClicked}>
+                    {
+                        this.state.loggingIn ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
+                    }
+                    Login
+                    </Button>
+                    <Button raised style={{ marginTop: "25px", width: "300px", background: "#ff9100" }} theme={['secondary']} onClick={this.connectBtnClicked}>
+                    Don't have an account yet?
+                    </Button>
+                </div>
             </div>
         </Elevation>
       </ThemeProvider>
@@ -284,7 +288,7 @@ class ParticlesNoUpdate extends Component
     render() 
     {
         return (
-            <Particles params={this.props.params} style={this.props.style} />
+            <Particles className="quesync-particles" params={this.props.params} />
         )
     }
 }

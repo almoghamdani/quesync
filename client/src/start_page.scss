@@ -1,0 +1,39 @@
+body {
+    background: url(./start_menu_bg.png);
+    background-position: center;
+    background-size: 125% 125%;
+}
+
+.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+    color: var(--mdc-theme-primary) !important;
+}
+
+.quesync-start-page {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.quesync-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
+}
+
+.quesync-form {
+    position: relative;
+    height: 20rem;
+    background: var(--mdc-theme-secondary);
+    border-radius: 5px;
+}
+
+.quesync-form-side {
+    display: inline-block;
+    background: var(--mdc-theme-primary);
+    width: 20rem;
+    height: 100%;
+}
