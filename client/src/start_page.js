@@ -161,7 +161,7 @@ class StartPage extends Component {
 
   render() {
     return (
-      <ThemeProvider className="quesync-start-page" options={{ primary: "#00b0ff", secondary:"#e0e0e0" }}>
+      <ThemeProvider className="quesync-start-page" options={{ primary: "#007EA7", secondary:"#e0e0e0" }}>
         <ParticlesNoUpdate className="quesync-bg-particles" params={{
             "particles": {
                 "number": {
@@ -240,14 +240,14 @@ class StartPage extends Component {
                     }
                 }
             }
-        }}/>
-        <Elevation className="quesync-form" z="8">
-            <div className="quesync-form-side">
-
+        }} style={{ position: "absolute", top: "0", left: "0", minWidth: "100%", minHeight: "100%", zIndex: "-1" }}/>
+        <Elevation className="quesync-start-menu" z="8">
+            <div className="quesync-form-side quesync-title">
+                <Typography use="headline2" style={{ color: "white", userSelect: "none" }}>Quesync</Typography>
             </div>
-            <div className="form-holder" style={{ display: "inline-block" }}>
-                <form className="connect-form" ref="connectForm" onSubmit={this.connectBtnClicked} style={{ position: "relative", minWidth: "25rem", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Quesync</Typography>
+            <div className="quesync-form-side quesync-form-holder" style={{ minWidth: "25rem" }}>
+                <form className="quesync-form" ref="connectForm" onSubmit={this.connectBtnClicked}>
+                    <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Server</Typography>
                     <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "50px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
                     <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']}>
                     {
@@ -257,7 +257,7 @@ class StartPage extends Component {
                     </Button>
                     <Typography ref="connectErrorLbl" use="body2" style={{ color: "#ff1744", paddingTop: "8px" }}>{this.state.connectError}</Typography>
                 </form>
-                <div className="login-form" ref="loginForm" style={{ position: "relative", minWidth: "100%", minHeight: "100%", opacity: "0", pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <div className="quesync-form" ref="loginForm" style={{ opacity: "0", pointerEvents: "none" }}>
                     <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
                     <TextField outlined label="Username" ref="username" style={{ marginTop: "50px", width: "300px" }} />
                     <TextField type="password" outlined label="Password" ref="password" style={{ marginTop: "25px", width: "300px" }} />
@@ -280,15 +280,28 @@ class StartPage extends Component {
 
 class ParticlesNoUpdate extends Component
 {
+    constructor(props)
+    {
+        super(props);
+
+        // Make 'this' work in the event funcion
+        this.onResize = this.onResize.bind(this);
+    }
+
     shouldComponentUpdate()
     {
         return false;
     }
 
+    onResize()
+    {
+        console.log(this.refs.particles)
+    }
+
     render() 
     {
         return (
-            <Particles className="quesync-particles" params={this.props.params} />
+            <Particles className="quesync-particles" ref="particles" params={this.props.params} style={this.props.style} />
         )
     }
 }
