@@ -9,6 +9,7 @@
 #include "../../../shared/packets/error_packet.h"
 #include "../../../shared/packets/search_packet.h"
 #include "../../../shared/packets/friend_request_packet.h"
+#include "../../../shared/packets/ping_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
@@ -30,8 +31,11 @@ Napi::Value Client::connect(const Napi::CallbackInfo& info)
     
     // Create a new executer worker that will make the connection to the server
     Executer *e = new Executer([this, ip]() {
+        ResponsePacket *response_packet;
+
         int error = 0;
         tcp::endpoint server_endpoint;
+        PingPacket ping_packet;
 
         // Get the endpoint of the server to connect to
         SocketManager::GetEndpoint(ip.c_str(), SERVER_PORT, server_endpoint);
@@ -43,6 +47,29 @@ Napi::Value Client::connect(const Napi::CallbackInfo& info)
         {
             // Get error code and throw it
             error = ex.code().value();
+        }
+
+        // Copy the ping packet to the dat buffer
+        Utils::CopyString(ping_packet.encode(), _data);
+
+        try {            
+            // Send the server the ping packet
+            _socket.write_some(asio::buffer(_data, strlen(_data)));
+
+            // Get a response from the server
+            _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
+        } catch (std::system_error& ex) {
+            // Get error code and throw it
+            error = ex.code().value();
+        }
+
+        // Parse the response packet
+        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+
+        // If the response is not a pong packet, return unknown error
+        if ((response_packet && response_packet->type() != PONG_PACKET) || !response_packet)
+        {
+            error = UNKNOWN_ERROR;
         }
 
         return nlohmann::json{ { "error", error } };

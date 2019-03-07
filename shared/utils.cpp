@@ -71,6 +71,7 @@ Packet *Utils::ParsePacket(std::string packet)
     case SEARCH_RESULTS_PACKET:
     case FRIEND_REQUEST_SENT_PACKET:
     case FRIENDSHIP_STATUS_SET_PACKET:
+    case PONG_PACKET:
         p = new ResponsePacket(packet_type, "");
         break;
     }
