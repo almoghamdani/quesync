@@ -67,7 +67,7 @@ Napi::Value Client::connect(const Napi::CallbackInfo& info)
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
 
         // If the response is not a pong packet, return unknown error
-        if ((response_packet && response_packet->type() != PONG_PACKET) || !response_packet)
+        if (!error && ((response_packet && response_packet->type() != PONG_PACKET) || !response_packet))
         {
             error = UNKNOWN_ERROR;
         }
