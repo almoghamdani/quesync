@@ -4,7 +4,6 @@ import { IconButton } from '@rmwc/icon-button';
 
 const electron = window.require("electron")
 const BrowserWindow = electron.remote.BrowserWindow
-const currentWindow = BrowserWindow.getFocusedWindow()
 
 class Layout extends Component
 {
@@ -14,6 +13,7 @@ class Layout extends Component
         document.activeElement.blur();
 
         // Close the current window
+        var currentWindow = BrowserWindow.getFocusedWindow()
         currentWindow.close()
     }
 
@@ -23,6 +23,7 @@ class Layout extends Component
         document.activeElement.blur();
 
         // Maximize or unmaximize the current window by the current maximized state
+        var currentWindow = BrowserWindow.getFocusedWindow()
         currentWindow.isMaximized() ? currentWindow.unmaximize() : currentWindow.maximize()
     }
 
@@ -32,6 +33,7 @@ class Layout extends Component
         document.activeElement.blur();
 
         // Minimize the current window
+        var currentWindow = BrowserWindow.getFocusedWindow()
         currentWindow.minimize()
     }
 
