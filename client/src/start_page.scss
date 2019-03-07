@@ -9,11 +9,17 @@ body {
 }
 
 .quesync-start-page {
+    // Fit to screen
     width: 100vw;
     height: 100vh;
+
+    // Center all children
     display: flex;
     justify-content: center;
     align-items: center;
+
+    // Hide scroll bars
+    overflow: hidden;
 }
 
 .quesync-start-menu {
