@@ -106,7 +106,7 @@ class StartPage extends Component {
 
             // Make a fade out animation
             anime({
-                targets: ".connect-form",
+                targets: ".quesync-connect-form",
                 opacity: 0,
                 duration: 800,
                 easing: "easeInOutCirc",
@@ -115,7 +115,7 @@ class StartPage extends Component {
 
             // Make a fade out animation
             anime({
-                targets: ".login-form",
+                targets: ".quesync-login-form",
                 opacity: 1,
                 duration: 800,
                 easing: "easeInOutCirc",
@@ -124,7 +124,7 @@ class StartPage extends Component {
 
             // Make the form holder height bigger
             anime({
-                targets: ".form-holder",
+                targets: ".quesync-form-holder",
                 height: "27rem",
                 duration: 800,
                 easing: "easeInOutCirc"
@@ -227,8 +227,8 @@ class StartPage extends Component {
             <div className="quesync-form-side quesync-title">
                 <Typography use="headline2" style={{ color: "white", userSelect: "none" }}>Quesync</Typography>
             </div>
-            <div className="quesync-form-side quesync-form-holder" style={{ minWidth: "25rem" }}>
-                <form className="quesync-form" ref="connectForm" onSubmit={this.connectBtnClicked}>
+            <div className="quesync-form-side quesync-form-holder" style={{ width: "25rem", height: "20rem" }}>
+                <form className="quesync-form quesync-connect-form" ref="connectForm" onSubmit={this.connectBtnClicked}>
                     <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Server</Typography>
                     <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "50px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
                     <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']}>
@@ -241,7 +241,7 @@ class StartPage extends Component {
                         <Typography ref="connectErrorLbl" use="body2" style={{ color: "#ff1744", paddingTop: "20px", userSelect: "none" }}>{this.state.connectError}</Typography>
                     </div>
                 </form>
-                <div className="quesync-form" ref="loginForm" style={{ opacity: "0", pointerEvents: "none" }}>
+                <div className="quesync-form quesync-login-form" ref="loginForm" style={{ opacity: "0", pointerEvents: "none" }}>
                     <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
                     <TextField outlined label="Username" ref="username" style={{ marginTop: "50px", width: "300px" }} />
                     <TextField type="password" outlined label="Password" ref="password" style={{ marginTop: "25px", width: "300px" }} />
