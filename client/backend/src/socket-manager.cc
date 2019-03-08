@@ -29,7 +29,7 @@ QuesyncError SocketManager::SendServerWithResponse(tcp::socket& socket, char *da
         // Get a response from the server
         socket.read_some(asio::buffer(data, MAX_RESPONSE_LEN));
     } catch (std::system_error& ex) {
-        // Get error code and throw it
+        // Get error code
         error = ex.code().value();
 
         // If the server cannot be reached

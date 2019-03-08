@@ -33,7 +33,7 @@ Napi::Value Client::connect(const Napi::CallbackInfo& info)
     Executer *e = new Executer([this, ip]() {
         ResponsePacket *response_packet;
 
-        QuesyncError error = 0;
+        QuesyncError error = SUCCESS;
         tcp::endpoint server_endpoint;
         PingPacket ping_packet;
 
@@ -45,8 +45,7 @@ Napi::Value Client::connect(const Napi::CallbackInfo& info)
             _socket.connect(server_endpoint);
         } catch (std::system_error& ex)
         {
-            // Get error code and throw it
-            error = ex.code().value();
+            // Ignore errors here because they will be caught in the ping packet that is being sent to the server
         }
 
         // Copy the ping packet to the dat buffer
@@ -83,7 +82,7 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     std::string username = info[0].As<Napi::String>(), password = info[1].As<Napi::String>();
 
     Executer *e = new Executer([this, username, password]() {
-        QuesyncError error = 0;
+        QuesyncError error = SUCCESS;
 
         ResponsePacket *response_packet;
         nlohmann::json res;
