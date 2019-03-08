@@ -15,14 +15,17 @@ let mainWindow;
 var client = new quesync.Client();
 
 function createWindow() {
-  // Create a new browser window with a fixed initial size
-  mainWindow = new BrowserWindow({ width: 900, height: 680, frame: false });
+    // Create a new browser window with a fixed initial size
+    mainWindow = new BrowserWindow({ width: 900, height: 680, frame: false });
 
-  // Load the dev url if electron ran on dev or load the static html file when electron is running in production
-  mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
+    // Load the dev url if electron ran on dev or load the static html file when electron is running in production
+    mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
 
-  // On the close event release the window from the memory
-  mainWindow.on('closed', () => mainWindow = null);
+    // On the close event release the window from the memory
+    mainWindow.on('closed', () => mainWindow = null);
+
+    // Save the errors object for the frontend
+    global.errors = quesync.errors;
 }
 
 // Listen to a login event

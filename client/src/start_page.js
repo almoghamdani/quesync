@@ -39,6 +39,12 @@ class StartPage extends Component {
     this.loginBtnClicked = this.loginBtnClicked.bind(this);
   }
 
+  componentWillMount()
+  {
+    // Save client's errors in window
+    window.errors = electron.remote.getGlobal("errors");
+  }
+
   /**
    * This function is an event function that will be called when the connect button was clicked.
    * 
@@ -78,9 +84,13 @@ class StartPage extends Component {
         if (error)
         {
             // If the error is that the client couldn't connect to the server, set the error label
-            if (error === 10061 || error === 10057)
+            if (error === window.errors.CANNOT_REACH_SERVER)
             {
-                this.setState({ connectError: "Unable to find the Quesync Server!" });
+                this.setState({ connectError: "Unable to reach the server!\nPlease make sure you have an active internet connection." });
+            } else if (error == window.errors.NO_CONNECTION) { // If the client has no internet connection
+                this.setState({ connectError: "You are not connected to the internet!" });
+            } else {
+                this.setState({ connectError: "An unknown error occurred!\nPlease make sure you have an active internet connection." });
             }
 
             // Disable the loading indicator
