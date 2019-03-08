@@ -33,7 +33,7 @@ Napi::Value Client::connect(const Napi::CallbackInfo& info)
     Executer *e = new Executer([this, ip]() {
         ResponsePacket *response_packet;
 
-        int error = 0;
+        QuesyncError error = 0;
         tcp::endpoint server_endpoint;
         PingPacket ping_packet;
 
@@ -83,6 +83,8 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     std::string username = info[0].As<Napi::String>(), password = info[1].As<Napi::String>();
 
     Executer *e = new Executer([this, username, password]() {
+        QuesyncError error = 0;
+
         ResponsePacket *response_packet;
         nlohmann::json res;
 
@@ -100,11 +102,8 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
         // Copy the login packet to the dat buffer
         Utils::CopyString(login_packet.encode(), _data);
 
-        // Send the server the login packet
-        _socket.write_some(asio::buffer(_data, strlen(_data)));
-
-        // Get a response from the server
-        _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
+        // Send to the server the ping packet expecting a response
+        error = SocketManager::SendServerWithResponse(_socket, _data, MAX_DATA_LEN);
 
         // Parse the response packet
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
@@ -114,9 +113,6 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
         {
             // Set the error code from the response packet
             res["error"] = ((ErrorPacket *)response_packet)->error();
-
-            // Set no user since an error occurred
-            res["user"] = nullptr;
         } else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
         {
             // Create a new user
@@ -130,6 +126,12 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
 
             // Return the user serialized
             res["user"] = _user->json();
+        } else if (error) {
+            // If an error occurred, return it
+            res["error"] = error;
+        } else {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
         }
 
         return res;
