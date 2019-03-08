@@ -243,15 +243,15 @@ class StartPage extends Component {
             <div className="quesync-form-side quesync-form-holder" style={{ width: "25rem", height: "20rem" }}>
                 <form className="quesync-form quesync-connect-form" ref="connectForm" onSubmit={this.connectBtnClicked}>
                     <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Server</Typography>
-                    <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "50px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
+                    <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "38px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
                     <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']}>
                     {
                         this.state.connecting ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
                     }
                     Connect
                     </Button>
-                    <div style={{ width: "100%", height: "10px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        <Typography ref="connectErrorLbl" use="body2" style={{ color: "#ff1744", paddingTop: "20px", userSelect: "none" }}>{this.state.connectError}</Typography>
+                    <div style={{ width: "100%", height: "15px", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                        <Typography ref="connectErrorLbl" use="caption" style={{ color: "#ff1744", paddingTop: "40px", userSelect: "none", whiteSpace: "pre-line", lineHeight: "12px" }}>{this.state.connectError}</Typography>
                     </div>
                 </form>
                 <form className="quesync-form quesync-login-form" ref="loginForm" onSubmit={this.loginBtnClicked} style={{ opacity: "0", pointerEvents: "none" }}>
