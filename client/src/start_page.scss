@@ -45,6 +45,9 @@ body {
     justify-content: center;
 
     width: 25rem;
+
+    // Add border radius for the side only
+    border-radius: 5px 0px 0px 5px;
 }
 
 .quesync-form-holder {

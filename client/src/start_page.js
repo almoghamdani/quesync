@@ -76,6 +76,18 @@ class StartPage extends Component {
       connecting: true
     })
 
+    // If there is an error, fade it out
+    if (this.state.connectError)
+    {
+        // Make a fade out animation
+        anime({
+            targets: ".quesync-connect-error",
+            opacity: 0,
+            duration: 200,
+            easing: "easeInOutCirc"
+        })
+    }
+
     // Call the login event with the server IP to connect to
     electron.ipcRenderer.send('client-connect', this.refs.serverIP.input_.value)
 
@@ -88,10 +100,18 @@ class StartPage extends Component {
             {
                 this.setState({ connectError: "Unable to reach the server!\nPlease make sure you have an active internet connection." });
             } else if (error == window.errors.NO_CONNECTION) { // If the client has no internet connection
-                this.setState({ connectError: "You are not connected to the internet!" });
+                this.setState({ connectError: "You don't have an active internet connection!" });
             } else {
                 this.setState({ connectError: "An unknown error occurred!\nPlease make sure you have an active internet connection." });
             }
+
+            // Fade in the connect error
+            anime({
+                targets: ".quesync-connect-error",
+                opacity: 1,
+                duration: 200,
+                easing: "easeInOutCirc"
+            })
 
             // Disable the loading indicator
             this.setState({
@@ -114,7 +134,7 @@ class StartPage extends Component {
                 connecting: false
             })
 
-            // Make a fade out animation
+            // Make a fade out animation for the connect form
             anime({
                 targets: ".quesync-connect-form",
                 opacity: 0,
@@ -123,7 +143,7 @@ class StartPage extends Component {
                 delay: 250
             })
 
-            // Make a fade out animation
+            // Make a fade in animation for the login form
             anime({
                 targets: ".quesync-login-form",
                 opacity: 1,
@@ -251,20 +271,20 @@ class StartPage extends Component {
                     Connect
                     </Button>
                     <div style={{ width: "100%", height: "15px", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
-                        <Typography ref="connectErrorLbl" use="caption" style={{ color: "#ff1744", paddingTop: "40px", userSelect: "none", whiteSpace: "pre-line", lineHeight: "12px" }}>{this.state.connectError}</Typography>
+                        <Typography className="quesync-connect-error" ref="connectErrorLbl" use="caption" style={{ color: "#ff1744", paddingTop: "40px", userSelect: "none", whiteSpace: "pre-line", lineHeight: "12px", opacity: "0" }}>{this.state.connectError}</Typography>
                     </div>
                 </form>
                 <form className="quesync-form quesync-login-form" ref="loginForm" onSubmit={this.loginBtnClicked} style={{ opacity: "0", pointerEvents: "none" }}>
                     <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
-                    <TextField outlined label="Username" ref="username" style={{ marginTop: "50px", width: "300px" }} />
-                    <TextField type="password" outlined label="Password" ref="password" style={{ marginTop: "25px", width: "300px" }} />
-                    <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']}>
+                    <TextField outlined label="Username" ref="username" style={{ marginTop: "38px", width: "300px" }} />
+                    <TextField type="password" outlined label="Password" ref="password" style={{ marginTop: "15px", width: "300px" }} />
+                    <Button type="submit" raised style={{ marginTop: "35px", width: "300px" }} theme={['secondary']}>
                     {
                         this.state.loggingIn ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
                     }
                     Login
                     </Button>
-                    <Button raised style={{ marginTop: "25px", width: "300px", background: "#ff9100" }} onClick={this.connectBtnClicked}>
+                    <Button raised style={{ marginTop: "15px", width: "300px", background: "#00A8E8" }} onClick={this.connectBtnClicked}>
                     Don't have an account yet?
                     </Button>
                 </form>
