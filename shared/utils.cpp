@@ -167,6 +167,34 @@ int Utils::RandomNumber(int min, int max)
     return distr(gen);
 }
 
+std::string Utils::QuesyncErrorToString(QuesyncError error) 
+{
+    // For each error, return it's name
+    switch (error)
+    {
+        case SUCCESS: return "SUCCESS";
+        case UNKNOWN_ERROR: return "UNKNOWN_ERROR";
+        case INVALID_PACKET: return "INVALID_PACKET";
+        case CANNOT_REACH_SERVER: return "CANNOT_REACH_SERVER";
+        case NO_CONNECTION: return "NO_CONNECTION";
+        case USER_NOT_FOUND: return "USER_NOT_FOUND";
+        case INCORRECT_PASSWORD: return "INCORRECT_PASSWORD";
+        case ALREADY_AUTHENTICATED: return "ALREADY_AUTHENTICATED";
+        case NOT_AUTHENTICATED: return "NOT_AUTHENTICATED";
+        case INVALID_USERNAME: return "INVALID_USERNAME";
+        case INVALID_EMAIL: return "INVALID_EMAIL";
+        case USERNAME_ALREADY_IN_USE: return "USERNAME_ALREADY_IN_USE";
+        case EMAIL_ALREADY_IN_USE: return "EMAIL_ALREADY_IN_USE";
+        case NICKNAME_FULL: return "NICKNAME_FULL";
+        case ALREADY_FRIENDS: return "ALREADY_FRIENDS";
+        case SELF_FRIEND_REQUEST: return "SELF_FRIEND_REQUEST";
+        case NOT_FRIENDS: return "NOT_FRIENDS";
+        case SELF_APPROVE_FRIEND_REQUEST: return "SELF_APPROVE_FRIEND_REQUEST";
+    }
+
+    return "";
+}
+
 #ifdef QUESYNC_SERVER
 int Utils::GenerateTag(std::string nickname, sql::Table& users_table)
 {

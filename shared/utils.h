@@ -12,6 +12,7 @@
 #include <uv.h>
 #endif
 
+#include "errors.h"
 #include "packets/packet.h"
 #include "packets/packet_types.h"
 
@@ -30,6 +31,8 @@ public:
     static PacketType GetPacketType(std::string packet);
 
     static int RandomNumber(int min, int max);
+
+    static std::string QuesyncErrorToString(QuesyncError error);
     
     #ifdef QUESYNC_SERVER
     static int GenerateTag(std::string nickname, sql::Table &users_table);
