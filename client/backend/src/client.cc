@@ -52,16 +52,8 @@ Napi::Value Client::connect(const Napi::CallbackInfo& info)
         // Copy the ping packet to the dat buffer
         Utils::CopyString(ping_packet.encode(), _data);
 
-        try {            
-            // Send the server the ping packet
-            _socket.write_some(asio::buffer(_data, strlen(_data)));
-
-            // Get a response from the server
-            _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
-        } catch (std::system_error& ex) {
-            // Get error code and throw it
-            error = ex.code().value();
-        }
+        // Send to the server the ping packet expecting a response
+        error = SocketManager::SendServerWithResponse(_socket, _data, MAX_DATA_LEN);
 
         // Parse the response packet
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);

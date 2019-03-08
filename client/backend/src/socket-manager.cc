@@ -17,7 +17,7 @@ void SocketManager::GetEndpoint(const char *ip_address, int port, T& endpoint)
 template void SocketManager::GetEndpoint(const char *ip_address, int port, udp::endpoint& endpoint);
 template void SocketManager::GetEndpoint(const char *ip_address, int port, tcp::endpoint& endpoint);
 
-QuesyncError SocketManager::SendServerWithResponse(tcp::socket socket, char *data, const int MAX_RESPONSE_LEN)
+QuesyncError SocketManager::SendServerWithResponse(tcp::socket& socket, char *data, const int MAX_RESPONSE_LEN)
 {
     int error = 0;
     QuesyncError quesync_error = SUCCESS;
