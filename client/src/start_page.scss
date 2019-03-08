@@ -89,3 +89,23 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+.quesync-transition-holder {
+    position: absolute;
+
+    // Set over the menu
+    z-index: 3;
+
+    // Pass all pointer events to the menu
+    pointer-events: none;
+}
+
+.quesync-transition {
+    height: 27rem;
+    width: 50rem;
+
+    border-radius: 5px;
+
+    // Not visible at first
+    opacity: 0;
+}
