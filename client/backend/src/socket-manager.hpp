@@ -7,7 +7,7 @@
 #include <iostream>
 #include <thread>
 
-#include "socket-error.hpp"
+#include "../../../shared/errors.h"
 
 using asio::ip::udp;
 using asio::ip::tcp;
@@ -19,5 +19,7 @@ public:
 
     template <typename T>
     static void GetEndpoint(const char *ip_address, int port, T& endpoint);
+
+    static QuesyncError SendServerWithResponse(tcp::socket socket, char *data, const int MAX_RESPONSE_LEN);
 
 };
