@@ -30,6 +30,15 @@ body {
 
     background: var(--mdc-theme-secondary);
     border-radius: 5px;
+
+    // Make children match the border radius of the menu itself
+    overflow: hidden;
+
+    // Required to make sure the absolute quesync-title stays inside the div
+    position: relative;
+
+    // Make it on top of all content
+    z-index: 2;
 }
 
 .quesync-form-side {
@@ -45,9 +54,19 @@ body {
     justify-content: center;
 
     width: 25rem;
+}
 
-    // Add border radius for the side only
-    border-radius: 5px 0px 0px 5px;
+.quesync-title-moving {
+    // Stick to the start of the div
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    // Fill the height of the div
+    height: 100%;
+
+    // Set it over the login form
+    z-index: 1;
 }
 
 .quesync-form-holder {

@@ -31,7 +31,11 @@ class StartPage extends Component {
       loggingIn: false,
 
       serverIPError: false,
-      connectError: ""
+      connectError: "",
+
+      usernameError: false,
+      passwordError: false,
+      loginError: ""
     }
 
     // Make 'this' work in the event funcion
@@ -168,12 +172,47 @@ class StartPage extends Component {
     // Disable the form's redirect
     event.preventDefault();
 
+    // Reset errors
+    this.setState({
+        usernameError: false,
+        passwordError: false
+    });
+
+    // If the username field is empty, set it as error
+    if (this.refs.username.input_.value.length == 0)
+    {
+        // Set it as invalid
+        this.setState({
+            usernameError: true
+        })
+        return;
+    } else if (this.refs.password.input_.value.length == 0) // If the password field is empty, set it as error
+    {
+        // Set it as invalid
+        this.setState({
+            passwordError: true
+        })
+        return;
+    }
+
     // Set logging in as true to disable all input
     this.setState({
         loggingIn: true
     })
 
-    window.client.login(this.refs.username.input_.value, this.refs.password.input_.value)
+    // Animate the quesync title moving part to fill the menu
+    anime({
+        targets: '.quesync-title-moving',
+        width: "100%",
+        duration: 800,
+        easing: "easeInOutCirc",
+        delay: 250
+    })
+
+    // Set a timeout for after the animation to start the login
+    setTimeout(() => {
+        // Try to login the user
+        window.client.login(this.refs.username.input_.value, this.refs.password.input_.value)
         .then(({ user }) => {
             console.log(user)
 
@@ -185,11 +224,21 @@ class StartPage extends Component {
         .catch(({ error }) => {
             console.log(error)
 
+            // Animate the quesync title moving part to return to it's place
+            anime({
+                targets: '.quesync-title-moving',
+                width: "50%",
+                duration: 800,
+                easing: "easeInOutCirc",
+                delay: 250
+            })
+
             // Disable the loading indicator
             this.setState({
                 loggingIn: false
             })
         })
+    }, 2000)
   }
 
   render() {
@@ -257,7 +306,8 @@ class StartPage extends Component {
             }
         }} style={{ position: "absolute", top: "0", left: "0", minWidth: "100%", minHeight: "100%", zIndex: "-1" }}/>
         <Elevation className="quesync-start-menu" z="8">
-            <div className="quesync-form-side quesync-title">
+            <div className="quesync-form-side quesync-title" />
+            <div className="quesync-form-side quesync-title quesync-title-moving">
                 <Typography use="headline2" style={{ color: "white", userSelect: "none" }}>Quesync</Typography>
             </div>
             <div className="quesync-form-side quesync-form-holder" style={{ width: "25rem", height: "20rem" }}>
@@ -275,13 +325,10 @@ class StartPage extends Component {
                     </div>
                 </form>
                 <form className="quesync-form quesync-login-form" ref="loginForm" onSubmit={this.loginBtnClicked} style={{ opacity: "0", pointerEvents: "none" }}>
-                    <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)" }}>Login</Typography>
-                    <TextField outlined label="Username" ref="username" style={{ marginTop: "38px", width: "300px" }} />
-                    <TextField type="password" outlined label="Password" ref="password" style={{ marginTop: "15px", width: "300px" }} />
+                    <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Login</Typography>
+                    <TextField invalid={this.state.usernameError} outlined label="Username" ref="username" style={{ marginTop: "38px", width: "300px" }} />
+                    <TextField invalid={this.state.passwordError} outlined label="Password" ref="password" type="password" style={{ marginTop: "15px", width: "300px" }} />
                     <Button type="submit" raised style={{ marginTop: "35px", width: "300px" }} theme={['secondary']}>
-                    {
-                        this.state.loggingIn ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
-                    }
                     Login
                     </Button>
                     <Button raised style={{ marginTop: "15px", width: "300px", background: "#00A8E8" }} onClick={this.connectBtnClicked}>
