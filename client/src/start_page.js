@@ -200,57 +200,126 @@ class StartPage extends Component {
         loggingIn: true
     })
 
-    // Animate the quesync title moving part to fill the menu
-    anime({
-        targets: '.quesync-title-moving',
-        width: "100%",
-        duration: 800,
+    // If there is an error, fade it out
+    if (this.state.loginError)
+    {
+        // Make a fade out animation
+        anime({
+            targets: ".quesync-login-error",
+            opacity: 0,
+            duration: 200,
+            easing: "easeInOutCirc"
+        })
+    }
+
+    // Create an animation timeline for the title transition + loading animation
+    var timeline = anime.timeline({
+        duration: 1300,
         easing: "easeInOutCirc",
-        delay: 250
+        delay: 250,
+        complete: () => {
+            // Try to login the user
+            window.client.login(this.refs.username.input_.value, this.refs.password.input_.value)
+                .then(({ user }) => {
+                    console.log(user)
+        
+                    // Set transition opacity
+                    this.refs.transition.style.opacity = 1
+        
+                    // Animate the quesync title moving part to return to it's place
+                    anime({
+                        targets: '.quesync-transition',
+                        width: "100vw",
+                        height: "100vh",
+                        duration: 1000,
+                        easing: "easeInOutCirc"
+                    })
+        
+                    // Disable the loading indicator
+                    this.setState({
+                        loggingIn: false
+                    })
+                })
+                .catch(({ error }) => {
+                    // Show the error label
+                    anime({
+                        targets: ".quesync-login-error",
+                        opacity: "1",
+                        duration: 0
+                    })
+
+                    // User not found
+                    if (error == window.errors.USER_NOT_FOUND) {
+                        this.setState({
+                            loginError: "The requested user is not found!",
+                            usernameError: true
+                        })
+                    }
+                    // Incorrect password 
+                    else if (error == window.errors.INCORRECT_PASSWORD) {
+                        this.setState({
+                            loginError: "Incorrect password!",
+                            passwordError: true
+                        })
+                    }
+                    // Any other error
+                    else {
+                        this.setState({
+                            loginError: "Unknown error occurred!\nPlease try again later."
+                        })
+                    }
+        
+                    // Create a timeline for the error animation
+                    var timeline = anime.timeline({
+                        duration: 800,
+                        easing: "easeInOutCirc",
+                        delay: 250,
+                        completed: () => {
+                            // Re-enable the login form
+                            this.setState({
+                                loggingIn: false
+                            })
+                        }
+                    })
+
+                    // Animate the quesync title moving part to return to it's place
+                    timeline.add({
+                        targets: '.quesync-title-moving',
+                        width: "50%"
+                    })
+
+                    // Fade out the loading indicator
+                    timeline.add({
+                        targets: '.quesync-loading',
+                        opacity: "0"
+                    }, 0)
+
+                    // Return the title text to the center
+                    timeline.add({
+                        targets: '.quesync-title-text',
+                        marginTop: "52px"
+                    }, 0)
+                })
+        }
     })
 
-    // Set a timeout for after the animation to start the login
-    setTimeout(() => {
-        // Try to login the user
-        window.client.login(this.refs.username.input_.value, this.refs.password.input_.value)
-        .then(({ user }) => {
-            console.log(user)
+    // Add animation for the title to fill the menu
+    timeline.add({
+        targets: '.quesync-title-moving',
+        width: "100%"
+    })
 
-            // Set transition opacity
-            this.refs.transition.style.opacity = 1
+    // Reset the title position to make space for the loading indicator
+    timeline.add({
+        targets: '.quesync-title-text',
+        marginTop: "0px"
+    }, 900)
 
-            // Animate the quesync title moving part to return to it's place
-            anime({
-                targets: '.quesync-transition',
-                width: "100vw",
-                height: "100vh",
-                duration: 1000,
-                easing: "easeInOutCirc"
-            })
-
-            // Disable the loading indicator
-            this.setState({
-                loggingIn: false
-            })
-        })
-        .catch(({ error }) => {
-            console.log(error)
-
-            // Animate the quesync title moving part to return to it's place
-            anime({
-                targets: '.quesync-title-moving',
-                width: "50%",
-                duration: 800,
-                easing: "easeInOutCirc",
-                delay: 250
-            })
-
-            // Disable the loading indicator
-            this.setState({
-                loggingIn: false
-            })
-        })
-    }, 2000)
+    // Fade in the loading indicator
+    timeline.add({
+        targets: '.quesync-loading',
+        opacity: "1"
+    }, 900)
   }
 
   render() {
@@ -325,7 +394,8 @@ class StartPage extends Component {
         <Elevation className="quesync-start-menu" z="8">
             <div className="quesync-form-side quesync-title" />
             <div className="quesync-form-side quesync-title quesync-title-moving">
-                <Typography use="headline2" style={{ color: "white", userSelect: "none" }}>Quesync</Typography>
+                <Typography className="quesync-title-text" use="headline2" style={{ color: "white", userSelect: "none", marginTop: "55px" }}>Quesync</Typography>
+                <CircularProgress className="quesync-loading" theme="secondary" style={{ marginTop: "38px", opacity: "0" }} />
             </div>
             <div className="quesync-form-side quesync-form-holder" style={{ width: "25rem", height: "20rem" }}>
                 <form className="quesync-form quesync-connect-form" ref="connectForm" onSubmit={this.connectBtnClicked}>
@@ -338,7 +408,7 @@ class StartPage extends Component {
                     Connect
                     </Button>
                     <div style={{ width: "100%", height: "15px", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
-                        <Typography className="quesync-connect-error" ref="connectErrorLbl" use="caption" style={{ color: "#ff1744", paddingTop: "40px", userSelect: "none", whiteSpace: "pre-line", lineHeight: "12px", opacity: "0" }}>{this.state.connectError}</Typography>
+                        <Typography className="quesync-connect-error" use="caption" style={{ color: "#ff1744", paddingTop: "40px", userSelect: "none", whiteSpace: "pre-line", lineHeight: "12px", opacity: "0" }}>{this.state.connectError}</Typography>
                     </div>
                 </form>
                 <form className="quesync-form quesync-login-form" ref="loginForm" onSubmit={this.loginBtnClicked} style={{ opacity: "0", pointerEvents: "none" }}>
@@ -351,6 +421,9 @@ class StartPage extends Component {
                     <Button raised style={{ marginTop: "15px", width: "300px", background: "#00A8E8" }} onClick={this.connectBtnClicked}>
                     Don't have an account yet?
                     </Button>
+                    <div style={{ width: "100%", height: "15px", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                        <Typography className="quesync-login-error" use="caption" style={{ color: "#ff1744", paddingTop: "25px", userSelect: "none", whiteSpace: "pre-line", lineHeight: "12px", opacity: "0" }}>{this.state.loginError}</Typography>
+                    </div>
                 </form>
             </div>
         </Elevation>
@@ -361,22 +434,9 @@ class StartPage extends Component {
 
 class ParticlesNoUpdate extends Component
 {
-    constructor(props)
-    {
-        super(props);
-
-        // Make 'this' work in the event funcion
-        this.onResize = this.onResize.bind(this);
-    }
-
     shouldComponentUpdate()
     {
         return false;
-    }
-
-    onResize()
-    {
-        console.log(this.refs.particles)
     }
 
     render() 
