@@ -223,17 +223,43 @@ class StartPage extends Component {
                 .then(({ user }) => {
                     console.log(user)
         
-                    // Set transition opacity
-                    this.refs.transition.style.opacity = 1
-        
+                    // Create a timeline for the transition
+                    var timeline = anime.timeline({
+                        duration: 1400,
+                        easing: "easeInOutCirc",
+                        delay: 250
+                    })
+
                     // Animate the quesync title moving part to return to it's place
-                    anime({
+                    timeline.add({
                         targets: '.quesync-transition',
                         width: "100vw",
-                        height: "100vh",
-                        duration: 1000,
-                        easing: "easeInOutCirc"
-                    })
+                        height: "100vh"
+                    }, 400)
+
+                    // Fade out the quesync title
+                    timeline.add({
+                        targets: '.quesync-transition-title',
+                        opacity: "0"
+                    }, 400)
+
+                    // Fade out the loading indicator
+                    timeline.add({
+                        targets: '.quesync-loading',
+                        opacity: "0",
+                        duration: 400
+                    }, 0)
+
+                    // Return the title text to the center
+                    timeline.add({
+                        targets: '.quesync-title-text',
+                        marginTop: "52px",
+                        duration: 400,
+                        complete: () => {
+                            // Set transition opacity
+                            this.refs.transition.style.opacity = 1
+                        }
+                    }, 0)
         
                     // Disable the loading indicator
                     this.setState({
@@ -274,7 +300,7 @@ class StartPage extends Component {
                         duration: 800,
                         easing: "easeInOutCirc",
                         delay: 250,
-                        completed: () => {
+                        complete: () => {
                             // Re-enable the login form
                             this.setState({
                                 loggingIn: false
@@ -388,7 +414,7 @@ class StartPage extends Component {
         }} style={{ position: "absolute", top: "0", left: "0", minWidth: "100%", minHeight: "100%", zIndex: "-1" }}/>
         <div className="quesync-transition-holder">
             <div className="quesync-transition quesync-title" ref="transition">
-                <Typography use="headline2" style={{ color: "white", userSelect: "none" }}>Quesync</Typography>
+                <Typography className="quesync-transition-title" use="headline2" style={{ color: "white", userSelect: "none", opacity: "1" }}>Quesync</Typography>
             </div>
         </div>
         <Elevation className="quesync-start-menu" z="8">
