@@ -114,12 +114,13 @@ class StartPage extends Component {
                 targets: ".quesync-connect-error",
                 opacity: 1,
                 duration: 200,
-                easing: "easeInOutCirc"
-            })
-
-            // Disable the loading indicator
-            this.setState({
-                connecting: false
+                easing: "easeInOutCirc",
+                complete: () => {
+                    // Re-enable the connect form
+                    this.setState({
+                        connecting: false
+                    })
+                }
             })
         } else {
             console.log("Connected to ", this.refs.serverIP.input_.value);
@@ -133,18 +134,19 @@ class StartPage extends Component {
             // Enable all events to the login form
             this.refs.loginForm.style.pointerEvents = ""
 
-            // Disable the loading indicator
-            this.setState({
-                connecting: false
-            })
-
             // Make a fade out animation for the connect form
             anime({
                 targets: ".quesync-connect-form",
                 opacity: 0,
                 duration: 800,
                 easing: "easeInOutCirc",
-                delay: 250
+                delay: 250,
+                complete: () => {
+                    // Re-enable the login form
+                    this.setState({
+                        connecting: false
+                    })
+                }
             })
 
             // Make a fade in animation for the login form
@@ -161,7 +163,8 @@ class StartPage extends Component {
                 targets: ".quesync-form-holder",
                 height: "27rem",
                 duration: 800,
-                easing: "easeInOutCirc"
+                easing: "easeInOutCirc",
+                delay: 250
             })
         }
     })
@@ -417,7 +420,7 @@ class StartPage extends Component {
                 <Typography className="quesync-transition-title" use="headline2" style={{ color: "white", userSelect: "none", opacity: "1" }}>Quesync</Typography>
             </div>
         </div>
-        <Elevation className="quesync-start-menu" z="8">
+        <Elevation className="quesync-start-menu" z="8" style={{ pointerEvents: this.state.connecting || this.state.loggingIn ? "none": "" }}>
             <div className="quesync-form-side quesync-title" />
             <div className="quesync-form-side quesync-title quesync-title-moving">
                 <Typography className="quesync-title-text" use="headline2" style={{ color: "white", userSelect: "none", marginTop: "55px" }}>Quesync</Typography>
