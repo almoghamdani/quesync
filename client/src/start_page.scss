@@ -109,3 +109,12 @@ body {
     // Not visible at first
     opacity: 0;
 }
+
+.quesync-error-holder {
+    width: 100%;
+    height: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center
+}

@@ -436,7 +436,7 @@ class StartPage extends Component {
                     }
                     Connect
                     </Button>
-                    <div style={{ width: "100%", height: "15px", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                    <div className="quesync-error-holder">
                         <Typography className="quesync-connect-error" use="caption" style={{ color: "#ff1744", paddingTop: "40px", userSelect: "none", whiteSpace: "pre-line", lineHeight: "12px", opacity: "0" }}>{this.state.connectError}</Typography>
                     </div>
                 </form>
@@ -450,7 +450,7 @@ class StartPage extends Component {
                     <Button raised style={{ marginTop: "15px", width: "300px", background: "#00A8E8" }} onClick={this.connectBtnClicked}>
                     Don't have an account yet?
                     </Button>
-                    <div style={{ width: "100%", height: "15px", display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                    <div className="quesync-error-holder">
                         <Typography className="quesync-login-error" use="caption" style={{ color: "#ff1744", paddingTop: "25px", userSelect: "none", whiteSpace: "pre-line", lineHeight: "12px", opacity: "0" }}>{this.state.loginError}</Typography>
                     </div>
                 </form>
