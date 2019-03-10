@@ -118,3 +118,15 @@ body {
     align-items: center;
     text-align: center
 }
+
+.quesync-grid {
+    padding-top: 30px;
+
+    display: grid;
+
+    grid-column-gap: 20px;
+    grid-row-gap: 50px;
+
+    // Auto make the size of each column
+    grid-template-columns: auto auto auto;
+}

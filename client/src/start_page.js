@@ -498,8 +498,10 @@ class StartPage extends Component {
                         </form>
                         <form className="quesync-form quesync-register-form" ref="registerForm" onSubmit={this.registerBtnClicked} style={{ opacity: "0", pointerEvents: "none" }}>
                             <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Register</Typography>
-                            <TextField invalid={this.state.usernameError} outlined label="Username" ref="username" style={{ marginTop: "38px", width: "300px" }} />
-                            <TextField invalid={this.state.passwordError} outlined label="Password" ref="password" type="password" style={{ marginTop: "15px", width: "300px" }} />
+                            <div className="quesync-grid">
+                                <TextField invalid={this.state.usernameError} outlined label="Username" ref="newUser.username"/>
+                                <TextField invalid={this.state.passwordError} outlined label="Password" ref="newUser.password" type="password"/>
+                            </div>
                             <Button type="submit" raised style={{ marginTop: "35px", width: "300px" }} theme={['secondary']}>
                             Login
                             </Button>
