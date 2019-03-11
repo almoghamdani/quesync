@@ -42,6 +42,7 @@ class StartPage extends Component {
         this.connectBtnClicked = this.connectBtnClicked.bind(this);
         this.loginBtnClicked = this.loginBtnClicked.bind(this);
         this.newAccountBtnClicked = this.newAccountBtnClicked.bind(this);
+        this.registerBtnClicked = this.registerBtnClicked.bind(this);
     }
 
     componentWillMount()
@@ -66,8 +67,8 @@ class StartPage extends Component {
         });
 
         // If server IP empty or not matching the validation pattern, set it as invalid
-        if (this.refs.serverIP.input_.value.length == 0 || 
-            !/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/.test(this.refs.serverIP.input_.value))
+        if (this.refs.connectForm[0].value.length == 0 || 
+            !/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/.test(this.refs.connectForm[0].value))
         {
             // Set it as invalid
             this.setState({
@@ -94,7 +95,7 @@ class StartPage extends Component {
         }
 
         // Call the login event with the server IP to connect to
-        electron.ipcRenderer.send('client-connect', this.refs.serverIP.input_.value)
+        electron.ipcRenderer.send('client-connect', this.refs.connectForm[0].value)
 
         electron.ipcRenderer.on("client-connect-callback", (event, error) => {
             // If an error occurred, print it
@@ -124,7 +125,7 @@ class StartPage extends Component {
                     }
                 })
             } else {
-                console.log("Connected to ", this.refs.serverIP.input_.value);
+                console.log("Connected to ", this.refs.connectForm[0].value);
 
                 // Save client in window
                 window.client = electron.remote.getGlobal("client");
@@ -183,14 +184,14 @@ class StartPage extends Component {
         });
 
         // If the username field is empty, set it as error
-        if (this.refs.username.input_.value.length == 0)
+        if (this.refs.loginForm[0].value.length == 0)
         {
             // Set it as invalid
             this.setState({
                 usernameError: true
             })
             return;
-        } else if (this.refs.password.input_.value.length == 0) // If the password field is empty, set it as error
+        } else if (this.refs.loginForm[1].value.length == 0) // If the password field is empty, set it as error
         {
             // Set it as invalid
             this.setState({
@@ -223,7 +224,7 @@ class StartPage extends Component {
             delay: 250,
             complete: () => {
                 // Try to login the user
-                window.client.login(this.refs.username.input_.value, this.refs.password.input_.value)
+                window.client.login(this.refs.loginForm[0].value, this.refs.loginForm[1].value)
                     .then(({ user }) => {
                         console.log(user)
             
@@ -393,6 +394,11 @@ class StartPage extends Component {
         }, 0)
     }
 
+    registerBtnClicked(event)
+    {
+        event.preventDefault()
+    }
+
     render() {
         return (
             <ThemeProvider className="quesync-start-page" options={{ primary: "#007EA7", secondary:"#e0e0e0" }}>
@@ -471,7 +477,7 @@ class StartPage extends Component {
                     <div className="quesync-form-side quesync-form-holder" style={{ width: "25rem", height: "20rem" }}>
                         <form className="quesync-form quesync-connect-form" ref="connectForm" onSubmit={this.connectBtnClicked}>
                             <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Server</Typography>
-                            <TextField invalid={this.state.serverIPError} outlined label="Server IP" ref="serverIP" style={{ marginTop: "38px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
+                            <TextField invalid={this.state.serverIPError} outlined label="Server IP" style={{ marginTop: "38px", width: "300px" }} pattern="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
                             <Button type="submit" raised style={{ marginTop: "25px", width: "300px" }} theme={['secondary']}>
                             {
                                 this.state.connecting ? <ButtonIcon icon={<CircularProgress theme="secondary" />}/> : null
@@ -484,8 +490,8 @@ class StartPage extends Component {
                         </form>
                         <form className="quesync-form quesync-login-form" ref="loginForm" onSubmit={this.loginBtnClicked} style={{ opacity: "0", pointerEvents: "none" }}>
                             <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Login</Typography>
-                            <TextField invalid={this.state.usernameError} outlined label="Username" ref="username" style={{ marginTop: "38px", width: "300px" }} />
-                            <TextField invalid={this.state.passwordError} outlined label="Password" ref="password" type="password" style={{ marginTop: "15px", width: "300px" }} />
+                            <TextField invalid={this.state.usernameError} outlined label="Username" style={{ marginTop: "38px", width: "300px" }} />
+                            <TextField invalid={this.state.passwordError} outlined label="Password" type="password" style={{ marginTop: "15px", width: "300px" }} />
                             <Button type="submit" raised style={{ marginTop: "35px", width: "300px" }} theme={['secondary']}>
                             Login
                             </Button>
@@ -499,8 +505,8 @@ class StartPage extends Component {
                         <form className="quesync-form quesync-register-form" ref="registerForm" onSubmit={this.registerBtnClicked} style={{ opacity: "0", pointerEvents: "none" }}>
                             <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Register</Typography>
                             <div className="quesync-grid">
-                                <TextField invalid={this.state.usernameError} outlined label="Username" ref="newUser.username"/>
-                                <TextField invalid={this.state.passwordError} outlined label="Password" ref="newUser.password" type="password"/>
+                                <TextField invalid={this.state.usernameError} outlined label="Username"/>
+                                <TextField invalid={this.state.passwordError} outlined label="Password" type="password"/>
                             </div>
                             <Button type="submit" raised style={{ marginTop: "35px", width: "300px" }} theme={['secondary']}>
                             Login
