@@ -153,62 +153,67 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
 Napi::Value Client::signup(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-
-    ResponsePacket *response_packet;
-    Napi::Object res = Napi::Object::New(env);
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
 
     // Convert parameters to string
     std::string username = info[0].As<Napi::String>(), password = info[1].As<Napi::String>(),
                 email = info[2].As<Napi::String>(), nickname = info[3].As<Napi::String>();
 
-    // Create a login packet from the username and password
-    RegisterPacket register_packet(username, password, email, nickname);
+    Executer *e = new Executer([this, username, nickname, password, email]() {
+        ResponsePacket *response_packet;
+        nlohmann::json res;
 
-    // If already authenticated, return error
-    if (_user)
-    {
-        res["error"] = Napi::Number::New(env, ALREADY_AUTHENTICATED);
+        // Create a login packet from the username and password
+        RegisterPacket register_packet(username, password, email, nickname);
+
+        // If already authenticated, return error
+        if (_user)
+        {
+            res["error"] = ALREADY_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Copy the register packet to the data buffer
+        Utils::CopyString(register_packet.encode(), _data);
+
+        // Send the server the register packet
+        _socket.write_some(asio::buffer(_data, strlen(_data)));
+
+        // Get a response from the server
+        _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
+
+        // Parse the response packet
+        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = ((ErrorPacket *)response_packet)->error();
+        }
+        else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
+        {
+            // Create a new user
+            _user = new User();
+
+            // Deserialize the user data from the response data
+            _user->deserialize(response_packet->data());
+
+            // Set success error code
+            res["error"] = SUCCESS;
+
+            // Return the user serialized
+            res["user"] = _user->json();
+        }
 
         return res;
-    }
+    }, deferred);
 
-    // Copy the register packet to the data buffer
-    Utils::CopyString(register_packet.encode(), _data);
+    // Queue the executer worker
+    e->Queue();
 
-    // Send the server the register packet
-    _socket.write_some(asio::buffer(_data, strlen(_data)));
-
-    // Get a response from the server
-    _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
-
-    // Parse the response packet
-    response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
-
-    // If the response is an error, handle the error
-    if (response_packet && response_packet->type() == ERROR_PACKET)
-    {
-        // Set the error code from the response packet
-        res["error"] = Napi::Number::New(env, ((ErrorPacket *)response_packet)->error());
-
-        // Set no user since an error occurred
-        res["user"] = env.Null();
-    }
-    else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
-    {
-        // Create a new user
-        _user = new User();
-
-        // Deserialize the user data from the response data
-        _user->deserialize(response_packet->data());
-
-        // Set success error code
-        res["error"] = Napi::Number::New(env, SUCCESS);
-
-        // Return the user serialized
-        res["user"] = Utils::JsonToObject(env, _user->json());
-    }
-
-    return res;
+    return deferred.Promise();
 }
 
 Napi::Value Client::search(const Napi::CallbackInfo &info)
