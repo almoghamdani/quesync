@@ -125,8 +125,8 @@ body {
     display: grid;
 
     grid-column-gap: 20px;
-    grid-row-gap: 50px;
+    grid-row-gap: 20px;
 
     // Auto make the size of each column
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 250px 250px;
 }

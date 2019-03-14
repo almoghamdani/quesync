@@ -43,6 +43,7 @@ class StartPage extends Component {
         this.loginBtnClicked = this.loginBtnClicked.bind(this);
         this.newAccountBtnClicked = this.newAccountBtnClicked.bind(this);
         this.registerBtnClicked = this.registerBtnClicked.bind(this);
+        this.haveAccountBtnClicked = this.haveAccountBtnClicked.bind(this);
     }
 
     componentWillMount()
@@ -316,7 +317,7 @@ class StartPage extends Component {
                         // Animate the quesync title moving part to return to it's place
                         timeline.add({
                             targets: '.quesync-title-moving',
-                            width: "50%"
+                            width: "25rem"
                         })
 
                         // Fade out the loading indicator
@@ -337,7 +338,7 @@ class StartPage extends Component {
         // Add animation for the title to fill the menu
         timeline.add({
             targets: '.quesync-title-moving',
-            width: "100%"
+            width: "50rem"
         })
 
         // Reset the title position to make space for the loading indicator
@@ -355,6 +356,12 @@ class StartPage extends Component {
 
     newAccountBtnClicked()
     {
+        // Reset errors
+        this.setState({
+            usernameError: false,
+            passwordError: false
+        });
+
         // Disable all events to the login form
         this.refs.loginForm.style.pointerEvents = "none"
 
@@ -374,7 +381,7 @@ class StartPage extends Component {
             opacity: 0
         }, 0)
 
-        // Make a fade in animation for the login form
+        // Make a fade in animation for the register form
         timeline.add({
             targets: ".quesync-register-form",
             opacity: 1
@@ -392,11 +399,73 @@ class StartPage extends Component {
             targets: ".quesync-title",
             width: "35rem"
         }, 0)
+
+        // Make the transition layer the size of the menu
+        timeline.add({
+            targets: ".quesync-transition",
+            height: "33rem",
+            width: "70rem"
+        }, 0)
     }
 
     registerBtnClicked(event)
     {
-        event.preventDefault()
+        // Disable the form's redirect
+        event.preventDefault();
+    }
+
+    haveAccountBtnClicked()
+    {
+        // Reset errors
+        this.setState({
+            usernameError: false,
+            passwordError: false
+        });
+
+        // Disable all events to the register form
+        this.refs.registerForm.style.pointerEvents = "none"
+
+        // Enable all events to the login form
+        this.refs.loginForm.style.pointerEvents = ""
+
+        // Create a timeline animation for the transition for the register form
+        var timeline = anime.timeline({
+            duration: 800,
+            easing: "easeInOutCirc",
+            delay: 250
+        })
+
+        // Make a fade out animation for the register form
+        timeline.add({
+            targets: ".quesync-register-form",
+            opacity: 0
+        }, 0)
+
+        // Make a fade in animation for the login form
+        timeline.add({
+            targets: ".quesync-login-form",
+            opacity: 1
+        }, 0)
+
+        // Make the form holder height samller
+        timeline.add({
+            targets: ".quesync-form-holder",
+            height: "27rem",
+            width: "25rem"
+        }, 0)
+
+        // Make the title in the size of the form
+        timeline.add({
+            targets: ".quesync-title",
+            width: "25rem"
+        }, 0)
+
+        // Make the transition layer the size of the menu
+        timeline.add({
+            targets: ".quesync-transition",
+            height: "27rem",
+            width: "50rem"
+        }, 0)
     }
 
     render() {
@@ -495,7 +564,7 @@ class StartPage extends Component {
                             <Button type="submit" raised style={{ marginTop: "35px", width: "300px" }} theme={['secondary']}>
                             Login
                             </Button>
-                            <Button raised style={{ marginTop: "15px", width: "300px", background: "#00A8E8" }} onClick={this.newAccountBtnClicked}>
+                            <Button type="button" raised style={{ marginTop: "15px", width: "300px", background: "#00A8E8" }} onClick={this.newAccountBtnClicked}>
                             Don't have an account yet?
                             </Button>
                             <div className="quesync-error-holder">
@@ -506,13 +575,18 @@ class StartPage extends Component {
                             <Typography use="headline2" style={{ color: "var(--mdc-theme-primary)", userSelect: "none" }}>Register</Typography>
                             <div className="quesync-grid">
                                 <TextField invalid={this.state.usernameError} outlined label="Username"/>
+                                <TextField invalid={this.state.nicknameError} outlined label="Nickname"/>
+                                <TextField invalid={this.state.emailError} outlined label="E-mail"/>
+                                <TextField invalid={this.state.emailMismatchError} outlined label="Re-enter e-mail"/>
                                 <TextField invalid={this.state.passwordError} outlined label="Password" type="password"/>
+                                <TextField invalid={this.state.passwordMismatchError} outlined label="Re-enter password" type="password"/>
+
                             </div>
-                            <Button type="submit" raised style={{ marginTop: "35px", width: "300px" }} theme={['secondary']}>
-                            Login
+                            <Button type="submit" raised style={{ marginTop: "60px", width: "300px" }} theme={['secondary']}>
+                            Register
                             </Button>
-                            <Button raised style={{ marginTop: "15px", width: "300px", background: "#00A8E8" }} onClick={this.connectBtnClicked}>
-                            Don't have an account yet?
+                            <Button type="button" raised style={{ marginTop: "15px", width: "300px", background: "#00A8E8" }} onClick={this.haveAccountBtnClicked}>
+                            Already have an account?
                             </Button>
                             <div className="quesync-error-holder">
                                 <Typography className="quesync-login-error" use="caption" style={{ color: "#ff1744", paddingTop: "25px", userSelect: "none", whiteSpace: "pre-line", lineHeight: "12px", opacity: "0" }}>{this.state.loginError}</Typography>
