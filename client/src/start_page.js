@@ -273,7 +273,7 @@ class StartPage extends Component {
 						timeline.add(
 							{
 								targets: ".quesync-title-text",
-								marginTop: "52px",
+								marginTop: "62px",
 								duration: 400,
 								complete: () => {
 									// Set transition opacity
@@ -349,7 +349,7 @@ class StartPage extends Component {
 						timeline.add(
 							{
 								targets: ".quesync-title-text",
-								marginTop: "52px"
+								marginTop: "62px"
 							},
 							0
 						);
