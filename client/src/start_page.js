@@ -34,7 +34,12 @@ class StartPage extends Component {
 
 			usernameError: false,
 			passwordError: false,
-			loginError: ""
+			loginError: "",
+
+			nicknameError: false,
+			emailError: false,
+			emailMismatchError: false,
+			passwordMismatchError: false
 		};
 
 		// Make 'this' work in the event funcion
@@ -453,13 +458,76 @@ class StartPage extends Component {
 	registerBtnClicked(event) {
 		// Disable the form's redirect
 		event.preventDefault();
+
+		console.log(this.refs);
+
+		// Reset errors
+		this.setState({
+			usernameError: false,
+			passwordError: false,
+			passwordMismatchError: false,
+			emailError: false,
+			emailMismatchError: false,
+			nicknameError: false
+		});
+
+		// If the username field is empty
+		if (this.refs.registerForm[0].value.length === 0) {
+			this.setState({
+				usernameError: true
+			});
+			return;
+		}
+		// If the nickname field is empty
+		else if (this.refs.registerForm[1].value.length === 0) {
+			this.setState({
+				nicknameError: true
+			});
+			return;
+		}
+		// If the password field is empty
+		else if (this.refs.registerForm[2].value.length === 0) {
+			this.setState({
+				passwordError: true
+			});
+			return;
+		}
+		// If the password verification field doesn't match the password
+		else if (
+			this.refs.registerForm[2].value !== this.refs.registerForm[3].value
+		) {
+			this.setState({
+				passwordMismatchError: true
+			});
+			return;
+		}
+		// If the e-mail field is empty
+		else if (this.refs.registerForm[4].value.length === 0) {
+			this.setState({
+				passwordError: true
+			});
+			return;
+		}
+		// If the e-mail verification field doesn't match the e-mail
+		else if (
+			this.refs.registerForm[4].value !== this.refs.registerForm[5].value
+		) {
+			this.setState({
+				passwordMismatchError: true
+			});
+			return;
+		}
 	}
 
 	haveAccountBtnClicked() {
 		// Reset errors
 		this.setState({
 			usernameError: false,
-			passwordError: false
+			passwordError: false,
+			passwordMismatchError: false,
+			emailError: false,
+			emailMismatchError: false,
+			nicknameError: false
 		});
 
 		// Disable all events to the register form
@@ -764,16 +832,6 @@ class StartPage extends Component {
 									label="Nickname"
 								/>
 								<TextField
-									invalid={this.state.emailError}
-									outlined
-									label="E-mail"
-								/>
-								<TextField
-									invalid={this.state.emailMismatchError}
-									outlined
-									label="Re-enter e-mail"
-								/>
-								<TextField
 									invalid={this.state.passwordError}
 									outlined
 									label="Password"
@@ -784,6 +842,16 @@ class StartPage extends Component {
 									outlined
 									label="Re-enter password"
 									type="password"
+								/>
+								<TextField
+									invalid={this.state.emailError}
+									outlined
+									label="E-mail"
+								/>
+								<TextField
+									invalid={this.state.emailMismatchError}
+									outlined
+									label="Re-enter e-mail"
 								/>
 							</div>
 							<Button
