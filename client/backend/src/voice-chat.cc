@@ -3,8 +3,7 @@
 using std::cout;
 using std::endl;
 
-VoiceChat::VoiceChat(const char *server_ip) : 
-    _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)) // Create an IPv4 UDP socket with a random port
+VoiceChat::VoiceChat(const char *server_ip) : _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)) // Create an IPv4 UDP socket with a random port
 {
     // Get the endpoint of the server using the given server IP and default voice chat port
     SocketManager::GetEndpoint(server_ip, VOICE_CHAT_PORT, _endpoint);
@@ -70,11 +69,11 @@ void VoiceChat::sendVoiceThread()
 void VoiceChat::recvVoiceThread()
 {
     int decoded_size = 0, recv_bytes = 0;
-    char recv_buffer[RECV_BUFFER_SIZE] = { 0 };
+    char recv_buffer[RECV_BUFFER_SIZE] = {0};
 
     OpusDecoder *opus_decoder;
     opus_int16 pcm[FRAMERATE * RECORD_CHANNELS] = {0};
-    
+
     HSTREAM play_stream;
 
     udp::endpoint sender_endpoint;

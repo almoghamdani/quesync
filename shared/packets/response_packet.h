@@ -6,15 +6,11 @@
 
 class ResponsePacket : public Packet
 {
-public:
-    ResponsePacket(PacketType type) : ResponsePacket(type, "")
-    {
-    };
+  public:
+    ResponsePacket(PacketType type) : ResponsePacket(type, ""){};
 
-    ResponsePacket(PacketType type, std::string data) : Packet(type), _data(data)
-    {
-    };
-    
+    ResponsePacket(PacketType type, std::string data) : Packet(type), _data(data){};
+
     virtual std::string encode()
     {
         std::stringstream encoded_packet;
@@ -35,7 +31,7 @@ public:
         return encoded_packet.str();
     };
 
-    virtual bool decode (std::string packet)
+    virtual bool decode(std::string packet)
     {
         // Split the packet
         std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
@@ -49,19 +45,19 @@ public:
         return true;
     };
 
-    // A handle function for the server
-    #ifdef QUESYNC_SERVER
-    virtual std::string handle (Session *session)
+// A handle function for the server
+#ifdef QUESYNC_SERVER
+    virtual std::string handle(Session *session)
     {
         return nullptr;
     };
-    #endif
+#endif
 
     std::string data() const
     {
         return _data;
     };
 
-protected:
+  protected:
     std::string _data;
 };

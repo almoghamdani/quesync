@@ -13,22 +13,21 @@
 
 Napi::FunctionReference Client::constructor;
 
-Client::Client(const Napi::CallbackInfo &info) : 
-    Napi::ObjectWrap<Client>(info), 
-    _socket(SocketManager::io_context),
-    _user(nullptr)
+Client::Client(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Client>(info),
+                                                 _socket(SocketManager::io_context),
+                                                 _user(nullptr)
 {
     Napi::Env env = info.Env();
 }
 
-Napi::Value Client::connect(const Napi::CallbackInfo& info)
+Napi::Value Client::connect(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
 
     // Convert first parameter to string
     std::string ip = info[0].As<Napi::String>();
-    
+
     // Create a new executer worker that will make the connection to the server
     Executer *e = new Executer([this, ip]() {
         ResponsePacket *response_packet;
@@ -40,10 +39,12 @@ Napi::Value Client::connect(const Napi::CallbackInfo& info)
         // Get the endpoint of the server to connect to
         SocketManager::GetEndpoint(ip.c_str(), SERVER_PORT, server_endpoint);
 
-        try {
+        try
+        {
             // Try to connect to the server
             _socket.connect(server_endpoint);
-        } catch (std::system_error& ex)
+        }
+        catch (...)
         {
             // Ignore errors here because they will be caught in the ping packet that is being sent to the server
         }
@@ -63,8 +64,9 @@ Napi::Value Client::connect(const Napi::CallbackInfo& info)
             error = UNKNOWN_ERROR;
         }
 
-        return nlohmann::json{ { "error", error } };
-    }, deferred);
+        return nlohmann::json{{"error", error}};
+    },
+                               deferred);
 
     // Queue the executer worker
     e->Queue();
@@ -73,7 +75,7 @@ Napi::Value Client::connect(const Napi::CallbackInfo& info)
     return deferred.Promise();
 }
 
-Napi::Value Client::login(const Napi::CallbackInfo& info)
+Napi::Value Client::login(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
@@ -112,7 +114,8 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
         {
             // Set the error code from the response packet
             res["error"] = ((ErrorPacket *)response_packet)->error();
-        } else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
+        }
+        else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
         {
             // Create a new user
             _user = new User();
@@ -125,16 +128,21 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
 
             // Return the user serialized
             res["user"] = _user->json();
-        } else if (error) {
+        }
+        else if (error)
+        {
             // If an error occurred, return it
             res["error"] = error;
-        } else {
+        }
+        else
+        {
             // We shouldn't get here
             res["error"] = UNKNOWN_ERROR;
         }
 
         return res;
-    }, deferred);
+    },
+                               deferred);
 
     // Queue the executer worker
     e->Queue();
@@ -142,7 +150,7 @@ Napi::Value Client::login(const Napi::CallbackInfo& info)
     return deferred.Promise();
 }
 
-Napi::Value Client::signup(const Napi::CallbackInfo& info)
+Napi::Value Client::signup(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
 
@@ -184,7 +192,8 @@ Napi::Value Client::signup(const Napi::CallbackInfo& info)
 
         // Set no user since an error occurred
         res["user"] = env.Null();
-    } else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
+    }
+    else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
     {
         // Create a new user
         _user = new User();
@@ -202,7 +211,7 @@ Napi::Value Client::signup(const Napi::CallbackInfo& info)
     return res;
 }
 
-Napi::Value Client::search(const Napi::CallbackInfo& info)
+Napi::Value Client::search(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
 
@@ -246,7 +255,7 @@ Napi::Value Client::search(const Napi::CallbackInfo& info)
     }
     // If the response packet is a valid search results response, get the user from it
     else if (response_packet && response_packet->type() == SEARCH_RESULTS_PACKET)
-    {       
+    {
         // Set success error code
         res["error"] = Napi::Number::New(env, SUCCESS);
 
@@ -257,9 +266,9 @@ Napi::Value Client::search(const Napi::CallbackInfo& info)
     return res;
 }
 
-Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo& info)
+Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
 {
-Napi::Env env = info.Env();
+    Napi::Env env = info.Env();
 
     ResponsePacket *response_packet;
     Napi::Object res = Napi::Object::New(env);
@@ -297,7 +306,7 @@ Napi::Env env = info.Env();
     }
     // If the response packet is a friend request confirmation response, get the user from it
     else if (response_packet && response_packet->type() == FRIEND_REQUEST_SENT_PACKET)
-    {       
+    {
         // Set success error code
         res["error"] = Napi::Number::New(env, SUCCESS);
     }
@@ -305,18 +314,13 @@ Napi::Env env = info.Env();
     return res;
 }
 
-Napi::Object Client::Init(Napi::Env env, Napi::Object exports) {
+Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
+{
     // Create scope for Client object
     Napi::HandleScope scope(env);
 
     // This method is used to hook the accessor and method callbacks
-    Napi::Function func = DefineClass(env, "Client", {
-        InstanceMethod("connect", &Client::connect),
-        InstanceMethod("login", &Client::login),
-        InstanceMethod("register", &Client::signup),
-        InstanceMethod("search", &Client::search),
-        InstanceMethod("sendFriendRequest", &Client::sendFriendRequest)
-    });
+    Napi::Function func = DefineClass(env, "Client", {InstanceMethod("connect", &Client::connect), InstanceMethod("login", &Client::login), InstanceMethod("register", &Client::signup), InstanceMethod("search", &Client::search), InstanceMethod("sendFriendRequest", &Client::sendFriendRequest)});
 
     // Create a peristent reference to the class constructor. This will allow
     // a function called on a class prototype and a function

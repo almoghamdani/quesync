@@ -1,132 +1,132 @@
 body {
-    background: url(./start_menu_bg.png);
-    background-position: center;
-    background-size: 125% 125%;
+	background: url(./start_menu_bg.png);
+	background-position: center;
+	background-size: 125% 125%;
 }
 
 .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
-    color: var(--mdc-theme-primary) !important;
+	color: var(--mdc-theme-primary) !important;
 }
 
 .quesync-start-page {
-    // Fit to screen
-    width: 100vw;
-    height: 100vh;
+	// Fit to screen
+	width: 100vw;
+	height: 100vh;
 
-    // Center all children
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	// Center all children
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
-    // Hide scroll bars
-    overflow: hidden;
+	// Hide scroll bars
+	overflow: hidden;
 }
 
 .quesync-start-menu {
-    // Align the children horizontally
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+	// Align the children horizontally
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
 
-    background: var(--mdc-theme-secondary);
-    border-radius: 5px;
+	background: var(--mdc-theme-secondary);
+	border-radius: 5px;
 
-    // Make children match the border radius of the menu itself
-    overflow: hidden;
+	// Make children match the border radius of the menu itself
+	overflow: hidden;
 
-    // Required to make sure the absolute quesync-title stays inside the div
-    position: relative;
+	// Required to make sure the absolute quesync-title stays inside the div
+	position: relative;
 
-    // Make it on top of all content
-    z-index: 2;
+	// Make it on top of all content
+	z-index: 2;
 }
 
 .quesync-form-side {
-    flex: 1;
+	flex: 1;
 }
 
 .quesync-title {
-    background: #00171F;
+	background: #00171f;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 
-    width: 25rem;
+	width: 25rem;
 }
 
 .quesync-title-moving {
-    // Stick to the start of the div
-    position: absolute;
-    top: 0;
-    left: 0;
+	// Stick to the start of the div
+	position: absolute;
+	top: 0;
+	left: 0;
 
-    // Fill the height of the div
-    height: 100%;
+	// Fill the height of the div
+	height: 100%;
 
-    // Set it over the login form
-    z-index: 1;
+	// Set it over the login form
+	z-index: 1;
 }
 
 .quesync-form-holder {
-    // This is used to make sure all children divs stack up on each other inside the div
-    position: relative;
+	// This is used to make sure all children divs stack up on each other inside the div
+	position: relative;
 }
 
 .quesync-form {
-    // Make sure the div is inside the div in the start of it (makes all forms stack up)
-    position: absolute;
-    top: 0;
-    left: 0;
+	// Make sure the div is inside the div in the start of it (makes all forms stack up)
+	position: absolute;
+	top: 0;
+	left: 0;
 
-    // Fill the form holder
-    height: 100%;
-    width: 100%;
+	// Fill the form holder
+	height: 100%;
+	width: 100%;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 
 .quesync-transition-holder {
-    position: absolute;
+	position: absolute;
 
-    // Set over the menu
-    z-index: 3;
+	// Set over the menu
+	z-index: 3;
 
-    // Pass all pointer events to the menu
-    pointer-events: none;
+	// Pass all pointer events to the menu
+	pointer-events: none;
 }
 
 .quesync-transition {
-    height: 27rem;
-    width: 50rem;
+	height: 27rem;
+	width: 50rem;
 
-    border-radius: 5px;
+	border-radius: 5px;
 
-    // Not visible at first
-    opacity: 0;
+	// Not visible at first
+	opacity: 0;
 }
 
 .quesync-error-holder {
-    width: 100%;
-    height: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center
+	width: 100%;
+	height: 15px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
 }
 
 .quesync-grid {
-    padding-top: 30px;
+	padding-top: 30px;
 
-    display: grid;
+	display: grid;
 
-    grid-column-gap: 20px;
-    grid-row-gap: 20px;
+	grid-column-gap: 20px;
+	grid-row-gap: 20px;
 
-    // Auto make the size of each column
-    grid-template-columns: 250px 250px;
+	// Auto make the size of each column
+	grid-template-columns: 250px 250px;
 }

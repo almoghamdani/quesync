@@ -6,24 +6,26 @@
 
 class ErrorPacket : public ResponsePacket
 {
-public:
-    ErrorPacket() : ResponsePacket(ERROR_PACKET, "") {};
+  public:
+    ErrorPacket() : ResponsePacket(ERROR_PACKET, ""){};
 
-    ErrorPacket(QuesyncError ec) : _ec(ec), 
-        ResponsePacket(ERROR_PACKET, 
-                    std::string(ERROR_CODE_LEN - std::to_string(ec).length(), '0') + std::to_string(ec)) // Add leading zeros to the error code
-    {
-    };
+    ErrorPacket(QuesyncError ec) : _ec(ec),
+                                   ResponsePacket(ERROR_PACKET,
+                                                  std::string(ERROR_CODE_LEN - std::to_string(ec).length(), '0') + std::to_string(ec)) // Add leading zeros to the error code
+                                   {};
 
-    virtual bool decode (std::string packet)
+    virtual bool decode(std::string packet)
     {
         // Split the packet
         std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
 
-        try {
+        try
+        {
             // Decode the error code
             _ec = (QuesyncError)std::stoi(params[0]);
-        } catch (...) {
+        }
+        catch (...)
+        {
             return false;
         }
 
@@ -35,6 +37,6 @@ public:
         return _ec;
     };
 
-protected:
+  protected:
     QuesyncError _ec;
 };

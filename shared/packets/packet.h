@@ -14,33 +14,28 @@
 
 class Packet
 {
-public:
-    Packet()
-    {
-    };
+  public:
+    Packet(){};
 
-    Packet(PacketType type) : _type(type)
-    {
-    };
+    Packet(PacketType type) : _type(type){};
 
-    virtual ~Packet()
-    {
+    virtual ~Packet(){
 
     };
 
     virtual std::string encode() = 0;
-    virtual bool decode (std::string packet) = 0;
+    virtual bool decode(std::string packet) = 0;
 
-    // A handle function for the server
-    #ifdef QUESYNC_SERVER
-    virtual std::string handle (Session *session) = 0;
-    #endif
+// A handle function for the server
+#ifdef QUESYNC_SERVER
+    virtual std::string handle(Session *session) = 0;
+#endif
 
     PacketType type() const
     {
         return _type;
     };
 
-protected:
+  protected:
     PacketType _type;
 };

@@ -9,8 +9,8 @@
 
 class FriendRequestPacket : public SerializedPacket
 {
-public:
-    FriendRequestPacket() : FriendRequestPacket("") {};
+  public:
+    FriendRequestPacket() : FriendRequestPacket(""){};
 
     FriendRequestPacket(std::string recipient_id) : SerializedPacket(FRIEND_REQUEST_PACKET)
     {
@@ -22,9 +22,9 @@ public:
         return (exists("recipient_id"));
     };
 
-    // A handle function for the server
-    #ifdef QUESYNC_SERVER
-    virtual std::string handle (Session *session)
+// A handle function for the server
+#ifdef QUESYNC_SERVER
+    virtual std::string handle(Session *session)
     {
         // If the user is not authenticed, send error
         if (!session->authenticated())
@@ -38,16 +38,19 @@ public:
             return ErrorPacket(SELF_FRIEND_REQUEST).encode();
         }
 
-        try {
+        try
+        {
             // Send the user a friend request, if failed an exception will be thrown
             session->server()->userManagement().sendFriendRequest(session->user()->id(), _data["recipient_id"]);
 
             // Return confirmation for the friend request
             return ResponsePacket(FRIEND_REQUEST_SENT_PACKET).encode();
-        } catch (QuesyncException& ex) {
+        }
+        catch (QuesyncException &ex)
+        {
             // Return the error code
             return ErrorPacket(ex.getErrorCode()).encode();
-        }  
+        }
     };
-    #endif
+#endif
 };

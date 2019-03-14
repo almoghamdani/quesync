@@ -9,8 +9,8 @@
 
 class FriendshipStatusPacket : public SerializedPacket
 {
-public:
-    FriendshipStatusPacket() : FriendshipStatusPacket("", false) {};
+  public:
+    FriendshipStatusPacket() : FriendshipStatusPacket("", false){};
 
     FriendshipStatusPacket(std::string friend_id, bool status) : SerializedPacket(FRIENDSHIP_STATUS_PACKET)
     {
@@ -24,9 +24,9 @@ public:
                 exists("status"));
     };
 
-    // A handle function for the server
-    #ifdef QUESYNC_SERVER
-    virtual std::string handle (Session *session)
+// A handle function for the server
+#ifdef QUESYNC_SERVER
+    virtual std::string handle(Session *session)
     {
         // If the user is not authenticed, send error
         if (!session->authenticated())
@@ -40,16 +40,19 @@ public:
             return ErrorPacket(SELF_FRIEND_REQUEST).encode();
         }
 
-        try {
+        try
+        {
             // Set the friendship status, if failed an exception will be thrown
             session->server()->userManagement().setFriendshipStatus(session->user()->id(), _data["friend_id"], _data["status"]);
 
             // Return confirmation for the friendship status
             return ResponsePacket(FRIENDSHIP_STATUS_SET_PACKET).encode();
-        } catch (QuesyncException& ex) {
+        }
+        catch (QuesyncException &ex)
+        {
             // Return the error code
             return ErrorPacket(ex.getErrorCode()).encode();
-        }  
+        }
     };
-    #endif
+#endif
 };

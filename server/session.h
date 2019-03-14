@@ -11,7 +11,7 @@ using asio::ip::tcp;
 
 class Session : public std::enable_shared_from_this<Session>
 {
-public:
+  public:
     Session(tcp::socket socket, Quesync *server);
     ~Session();
 
@@ -25,7 +25,7 @@ public:
     void setUser(User *user);
     User *user() const;
 
-private:
+  private:
     User *_user;
     tcp::socket _socket;
     Quesync *_server;

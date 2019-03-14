@@ -8,15 +8,16 @@
 
 class QuesyncException : public std::exception
 {
-public:
+  public:
     QuesyncException(QuesyncError ec) : _ec(ec)
     {
         // Set the error message by the error code
         sprintf(_error_msg, "An error occurred, error code: %d", ec);
     };
 
-    virtual const char* what() const throw (){
-       return _error_msg;
+    virtual const char *what() const throw()
+    {
+        return _error_msg;
     }
 
     QuesyncError getErrorCode()
@@ -24,7 +25,7 @@ public:
         return _ec;
     }
 
-private:
+  private:
     char _error_msg[MAX_ERROR_MSG_LEN];
     QuesyncError _ec;
 };

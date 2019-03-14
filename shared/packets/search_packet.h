@@ -10,8 +10,8 @@
 
 class SearchPacket : public SerializedPacket
 {
-public:
-    SearchPacket() : SearchPacket("", -1) {};
+  public:
+    SearchPacket() : SearchPacket("", -1){};
 
     SearchPacket(std::string nickname, int tag) : SerializedPacket(SEARCH_PACKET)
     {
@@ -25,9 +25,9 @@ public:
                 exists("tag"));
     };
 
-    // A handle function for the server
-    #ifdef QUESYNC_SERVER
-    virtual std::string handle (Session *session)
+// A handle function for the server
+#ifdef QUESYNC_SERVER
+    virtual std::string handle(Session *session)
     {
         nlohmann::json results;
 
@@ -51,28 +51,38 @@ public:
         {
             // Get all users matching the searched nickname and tag
             res = users_table.select("id", "nickname", "tag")
-                .where("nickname LIKE :nickname AND tag = :tag")
-                .bind("nickname", nickname).bind("tag", (int)_data["tag"]).execute().fetchAll();
-        } else {
+                      .where("nickname LIKE :nickname AND tag = :tag")
+                      .bind("nickname", nickname)
+                      .bind("tag", (int)_data["tag"])
+                      .execute()
+                      .fetchAll();
+        }
+        else
+        {
             // Get all users matching the searched nickname
             res = users_table.select("id", "nickname", "tag")
-                .where("nickname LIKE :nickname")
-                .bind("nickname", nickname).execute().fetchAll();
+                      .where("nickname LIKE :nickname")
+                      .bind("nickname", nickname)
+                      .execute()
+                      .fetchAll();
         }
 
         // Format the results in the json type
         for (int i = 0; i < res.size(); i++)
         {
-            results[std::string(res[i][0])] = nlohmann::json({ { "nickname", res[i][1] }, { "tag", (int)res[i][2] } });
+            results[std::string(res[i][0])] = nlohmann::json({{"nickname", res[i][1]}, {"tag", (int)res[i][2]}});
         }
-        
-        try {
+
+        try
+        {
             // Return the search results found
             return ResponsePacket(SEARCH_RESULTS_PACKET, results.dump()).encode();
-        } catch (QuesyncException& ex) {
+        }
+        catch (QuesyncException &ex)
+        {
             // Return the error code
             return ErrorPacket(ex.getErrorCode()).encode();
         }
     };
-    #endif
+#endif
 };

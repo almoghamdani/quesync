@@ -12,8 +12,8 @@
 
 class LoginPacket : public SerializedPacket
 {
-public:
-    LoginPacket() : LoginPacket("", "") {};
+  public:
+    LoginPacket() : LoginPacket("", ""){};
 
     LoginPacket(std::string username, std::string password) : SerializedPacket(LOGIN_PACKET)
     {
@@ -27,9 +27,9 @@ public:
                 exists("password"));
     };
 
-    // A handle function for the server
-    #ifdef QUESYNC_SERVER
-    virtual std::string handle (Session *session)
+// A handle function for the server
+#ifdef QUESYNC_SERVER
+    virtual std::string handle(Session *session)
     {
         User *user;
 
@@ -39,7 +39,8 @@ public:
             return ErrorPacket(ALREADY_AUTHENTICATED).encode();
         }
 
-        try {
+        try
+        {
             // Authenticate the user, if failed an exception will be thrown
             user = session->server()->userManagement().authenticateUser(_data["username"], _data["password"]);
 
@@ -48,10 +49,12 @@ public:
 
             // Return autheticated packet with the user's info
             return ResponsePacket(AUTHENTICATED_PACKET, user->serialize()).encode();
-        } catch (QuesyncException& ex) {
+        }
+        catch (QuesyncException &ex)
+        {
             // Return the error code
             return ErrorPacket(ex.getErrorCode()).encode();
-        }  
+        }
     };
-    #endif
+#endif
 };

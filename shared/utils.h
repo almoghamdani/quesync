@@ -18,10 +18,10 @@
 
 class Utils
 {
-public:
-    static void CopyString(const std::string& input, char *dst);
-    static std::vector<std::string> Split(const std::string& s, char delimiter);
-    
+  public:
+    static void CopyString(const std::string &input, char *dst);
+    static std::vector<std::string> Split(const std::string &s, char delimiter);
+
     static bool isValidUsername(std::string username);
     static bool isValidEmail(std::string email);
 
@@ -33,12 +33,12 @@ public:
     static int RandomNumber(int min, int max);
 
     static std::string QuesyncErrorToString(QuesyncError error);
-    
-    #ifdef QUESYNC_SERVER
-    static int GenerateTag(std::string nickname, sql::Table &users_table);
-    #endif
 
-    #ifdef QUESYNC_CLIENT
-    static Napi::Object JsonToObject(Napi::Env env, nlohmann::json& json);
-    #endif
+#ifdef QUESYNC_SERVER
+    static int GenerateTag(std::string nickname, sql::Table &users_table);
+#endif
+
+#ifdef QUESYNC_CLIENT
+    static Napi::Object JsonToObject(Napi::Env env, nlohmann::json &json);
+#endif
 };

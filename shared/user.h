@@ -3,8 +3,8 @@
 
 class User : public SerializedObject
 {
-public:
-    User() : User("", "", "", "", 0) {};
+  public:
+    User() : User("", "", "", "", 0){};
 
     User(std::string id, std::string username, std::string email, std::string nickname, int tag)
     {

@@ -22,11 +22,11 @@
 
 class VoiceChat
 {
-public:
+  public:
     VoiceChat(const char *server_ip);
     ~VoiceChat();
 
-private:
+  private:
     udp::socket _socket;
     udp::endpoint _endpoint;
 

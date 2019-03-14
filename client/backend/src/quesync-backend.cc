@@ -11,7 +11,8 @@ void InitQuesyncError(Napi::Env env, Napi::Object exports)
     int error = SUCCESS;
     std::string error_name = "";
 
-    do {
+    do
+    {
         // Convert the error to string and get it's name
         error_name = Utils::QuesyncErrorToString((QuesyncError)error);
 
@@ -27,7 +28,7 @@ void InitQuesyncError(Napi::Env env, Napi::Object exports)
     } while (error_name != ""); // While we didn't reach an error that is not documented, continue checking for error names
 
     // Set the errors object in the exports for the frontend JavaScript
-    exports.Set("errors", errors_object);   
+    exports.Set("errors", errors_object);
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports)

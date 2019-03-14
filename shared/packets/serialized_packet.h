@@ -8,24 +8,26 @@
 
 class SerializedPacket : public Packet
 {
-public:
-    SerializedPacket(PacketType type) : Packet(type) {};
+  public:
+    SerializedPacket(PacketType type) : Packet(type){};
 
     virtual std::string encode()
     {
         // Format the serialized packet by it's data
         return (std::stringstream() << PACKET_IDENTIFIER << PACKET_DELIMETER
-                                   << std::setw(PACKET_TYPE_LEN) << std::setfill('0') << _type << PACKET_DELIMETER
-                                   << _data.dump() << PACKET_DELIMETER).str();
+                                    << std::setw(PACKET_TYPE_LEN) << std::setfill('0') << _type << PACKET_DELIMETER
+                                    << _data.dump() << PACKET_DELIMETER)
+            .str();
     };
 
-    virtual bool decode (std::string packet)
+    virtual bool decode(std::string packet)
     {
         // Split the packet
         std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
 
         // Try to parse the data as a json
-        try {
+        try
+        {
             _data = nlohmann::json::parse(params[0]);
 
             // Check if a valid data has entered
@@ -33,7 +35,9 @@ public:
             {
                 throw "";
             }
-        } catch (...) {
+        }
+        catch (...)
+        {
             return false;
         }
 
@@ -42,7 +46,7 @@ public:
 
     virtual bool verify() const = 0;
 
-protected:
+  protected:
     nlohmann::json _data;
 
     virtual bool exists(std::string key) const

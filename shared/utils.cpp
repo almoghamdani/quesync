@@ -46,7 +46,7 @@ Packet *Utils::ParsePacket(std::string packet)
     case LOGIN_PACKET:
         p = new LoginPacket();
         break;
-    
+
     case REGISTER_PACKET:
         p = new RegisterPacket();
         break;
@@ -80,7 +80,9 @@ Packet *Utils::ParsePacket(std::string packet)
     if (p != nullptr && p->decode(packet))
     {
         return p;
-    } else {
+    }
+    else
+    {
         // Free the packet
         if (p)
             delete p;
@@ -89,7 +91,7 @@ Packet *Utils::ParsePacket(std::string packet)
     }
 }
 
-void Utils::CopyString(const std::string& input, char *dst)
+void Utils::CopyString(const std::string &input, char *dst)
 {
     // Copy the string
     strncpy(dst, input.c_str(), input.length());
@@ -114,7 +116,7 @@ std::string Utils::SHA256(const std::string str)
     SHA256_Final(hash, &sha256);
 
     // Copy the hashed string to the encrypted stream to create a string
-    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
     {
         encrypted_stream << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
     }
@@ -129,20 +131,20 @@ PacketType Utils::GetPacketType(std::string packet)
     return (PacketType)std::stoi(packet.substr(0, PACKET_TYPE_LEN));
 }
 
-std::vector<std::string> Utils::Split(const std::string& s, char delimiter)
+std::vector<std::string> Utils::Split(const std::string &s, char delimiter)
 {
-   std::vector<std::string> tokens;
-   std::string token;
-   std::istringstream token_stream(s);
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream token_stream(s);
 
-   // While the string hasn't ended, get a "line" from it ending with the delimeter
-   while (std::getline(token_stream, token, delimiter))
-   {
+    // While the string hasn't ended, get a "line" from it ending with the delimeter
+    while (std::getline(token_stream, token, delimiter))
+    {
         // Save "line"/token in tokens vector
         tokens.push_back(token);
-   }
+    }
 
-   return tokens;
+    return tokens;
 }
 
 bool Utils::isValidUsername(std::string username)
@@ -159,52 +161,72 @@ bool Utils::isValidEmail(std::string email)
 
 int Utils::RandomNumber(int min, int max)
 {
-    std::random_device rd; // Obtain a random number from hardware
-    std::mt19937 gen(rd()); // Seed the generator
+    std::random_device rd;                           // Obtain a random number from hardware
+    std::mt19937 gen(rd());                          // Seed the generator
     std::uniform_int_distribution<> distr(min, max); // Define the range
 
     // Get a random number from the generator using the distr
     return distr(gen);
 }
 
-std::string Utils::QuesyncErrorToString(QuesyncError error) 
+std::string Utils::QuesyncErrorToString(QuesyncError error)
 {
     // For each error, return it's name
     switch (error)
     {
-        case SUCCESS: return "SUCCESS";
-        case UNKNOWN_ERROR: return "UNKNOWN_ERROR";
-        case INVALID_PACKET: return "INVALID_PACKET";
-        case CANNOT_REACH_SERVER: return "CANNOT_REACH_SERVER";
-        case NO_CONNECTION: return "NO_CONNECTION";
-        case USER_NOT_FOUND: return "USER_NOT_FOUND";
-        case INCORRECT_PASSWORD: return "INCORRECT_PASSWORD";
-        case ALREADY_AUTHENTICATED: return "ALREADY_AUTHENTICATED";
-        case NOT_AUTHENTICATED: return "NOT_AUTHENTICATED";
-        case INVALID_USERNAME: return "INVALID_USERNAME";
-        case INVALID_EMAIL: return "INVALID_EMAIL";
-        case USERNAME_ALREADY_IN_USE: return "USERNAME_ALREADY_IN_USE";
-        case EMAIL_ALREADY_IN_USE: return "EMAIL_ALREADY_IN_USE";
-        case NICKNAME_FULL: return "NICKNAME_FULL";
-        case ALREADY_FRIENDS: return "ALREADY_FRIENDS";
-        case SELF_FRIEND_REQUEST: return "SELF_FRIEND_REQUEST";
-        case NOT_FRIENDS: return "NOT_FRIENDS";
-        case SELF_APPROVE_FRIEND_REQUEST: return "SELF_APPROVE_FRIEND_REQUEST";
+    case SUCCESS:
+        return "SUCCESS";
+    case UNKNOWN_ERROR:
+        return "UNKNOWN_ERROR";
+    case INVALID_PACKET:
+        return "INVALID_PACKET";
+    case CANNOT_REACH_SERVER:
+        return "CANNOT_REACH_SERVER";
+    case NO_CONNECTION:
+        return "NO_CONNECTION";
+    case USER_NOT_FOUND:
+        return "USER_NOT_FOUND";
+    case INCORRECT_PASSWORD:
+        return "INCORRECT_PASSWORD";
+    case ALREADY_AUTHENTICATED:
+        return "ALREADY_AUTHENTICATED";
+    case NOT_AUTHENTICATED:
+        return "NOT_AUTHENTICATED";
+    case INVALID_USERNAME:
+        return "INVALID_USERNAME";
+    case INVALID_EMAIL:
+        return "INVALID_EMAIL";
+    case USERNAME_ALREADY_IN_USE:
+        return "USERNAME_ALREADY_IN_USE";
+    case EMAIL_ALREADY_IN_USE:
+        return "EMAIL_ALREADY_IN_USE";
+    case NICKNAME_FULL:
+        return "NICKNAME_FULL";
+    case ALREADY_FRIENDS:
+        return "ALREADY_FRIENDS";
+    case SELF_FRIEND_REQUEST:
+        return "SELF_FRIEND_REQUEST";
+    case NOT_FRIENDS:
+        return "NOT_FRIENDS";
+    case SELF_APPROVE_FRIEND_REQUEST:
+        return "SELF_APPROVE_FRIEND_REQUEST";
     }
 
     return "";
 }
 
 #ifdef QUESYNC_SERVER
-int Utils::GenerateTag(std::string nickname, sql::Table& users_table)
+int Utils::GenerateTag(std::string nickname, sql::Table &users_table)
 {
     int tag;
     std::vector<int> tags;
 
     // Get all tags from the users table
     std::list<sql::Row> res = users_table.select("tag")
-        .where("nickname = :nickname")
-        .bind("nickname", nickname).execute().fetchAll();
+                                  .where("nickname = :nickname")
+                                  .bind("nickname", nickname)
+                                  .execute()
+                                  .fetchAll();
 
     // Move all tags found into a vector
     for (auto it = res.begin(); it != res.end(); it++)
@@ -219,16 +241,17 @@ int Utils::GenerateTag(std::string nickname, sql::Table& users_table)
     }
 
     // Generate tags until found one that is free
-    do {
+    do
+    {
         tag = RandomNumber(0, MAX_TAG);
     } while (find(tags.begin(), tags.end(), tag) != tags.end());
-    
+
     return tag;
 }
 #endif
 
 #ifdef QUESYNC_CLIENT
-Napi::Object Utils::JsonToObject(Napi::Env env, nlohmann::json& json)
+Napi::Object Utils::JsonToObject(Napi::Env env, nlohmann::json &json)
 {
     // Convert the json dump to a Napi string object
     Napi::String json_dump = Napi::String::New(env, json.dump());

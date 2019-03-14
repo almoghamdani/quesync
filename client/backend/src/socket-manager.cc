@@ -7,43 +7,46 @@ using std::endl;
 asio::io_context SocketManager::io_context;
 
 template <typename T>
-void SocketManager::GetEndpoint(const char *ip_address, int port, T& endpoint)
+void SocketManager::GetEndpoint(const char *ip_address, int port, T &endpoint)
 {
     // Create an endpoint from the ip address given and the port
     endpoint = T(asio::ip::address::from_string(ip_address), port);
 }
 
 // Declaring 2 templates for the GetEndpoint for the 2 possible classes of endpoints to fix link errors
-template void SocketManager::GetEndpoint(const char *ip_address, int port, udp::endpoint& endpoint);
-template void SocketManager::GetEndpoint(const char *ip_address, int port, tcp::endpoint& endpoint);
+template void SocketManager::GetEndpoint(const char *ip_address, int port, udp::endpoint &endpoint);
+template void SocketManager::GetEndpoint(const char *ip_address, int port, tcp::endpoint &endpoint);
 
-QuesyncError SocketManager::SendServerWithResponse(tcp::socket& socket, char *data, const int MAX_RESPONSE_LEN)
+QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *data, const int MAX_RESPONSE_LEN)
 {
     int error = 0;
     QuesyncError quesync_error = SUCCESS;
 
-    try {            
+    try
+    {
         // Send the server the ping packet
         socket.write_some(asio::buffer(data, strlen(data)));
 
         // Get a response from the server
         socket.read_some(asio::buffer(data, MAX_RESPONSE_LEN));
-    } catch (std::system_error& ex) {
+    }
+    catch (std::system_error &ex)
+    {
         // Get error code
         error = ex.code().value();
 
         // If the server cannot be reached
-        if (error == WSAENOTCONN || error == WSAESHUTDOWN || error == WSAETIMEDOUT || error == WSAECONNREFUSED || error == WSAEHOSTDOWN || error == WSAEHOSTUNREACH || error == WSAEDESTADDRREQ) 
+        if (error == WSAENOTCONN || error == WSAESHUTDOWN || error == WSAETIMEDOUT || error == WSAECONNREFUSED || error == WSAEHOSTDOWN || error == WSAEHOSTUNREACH || error == WSAEDESTADDRREQ)
         {
             quesync_error = CANNOT_REACH_SERVER;
         }
         // If the network connection is down
-        else if (error == WSAENETDOWN || error == WSAENETUNREACH || error == WSAENETRESET || error == WSAECONNABORTED) 
+        else if (error == WSAENETDOWN || error == WSAENETUNREACH || error == WSAENETRESET || error == WSAECONNABORTED)
         {
             quesync_error = NO_CONNECTION;
-        } 
+        }
         // Any other error
-        else 
+        else
         {
             quesync_error = UNKNOWN_ERROR;
         }

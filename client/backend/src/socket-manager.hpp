@@ -9,17 +9,16 @@
 
 #include "../../../shared/errors.h"
 
-using asio::ip::udp;
 using asio::ip::tcp;
+using asio::ip::udp;
 
 class SocketManager
 {
-public:
+  public:
     static asio::io_context io_context;
 
     template <typename T>
-    static void GetEndpoint(const char *ip_address, int port, T& endpoint);
+    static void GetEndpoint(const char *ip_address, int port, T &endpoint);
 
-    static QuesyncError SendServerWithResponse(tcp::socket& socket, char *data, const int MAX_RESPONSE_LEN);
-
+    static QuesyncError SendServerWithResponse(tcp::socket &socket, char *data, const int MAX_RESPONSE_LEN);
 };

@@ -14,16 +14,16 @@ using asio::ip::tcp;
 
 class Quesync
 {
-public:
-    Quesync(asio::io_context& io_context);
+  public:
+    Quesync(asio::io_context &io_context);
     ~Quesync();
 
     void start();
 
-    UserManagement& userManagement();
-    sql::Schema& db();
+    UserManagement &userManagement();
+    sql::Schema &db();
 
-private:
+  private:
     tcp::acceptor _acceptor;
 
     sql::Session _sess;
