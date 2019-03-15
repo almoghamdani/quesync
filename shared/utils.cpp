@@ -251,7 +251,7 @@ int Utils::GenerateTag(std::string nickname, sql::Table &users_table)
 #endif
 
 #ifdef QUESYNC_CLIENT
-Napi::Object Utils::JsonToObject(Napi::Env env, nlohmann::json &json)
+Napi::Object Utils::JsonToObject(Napi::Env env, nlohmann::json json)
 {
     // Convert the json dump to a Napi string object
     Napi::String json_dump = Napi::String::New(env, json.dump());

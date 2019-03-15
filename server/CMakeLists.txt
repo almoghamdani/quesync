@@ -16,11 +16,13 @@ IF (WIN32)
     set (MYSQL_LIBS vs14/mysqlcppconn8-static)
 ENDIF()
 
-# If on macos set the openssl dir
+# Macos dependencies
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set (OPENSLL_DIR /usr/local/opt/openssl)
-
     set (OPENSSL_LIBS ssl crypto)
+
+    set (MYSQL_DIR /usr/local/mysql-connector-c++)
+    set (MYSQL_LIBS libmysqlcppconn8.dylib)
 ENDIF()
 
 # If there is an openssl dir, set the include and lib directory

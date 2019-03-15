@@ -190,8 +190,8 @@ void UserManagement::setFriendshipStatus(std::string user_id, std::string friend
     }
 
     // Get the fields from the row for easier usage
-    requester = friendship_row[0];
-    recipient = friendship_row[1];
+    requester = friendship_row[0].operator std::string();
+    recipient = friendship_row[1].operator std::string();
     approved = friendship_row[2];
 
     // If the user wish to disable a pending friend request or just remove a friend, remove the friendship

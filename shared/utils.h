@@ -39,6 +39,6 @@ class Utils
 #endif
 
 #ifdef QUESYNC_CLIENT
-    static Napi::Object JsonToObject(Napi::Env env, nlohmann::json &json);
+    static Napi::Object JsonToObject(Napi::Env env, nlohmann::json json);
 #endif
 };

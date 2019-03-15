@@ -1,6 +1,8 @@
 #pragma once
 
+#ifdef _WIN32
 #include <malloc.h> // Fix _alloca issue with asio
+#endif
 
 #include <asio.hpp>
 

@@ -4,7 +4,7 @@
   "description": "VoIP application",
   "main": "index.js",
   "scripts": {
-    "build": "node-gyp --python C:/Python27 configure build",
+    "build": "node-gyp configure build",
     "electron-rebuild": "electron-rebuild"
   },
   "repository": {

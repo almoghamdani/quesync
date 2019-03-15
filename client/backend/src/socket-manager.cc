@@ -35,6 +35,7 @@ QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *da
         // Get error code
         error = ex.code().value();
 
+#ifdef _WIN32
         // If the server cannot be reached
         if (error == WSAENOTCONN || error == WSAESHUTDOWN || error == WSAETIMEDOUT || error == WSAECONNREFUSED || error == WSAEHOSTDOWN || error == WSAEHOSTUNREACH || error == WSAEDESTADDRREQ)
         {
@@ -50,7 +51,25 @@ QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *da
         {
             quesync_error = UNKNOWN_ERROR;
         }
+#else
+        // If the server cannot be reached
+        /*if (error == WSAENOTCONN || error == WSAESHUTDOWN || error == WSAETIMEDOUT || error == WSAECONNREFUSED || error == WSAEHOSTDOWN || error == WSAEHOSTUNREACH || error == WSAEDESTADDRREQ)
+        {
+            quesync_error = CANNOT_REACH_SERVER;
+        }
+        // If the network connection is down
+        else if (error == WSAENETDOWN || error == WSAENETUNREACH || error == WSAENETRESET || error == WSAECONNABORTED)
+        {
+            quesync_error = NO_CONNECTION;
+        }
+        // Any other error
+        else
+        {
+            quesync_error = UNKNOWN_ERROR;
+        }*/
+#endif
     }
+
 
     return quesync_error;
 }

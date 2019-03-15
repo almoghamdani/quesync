@@ -1,7 +1,7 @@
+#!/bin/bash
+
 # Create the build folder
-if [[ -d $build ]]; then
-    mkdir $build
-fi
+mkdir -p build
 
 # Build the makefile
 cd build
