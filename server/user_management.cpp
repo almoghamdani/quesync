@@ -3,6 +3,7 @@
 #include <sole.hpp>
 
 #include "../shared/utils.h"
+#include "../shared/validation.h"
 #include "../shared/quesync_exception.h"
 
 UserManagement::UserManagement(sql::Schema &db) : users_table(db, "users"),
@@ -56,13 +57,13 @@ User *UserManagement::registerUser(std::string username,
     sql::Row user_res;
 
     // Check if the entered username is a valid username
-    if (!Utils::isValidUsername(username))
+    if (!Validation::IsValidUsername(username))
     {
         throw QuesyncException(INVALID_USERNAME);
     }
 
     // Check if the entered e-mail is a valid e-mail
-    if (!Utils::isValidEmail(email))
+    if (!Validation::IsValidEmail(email))
     {
         throw QuesyncException(INVALID_EMAIL);
     }
