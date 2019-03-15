@@ -39,7 +39,8 @@ class StartPage extends Component {
 			nicknameError: false,
 			emailError: false,
 			emailMismatchError: false,
-			passwordMismatchError: false
+			passwordMismatchError: false,
+			registerError: ""
 		};
 
 		// Make 'this' work in the event funcion
@@ -459,8 +460,6 @@ class StartPage extends Component {
 		// Disable the form's redirect
 		event.preventDefault();
 
-		console.log(this.refs);
-
 		// Reset errors
 		this.setState({
 			usernameError: false,
@@ -517,6 +516,187 @@ class StartPage extends Component {
 			});
 			return;
 		}
+
+		// Create an animation timeline for the title transition + loading animation
+		var timeline = anime.timeline({
+			duration: 1300,
+			easing: "easeInOutCirc",
+			delay: 250,
+			complete: () => {
+				// Try to register the user
+				window.client
+					.register(
+						this.refs.registerForm[0].value,
+						this.refs.registerForm[2].value,
+						this.refs.registerForm[4].value,
+						this.refs.registerForm[1].value
+					)
+					.then(({ user }) => {
+						console.log(user);
+
+						// Create a timeline for the transition
+						var timeline = anime.timeline({
+							duration: 1400,
+							easing: "easeInOutCirc",
+							delay: 250
+						});
+
+						// Animate the quesync title moving part to return to it's place
+						timeline.add(
+							{
+								targets: ".quesync-transition",
+								width: "100vw",
+								height: "100vh"
+							},
+							400
+						);
+
+						// Fade out the quesync title
+						timeline.add(
+							{
+								targets: ".quesync-transition-title",
+								opacity: "0"
+							},
+							400
+						);
+
+						// Fade out the loading indicator
+						timeline.add(
+							{
+								targets: ".quesync-loading",
+								opacity: "0",
+								duration: 400
+							},
+							0
+						);
+
+						// Return the title text to the center
+						timeline.add(
+							{
+								targets: ".quesync-title-text",
+								marginTop: "62px",
+								duration: 400,
+								complete: () => {
+									// Set transition opacity
+									this.refs.transition.style.opacity = 1;
+								}
+							},
+							0
+						);
+
+						// Disable the loading indicator
+						this.setState({
+							loggingIn: false
+						});
+					})
+					.catch(({ error }) => {
+						// Show the error label
+						anime({
+							targets: ".quesync-register-error",
+							opacity: "1",
+							duration: 0
+						});
+
+						// User not found
+						switch (error) {
+							case window.errors.INVALID_USERNAME:
+								this.setState({
+									registerError: "The username entered is invalid!",
+									usernameError: true
+								});
+								break;
+
+							case window.errors.INVALID_EMAIL:
+								this.setState({
+									registerError: "The e-mail entered is invalid!",
+									emailError: true
+								});
+                                break;
+                                
+                                case window.errors.USER_ALREADY_IN_USE:
+								this.setState({
+									registerError: "The username chosen is already taken!",
+									usernameError: true
+								});
+								break;
+
+							case window.errors.EMAIL_ALREADY_IN_USE:
+								this.setState({
+									registerError: "The e-mail entered is already used!",
+									emailError: true
+								});
+                                break;
+
+							default:
+								this.setState({
+									registerError:
+										"Unknown error occurred!\nPlease try again later."
+								});
+						}
+
+						// Create a timeline for the error animation
+						var timeline = anime.timeline({
+							duration: 800,
+							easing: "easeInOutCirc",
+							delay: 250,
+							complete: () => {
+								// Re-enable the login form
+								this.setState({
+									loggingIn: false
+								});
+							}
+						});
+
+						// Animate the quesync title moving part to return to it's place
+						timeline.add({
+							targets: ".quesync-title-moving",
+							width: "35rem"
+						});
+
+						// Fade out the loading indicator
+						timeline.add(
+							{
+								targets: ".quesync-loading",
+								opacity: "0"
+							},
+							0
+						);
+
+						// Return the title text to the center
+						timeline.add(
+							{
+								targets: ".quesync-title-text",
+								marginTop: "62px"
+							},
+							0
+						);
+					});
+			}
+		});
+
+		// Add animation for the title to fill the menu
+		timeline.add({
+			targets: ".quesync-title-moving",
+			width: "70rem"
+		});
+
+		// Reset the title position to make space for the loading indicator
+		timeline.add(
+			{
+				targets: ".quesync-title-text",
+				marginTop: "0px"
+			},
+			900
+		);
+
+		// Fade in the loading indicator
+		timeline.add(
+			{
+				targets: ".quesync-loading",
+				opacity: "1"
+			},
+			900
+		);
 	}
 
 	haveAccountBtnClicked() {
@@ -857,7 +1037,7 @@ class StartPage extends Component {
 							<Button
 								type="submit"
 								raised
-								style={{ marginTop: "60px", width: "300px" }}
+								style={{ marginTop: "40px", width: "300px" }}
 								theme={["secondary"]}>
 								Register
 							</Button>
@@ -874,7 +1054,7 @@ class StartPage extends Component {
 							</Button>
 							<div className="quesync-error-holder">
 								<Typography
-									className="quesync-login-error"
+									className="quesync-register-error"
 									use="caption"
 									style={{
 										color: "#ff1744",
@@ -884,7 +1064,7 @@ class StartPage extends Component {
 										lineHeight: "12px",
 										opacity: "0"
 									}}>
-									{this.state.loginError}
+									{this.state.registerError}
 								</Typography>
 							</div>
 						</form>
