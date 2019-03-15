@@ -150,7 +150,7 @@ std::vector<std::string> Utils::Split(const std::string &s, char delimiter)
 bool Utils::isValidUsername(std::string username)
 {
     // Check if the username is a valid username using the username regex
-    return std::regex_search(username, std::regex(R"(^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$)"));
+    return std::regex_search(username, std::regex(R"(^[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9]){3,20}$)"));
 }
 
 bool Utils::isValidEmail(std::string email)
