@@ -58,7 +58,7 @@ file(GLOB SOURCES "*.cpp")
 file(GLOB SHARED_SOURCES "../shared/*.cpp")
 
 # Get all c files that are associated with the libraries used
-file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../include/*.c")
+file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../include/*.cpp")
 
 # Add the server as an executable to be compiled
 add_executable(server ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})
