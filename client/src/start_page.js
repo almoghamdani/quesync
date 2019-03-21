@@ -36,9 +36,7 @@ class StartPage extends Component {
 			passwordError: false,
 			loginError: "",
 
-			nicknameError: false,
 			emailError: false,
-			emailMismatchError: false,
 			passwordMismatchError: false,
 			registerError: ""
 		};
@@ -430,17 +428,7 @@ class StartPage extends Component {
 		timeline.add(
 			{
 				targets: ".quesync-form-holder",
-				height: "33rem",
-				width: "35rem"
-			},
-			0
-		);
-
-		// Make the title in the size of the form
-		timeline.add(
-			{
-				targets: ".quesync-title",
-				width: "35rem"
+				height: "35rem"
 			},
 			0
 		);
@@ -449,8 +437,7 @@ class StartPage extends Component {
 		timeline.add(
 			{
 				targets: ".quesync-transition",
-				height: "33rem",
-				width: "70rem"
+				height: "35rem"
 			},
 			0
 		);
@@ -465,9 +452,7 @@ class StartPage extends Component {
 			usernameError: false,
 			passwordError: false,
 			passwordMismatchError: false,
-			emailError: false,
-			emailMismatchError: false,
-			nicknameError: false
+			emailError: false
 		});
 
 		// If the username field is empty
@@ -477,10 +462,10 @@ class StartPage extends Component {
 			});
 			return;
 		}
-		// If the nickname field is empty
+		// If the e-mail field is empty
 		else if (this.refs.registerForm[1].value.length === 0) {
 			this.setState({
-				nicknameError: true
+				emailError: true
 			});
 			return;
 		}
@@ -494,22 +479,6 @@ class StartPage extends Component {
 		// If the password verification field doesn't match the password
 		else if (
 			this.refs.registerForm[2].value !== this.refs.registerForm[3].value
-		) {
-			this.setState({
-				passwordMismatchError: true
-			});
-			return;
-		}
-		// If the e-mail field is empty
-		else if (this.refs.registerForm[4].value.length === 0) {
-			this.setState({
-				passwordError: true
-			});
-			return;
-		}
-		// If the e-mail verification field doesn't match the e-mail
-		else if (
-			this.refs.registerForm[4].value !== this.refs.registerForm[5].value
 		) {
 			this.setState({
 				passwordMismatchError: true
@@ -650,7 +619,7 @@ class StartPage extends Component {
 						// Animate the quesync title moving part to return to it's place
 						timeline.add({
 							targets: ".quesync-title-moving",
-							width: "35rem"
+							width: "25rem"
 						});
 
 						// Fade out the loading indicator
@@ -677,7 +646,7 @@ class StartPage extends Component {
 		// Add animation for the title to fill the menu
 		timeline.add({
 			targets: ".quesync-title-moving",
-			width: "70rem"
+			width: "50rem"
 		});
 
 		// Reset the title position to make space for the loading indicator
@@ -745,17 +714,7 @@ class StartPage extends Component {
 		timeline.add(
 			{
 				targets: ".quesync-form-holder",
-				height: "27rem",
-				width: "25rem"
-			},
-			0
-		);
-
-		// Make the title in the size of the form
-		timeline.add(
-			{
-				targets: ".quesync-title",
-				width: "25rem"
+				height: "27rem"
 			},
 			0
 		);
@@ -764,8 +723,7 @@ class StartPage extends Component {
 		timeline.add(
 			{
 				targets: ".quesync-transition",
-				height: "27rem",
-				width: "50rem"
+				height: "27rem"
 			},
 			0
 		);
@@ -1000,44 +958,36 @@ class StartPage extends Component {
 								}}>
 								Register
 							</Typography>
-							<div className="quesync-grid">
-								<TextField
-									invalid={this.state.usernameError}
-									outlined
-									label="Username"
-								/>
-								<TextField
-									invalid={this.state.nicknameError}
-									outlined
-									label="Nickname"
-								/>
-								<TextField
-									invalid={this.state.passwordError}
-									outlined
-									label="Password"
-									type="password"
-								/>
-								<TextField
-									invalid={this.state.passwordMismatchError}
-									outlined
-									label="Re-enter password"
-									type="password"
-								/>
-								<TextField
-									invalid={this.state.emailError}
-									outlined
-									label="E-mail"
-								/>
-								<TextField
-									invalid={this.state.emailMismatchError}
-									outlined
-									label="Re-enter e-mail"
-								/>
-							</div>
+							<TextField
+								invalid={this.state.usernameError}
+								outlined
+								label="Username"
+								style={{ marginTop: "38px", width: "300px" }}
+							/>
+							<TextField
+								invalid={this.state.emailError}
+								outlined
+								label="E-mail"
+								style={{ marginTop: "15px", width: "300px" }}
+							/>
+							<TextField
+								invalid={this.state.passwordError}
+								outlined
+								label="Password"
+								type="password"
+								style={{ marginTop: "15px", width: "300px" }}
+							/>
+							<TextField
+								invalid={this.state.passwordMismatchError}
+								outlined
+								label="Re-enter password"
+								type="password"
+								style={{ marginTop: "15px", width: "300px" }}
+							/>
 							<Button
 								type="submit"
 								raised
-								style={{ marginTop: "40px", width: "300px" }}
+								style={{ marginTop: "30px", width: "300px" }}
 								theme={["secondary"]}>
 								Register
 							</Button>
