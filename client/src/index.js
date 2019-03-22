@@ -1,10 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.scss";
+import { Provider } from "react-redux";
+
 import Layout from "./layout";
 import StartPage from "./start_page";
+import store from './store'
+import "./index.scss";
+
+const app = document.getElementById("root");
 
 ReactDOM.render(
-	<Layout child={<StartPage />} />,
-	document.getElementById("root")
+  <Provider store={store}>
+    <Layout child={<StartPage />} />
+  </Provider>,
+  app
 );

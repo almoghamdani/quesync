@@ -9,16 +9,22 @@
     "electron": "^4.0.6",
     "electron-builder": "^20.38.5",
     "react-scripts": "^2.1.5",
+    "redux-logger": "^3.0.6",
     "wait-on": "^3.2.0"
   },
   "dependencies": {
     "animejs": "^3.0.1",
     "electron-is-dev": "^1.0.1",
     "node-sass": "^4.11.0",
+    "npm": "^6.9.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-particles-js": "^2.4.2",
-    "rmwc": "^4.0.6"
+    "react-redux": "^6.0.1",
+    "redux": "^4.0.1",
+    "redux-promise-middleware": "^6.1.0",
+    "rmwc": "^4.0.6",
+    "zxcvbn": "^4.4.2"
   },
   "scripts": {
     "react-start": "cross-env SASS_PATH=./node_modules react-scripts start",
