@@ -157,14 +157,14 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
 
     // Convert parameters to string
     std::string username = info[0].As<Napi::String>(), password = info[1].As<Napi::String>(),
-                email = info[2].As<Napi::String>(), nickname = info[3].As<Napi::String>();
+                email = info[2].As<Napi::String>();
 
-    Executer *e = new Executer([this, username, nickname, password, email]() {
+    Executer *e = new Executer([this, username, password, email]() {
         ResponsePacket *response_packet;
         nlohmann::json res;
 
         // Create a login packet from the username and password
-        RegisterPacket register_packet(username, password, email, nickname);
+        RegisterPacket register_packet(username, password, email, username);
 
         // If already authenticated, return error
         if (_user)
