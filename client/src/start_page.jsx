@@ -6,10 +6,10 @@ const electron = window.require("electron");
 
 class StartPage extends Component {
 	componentWillMount() {
-        // Get the client object from the global variables
-        var client = electron.remote.getGlobal("client");
+		// Get the client object from the global variables
+		var client = electron.remote.getGlobal("client");
 
-        // Set the client in the store
+		// Set the client in the store
 		this.props.dispatch(clientSet(client));
 	}
 
