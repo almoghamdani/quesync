@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
+import LoginForm from "./components/login_form";
 import BackgroundParticles from "./components/background_particles";
 
 import { ThemeProvider } from "@rmwc/theme";
+import { Typography } from "@rmwc/typography";
+import { Elevation } from "@rmwc/elevation";
 
 import "./start_page.scss";
 
@@ -37,6 +40,25 @@ class StartPage extends Component {
 						zIndex: "-1"
 					}}
 				/>
+				<div className="quesync-transition-holder">
+					<div className="quesync-transition quesync-title" ref="transition">
+						<Typography
+							className="quesync-transition-title"
+							use="headline2"
+							style={{ color: "white", userSelect: "none", opacity: "1" }}>
+							Quesync
+						</Typography>
+					</div>
+				</div>
+				<Elevation
+					className="quesync-start-menu"
+					z="8"
+					style={{
+						pointerEvents: true ? "none" : ""
+					}}>
+					<div className="quesync-form-side quesync-title" />
+					<LoginForm />
+				</Elevation>
 			</ThemeProvider>
 		);
 	}
