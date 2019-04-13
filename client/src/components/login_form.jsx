@@ -91,5 +91,5 @@ class LoginFrom extends Component {
 }
 
 export default connect(state => ({
-	loginError: state.user.authError
+	error: state.user.authError
 }))(LoginFrom);
