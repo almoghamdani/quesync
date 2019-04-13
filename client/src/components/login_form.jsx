@@ -1,14 +1,27 @@
 import React, { Component } from "react";
+
 import { Typography } from "@rmwc/typography";
 import { TextField } from "@rmwc/textfield";
 import { Button } from "@rmwc/button";
+
 import { connect } from "react-redux";
+
+const height = "27rem";
+const width = "25rem";
 
 class LoginFrom extends Component {
 	state = {
 		usernameError: false,
 		passwordError: false
 	};
+
+	static get height() {
+		return height;
+	}
+
+	static get width() {
+		return width;
+	}
 
 	formatError = error => {
 		// Set the error message by the error code
@@ -29,8 +42,7 @@ class LoginFrom extends Component {
 			<form
 				className="quesync-form quesync-login-form"
 				ref="form"
-				onSubmit={this.loginBtnClicked}
-				style={{ opacity: "0", pointerEvents: "none" }}>
+				onSubmit={this.loginBtnClicked}>
 				<Typography
 					use="headline2"
 					style={{
