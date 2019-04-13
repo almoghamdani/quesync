@@ -7,6 +7,7 @@ import BackgroundParticles from "./components/background_particles";
 import { ThemeProvider } from "@rmwc/theme";
 import { Typography } from "@rmwc/typography";
 import { Elevation } from "@rmwc/elevation";
+import { CircularProgress } from "@rmwc/circular-progress";
 
 import "./start_page.scss";
 
@@ -50,14 +51,26 @@ class StartPage extends Component {
 						</Typography>
 					</div>
 				</div>
-				<Elevation
-					className="quesync-start-menu"
-					z="8"
-					style={{
-						pointerEvents: true ? "none" : ""
-					}}>
+				<Elevation className="quesync-start-menu" z="8">
 					<div className="quesync-form-side quesync-title" />
-					<LoginForm />
+					<div className="quesync-form-side quesync-title quesync-title-moving">
+						<Typography
+							className="quesync-title-text"
+							use="headline2"
+							style={{ color: "white", userSelect: "none", marginTop: "55px" }}>
+							Quesync
+						</Typography>
+						<CircularProgress
+							className="quesync-loading"
+							theme="secondary"
+							style={{ marginTop: "38px", opacity: "0" }}
+						/>
+					</div>
+					<div
+						className="quesync-form-side quesync-form-holder"
+						style={{ width: LoginForm.width, height: LoginForm.height }}>
+						<LoginForm />
+					</div>
 				</Elevation>
 			</ThemeProvider>
 		);
