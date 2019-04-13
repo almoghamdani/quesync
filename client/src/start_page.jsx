@@ -8,7 +8,9 @@ import { ThemeProvider } from "@rmwc/theme";
 import { Typography } from "@rmwc/typography";
 import { Elevation } from "@rmwc/elevation";
 import { CircularProgress } from "@rmwc/circular-progress";
+import anime from "animejs/lib/anime.es.js";
 
+import "@rmwc/circular-progress/circular-progress.css";
 import "./start_page.scss";
 
 import clientSet from "./actions/clientActions";
@@ -24,6 +26,40 @@ class StartPage extends Component {
 
 		// Set the client in the store
 		this.props.dispatch(clientSet(client));
+	}
+
+	startLoadingAnimation(completeCallback) {
+		// Create an animation timeline for the title transition + loading animation
+		var timeline = anime.timeline({
+			duration: 1300,
+			easing: "easeInOutCirc",
+			delay: 250,
+			complete: completeCallback
+        });
+        
+        // Add animation for the title to fill the menu
+		timeline.add({
+			targets: ".quesync-title-moving",
+			width: LoginForm.width * 2 + "rem"
+		});
+
+		// Reset the title position to make space for the loading indicator
+		timeline.add(
+			{
+				targets: ".quesync-title-text",
+				marginTop: "0px"
+			},
+			900
+		);
+
+		// Fade in the loading indicator
+		timeline.add(
+			{
+				targets: ".quesync-loading",
+				opacity: "1"
+			},
+			900
+		);
 	}
 
 	render() {
@@ -68,8 +104,8 @@ class StartPage extends Component {
 					</div>
 					<div
 						className="quesync-form-side quesync-form-holder"
-						style={{ width: LoginForm.width, height: LoginForm.height }}>
-						<LoginForm />
+						style={{ width: LoginForm.width + "rem", height: LoginForm.height + "rem" }}>
+						<LoginForm startLoadingAnimation={this.startLoadingAnimation} />
 					</div>
 				</Elevation>
 			</ThemeProvider>

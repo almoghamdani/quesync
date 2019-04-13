@@ -6,8 +6,9 @@ import { Button } from "@rmwc/button";
 
 import { connect } from "react-redux";
 
-const height = "27rem";
-const width = "25rem";
+// Should be in rem units
+const height = 27;
+const width = 25;
 
 class LoginFrom extends Component {
 	state = {
@@ -35,7 +36,17 @@ class LoginFrom extends Component {
 			default:
 				return "Unknown error occurred!\nPlease try again later.";
 		}
-	};
+    };
+    
+    loginBtnClicked = event => {
+        // Prevent the default load of the form
+        event.preventDefault();
+
+        // Start the loading animation
+        this.props.startLoadingAnimation(() => {
+            
+        });
+    };
 
 	render() {
 		return (
