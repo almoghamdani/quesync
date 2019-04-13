@@ -3,6 +3,10 @@ import { connect } from "react-redux";
 
 import BackgroundParticles from "./components/background_particles";
 
+import { ThemeProvider } from "@rmwc/theme";
+
+import "./start_page.scss";
+
 import clientSet from "./actions/clientActions";
 const electron = window.require("electron");
 
@@ -20,7 +24,9 @@ class StartPage extends Component {
 
 	render() {
 		return (
-			<div className="quesync-start-page">
+			<ThemeProvider
+				className="quesync-start-page"
+				options={{ primary: "#007EA7", secondary: "#e0e0e0" }}>
 				<BackgroundParticles
 					style={{
 						position: "absolute",
@@ -31,7 +37,7 @@ class StartPage extends Component {
 						zIndex: "-1"
 					}}
 				/>
-			</div>
+			</ThemeProvider>
 		);
 	}
 }
