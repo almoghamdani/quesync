@@ -2,7 +2,7 @@ export default function reducer(
 	state = {
 		authenticating: false,
 		user: null,
-		authError: null
+		authError: 0
 	},
 	action
 ) {
