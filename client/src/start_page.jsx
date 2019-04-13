@@ -60,6 +60,40 @@ class StartPage extends Component {
 			},
 			900
 		);
+    };
+    
+    stopLoadingAnimation = (completeCallback, form) => {
+		// Create a timeline for the return of the title animation
+        var timeline = anime.timeline({
+            duration: 800,
+            easing: "easeInOutCirc",
+            delay: 250,
+            complete: completeCallback
+        });
+
+        // Animate the quesync title moving part to return to it's place
+        timeline.add({
+            targets: ".quesync-title-moving",
+            width: form.width + "rem"
+        });
+
+        // Fade out the loading indicator
+        timeline.add(
+            {
+                targets: ".quesync-loading",
+                opacity: "0"
+            },
+            0
+        );
+
+        // Return the title text to the center
+        timeline.add(
+            {
+                targets: ".quesync-title-text",
+                marginTop: "62px"
+            },
+            0
+        );
 	};
 
 	render() {
@@ -111,7 +145,7 @@ class StartPage extends Component {
 							width: LoginForm.width + "rem",
 							height: LoginForm.height + "rem"
 						}}>
-						<LoginForm startLoadingAnimation={this.startLoadingAnimation} />
+						<LoginForm startLoadingAnimation={this.startLoadingAnimation} stopLoadingAnimation={this.stopLoadingAnimation} />
 					</div>
 				</Elevation>
 			</ThemeProvider>
