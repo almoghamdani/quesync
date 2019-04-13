@@ -35,9 +35,9 @@ class StartPage extends Component {
 			easing: "easeInOutCirc",
 			delay: 250,
 			complete: completeCallback
-        });
-        
-        // Add animation for the title to fill the menu
+		});
+
+		// Add animation for the title to fill the menu
 		timeline.add({
 			targets: ".quesync-title-moving",
 			width: form.width * 2 + "rem"
@@ -60,7 +60,7 @@ class StartPage extends Component {
 			},
 			900
 		);
-	}
+	};
 
 	render() {
 		return (
@@ -87,7 +87,10 @@ class StartPage extends Component {
 						</Typography>
 					</div>
 				</div>
-				<Elevation className="quesync-start-menu" z="8">
+				<Elevation
+					className="quesync-start-menu"
+					z="8"
+					style={{ pointerEvents: this.props.authenticating ? "none" : "" }}>
 					<div className="quesync-form-side quesync-title" />
 					<div className="quesync-form-side quesync-title quesync-title-moving">
 						<Typography
@@ -104,7 +107,10 @@ class StartPage extends Component {
 					</div>
 					<div
 						className="quesync-form-side quesync-form-holder"
-						style={{ width: LoginForm.width + "rem", height: LoginForm.height + "rem" }}>
+						style={{
+							width: LoginForm.width + "rem",
+							height: LoginForm.height + "rem"
+						}}>
 						<LoginForm startLoadingAnimation={this.startLoadingAnimation} />
 					</div>
 				</Elevation>
@@ -113,4 +119,6 @@ class StartPage extends Component {
 	}
 }
 
-export default connect()(StartPage);
+export default connect(state => ({
+	authenticating: state.user.authenticating
+}))(StartPage);
