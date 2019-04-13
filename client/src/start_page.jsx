@@ -28,7 +28,7 @@ class StartPage extends Component {
 		this.props.dispatch(clientSet(client));
 	}
 
-	startLoadingAnimation(completeCallback) {
+	startLoadingAnimation = completeCallback => {
 		// Create an animation timeline for the title transition + loading animation
 		var timeline = anime.timeline({
 			duration: 1300,
