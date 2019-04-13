@@ -11,6 +11,7 @@ import { connect } from "react-redux";
 // Should be in rem units
 const height = 27;
 const width = 25;
+const formClass = ".quesync-login-form";
 
 class LoginForm extends Component {
 	state = {
@@ -24,7 +25,11 @@ class LoginForm extends Component {
 
 	static get width() {
 		return width;
-	}
+    }
+    
+    static get formClass() {
+        return formClass;
+    }
 
 	formatError = error => {
 		// Set the error message by the error code
@@ -90,7 +95,7 @@ class LoginForm extends Component {
 	render() {
 		return (
 			<form
-				className="quesync-form quesync-login-form"
+				className={"quesync-form " + formClass}
 				ref="form"
 				onSubmit={this.loginBtnClicked}>
 				<Typography
