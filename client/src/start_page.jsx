@@ -28,7 +28,7 @@ class StartPage extends Component {
 		this.props.dispatch(clientSet(client));
 	}
 
-	startLoadingAnimation = completeCallback => {
+	startLoadingAnimation = (completeCallback, form) => {
 		// Create an animation timeline for the title transition + loading animation
 		var timeline = anime.timeline({
 			duration: 1300,
@@ -40,7 +40,7 @@ class StartPage extends Component {
         // Add animation for the title to fill the menu
 		timeline.add({
 			targets: ".quesync-title-moving",
-			width: LoginForm.width * 2 + "rem"
+			width: form.width * 2 + "rem"
 		});
 
 		// Reset the title position to make space for the loading indicator

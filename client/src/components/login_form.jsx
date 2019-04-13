@@ -10,7 +10,7 @@ import { connect } from "react-redux";
 const height = 27;
 const width = 25;
 
-class LoginFrom extends Component {
+class LoginForm extends Component {
 	state = {
 		usernameError: false,
 		passwordError: false
@@ -44,8 +44,8 @@ class LoginFrom extends Component {
 
         // Start the loading animation
         this.props.startLoadingAnimation(() => {
-            
-        });
+
+        }, LoginForm);
     };
 
 	render() {
@@ -115,4 +115,4 @@ class LoginFrom extends Component {
 
 export default connect(state => ({
 	error: state.user.authError
-}))(LoginFrom);
+}))(LoginForm);
