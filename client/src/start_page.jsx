@@ -9,6 +9,9 @@ class StartPage extends Component {
 		// Get the client object from the global variables
 		var client = electron.remote.getGlobal("client");
 
+        // Save the errors object in the window to be accessible for all
+		window.errors = client.errors;
+
 		// Set the client in the store
 		this.props.dispatch(clientSet(client));
 	}
