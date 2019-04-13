@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import { signIn, startAuth, finishAuth } from "../actions/userActions";
+
 import { Typography } from "@rmwc/typography";
 import { TextField } from "@rmwc/textfield";
 import { Button } from "@rmwc/button";
@@ -27,6 +29,9 @@ class LoginForm extends Component {
 	formatError = error => {
 		// Set the error message by the error code
 		switch (error) {
+            case 0:
+                return "";
+
 			case window.errors.USER_NOT_FOUND:
 				return "The requested user is not found!";
 
@@ -36,17 +41,51 @@ class LoginForm extends Component {
 			default:
 				return "Unknown error occurred!\nPlease try again later.";
 		}
-    };
-    
-    loginBtnClicked = event => {
-        // Prevent the default load of the form
+	};
+
+	loginBtnClicked = event => {
+        var username = this.refs.form[0].value, password = this.refs.form[1].value;
+
+		// Prevent the default load of the form
         event.preventDefault();
 
-        // Start the loading animation
-        this.props.startLoadingAnimation(() => {
+        // Reset errors
+		this.setState({
+			usernameError: false,
+			passwordError: false
+		});
 
-        }, LoginForm);
-    };
+		// If the username field is empty, set it as error
+		if (username.length === 0) {
+			// Set it as invalid
+			this.setState({
+				usernameError: true
+			});
+			return;
+		} else if (password.length === 0) {
+			// If the password field is empty, set it as error
+			// Set it as invalid
+			this.setState({
+				passwordError: true
+			});
+			return;
+		}
+        
+        // Start authenticating
+        this.props.dispatch(startAuth());
+
+		// Start the loading animation
+		this.props.startLoadingAnimation(() => {
+            this.props.dispatch(signIn(this.props.client, username, password))
+                .catch(() => {
+                    // Stop the loading animation
+                    this.props.stopLoadingAnimation(() => {
+                        // Stop authenticating
+                        this.props.dispatch(finishAuth());
+                    }, LoginForm)
+                })
+		}, LoginForm);
+	};
 
 	render() {
 		return (
@@ -102,8 +141,7 @@ class LoginForm extends Component {
 							paddingTop: "25px",
 							userSelect: "none",
 							whiteSpace: "pre-line",
-							lineHeight: "12px",
-							opacity: "0"
+							lineHeight: "12px"
 						}}>
 						{this.formatError(this.props.error)}
 					</Typography>
@@ -114,5 +152,6 @@ class LoginForm extends Component {
 }
 
 export default connect(state => ({
+	client: state.client.client,
 	error: state.user.authError
 }))(LoginForm);
