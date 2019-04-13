@@ -8,17 +8,27 @@ class LoginFrom extends Component {
 	state = {
 		usernameError: false,
 		passwordError: false
-    };
-    
-    formatError = error => {
-        
-    }
+	};
+
+	formatError = error => {
+		// Set the error message by the error code
+		switch (error) {
+			case window.errors.USER_NOT_FOUND:
+				return "The requested user is not found!";
+
+			case window.errors.INCORRECT_PASSWORD:
+				return "Incorrect password!";
+
+			default:
+				return "Unknown error occurred!\nPlease try again later.";
+		}
+	};
 
 	render() {
 		return (
 			<form
 				className="quesync-form quesync-login-form"
-				ref="loginForm"
+				ref="form"
 				onSubmit={this.loginBtnClicked}
 				style={{ opacity: "0", pointerEvents: "none" }}>
 				<Typography
@@ -57,7 +67,7 @@ class LoginFrom extends Component {
 						width: "300px",
 						background: "#00A8E8"
 					}}
-					onClick={this.newAccountBtnClicked}>
+					onClick={this.registerBtnClicked}>
 					Don't have an account yet?
 				</Button>
 				<div className="quesync-error-holder">
@@ -72,7 +82,7 @@ class LoginFrom extends Component {
 							lineHeight: "12px",
 							opacity: "0"
 						}}>
-						{this.state.loginError}
+						{this.formatError(this.props.error)}
 					</Typography>
 				</div>
 			</form>
