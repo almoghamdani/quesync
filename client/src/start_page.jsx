@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 import LoginForm from "./components/login_form";
+import RegisterForm from "./components/register_form";
 import BackgroundParticles from "./components/background_particles";
 
 import { ThemeProvider } from "@rmwc/theme";
@@ -17,6 +18,11 @@ import clientSet from "./actions/clientActions";
 const electron = window.require("electron");
 
 class StartPage extends Component {
+	state = {
+		signInVisible: true,
+		registerVisible: false
+	};
+
 	componentWillMount() {
 		// Get the client object from the global variables
 		var client = electron.remote.getGlobal("client");
@@ -60,40 +66,107 @@ class StartPage extends Component {
 			},
 			900
 		);
+	};
+
+	stopLoadingAnimation = (completeCallback, form) => {
+		// Create a timeline for the return of the title animation
+		var timeline = anime.timeline({
+			duration: 800,
+			easing: "easeInOutCirc",
+			delay: 250,
+			complete: completeCallback
+		});
+
+		// Animate the quesync title moving part to return to it's place
+		timeline.add({
+			targets: ".quesync-title-moving",
+			width: form.width + "rem"
+		});
+
+		// Fade out the loading indicator
+		timeline.add(
+			{
+				targets: ".quesync-loading",
+				opacity: "0"
+			},
+			0
+		);
+
+		// Return the title text to the center
+		timeline.add(
+			{
+				targets: ".quesync-title-text",
+				marginTop: "62px"
+			},
+			0
+		);
+	};
+
+	startTransition = (currentForm, targetForm) => {
+		// Create a timeline animation for the transition for the register form
+		var timeline = anime.timeline({
+			duration: 800,
+			easing: "easeInOutCirc",
+			delay: 250
+		});
+
+		// Make a fade out animation for the login form
+		timeline.add(
+			{
+				targets: "." + currentForm.formClass,
+				opacity: 0
+			},
+			0
+		);
+
+		// Make a fade in animation for the register form
+		timeline.add(
+			{
+				targets: "." + targetForm.formClass,
+				opacity: 1
+			},
+			0
+		);
+
+		// Make the form holder height bigger
+		timeline.add(
+			{
+				targets: ".quesync-form-holder",
+				height: targetForm.height + "rem"
+			},
+			0
+		);
+
+		// Make the transition layer the size of the menu
+		timeline.add(
+			{
+				targets: ".quesync-transition",
+				height: targetForm.height + "rem"
+			},
+			0
+		);
+	};
+
+	transitionToRegister = () => {
+        // Disable interaction with the sign in menu and enable interaction with the register menu
+        this.setState({
+            signInVisible: false,
+            registerVisible: true
+        })
+
+		// Transition to the register form
+		this.startTransition(LoginForm, RegisterForm);
     };
     
-    stopLoadingAnimation = (completeCallback, form) => {
-		// Create a timeline for the return of the title animation
-        var timeline = anime.timeline({
-            duration: 800,
-            easing: "easeInOutCirc",
-            delay: 250,
-            complete: completeCallback
-        });
+    transitionToLogin = () => {
+        // Disable interaction with the register menu and enable interaction with the sign in menu
+        this.setState({
+            signInVisible: true,
+            registerVisible: false
+        })
 
-        // Animate the quesync title moving part to return to it's place
-        timeline.add({
-            targets: ".quesync-title-moving",
-            width: form.width + "rem"
-        });
-
-        // Fade out the loading indicator
-        timeline.add(
-            {
-                targets: ".quesync-loading",
-                opacity: "0"
-            },
-            0
-        );
-
-        // Return the title text to the center
-        timeline.add(
-            {
-                targets: ".quesync-title-text",
-                marginTop: "62px"
-            },
-            0
-        );
+		// Transition to the login form
+		this.startTransition(RegisterForm, LoginForm);
 	};
 
 	render() {
@@ -145,7 +218,20 @@ class StartPage extends Component {
 							width: LoginForm.width + "rem",
 							height: LoginForm.height + "rem"
 						}}>
-						<LoginForm startLoadingAnimation={this.startLoadingAnimation} stopLoadingAnimation={this.stopLoadingAnimation} />
+						<LoginForm
+							startLoadingAnimation={this.startLoadingAnimation}
+							stopLoadingAnimation={this.stopLoadingAnimation}
+							transitionToRegister={this.transitionToRegister}
+                            ref="loginForm"
+                            interactable={this.state.signInVisible}
+						/>
+						<RegisterForm
+							startLoadingAnimation={this.startLoadingAnimation}
+							stopLoadingAnimation={this.stopLoadingAnimation}
+							transitionToLogin={this.transitionToLogin}
+                            ref="registerForm"
+                            interactable={this.state.registerVisible}
+						/>
 					</div>
 				</Elevation>
 			</ThemeProvider>
