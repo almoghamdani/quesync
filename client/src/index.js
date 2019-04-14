@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 // Must be here to compile the material components SASS first
 import "./index.scss";
 
-import Layout from "./layout";
+import Layout from "./layout.jsx";
 import StartPage from "./start_page.jsx";
 import store from './store'
 
