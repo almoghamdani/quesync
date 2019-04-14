@@ -280,8 +280,8 @@ class StartPage extends Component {
 						<RegisterForm
 							startLoadingAnimation={this.startLoadingAnimation}
 							stopLoadingAnimation={this.stopLoadingAnimation}
-                            transitionToLogin={this.transitionToLogin}
-                            transitionToApp={this.transitionToApp}
+							transitionToLogin={this.transitionToLogin}
+							transitionToApp={this.transitionToApp}
 							interactable={this.state.registerVisible}
 						/>
 					</div>

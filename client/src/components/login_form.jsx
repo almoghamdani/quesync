@@ -83,14 +83,14 @@ class LoginForm extends Component {
 		// Start the loading animation
 		this.props.startLoadingAnimation(() => {
 			this.props
-                .dispatch(signIn(this.props.client, username, password))
-                .then(() => {
-                    // Stop authenticating
-                    this.props.dispatch(finishAuth());
-                    
-                    // Transition to the app
-                    this.props.transitionToApp();
-                })
+				.dispatch(signIn(this.props.client, username, password))
+				.then(() => {
+					// Stop authenticating
+					this.props.dispatch(finishAuth());
+
+					// Transition to the app
+					this.props.transitionToApp();
+				})
 				.catch(() => {
 					// Stop the loading animation
 					this.props.stopLoadingAnimation(() => {
@@ -109,8 +109,8 @@ class LoginForm extends Component {
 		return (
 			<form
 				className={"quesync-form " + formClass}
-                ref="form"
-                style={{ pointerEvents: this.props.interactable ? "" : "none" }}
+				ref="form"
+				style={{ pointerEvents: this.props.interactable ? "" : "none" }}
 				onSubmit={this.loginBtnClicked}>
 				<Typography
 					use="headline2"
