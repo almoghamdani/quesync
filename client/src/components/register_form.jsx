@@ -19,19 +19,23 @@ class RegisterForm extends Component {
 		passwordError: false,
 		passwordMismatchError: false,
 		emailError: false
-    };
-    
-    static get height() {
+	};
+
+	static get height() {
 		return height;
 	}
 
 	static get width() {
 		return width;
-    }
-    
-    static get formClass() {
-        return formClass;
-    }
+	}
+
+	static get formClass() {
+		return formClass;
+	}
+
+	haveAccountBtnClicked = () => {
+		this.props.transitionToLogin();
+	};
 
 	render() {
 		return (
@@ -39,7 +43,10 @@ class RegisterForm extends Component {
 				className={"quesync-form " + formClass}
 				ref="form"
 				onSubmit={this.registerBtnClicked}
-                style={{ opacity: "0", pointerEvents: this.props.interactable ? "" : "none" }}>
+				style={{
+					opacity: "0",
+					pointerEvents: this.props.interactable ? "" : "none"
+				}}>
 				<Typography
 					use="headline2"
 					style={{
