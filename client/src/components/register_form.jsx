@@ -90,7 +90,14 @@ class RegisterForm extends Component {
 		// Start the loading animation
 		this.props.startLoadingAnimation(() => {
 			this.props
-				.dispatch(register(this.props.client, username, email, password))
+                .dispatch(register(this.props.client, username, email, password))
+                .then(() => {
+                    // Stop authenticating
+                    this.props.dispatch(finishAuth());
+                    
+                    // Transition to the app
+                    this.props.transitionToApp();
+                })
 				.catch(() => {
 					// Stop the loading animation
 					this.props.stopLoadingAnimation(() => {

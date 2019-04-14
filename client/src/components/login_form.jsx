@@ -83,7 +83,14 @@ class LoginForm extends Component {
 		// Start the loading animation
 		this.props.startLoadingAnimation(() => {
 			this.props
-				.dispatch(signIn(this.props.client, username, password))
+                .dispatch(signIn(this.props.client, username, password))
+                .then(() => {
+                    // Stop authenticating
+                    this.props.dispatch(finishAuth());
+                    
+                    // Transition to the app
+                    this.props.transitionToApp();
+                })
 				.catch(() => {
 					// Stop the loading animation
 					this.props.stopLoadingAnimation(() => {

@@ -147,23 +147,75 @@ class StartPage extends Component {
 		);
 	};
 
+	transitionToApp = () => {
+		// Create a timeline for the transition
+		var timeline = anime.timeline({
+			duration: 1400,
+			easing: "easeInOutCirc",
+			delay: 250
+		});
+
+		// Animate the quesync title moving part to return to it's place
+		timeline.add(
+			{
+				targets: ".quesync-transition",
+				width: "100vw",
+				height: "100vh"
+			},
+			400
+		);
+
+		// Fade out the quesync title
+		timeline.add(
+			{
+				targets: ".quesync-transition-title",
+				opacity: "0"
+			},
+			400
+		);
+
+		// Fade out the loading indicator
+		timeline.add(
+			{
+				targets: ".quesync-loading",
+				opacity: "0",
+				duration: 400
+			},
+			0
+		);
+
+		// Return the title text to the center
+		timeline.add(
+			{
+				targets: ".quesync-title-text",
+				marginTop: "62px",
+				duration: 400,
+				complete: () => {
+					// Set transition opacity
+					this.refs.transition.style.opacity = 1;
+				}
+			},
+			0
+		);
+	};
+
 	transitionToRegister = () => {
-        // Disable interaction with the sign in menu and enable interaction with the register menu
-        this.setState({
-            signInVisible: false,
-            registerVisible: true
-        })
+		// Disable interaction with the sign in menu and enable interaction with the register menu
+		this.setState({
+			signInVisible: false,
+			registerVisible: true
+		});
 
 		// Transition to the register form
 		this.startTransition(LoginForm, RegisterForm);
-    };
-    
-    transitionToLogin = () => {
-        // Disable interaction with the register menu and enable interaction with the sign in menu
-        this.setState({
-            signInVisible: true,
-            registerVisible: false
-        })
+	};
+
+	transitionToLogin = () => {
+		// Disable interaction with the register menu and enable interaction with the sign in menu
+		this.setState({
+			signInVisible: true,
+			registerVisible: false
+		});
 
 		// Transition to the login form
 		this.startTransition(RegisterForm, LoginForm);
@@ -222,15 +274,15 @@ class StartPage extends Component {
 							startLoadingAnimation={this.startLoadingAnimation}
 							stopLoadingAnimation={this.stopLoadingAnimation}
 							transitionToRegister={this.transitionToRegister}
-                            ref="loginForm"
-                            interactable={this.state.signInVisible}
+							transitionToApp={this.transitionToApp}
+							interactable={this.state.signInVisible}
 						/>
 						<RegisterForm
 							startLoadingAnimation={this.startLoadingAnimation}
 							stopLoadingAnimation={this.stopLoadingAnimation}
-							transitionToLogin={this.transitionToLogin}
-                            ref="registerForm"
-                            interactable={this.state.registerVisible}
+                            transitionToLogin={this.transitionToLogin}
+                            transitionToApp={this.transitionToApp}
+							interactable={this.state.registerVisible}
 						/>
 					</div>
 				</Elevation>
