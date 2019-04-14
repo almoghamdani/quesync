@@ -27,11 +27,17 @@ class RegisterForm extends Component {
 			case 0:
 				return "";
 
-			case window.errors.USER_NOT_FOUND:
-				return "The requested user is not found!";
+			case window.errors.INVALID_USERNAME:
+				return "The username entered is invalid!";
 
-			case window.errors.INCORRECT_PASSWORD:
-				return "Incorrect password!";
+			case window.errors.INVALID_EMAIL:
+				return "The e-mail entered is invalid!";
+
+			case window.errors.USER_ALREADY_IN_USE:
+				return "The username chosen is already taken!";
+
+			case window.errors.EMAIL_ALREADY_IN_USE:
+				return "The e-mail entered is already used!";
 
 			default:
 				return "Unknown error occurred!\nPlease try again later.";
@@ -195,10 +201,9 @@ class RegisterForm extends Component {
 							paddingTop: "25px",
 							userSelect: "none",
 							whiteSpace: "pre-line",
-							lineHeight: "12px",
-							opacity: "0"
+							lineHeight: "12px"
 						}}>
-						{this.state.registerError}
+						{this.formatError(this.props.error)}
 					</Typography>
 				</div>
 			</form>
