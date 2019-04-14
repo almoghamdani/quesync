@@ -3,7 +3,7 @@
         {
             "target_name": "quesync",
             "sources": [
-                "<!@(node -p \"require('glob').sync('/src/**/*.cc').join(' ')\")",
+                "<!@(node -p \"require('glob').sync('./src/**/*.cc').join(' ')\")",
                 "<!@(node -p \"require('glob').sync('../../shared/**/*.cpp').join(' ')\")",
                 "<!@(node -p \"require('glob').sync('../../include/**/*.cpp').join(' ')\")"
             ],
@@ -30,7 +30,8 @@
                             '-lVC/libeay32MT',
                             '-lVC/ssleay32MT',
                             '-lopus',
-                            '-lOpenAL32'
+                            '-lOpenAL32',
+                            '-lbass'
                         ]
                     },
                     'defines': [
