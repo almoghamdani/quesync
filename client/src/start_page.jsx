@@ -33,7 +33,7 @@ class StartPage extends Component {
 		window.errors = client.errors;
 
 		// Set the client in the store
-		props.dispatch(clientSet(client));
+        props.dispatch(clientSet(client));
 	}
 
 	componentDidMount() {
@@ -57,7 +57,7 @@ class StartPage extends Component {
 
 			// If successful, call the callback function
 			callback();
-		} catch (error) {
+		} catch {
 			// Retry in 500 milliseconds
 			setTimeout(() => this.connectRepeat(client, ip, callback), 500);
 		}
