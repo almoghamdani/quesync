@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { signIn, startAuth, finishAuth } from "../actions/userActions";
+import { register, startAuth, finishAuth } from "../actions/userActions";
 
 import { Typography } from "@rmwc/typography";
 import { TextField } from "@rmwc/textfield";
@@ -19,6 +19,86 @@ class RegisterForm extends Component {
 		passwordError: false,
 		passwordMismatchError: false,
 		emailError: false
+	};
+
+	formatError = error => {
+		// Set the error message by the error code
+		switch (error) {
+			case 0:
+				return "";
+
+			case window.errors.USER_NOT_FOUND:
+				return "The requested user is not found!";
+
+			case window.errors.INCORRECT_PASSWORD:
+				return "Incorrect password!";
+
+			default:
+				return "Unknown error occurred!\nPlease try again later.";
+		}
+	};
+
+	registerBtnClicked = event => {
+		var username = this.refs.form[0].value,
+			email = this.refs.form[1].value,
+			password = this.refs.form[2].value,
+			passwordVerification = this.refs.form[3].value;
+
+		// Prevent the default load of the form
+		event.preventDefault();
+
+		// Reset errors
+		this.setState({
+			usernameError: false,
+			passwordError: false,
+			emailError: false,
+			passwordMismatchError: false
+		});
+
+		// If the username field is empty
+		if (username.length === 0) {
+			this.setState({
+				usernameError: true
+			});
+			return;
+		}
+		// If the e-mail field is empty
+		else if (email.length === 0) {
+			this.setState({
+				emailError: true
+			});
+			return;
+		}
+		// If the password field is empty
+		else if (password.length === 0) {
+			this.setState({
+				passwordError: true
+			});
+			return;
+		}
+		// If the password verification field doesn't match the password
+		else if (password !== passwordVerification) {
+			this.setState({
+				passwordMismatchError: true
+			});
+			return;
+		}
+
+		// Start authenticating
+		this.props.dispatch(startAuth());
+
+		// Start the loading animation
+		this.props.startLoadingAnimation(() => {
+			this.props
+				.dispatch(register(this.props.client, username, email, password))
+				.catch(() => {
+					// Stop the loading animation
+					this.props.stopLoadingAnimation(() => {
+						// Stop authenticating
+						this.props.dispatch(finishAuth());
+					}, RegisterForm);
+				});
+		}, RegisterForm);
 	};
 
 	static get height() {
