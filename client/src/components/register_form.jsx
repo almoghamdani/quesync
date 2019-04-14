@@ -11,7 +11,7 @@ import { connect } from "react-redux";
 // Should be in rem units
 const height = 35;
 const width = 25;
-const formClass = ".quesync-register-form";
+const formClass = "quesync-register-form";
 
 class RegisterForm extends Component {
 	state = {
@@ -39,7 +39,7 @@ class RegisterForm extends Component {
 				className={"quesync-form " + formClass}
 				ref="form"
 				onSubmit={this.registerBtnClicked}
-                style={{ opacity: "0", pointerEvents: "none" }}>
+                style={{ opacity: "0", pointerEvents: this.props.interactable ? "" : "none" }}>
 				<Typography
 					use="headline2"
 					style={{

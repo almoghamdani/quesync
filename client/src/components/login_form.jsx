@@ -11,7 +11,7 @@ import { connect } from "react-redux";
 // Should be in rem units
 const height = 27;
 const width = 25;
-const formClass = ".quesync-login-form";
+const formClass = "quesync-login-form";
 
 class LoginForm extends Component {
 	state = {
@@ -25,17 +25,17 @@ class LoginForm extends Component {
 
 	static get width() {
 		return width;
-    }
-    
-    static get formClass() {
-        return formClass;
-    }
+	}
+
+	static get formClass() {
+		return formClass;
+	}
 
 	formatError = error => {
 		// Set the error message by the error code
 		switch (error) {
-            case 0:
-                return "";
+			case 0:
+				return "";
 
 			case window.errors.USER_NOT_FOUND:
 				return "The requested user is not found!";
@@ -49,12 +49,13 @@ class LoginForm extends Component {
 	};
 
 	loginBtnClicked = event => {
-        var username = this.refs.form[0].value, password = this.refs.form[1].value;
+		var username = this.refs.form[0].value,
+			password = this.refs.form[1].value;
 
 		// Prevent the default load of the form
-        event.preventDefault();
+		event.preventDefault();
 
-        // Reset errors
+		// Reset errors
 		this.setState({
 			usernameError: false,
 			passwordError: false
@@ -75,28 +76,34 @@ class LoginForm extends Component {
 			});
 			return;
 		}
-        
-        // Start authenticating
-        this.props.dispatch(startAuth());
+
+		// Start authenticating
+		this.props.dispatch(startAuth());
 
 		// Start the loading animation
 		this.props.startLoadingAnimation(() => {
-            this.props.dispatch(signIn(this.props.client, username, password))
-                .catch(() => {
-                    // Stop the loading animation
-                    this.props.stopLoadingAnimation(() => {
-                        // Stop authenticating
-                        this.props.dispatch(finishAuth());
-                    }, LoginForm)
-                })
+			this.props
+				.dispatch(signIn(this.props.client, username, password))
+				.catch(() => {
+					// Stop the loading animation
+					this.props.stopLoadingAnimation(() => {
+						// Stop authenticating
+						this.props.dispatch(finishAuth());
+					}, LoginForm);
+				});
 		}, LoginForm);
+	};
+
+	registerBtnClicked = () => {
+		this.props.transitionToRegister();
 	};
 
 	render() {
 		return (
 			<form
 				className={"quesync-form " + formClass}
-				ref="form"
+                ref="form"
+                style={{ pointerEvents: this.props.interactable ? "" : "none" }}
 				onSubmit={this.loginBtnClicked}>
 				<Typography
 					use="headline2"
