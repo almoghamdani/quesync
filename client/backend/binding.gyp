@@ -3,8 +3,9 @@
         {
             "target_name": "quesync",
             "sources": [
-                "<!@(node -p \"require('fs').readdirSync('./src').map(f=>'src/'+f).join(' ')\")",
-                "<!@(node -p \"require('fs').readdirSync('../../shared').map(f=>'../../shared/'+f).join(' ')\")"
+                "<!@(node -p \"require('glob').sync('/src/**/*.cc').join(' ')\")",
+                "<!@(node -p \"require('glob').sync('../../shared/**/*.cpp').join(' ')\")",
+                "<!@(node -p \"require('glob').sync('../../include/**/*.cpp').join(' ')\")"
             ],
             "include_dirs": [
                 "<!@(node -p \"require('node-addon-api').include\")",
