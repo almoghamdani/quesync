@@ -23,7 +23,9 @@ class StartPage extends Component {
 		registerVisible: false
 	};
 
-	componentDidMount() {
+	constructor(props) {
+		super(props);
+
 		// Get the client object from the global variables
 		var client = electron.remote.getGlobal("client");
 
@@ -31,29 +33,34 @@ class StartPage extends Component {
 		window.errors = client.errors;
 
 		// Set the client in the store
-		this.props.dispatch(clientSet(client));
+		props.dispatch(clientSet(client));
+	}
+
+	componentDidMount() {
+        // Get the client object from the global variables
+		var client = electron.remote.getGlobal("client");
 
 		// Set the app as loading
-        this.startLoadingAnimation(null, LoginForm, false);
-        
-        // Try to conenct to the server
-        this.connectRepeat(client, "127.0.0.1", () => {
-            // Stop the loading animation when connection is successful
-            this.stopLoadingAnimation(null, LoginForm);
-        });
+		this.startLoadingAnimation(null, LoginForm, false);
+
+		// Try to conenct to the server
+		this.connectRepeat(client, "127.0.0.1", () => {
+			// Stop the loading animation when connection is successful
+			this.stopLoadingAnimation(null, LoginForm);
+		});
 	}
 
 	connectRepeat = async (client, ip, callback) => {
 		try {
-            // Try to connect to server
-            await client.connect(ip);
+			// Try to connect to server
+			await client.connect(ip);
 
-            // If successful, call the callback function
-            callback();
-        } catch (error) {
-            // Retry in 500 milliseconds
-            setTimeout(() => this.connectRepeat(client, ip, callback), 500);
-        }
+			// If successful, call the callback function
+			callback();
+		} catch (error) {
+			// Retry in 500 milliseconds
+			setTimeout(() => this.connectRepeat(client, ip, callback), 500);
+		}
 	};
 
 	startLoadingAnimation = (completeCallback, form, animated = true) => {
@@ -314,5 +321,6 @@ class StartPage extends Component {
 }
 
 export default connect(state => ({
+    client: state.client.client,
 	authenticating: state.user.authenticating
 }))(StartPage);
