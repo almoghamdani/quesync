@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import LoginForm from "./components/login_form";
 import RegisterForm from "./components/register_form";
 import BackgroundParticles from "./components/background_particles";
+import App from "./app";
 
 import { ThemeProvider } from "@rmwc/theme";
 import { Typography } from "@rmwc/typography";
@@ -181,7 +182,11 @@ class StartPage extends Component {
 		var timeline = anime.timeline({
 			duration: 1400,
 			easing: "easeInOutCirc",
-			delay: 250
+			delay: 250,
+			complete: () => {
+				// Animate to the app
+				this.props.animateTo(<App />);
+			}
 		});
 
 		// Animate the quesync title moving part to return to it's place
