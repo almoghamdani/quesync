@@ -6,14 +6,14 @@
 #include <string>
 #include <thread>
 
-#include <al.h>
-#include <alc.h>
-#include <opus.h>
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#include <opus/opus.h>
 #include <bass.h>
 
 #define VOICE_CHAT_PORT 61111
 
-#define RECORD_FREQUENCY 48000
+#define RECORD_FREQUENCY 4000
 #define RECORD_CHANNELS 2
 #define FRAMERATE 960
 #define MAX_FRAMERATE 4800

@@ -5,11 +5,11 @@
             "sources": [
                 "<!@(node -p \"require('glob').sync('./src/**/*.cc').join(' ')\")",
                 "<!@(node -p \"require('glob').sync('../../shared/**/*.cpp').join(' ')\")",
-                "<!@(node -p \"require('glob').sync('../../include/**/*.cpp').join(' ')\")"
+                "<!@(node -p \"require('glob').sync('../../thirdparty/**/*.cpp').join(' ')\")"
             ],
             "include_dirs": [
                 "<!@(node -p \"require('node-addon-api').include\")",
-                "../../include"
+                "../../thirdparty"
             ],
             "cflags": [
                 "-std=c++17",
