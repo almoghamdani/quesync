@@ -48,8 +48,8 @@ add_definitions(-DASIO_STANDALONE) # Build ASIO without boost
 add_definitions(-D_WIN32_WINNT=0x0501) # Set Windows version
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) # Ignore unsafe warnings
 
-# Set C++14 standard
-set (CMAKE_CXX_STANDARD 14)
+# Set C++17 standard
+set (CMAKE_CXX_STANDARD 17)
 
 # Get all the cpp files for the server
 file(GLOB SOURCES "*.cpp")
