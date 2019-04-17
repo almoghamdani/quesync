@@ -1,14 +1,12 @@
-body {
-	background: url(./static/start_menu_bg.png);
-	background-position: center;
-	background-size: 125% 125%;
-}
-
 .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
 	color: var(--mdc-theme-primary) !important;
 }
 
 .quesync-start-page {
+	background: url(./static/start_menu_bg.png);
+	background-position: center;
+	background-size: 125% 125%;
+
 	// Fit to screen
 	width: 100vw;
 	height: 100vh;
