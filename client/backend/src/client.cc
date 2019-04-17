@@ -14,7 +14,7 @@
 Napi::FunctionReference Client::constructor;
 
 Client::Client(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Client>(info),
-                                                 _socket(SocketManager::io_context),
+                                                 _socket(nullptr),
                                                  _user(nullptr)
 {
     Napi::Env env = info.Env();
@@ -39,10 +39,20 @@ Napi::Value Client::connect(const Napi::CallbackInfo &info)
         // Get the endpoint of the server to connect to
         SocketManager::GetEndpoint(ip.c_str(), SERVER_PORT, server_endpoint);
 
+        // If we currently have a socket with the server, close it and delete it
+        if (_socket)
+        {
+            _socket->close();
+            delete _socket;
+        }
+
         try
         {
+            // Allocate a new socket
+            _socket = new tcp::socket(SocketManager::io_context);
+
             // Try to connect to the server
-            _socket.connect(server_endpoint);
+            _socket->connect(server_endpoint);
         }
         catch (...)
         {
@@ -53,7 +63,7 @@ Napi::Value Client::connect(const Napi::CallbackInfo &info)
         Utils::CopyString(ping_packet.encode(), _data);
 
         // Send to the server the ping packet expecting a response
-        error = SocketManager::SendServerWithResponse(_socket, _data, MAX_DATA_LEN);
+        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
 
         // Parse the response packet
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
@@ -104,7 +114,7 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
         Utils::CopyString(login_packet.encode(), _data);
 
         // Send to the server the ping packet expecting a response
-        error = SocketManager::SendServerWithResponse(_socket, _data, MAX_DATA_LEN);
+        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
 
         // Parse the response packet
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
@@ -179,7 +189,7 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
         Utils::CopyString(register_packet.encode(), _data);
 
         // Send to the server the register packet expecting a response
-        error = SocketManager::SendServerWithResponse(_socket, _data, MAX_DATA_LEN);
+        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
 
         // Parse the response packet
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
@@ -253,7 +263,7 @@ Napi::Value Client::search(const Napi::CallbackInfo &info)
         Utils::CopyString(search_packet.encode(), _data);
 
         // Send to the server the ping packet expecting a response
-        error = SocketManager::SendServerWithResponse(_socket, _data, MAX_DATA_LEN);
+        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
 
         // Parse the response packet
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
@@ -321,7 +331,7 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
         Utils::CopyString(friend_request_packet.encode(), _data);
 
         // Send to the server the friend request packet expecting a response
-        error = SocketManager::SendServerWithResponse(_socket, _data, MAX_DATA_LEN);
+        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
 
         // Parse the response packet
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
