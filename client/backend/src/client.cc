@@ -160,6 +160,7 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
                 email = info[2].As<Napi::String>();
 
     Executer *e = new Executer([this, username, password, email]() {
+        QuesyncError error = SUCCESS;
         ResponsePacket *response_packet;
         nlohmann::json res;
 
@@ -177,11 +178,8 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
         // Copy the register packet to the data buffer
         Utils::CopyString(register_packet.encode(), _data);
 
-        // Send the server the register packet
-        _socket.write_some(asio::buffer(_data, strlen(_data)));
-
-        // Get a response from the server
-        _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
+        // Send to the server the register packet expecting a response
+        error = SocketManager::SendServerWithResponse(_socket, _data, MAX_DATA_LEN);
 
         // Parse the response packet
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
@@ -206,9 +204,20 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
             // Return the user serialized
             res["user"] = _user->json();
         }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
 
         return res;
-    }, deferred);
+    },
+                               deferred);
 
     // Queue the executer worker
     e->Queue();
@@ -219,104 +228,135 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
 Napi::Value Client::search(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-
-    ResponsePacket *response_packet;
-    Napi::Object res = Napi::Object::New(env);
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
 
     // Convert parameters to string
     std::string nickname = info[0].As<Napi::String>();
     int tag = info[1].IsUndefined() ? -1 : info[0].As<Napi::Number>();
 
-    SearchPacket search_packet(nickname, tag);
+    Executer *e = new Executer([this, nickname, tag]() {
+        QuesyncError error = SUCCESS;
+        ResponsePacket *response_packet;
+        nlohmann::json res;
 
-    // If not authenticated, return error
-    if (!_user)
-    {
-        res["error"] = Napi::Number::New(env, NOT_AUTHENTICATED);
+        SearchPacket search_packet(nickname, tag);
+
+        // If not authenticated, return error
+        if (!_user)
+        {
+            res["error"] = NOT_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Copy the search packet to the data buffer
+        Utils::CopyString(search_packet.encode(), _data);
+
+        // Send to the server the ping packet expecting a response
+        error = SocketManager::SendServerWithResponse(_socket, _data, MAX_DATA_LEN);
+
+        // Parse the response packet
+        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = ((ErrorPacket *)response_packet)->error();
+        }
+        // If the response packet is a valid search results response, get the user from it
+        else if (response_packet && response_packet->type() == SEARCH_RESULTS_PACKET)
+        {
+            // Set success error code
+            res["error"] = SUCCESS;
+
+            // Return the search results in an object
+            res["search_results"] = nlohmann::json::parse(response_packet->data());
+        }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
 
         return res;
-    }
+    },
+                               deferred);
 
-    // Copy the search packet to the data buffer
-    Utils::CopyString(search_packet.encode(), _data);
+    // Queue the executer worker
+    e->Queue();
 
-    // Send the server the search packet
-    _socket.write_some(asio::buffer(_data, strlen(_data)));
-
-    // Get a response from the server
-    _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
-
-    // Parse the response packet
-    response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
-
-    // If the response is an error, handle the error
-    if (response_packet && response_packet->type() == ERROR_PACKET)
-    {
-        // Set the error code from the response packet
-        res["error"] = Napi::Number::New(env, ((ErrorPacket *)response_packet)->error());
-
-        // Set no search results since an error occurred
-        res["search_results"] = env.Null();
-    }
-    // If the response packet is a valid search results response, get the user from it
-    else if (response_packet && response_packet->type() == SEARCH_RESULTS_PACKET)
-    {
-        // Set success error code
-        res["error"] = Napi::Number::New(env, SUCCESS);
-
-        // Return the search results in an object
-        res["search_results"] = Utils::JsonToObject(env, nlohmann::json::parse(response_packet->data()));
-    }
-
-    return res;
+    return deferred.Promise();
 }
 
 Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-
-    ResponsePacket *response_packet;
-    Napi::Object res = Napi::Object::New(env);
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
 
     // Convert parameters to string
     std::string friend_id = info[0].As<Napi::String>();
 
-    FriendRequestPacket friend_request_packet(friend_id);
+    Executer *e = new Executer([this, friend_id]() {
+        QuesyncError error = SUCCESS;
+        ResponsePacket *response_packet;
+        nlohmann::json res;
 
-    // If not authenticated, return error
-    if (!_user)
-    {
-        res["error"] = Napi::Number::New(env, NOT_AUTHENTICATED);
+        FriendRequestPacket friend_request_packet(friend_id);
+
+        // If not authenticated, return error
+        if (!_user)
+        {
+            res["error"] = NOT_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Copy the friend request packet to the data buffer
+        Utils::CopyString(friend_request_packet.encode(), _data);
+
+        // Send to the server the friend request packet expecting a response
+        error = SocketManager::SendServerWithResponse(_socket, _data, MAX_DATA_LEN);
+
+        // Parse the response packet
+        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = ((ErrorPacket *)response_packet)->error();
+        }
+        // If the response packet is a friend request confirmation response, get the user from it
+        else if (response_packet && response_packet->type() == FRIEND_REQUEST_SENT_PACKET)
+        {
+            // Set success error code
+            res["error"] = SUCCESS;
+        }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
 
         return res;
-    }
+    },
+                               deferred);
 
-    // Copy the friend request packet to the data buffer
-    Utils::CopyString(friend_request_packet.encode(), _data);
+    // Queue the executer worker
+    e->Queue();
 
-    // Send the server the friend request packet
-    _socket.write_some(asio::buffer(_data, strlen(_data)));
-
-    // Get a response from the server
-    _socket.read_some(asio::buffer(_data, MAX_DATA_LEN));
-
-    // Parse the response packet
-    response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
-
-    // If the response is an error, handle the error
-    if (response_packet && response_packet->type() == ERROR_PACKET)
-    {
-        // Set the error code from the response packet
-        res["error"] = Napi::Number::New(env, ((ErrorPacket *)response_packet)->error());
-    }
-    // If the response packet is a friend request confirmation response, get the user from it
-    else if (response_packet && response_packet->type() == FRIEND_REQUEST_SENT_PACKET)
-    {
-        // Set success error code
-        res["error"] = Napi::Number::New(env, SUCCESS);
-    }
-
-    return res;
+    return deferred.Promise();
 }
 
 Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
