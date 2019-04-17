@@ -268,8 +268,7 @@ class StartPage extends Component {
 						top: "0",
 						left: "0",
 						minWidth: "100%",
-						minHeight: "100%",
-						zIndex: "-1"
+						minHeight: "100%"
 					}}
 				/>
 				<div className="quesync-transition-holder">
