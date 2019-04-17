@@ -39,8 +39,8 @@ class App extends Component {
 					<TopAppBarRow>
 						<TopAppBarSection className="quesync-page-selector-container">
 							<TabBar className="quesync-page-selector">
-								<Tab>Friends</Tab>
-								<Tab>Recent</Tab>
+								<Tab className="quesync-page-tab">Friends</Tab>
+								<Tab className="quesync-page-tab">Recent</Tab>
 							</TabBar>
 						</TopAppBarSection>
 					</TopAppBarRow>
