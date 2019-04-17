@@ -4,11 +4,12 @@ import {
 	TopAppBar,
 	TopAppBarRow,
 	TopAppBarSection,
-	TopAppBarNavigationIcon,
-	TopAppBarTitle,
 	TopAppBarFixedAdjust
 } from "@rmwc/top-app-bar";
+import { TabBar, Tab } from "@rmwc/tabs";
 import { ThemeProvider } from "@rmwc/theme";
+
+import "./app.scss";
 
 class App extends Component {
 	render() {
@@ -24,17 +25,23 @@ class App extends Component {
 					top: 0,
 					left: 0
 				}}
-				options={{ primary: "#212121", secondary: "#e0e0e0" }}
+				options={{
+					primary: "#00A8E8",
+					secondary: "#212121",
+					onSurface: "rgba(255,255,255,.87)"
+				}}
 			>
 				<div
 					className="quesync-seperator"
-					style={{ width: "100vw", height: "30px", background: "black" }}
+					style={{ width: "100vw", height: "30px", background: "#212121" }}
 				/>
-				<TopAppBar>
+				<TopAppBar theme="secondaryBg">
 					<TopAppBarRow>
-						<TopAppBarSection alignStart>
-							<TopAppBarNavigationIcon icon="menu" />
-							<TopAppBarTitle>All Features</TopAppBarTitle>
+						<TopAppBarSection className="quesync-page-selector-container">
+							<TabBar className="quesync-page-selector">
+								<Tab>Friends</Tab>
+								<Tab>Recent</Tab>
+							</TabBar>
 						</TopAppBarSection>
 					</TopAppBarRow>
 				</TopAppBar>

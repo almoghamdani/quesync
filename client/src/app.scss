@@ -1,0 +1,11 @@
+.quesync-page-selector {
+    width: 300px;
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+.quesync-page-selector-container {
+    // Center the page selector
+    display: flex;
+    justify-content: center;
+}
