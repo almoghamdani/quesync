@@ -61,7 +61,7 @@ class Layout extends Component {
 		var newChildRef = React.createRef();
 
 		// Set opacity as 0
-		child = React.cloneElement(child, { style: { opacity: 0 }, ref: newChildRef });
+		child = React.cloneElement(child, { style: { opacity: 0 }, ref: newChildRef, animateTo: this.animateToNewChild });
 
 		// Render the new child
 		this.setState({
