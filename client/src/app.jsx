@@ -17,13 +17,7 @@ class App extends Component {
 			<ThemeProvider
 				className="quesync-app"
 				style={{
-					...this.props.style,
-					width: "100vw",
-					height: "100vh",
-					background: "#424242",
-					position: "absolute",
-					top: 0,
-					left: 0
+					...this.props.style
 				}}
 				options={{
 					primary: "#00A8E8",
@@ -31,10 +25,7 @@ class App extends Component {
 					onSurface: "rgba(255,255,255,.87)"
 				}}
 			>
-				<div
-					className="quesync-seperator"
-					style={{ width: "100vw", height: "30px", background: "#212121" }}
-				/>
+				<div className="quesync-seperator" />
 				<TopAppBar theme="secondaryBg">
 					<TopAppBarRow>
 						<TopAppBarSection className="quesync-page-selector-container">
