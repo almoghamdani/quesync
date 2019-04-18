@@ -25,8 +25,7 @@ class App extends Component {
 					onSurface: "rgba(255,255,255,.87)"
 				}}
 			>
-				<div className="quesync-seperator" />
-				<TopAppBar theme="secondaryBg">
+				<TopAppBar className="quesync-top-app-bar" fixed theme="secondaryBg">
 					<TopAppBarRow>
 						<TopAppBarSection className="quesync-page-selector-container">
 							<TabBar className="quesync-page-selector">

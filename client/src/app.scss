@@ -3,16 +3,16 @@
 .quesync-app {
 	width: 100vw;
 	height: 100vh;
+
 	background: #424242;
+
 	position: absolute;
 	top: 0;
 	left: 0;
 }
 
-.quesync-seperator {
-	width: 100vw;
-	height: 15px;
-	background: #212121;
+.quesync-top-app-bar {
+	padding-top: 15px;
 }
 
 .quesync-page-selector {
