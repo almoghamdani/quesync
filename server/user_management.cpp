@@ -40,7 +40,8 @@ User *UserManagement::authenticateUser(std::string username, std::string passwor
                     user_res[1],
                     user_res[3],
                     user_res[4],
-                    user_res[5]);
+                    user_res[5],
+                    getFriends(user_res[0]));
 
     return user;
 }
@@ -108,7 +109,7 @@ User *UserManagement::registerUser(std::string username,
         }
 
         // Create the object for the user
-        user = new User(id, username, email, nickname, tag);
+        user = new User(id, username, email, nickname, tag, std::vector<std::string>());
     }
     else
     {
@@ -130,6 +131,39 @@ User *UserManagement::registerUser(std::string username,
     }
 
     return user;
+}
+
+std::vector<std::string> UserManagement::getFriends(std::string user_id)
+{
+    std::vector<std::string> friends;
+    sql::RowResult res;
+    sql::Row row;
+
+    try
+    {
+        // Get the ids of the user's friends
+        res = friendships_table.select("requester_id", "recipient_id").where("(requester_id = :user_id OR recipient_id = :user_id) AND approved = True").bind("user_id", user_id).execute();
+    }
+    catch (...)
+    {
+        throw QuesyncException(UNKNOWN_ERROR);
+    }
+
+    // For each friend of the user, add it to the list of friends
+    while ((row = res.fetchOne()))
+    {
+        // If the "requester_id" column is the user's id, get the friend id from the "recipient_id" column
+        if ((std::string)row[0] == user_id)
+        {
+            friends.push_back(row[1]);
+        }
+        else
+        {
+            friends.push_back(row[0]);
+        }
+    }
+
+    return friends;
 }
 
 void UserManagement::sendFriendRequest(std::string requester_id, std::string recipient_id)
