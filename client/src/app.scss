@@ -9,6 +9,10 @@
 	position: absolute;
 	top: 0;
 	left: 0;
+
+	// Used to make the page container fill the rest of the height of the div
+	display: flex;
+	flex-flow: column;
 }
 
 .quesync-top-app-bar {

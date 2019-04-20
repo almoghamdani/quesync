@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 
+import PageContainer from "./components/page_container";
+import FriendsPage from "./pages/friends_page";
+
 import {
 	TopAppBar,
 	TopAppBarRow,
@@ -36,6 +39,7 @@ class App extends Component {
 					</TopAppBarRow>
 				</TopAppBar>
 				<TopAppBarFixedAdjust />
+				<PageContainer page={<FriendsPage />} />
 			</ThemeProvider>
 		);
 	}
