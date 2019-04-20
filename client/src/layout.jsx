@@ -1,11 +1,12 @@
 import React, { Component } from "react";
-import ReactDOM from 'react-dom'
+import ReactDOM from "react-dom";
 
 import "./layout.scss";
 
 import { IconButton } from "@rmwc/icon-button";
 import anime from "animejs/lib/anime.es.js";
 
+const os = window.require("os");
 const electron = window.require("electron");
 const BrowserWindow = electron.remote.BrowserWindow;
 
@@ -61,7 +62,11 @@ class Layout extends Component {
 		var newChildRef = React.createRef();
 
 		// Set opacity as 0
-		child = React.cloneElement(child, { style: { opacity: 0 }, ref: newChildRef, animateTo: this.animateToNewChild });
+		child = React.cloneElement(child, {
+			style: { opacity: 0 },
+			ref: newChildRef,
+			animateTo: this.animateToNewChild
+		});
 
 		// Render the new child
 		this.setState({
@@ -75,30 +80,41 @@ class Layout extends Component {
 			delay: 250,
 			complete: () => {
 				// Re-clone the element with the new ref and opacity 1
-				child = React.cloneElement(child, { style: { opacity: 1 }, ref: this.childRef });
+				child = React.cloneElement(child, {
+					style: { opacity: 1 },
+					ref: this.childRef
+				});
 
 				// Remove the current child and add the new child
 				this.setState({
 					child: child,
 					newChild: null
-				})
+				});
 			}
-		})
+		});
 
 		// Fade out the current child
-		timeline.add({
-			targets: ReactDOM.findDOMNode(this.childRef.current),
-			opacity: "0"
-		}, 0)
+		timeline.add(
+			{
+				targets: ReactDOM.findDOMNode(this.childRef.current),
+				opacity: "0"
+			},
+			0
+		);
 
 		// Fade in the new element
-		timeline.add({
-			targets: ReactDOM.findDOMNode(newChildRef.current),
-			opacity: "1"
-		}, 0)
+		timeline.add(
+			{
+				targets: ReactDOM.findDOMNode(newChildRef.current),
+				opacity: "1"
+			},
+			0
+		);
 	};
 
 	render() {
+		const isMacOS = os.type() === "Darwin";
+
 		return (
 			<div className="quesync-layout">
 				<div className="quesync-drag-holder">
@@ -107,16 +123,19 @@ class Layout extends Component {
 						className="quesync-drag-zone-button"
 						icon="minimize"
 						onClick={this.minimize}
+						style={{ opacity: isMacOS ? 0 : 1 }}
 					/>
 					<IconButton
 						className="quesync-drag-zone-button"
 						icon="fullscreen"
 						onClick={this.maximize}
+						style={{ opacity: isMacOS ? 0 : 1 }}
 					/>
 					<IconButton
 						className="quesync-drag-zone-button"
 						icon="close"
 						onClick={this.close}
+						style={{ opacity: isMacOS ? 0 : 1 }}
 					/>
 				</div>
 				{this.state.child}

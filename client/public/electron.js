@@ -16,7 +16,7 @@ var client = new quesync.Client();
 
 function createWindow() {
 	// Create a new browser window with a fixed initial size
-	mainWindow = new BrowserWindow({ width: 900, height: 680, frame: false });
+	mainWindow = new BrowserWindow({ width: 900, height: 680, titleBarStyle: 'hiddenInset', frame: false });
 
 	// Load the dev url if electron ran on dev or load the static html file when electron is running in production
 	mainWindow.loadURL(
