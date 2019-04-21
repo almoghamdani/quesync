@@ -10,6 +10,7 @@
 #include "../../../shared/packets/search_packet.h"
 #include "../../../shared/packets/friend_request_packet.h"
 #include "../../../shared/packets/ping_packet.h"
+#include "../../../shared/packets/profile_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
@@ -113,7 +114,7 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
         // Copy the login packet to the dat buffer
         Utils::CopyString(login_packet.encode(), _data);
 
-        // Send to the server the ping packet expecting a response
+        // Send to the server the login packet expecting a response
         error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
 
         // Parse the response packet
@@ -213,6 +214,75 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
 
             // Return the user serialized
             res["user"] = _user->json();
+        }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
+
+        return res;
+    },
+                               deferred);
+
+    // Queue the executer worker
+    e->Queue();
+
+    return deferred.Promise();
+}
+
+Napi::Value Client::getUserProfile(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+    // Convert parameters to satring
+    std::string user_id = info[0].As<Napi::String>();
+
+    Executer *e = new Executer([this, user_id]() {
+        QuesyncError error = SUCCESS;
+
+        ResponsePacket *response_packet;
+        nlohmann::json res;
+
+        // Create a profile packet from the user id
+        ProfilePacket profile_packet(user_id);
+
+        // If not authenticated, return error
+        if (!_user)
+        {
+            res["error"] = NOT_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Copy the profile packet to the data buffer
+        Utils::CopyString(profile_packet.encode(), _data);
+
+        // Send to the server the profile packet expecting a response
+        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
+
+        // Parse the response packet
+        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = ((ErrorPacket *)response_packet)->error();
+        }
+        else if (response_packet && response_packet->type() == PROFILE_PACKET) // If the response packet is a valid user's profile packet
+        {
+            // Set success error code
+            res["error"] = SUCCESS;
+
+            // Return the profile serialized
+            res["profile"] = nlohmann::json::parse(response_packet->data());
         }
         else if (error)
         {
@@ -375,7 +445,7 @@ Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
     Napi::HandleScope scope(env);
 
     // This method is used to hook the accessor and method callbacks
-    Napi::Function func = DefineClass(env, "Client", {InstanceMethod("connect", &Client::connect), InstanceMethod("login", &Client::login), InstanceMethod("register", &Client::signup), InstanceMethod("search", &Client::search), InstanceMethod("sendFriendRequest", &Client::sendFriendRequest)});
+    Napi::Function func = DefineClass(env, "Client", {InstanceMethod("connect", &Client::connect), InstanceMethod("login", &Client::login), InstanceMethod("register", &Client::signup), InstanceMethod("getUserProfile", &Client::getUserProfile), InstanceMethod("search", &Client::search), InstanceMethod("sendFriendRequest", &Client::sendFriendRequest)});
 
     // Create a peristent reference to the class constructor. This will allow
     // a function called on a class prototype and a function

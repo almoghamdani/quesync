@@ -22,6 +22,8 @@ class Client : public Napi::ObjectWrap<Client>
     Napi::Value login(const Napi::CallbackInfo &info);
     Napi::Value signup(const Napi::CallbackInfo &info);
 
+    Napi::Value getUserProfile(const Napi::CallbackInfo &info);
+
     Napi::Value search(const Napi::CallbackInfo &info);
     Napi::Value sendFriendRequest(const Napi::CallbackInfo &info);
 
