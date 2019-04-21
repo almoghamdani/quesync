@@ -1,7 +1,6 @@
 const electron = require("electron");
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
-const ipcMain = electron.ipcMain;
 
 const path = require("path");
 const isDev = require("electron-is-dev");
@@ -38,10 +37,8 @@ app.on("ready", createWindow);
 
 // If all the windows are closed, on windows, quit app
 app.on("window-all-closed", () => {
-	// Shut down app on windows
-	if (process.platform !== "darwin") {
-		app.quit();
-	}
+	// Close apps when all windows are closed
+	app.quit();
 });
 
 // If the app activated and the main window isn't created, create the window
