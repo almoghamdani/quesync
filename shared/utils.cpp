@@ -15,6 +15,7 @@
 #include "packets/friend_request_packet.h"
 #include "packets/friendship_status_packet.h"
 #include "packets/ping_packet.h"
+#include "packets/profile_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -51,6 +52,10 @@ Packet *Utils::ParsePacket(std::string packet)
         p = new RegisterPacket();
         break;
 
+    case PROFILE_REQUEST_PACKET:
+        p = new ProfilePacket();
+        break;
+
     case SEARCH_PACKET:
         p = new SearchPacket();
         break;
@@ -72,6 +77,7 @@ Packet *Utils::ParsePacket(std::string packet)
     case FRIEND_REQUEST_SENT_PACKET:
     case FRIENDSHIP_STATUS_SET_PACKET:
     case PONG_PACKET:
+    case PROFILE_PACKET:
         p = new ResponsePacket(packet_type, "");
         break;
     }

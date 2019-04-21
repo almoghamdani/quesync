@@ -7,6 +7,7 @@ typedef enum PacketType
     // Requests
     LOGIN_PACKET = 1,
     REGISTER_PACKET,
+    PROFILE_REQUEST_PACKET,
     SEARCH_PACKET,
     FRIEND_REQUEST_PACKET,
     FRIENDSHIP_STATUS_PACKET,
@@ -16,6 +17,7 @@ typedef enum PacketType
     SEARCH_RESULTS_PACKET,
     FRIEND_REQUEST_SENT_PACKET,
     FRIENDSHIP_STATUS_SET_PACKET,
+    PROFILE_PACKET,
 
     // When an error occurred
     ERROR_PACKET = 400,
