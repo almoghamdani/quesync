@@ -7,7 +7,8 @@
 #include "../shared/quesync_exception.h"
 
 UserManagement::UserManagement(sql::Schema &db) : users_table(db, "users"),
-                                                  friendships_table(db, "friendships")
+                                                  friendships_table(db, "friendships"),
+                                                  profiles_table(db, "profiles")
 {
 }
 
@@ -131,6 +132,33 @@ User *UserManagement::registerUser(std::string username,
     }
 
     return user;
+}
+
+Profile *UserManagement::getUserProfile(std::string user_id)
+{
+    Profile *profile = nullptr;
+
+    sql::Row profile_res;
+
+    // Search for the profile row in the database
+    profile_res = profiles_table.select("*")
+                      .where("id = :user_id")
+                      .bind("user_id", user_id)
+                      .execute()
+                      .fetchOne();
+
+    // If the user's profile is not found
+    if (profile_res.isNull())
+    {
+        throw QuesyncException(USER_NOT_FOUND);
+    }
+
+    // Create the profile from the db response
+    profile = new Profile(profile_res[0],
+                    profile_res[1],
+                    profile_res[2]);
+
+    return profile;
 }
 
 std::vector<std::string> UserManagement::getFriends(std::string user_id)
