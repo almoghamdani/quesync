@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { register, startAuth, finishAuth } from "../actions/userActions";
+import { register, startAuth, finishAuth } from "../actions/authActions";
 
 import { Typography } from "@rmwc/typography";
 import { TextField } from "@rmwc/textfield";
@@ -213,5 +213,5 @@ class RegisterForm extends Component {
 
 export default connect(state => ({
 	client: state.client.client,
-	error: state.user.authError
+	error: state.auth.authError
 }))(RegisterForm);
