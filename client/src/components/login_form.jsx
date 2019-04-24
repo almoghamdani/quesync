@@ -8,6 +8,8 @@ import { Button } from "@rmwc/button";
 
 import { connect } from "react-redux";
 
+import update from "../updater";
+
 // Should be in rem units
 const height = 27;
 const width = 25;
@@ -84,9 +86,12 @@ class LoginForm extends Component {
 		this.props.startLoadingAnimation(() => {
 			this.props
 				.dispatch(signIn(this.props.client, username, password))
-				.then(() => {
+				.then(async () => {
 					// Stop authenticating
 					this.props.dispatch(finishAuth());
+
+					// Fetch for the first time the data of the user
+					await update();
 
 					// Transition to the app
 					this.props.transitionToApp();

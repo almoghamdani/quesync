@@ -8,6 +8,8 @@ import { Button } from "@rmwc/button";
 
 import { connect } from "react-redux";
 
+import update from "../updater";
+
 // Should be in rem units
 const height = 35;
 const width = 25;
@@ -97,9 +99,12 @@ class RegisterForm extends Component {
 		this.props.startLoadingAnimation(() => {
 			this.props
 				.dispatch(register(this.props.client, username, email, password))
-				.then(() => {
+				.then(async () => {
 					// Stop authenticating
 					this.props.dispatch(finishAuth());
+
+					// Fetch for the first time the data of the user
+					await update();
 
 					// Transition to the app
 					this.props.transitionToApp();

@@ -16,6 +16,7 @@ import "@rmwc/circular-progress/circular-progress.css";
 import "./start_page.scss";
 
 import clientSet from "./actions/clientActions";
+
 const electron = window.require("electron");
 
 class StartPage extends Component {
@@ -260,8 +261,7 @@ class StartPage extends Component {
 			<ThemeProvider
 				className="quesync-start-page"
 				options={{ primary: "#007EA7", secondary: "#e0e0e0" }}
-				style={{ position: "relative", top: 0, left: 0 }}
-			>
+				style={{ position: "relative", top: 0, left: 0 }}>
 				<BackgroundParticles
 					style={{
 						position: "absolute",
@@ -276,8 +276,7 @@ class StartPage extends Component {
 						<Typography
 							className="quesync-transition-title"
 							use="headline2"
-							style={{ color: "white", userSelect: "none", opacity: "1" }}
-						>
+							style={{ color: "white", userSelect: "none", opacity: "1" }}>
 							Quesync
 						</Typography>
 					</div>
@@ -285,15 +284,13 @@ class StartPage extends Component {
 				<Elevation
 					className="quesync-start-menu"
 					z="8"
-					style={{ pointerEvents: this.props.authenticating ? "none" : "" }}
-				>
+					style={{ pointerEvents: this.props.authenticating ? "none" : "" }}>
 					<div className="quesync-form-side quesync-title" />
 					<div className="quesync-form-side quesync-title quesync-title-moving">
 						<Typography
 							className="quesync-title-text"
 							use="headline2"
-							style={{ color: "white", userSelect: "none", marginTop: "55px" }}
-						>
+							style={{ color: "white", userSelect: "none", marginTop: "55px" }}>
 							Quesync
 						</Typography>
 						<CircularProgress
@@ -307,8 +304,7 @@ class StartPage extends Component {
 						style={{
 							width: LoginForm.width + "rem",
 							height: LoginForm.height + "rem"
-						}}
-					>
+						}}>
 						<LoginForm
 							startLoadingAnimation={this.startLoadingAnimation}
 							stopLoadingAnimation={this.stopLoadingAnimation}
