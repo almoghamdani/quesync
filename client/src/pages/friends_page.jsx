@@ -1,12 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
-import { Scrollbars } from "react-custom-scrollbars";
+import DrawerPage from "../components/page_layouts/drawer_page";
 
-import { Drawer, DrawerContent, DrawerAppContent } from "@rmwc/drawer";
-import { List, ListItem } from "@rmwc/list";
-
-import "./page.scss";
+import { ListItem } from "@rmwc/list";
 
 class FriendsPage extends Component {
 	render() {
@@ -15,22 +12,12 @@ class FriendsPage extends Component {
 		);
 
 		return (
-			<div className="quesync-page quesync-friends-page">
-				<Drawer className="quesync-drawer">
-					<DrawerContent>
-						<List>
-							{friends.map((friend, idx) => (
-								<ListItem key={idx}>{friend}</ListItem>
-							))}
-						</List>
-					</DrawerContent>
-				</Drawer>
-				<DrawerAppContent className="quesync-drawer-content">
-					<Scrollbars>
-						<div className="quesync-app-content" />
-					</Scrollbars>
-				</DrawerAppContent>
-			</div>
+			<DrawerPage
+				className="quesync-friends-page"
+				drawerContent={friends.map((friend, idx) => (
+					<ListItem key={idx}>{friend}</ListItem>
+				))}
+			/>
 		);
 	}
 }

@@ -3,34 +3,31 @@
 
 @import "@material/elevation/mdc-elevation";
 
-.quesync-page {
-	// Fill the parent div
-	width: 100%;
-	flex-grow: 1;
-}
+@import "./page.scss";
 
 .quesync-drawer {
 	@include mdc-drawer-fill-color-accessible(#303030);
 
-    // Set in a fixed position in the page and above the page content
+	// Set in a fixed position in the page and above the page content
 	z-index: auto;
 	position: fixed;
 
-    // Add elevation for the drawer
+	// Add elevation for the drawer
 	@include mdc-elevation(5, black, 0.15);
 }
 
-.quesync-drawer-content {
-    // Margin for the drawer
+.quesync-app-drawer-content {
+	// Margin for the drawer
 	margin-left: 256px;
 
-    height: 100%;
-    
-    // Set under the drawer
-    z-index: auto;
+	height: 100%;
+
+	// Set under the drawer
+	z-index: auto;
 }
 
 .quesync-app-content {
-    // A bit space from the drawer
+    // A bit space from the drawer and the top app bar
+    margin-top: 1rem;
 	margin-left: 1rem;
 }
