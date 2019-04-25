@@ -13,6 +13,9 @@
 	// Used to make the page container fill the rest of the height of the div
 	display: flex;
 	flex-flow: column;
+
+	// Hide page scrollbars
+	overflow: hidden;
 }
 
 .quesync-top-app-bar {
@@ -35,4 +38,8 @@
 }
 .quesync-page-tab .mdc-tab__ripple::after {
 	background: transparent;
+}
+
+.quesync-top-app-bar-seperator {
+	padding-bottom: 15px;
 }

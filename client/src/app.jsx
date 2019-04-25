@@ -28,7 +28,7 @@ class App extends Component {
 					onSurface: "rgba(255,255,255,.87)"
 				}}
 			>
-				<TopAppBar className="quesync-top-app-bar" fixed theme="secondaryBg">
+				<TopAppBar className="quesync-top-app-bar mdc-top-app-bar--fixed-scrolled" fixed theme="secondaryBg">
 					<TopAppBarRow>
 						<TopAppBarSection className="quesync-page-selector-container">
 							<TabBar className="quesync-page-selector">
@@ -38,7 +38,7 @@ class App extends Component {
 						</TopAppBarSection>
 					</TopAppBarRow>
 				</TopAppBar>
-				<TopAppBarFixedAdjust />
+				<TopAppBarFixedAdjust className="quesync-top-app-bar-seperator" />
 				<PageContainer page={<FriendsPage />} />
 			</ThemeProvider>
 		);
