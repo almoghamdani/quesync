@@ -1,5 +1,36 @@
+@import "@material/drawer/mixins";
+@import "@material/list/mixins";
+
+@import "@material/elevation/mdc-elevation";
+
 .quesync-page {
-    // Fill the parent div
-    width: 100%;
-    flex-grow: 1;
+	// Fill the parent div
+	width: 100%;
+	flex-grow: 1;
+}
+
+.quesync-drawer {
+	@include mdc-drawer-fill-color-accessible(#303030);
+
+    // Set in a fixed position in the page and above the page content
+	z-index: auto;
+	position: fixed;
+
+    // Add elevation for the drawer
+	@include mdc-elevation(5, black, 0.15);
+}
+
+.quesync-drawer-content {
+    // Margin for the drawer
+	margin-left: 256px;
+
+    height: 100%;
+    
+    // Set under the drawer
+    z-index: auto;
+}
+
+.quesync-app-content {
+    // A bit space from the drawer
+	margin-left: 1rem;
 }
