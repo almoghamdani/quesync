@@ -2,14 +2,18 @@ import store from "./store";
 
 import { fetchUserProfile } from "./actions/usersActions";
 
+import Logger from "./logger";
+
+const logger = new Logger("Updater", "#00b2ff");
+
 export default async function update() {
 	const state = store.getState();
 	const client = state.client.client;
 	const user = state.auth.user;
 
-	console.log("Update started..");
+	logger.info("Update started!");
 
-	// For each friend, fetch it's profile
+	// For each fend, fetch it's profile
 	for (const idx in user.friends) {
 		const friendId = user.friends[idx];
 
@@ -25,5 +29,5 @@ export default async function update() {
 			});
 	}
 
-	console.log("Finished updating..");
+	logger.info("Update finished!");
 }
