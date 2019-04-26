@@ -11,7 +11,7 @@ class DrawerPage extends Component {
 	render() {
 		return (
 			<div className="quesync-page">
-				<Drawer className="quesync-drawer">
+				<Drawer className="quesync-drawer" style={{ width: this.props.tableWidth }}>
 					<DrawerContent className="quesync-drawer-content">
 						<List>{this.props.drawerContent}</List>
 					</DrawerContent>
