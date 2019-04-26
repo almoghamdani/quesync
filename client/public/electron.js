@@ -5,6 +5,12 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const isDev = require("electron-is-dev");
 
+const {
+	default: installExtension,
+	REACT_DEVELOPER_TOOLS,
+	REDUX_DEVTOOLS
+} = require("electron-devtools-installer");
+
 const quesync = require("../backend/bin/win32-x64-64/backend.node");
 
 // Set the main window as a global var
@@ -15,7 +21,13 @@ var client = new quesync.Client();
 
 function createWindow() {
 	// Create a new browser window with a fixed initial size
-	mainWindow = new BrowserWindow({ width: 900, height: 680, titleBarStyle: 'hiddenInset', frame: false });
+	mainWindow = new BrowserWindow({
+		width: 900,
+		height: 680,
+		titleBarStyle: "hiddenInset",
+		frame: false,
+		webPreferences: { nodeIntegration: true }
+	});
 
 	// Load the dev url if electron ran on dev or load the static html file when electron is running in production
 	mainWindow.loadURL(
@@ -27,9 +39,17 @@ function createWindow() {
 	// On the close event release the window from the memory
 	mainWindow.on("closed", () => (mainWindow = null));
 
+	installExtension(REACT_DEVELOPER_TOOLS)
+		.then(name => console.log(`Added Extension:  ${name}`))
+		.catch(err => console.log("An error occurred: ", err));
+
+	installExtension(REDUX_DEVTOOLS)
+		.then(name => console.log(`Added Extension:  ${name}`))
+		.catch(err => console.log("An error occurred: ", err));
+
 	// Set the client and it's errors as a global vars
-    global.client = client;
-    global.client.errors = quesync.errors;
+	global.client = client;
+	global.client.errors = quesync.errors;
 }
 
 // When the electron app is ready, create the browser window
