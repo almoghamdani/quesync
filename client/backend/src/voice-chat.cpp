@@ -1,4 +1,4 @@
-#include "voice-chat.hpp"
+#include "voice-chat.h"
 
 using std::cout;
 using std::endl;

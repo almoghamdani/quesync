@@ -3,7 +3,7 @@
 #include <uv.h>
 #include <functional>
 
-#include "voice-chat.hpp"
+#include "voice-chat.h"
 #include "../../../shared/user.h"
 
 #define SERVER_PORT 61110

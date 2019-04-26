@@ -1,7 +1,7 @@
 #include <napi.h>
 #include <uv.h>
 
-#include "client.hpp"
+#include "client.h"
 #include "../../../shared/errors.h"
 #include "../../../shared/utils.h"
 

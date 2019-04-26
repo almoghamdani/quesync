@@ -1,7 +1,7 @@
-#include "client.hpp"
+#include "client.h"
 
-#include "socket-manager.hpp"
-#include "executer.hpp"
+#include "socket-manager.h"
+#include "executer.h"
 
 #include "../../../shared/utils.h"
 #include "../../../shared/packets/login_packet.h"

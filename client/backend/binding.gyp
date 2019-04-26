@@ -3,7 +3,7 @@
         {
             "target_name": "quesync",
             "sources": [
-                "<!@(node -p \"require('glob').sync('./src/**/*.cc').join(' ')\")",
+                "<!@(node -p \"require('glob').sync('./src/**/*.cpp').join(' ')\")",
                 "<!@(node -p \"require('glob').sync('../../shared/**/*.cpp').join(' ')\")",
                 "<!@(node -p \"require('glob').sync('../../thirdparty/**/*.cpp').join(' ')\")"
             ],
