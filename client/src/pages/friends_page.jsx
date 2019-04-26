@@ -9,6 +9,10 @@ import { Avatar } from "@rmwc/avatar";
 import "./friends_page.scss";
 
 class FriendsPage extends Component {
+	friendItemClicked = friendIdx => {
+		console.log(friendIdx);
+	};
+
 	render() {
 		const friends = this.props.user.friends.map(
 			friendId => this.props.profiles[friendId].nickname
@@ -31,6 +35,7 @@ class FriendsPage extends Component {
 					</ListItem>
 				))}
 				tableWidth="14rem"
+				drawerItemClicked={this.friendItemClicked}
 			/>
 		);
 	}

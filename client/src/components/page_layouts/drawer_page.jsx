@@ -11,9 +11,18 @@ class DrawerPage extends Component {
 	render() {
 		return (
 			<div className="quesync-page">
-				<Drawer className="quesync-drawer" style={{ width: this.props.tableWidth }}>
+				<Drawer
+					className="quesync-drawer"
+					style={{ width: this.props.tableWidth }}
+				>
 					<DrawerContent className="quesync-drawer-content">
-						<List>{this.props.drawerContent}</List>
+						<List>
+							{React.Children.map(this.props.drawerContent, child =>
+								React.cloneElement(child, {
+									onClick: () => this.props.drawerItemClicked(child.key)
+								})
+							)}
+						</List>
 					</DrawerContent>
 				</Drawer>
 				<DrawerAppContent className="quesync-app-drawer-content">
