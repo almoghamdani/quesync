@@ -76,14 +76,17 @@ void Communicator::keep_alive()
 
     while (true)
     {
-        // Sleep for half a second
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        // Sleep for a second and a half
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
-        // If the socket isn't connected, close the thread
+        // If the socket isn't connected, skip the iteration
         if (!_socket)
         {
-            break;
+            continue;
         }
+
+        // Lock the mutex lock
+        _socket_lock.lock();
 
         // Get the current system clock
         send_clock = std::clock();
@@ -101,6 +104,9 @@ void Communicator::keep_alive()
 
         // Get the system clock after the recv of the pong packet
         recv_clock = std::clock();
+
+        // Unlock socket mutex for other threads trying to access the socket
+        _socket_lock.unlock();
 
         // Parse the response packet
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);

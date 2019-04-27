@@ -1,5 +1,6 @@
 #pragma once
 #include <thread>
+#include <mutex>
 
 #include "socket-manager.h"
 
@@ -14,6 +15,7 @@ class Communicator
     void connect(std::string server_ip);
 
   private:
+    std::mutex _socket_lock;
     tcp::socket *_socket;
     char _data[MAX_DATA_LEN];
 
