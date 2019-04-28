@@ -15,7 +15,6 @@
 Napi::FunctionReference Client::constructor;
 
 Client::Client(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Client>(info),
-                                                 _socket(nullptr),
                                                  _user(nullptr)
 {
     Napi::Env env = info.Env();
@@ -30,52 +29,17 @@ Napi::Value Client::connect(const Napi::CallbackInfo &info)
     std::string ip = info[0].As<Napi::String>();
 
     // Create a new executer worker that will make the connection to the server
-    Executer *e = new Executer([this, ip]() {
-        ResponsePacket *response_packet;
-
-        QuesyncError error = SUCCESS;
-        tcp::endpoint server_endpoint;
-        PingPacket ping_packet;
-
-        // Get the endpoint of the server to connect to
-        SocketManager::GetEndpoint(ip.c_str(), SERVER_PORT, server_endpoint);
-
-        // If we currently have a socket with the server, close it and delete it
-        if (_socket)
-        {
-            _socket->close();
-            delete _socket;
-        }
-
-        try
-        {
-            // Allocate a new socket
-            _socket = new tcp::socket(SocketManager::io_context);
-
+    Executer *e = new Executer([this, ip]() {       
+        try {
             // Try to connect to the server
-            _socket->connect(server_endpoint);
-        }
-        catch (...)
-        {
-            // Ignore errors here because they will be caught in the ping packet that is being sent to the server
-        }
-
-        // Copy the ping packet to the dat buffer
-        Utils::CopyString(ping_packet.encode(), _data);
-
-        // Send to the server the ping packet expecting a response
-        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
-
-        // Parse the response packet
-        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
-
-        // If the response is not a pong packet, return unknown error
-        if (!error && ((response_packet && response_packet->type() != PONG_PACKET) || !response_packet))
-        {
-            error = UNKNOWN_ERROR;
+            _communicator.connect(ip);
+        } catch (QuesyncException &ex) {
+            return nlohmann::json{{"error", ex.getErrorCode()}};
+        } catch (...) {
+            return nlohmann::json{{"error", UNKNOWN_ERROR}};
         }
 
-        return nlohmann::json{{"error", error}};
+        return nlohmann::json{{"error", SUCCESS}};
     },
                                deferred);
 
@@ -111,14 +75,18 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
             return res;
         }
 
-        // Copy the login packet to the dat buffer
-        Utils::CopyString(login_packet.encode(), _data);
+        // Send the login packet
+        try {
+            response_packet = _communicator.send(&login_packet);
+        } catch (QuesyncException &ex) {
+            res["error"] = ex.getErrorCode();
 
-        // Send to the server the login packet expecting a response
-        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
+            return res;
+        } catch (...) {
+            res["error"] = UNKNOWN_ERROR;
 
-        // Parse the response packet
-        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+            return res;
+        }
 
         // If the response is an error, handle the error
         if (response_packet && response_packet->type() == ERROR_PACKET)
@@ -150,6 +118,9 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
             // We shouldn't get here
             res["error"] = UNKNOWN_ERROR;
         }
+
+        // Free the response packet
+        delete response_packet;
 
         return res;
     },
@@ -186,14 +157,18 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
             return res;
         }
 
-        // Copy the register packet to the data buffer
-        Utils::CopyString(register_packet.encode(), _data);
+        // Send the register packet
+        try {
+            response_packet = _communicator.send(&register_packet);
+        } catch (QuesyncException &ex) {
+            res["error"] = ex.getErrorCode();
 
-        // Send to the server the register packet expecting a response
-        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
+            return res;
+        } catch (...) {
+            res["error"] = UNKNOWN_ERROR;
 
-        // Parse the response packet
-        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+            return res;
+        }
 
         // If the response is an error, handle the error
         if (response_packet && response_packet->type() == ERROR_PACKET)
@@ -225,6 +200,9 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
             // We shouldn't get here
             res["error"] = UNKNOWN_ERROR;
         }
+
+        // Free the response packet
+        delete response_packet;
 
         return res;
     },
@@ -261,14 +239,18 @@ Napi::Value Client::getUserProfile(const Napi::CallbackInfo &info)
             return res;
         }
 
-        // Copy the profile packet to the data buffer
-        Utils::CopyString(profile_packet.encode(), _data);
+        // Send the profile packet
+        try {
+            response_packet = _communicator.send(&profile_packet);
+        } catch (QuesyncException &ex) {
+            res["error"] = ex.getErrorCode();
 
-        // Send to the server the profile packet expecting a response
-        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
+            return res;
+        } catch (...) {
+            res["error"] = UNKNOWN_ERROR;
 
-        // Parse the response packet
-        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+            return res;
+        }
 
         // If the response is an error, handle the error
         if (response_packet && response_packet->type() == ERROR_PACKET)
@@ -294,6 +276,9 @@ Napi::Value Client::getUserProfile(const Napi::CallbackInfo &info)
             // We shouldn't get here
             res["error"] = UNKNOWN_ERROR;
         }
+
+        // Free the response packet
+        delete response_packet;
 
         return res;
     },
@@ -329,14 +314,18 @@ Napi::Value Client::search(const Napi::CallbackInfo &info)
             return res;
         }
 
-        // Copy the search packet to the data buffer
-        Utils::CopyString(search_packet.encode(), _data);
+        // Send the search packet
+        try {
+            response_packet = _communicator.send(&search_packet);
+        } catch (QuesyncException &ex) {
+            res["error"] = ex.getErrorCode();
 
-        // Send to the server the ping packet expecting a response
-        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
+            return res;
+        } catch (...) {
+            res["error"] = UNKNOWN_ERROR;
 
-        // Parse the response packet
-        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+            return res;
+        }
 
         // If the response is an error, handle the error
         if (response_packet && response_packet->type() == ERROR_PACKET)
@@ -363,6 +352,9 @@ Napi::Value Client::search(const Napi::CallbackInfo &info)
             // We shouldn't get here
             res["error"] = UNKNOWN_ERROR;
         }
+
+        // Free the response packet
+        delete response_packet;
 
         return res;
     },
@@ -397,14 +389,18 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
             return res;
         }
 
-        // Copy the friend request packet to the data buffer
-        Utils::CopyString(friend_request_packet.encode(), _data);
+        // Send the friend request packet
+        try {
+            response_packet = _communicator.send(&friend_request_packet);
+        } catch (QuesyncException &ex) {
+            res["error"] = ex.getErrorCode();
 
-        // Send to the server the friend request packet expecting a response
-        error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
+            return res;
+        } catch (...) {
+            res["error"] = UNKNOWN_ERROR;
 
-        // Parse the response packet
-        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+            return res;
+        }
 
         // If the response is an error, handle the error
         if (response_packet && response_packet->type() == ERROR_PACKET)
@@ -428,6 +424,9 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
             // We shouldn't get here
             res["error"] = UNKNOWN_ERROR;
         }
+
+        // Free the response packet
+        delete response_packet;
 
         return res;
     },
