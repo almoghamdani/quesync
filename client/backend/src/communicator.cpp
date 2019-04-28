@@ -8,7 +8,7 @@
 
 #include "../../../shared/packets/ping_packet.h"
 
-Communicator::Communicator() : _socket(nullptr)
+Communicator::Communicator() : _socket(nullptr), _connected(false)
 {
 }
 
@@ -62,6 +62,10 @@ void Communicator::connect(std::string server_ip)
         throw QuesyncException(UNKNOWN_ERROR);
     }
 
+    // Set the socket as connected
+    _connected = true;
+
+    // Start the keep alive thread
     _keep_alive_thread = std::thread(&Communicator::keep_alive, this);
     _keep_alive_thread.detach();
 }
@@ -74,13 +78,15 @@ void Communicator::keep_alive()
     ResponsePacket *response_packet;
     PingPacket ping_packet;
 
+    uint8_t ping_retries = 0;
+
     while (true)
     {
         // Sleep for a second and a half
-        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(750));
 
         // If the socket isn't connected, skip the iteration
-        if (!_socket)
+        if (!_socket || !_connected)
         {
             continue;
         }
@@ -98,6 +104,13 @@ void Communicator::keep_alive()
         error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
         if (error)
         {
+            ping_retries++;
+            if (ping_retries >= MAX_PING_RETRIES) // If reached the max ping retries, set the socket as not connected
+            {
+                _connected = false;
+                ping_retries = 0;
+            }
+
             std::cout << "Unable to get response from server.." << std::endl;
             continue;
         }
@@ -128,7 +141,7 @@ ResponsePacket *Communicator::send(SerializedPacket *packet)
     ResponsePacket *response_packet;
 
     // If the socket isn't connected, throw error
-    if (!_socket)
+    if (!_socket || !_connected)
     {
         throw QuesyncError(UNKNOWN_ERROR);
     }

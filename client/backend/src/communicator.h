@@ -10,6 +10,8 @@
 #define SERVER_PORT 61110
 #define MAX_DATA_LEN 10000
 
+#define MAX_PING_RETRIES 3
+
 class Communicator
 {
   public:
@@ -19,6 +21,7 @@ class Communicator
     ResponsePacket *send(SerializedPacket *packet);
 
   private:
+    bool _connected;
     std::mutex _socket_lock;
     tcp::socket *_socket;
     char _data[MAX_DATA_LEN];
