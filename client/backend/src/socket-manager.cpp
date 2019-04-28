@@ -1,8 +1,5 @@
 #include "socket-manager.h"
 
-using std::cout;
-using std::endl;
-
 // Declare the io context of the socket mananger since it's a static member of the class
 asio::io_context SocketManager::io_context;
 
@@ -53,12 +50,12 @@ QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *da
         }
 #else
         // If the server cannot be reached
-        /*if (error == WSAENOTCONN || error == WSAESHUTDOWN || error == WSAETIMEDOUT || error == WSAECONNREFUSED || error == WSAEHOSTDOWN || error == WSAEHOSTUNREACH || error == WSAEDESTADDRREQ)
+        if (error == EADDRNOTAVAIL || error == EDESTADDRREQ || error == ECONNREFUSED || error == EHOSTDOWN || error == EHOSTUNREACH || error == EFAULT || error == ENOTSOCK || error == EPIPE || error == ETIMEDOUT || error == ESHUTDOWN)
         {
             quesync_error = CANNOT_REACH_SERVER;
         }
         // If the network connection is down
-        else if (error == WSAENETDOWN || error == WSAENETUNREACH || error == WSAENETRESET || error == WSAECONNABORTED)
+        else if (error == ENETDOWN || error == ENETRESET || error == ENETUNREACH || error == ECONNABORTED || error == ECONNRESET || error == ENOTCONN)
         {
             quesync_error = NO_CONNECTION;
         }
@@ -66,10 +63,9 @@ QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *da
         else
         {
             quesync_error = UNKNOWN_ERROR;
-        }*/
+        }
 #endif
     }
-
 
     return quesync_error;
 }
