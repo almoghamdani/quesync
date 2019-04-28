@@ -5,7 +5,7 @@
 
 #include "../../../shared/quesync_exception.h"
 #include "../../../shared/utils.h"
-#include "../../../shared/packets/response_packet.h"
+
 #include "../../../shared/packets/ping_packet.h"
 
 Communicator::Communicator() : _socket(nullptr)
@@ -120,6 +120,39 @@ void Communicator::keep_alive()
 
         std::cout << "Ping is " << ms_diff(recv_clock, send_clock) << "ms" << std::endl;
     }
+}
+
+ResponsePacket *Communicator::send(SerializedPacket *packet)
+{
+    QuesyncError error = SUCCESS;
+    ResponsePacket *response_packet;
+
+    // If the socket isn't connected, throw error
+    if (!_socket)
+    {
+        throw QuesyncError(UNKNOWN_ERROR);
+    }
+
+    // Lock the mutex lock
+    _socket_lock.lock();
+
+    // Copy the ping packet to the dat buffer
+    Utils::CopyString(packet->encode(), _data);
+
+    // Send to the server the ping packet expecting a response
+    error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
+    if (error)
+    {
+        throw QuesyncError(error);
+    }
+
+    // Unlock socket mutex for other threads trying to access the socket
+    _socket_lock.unlock();
+
+    // Parse the response packet
+    response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+
+    return response_packet;
 }
 
 double Communicator::ms_diff(clock_t end_clock, clock_t start_clock)

@@ -1,5 +1,6 @@
 #pragma once
 #include "packet.h"
+#include "../utils.h"
 
 #include <sstream>
 #include <iomanip>
