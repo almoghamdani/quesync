@@ -104,6 +104,9 @@ void Communicator::keep_alive()
         error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
         if (error)
         {
+            // Unlock socket mutex for other threads trying to access the socket
+            _socket_lock.unlock();
+
             ping_retries++;
             if (ping_retries >= MAX_PING_RETRIES) // If reached the max ping retries, set the socket as not connected
             {
@@ -156,6 +159,9 @@ ResponsePacket *Communicator::send(SerializedPacket *packet)
     error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
     if (error)
     {
+        // Unlock socket mutex for other threads trying to access the socket
+        _socket_lock.unlock();
+
         throw QuesyncError(error);
     }
 
