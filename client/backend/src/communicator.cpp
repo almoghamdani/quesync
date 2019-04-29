@@ -127,6 +127,31 @@ void Communicator::keep_alive()
         // Parse the response packet
         response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
 
+        // While we got an event packet, get a response until got the wanted response
+        while (response_packet->type() == EVENT_PACKET)
+        {
+            // Try get the packet's response
+            error = SocketManager::GetResponse(*_socket, _data, MAX_DATA_LEN);
+            if (error)
+            {
+                // Unlock socket mutex for other threads trying to access the socket
+                _socket_lock.unlock();
+
+                ping_retries++;
+                if (ping_retries >= MAX_PING_RETRIES) // If reached the max ping retries, set the socket as not connected
+                {
+                    _connected = false;
+                    ping_retries = 0;
+                }
+
+                std::cout << "Unable to get response from server.." << std::endl;
+                continue;
+            }
+
+            // Parse the response packet
+            response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+        }
+
         // If the response is not a pong packet, return unknown error
         if (!error && ((response_packet && response_packet->type() != PONG_PACKET) || !response_packet))
         {
@@ -152,10 +177,10 @@ ResponsePacket *Communicator::send(SerializedPacket *packet)
     // Lock the mutex lock
     _socket_lock.lock();
 
-    // Copy the ping packet to the dat buffer
+    // Copy the packet to the dat buffer
     Utils::CopyString(packet->encode(), _data);
 
-    // Send to the server the ping packet expecting a response
+    // Send to the server the packet expecting a response
     error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
     if (error)
     {
@@ -165,11 +190,28 @@ ResponsePacket *Communicator::send(SerializedPacket *packet)
         throw QuesyncError(error);
     }
 
-    // Unlock socket mutex for other threads trying to access the socket
-    _socket_lock.unlock();
-
     // Parse the response packet
     response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+
+    // While we got an event packet, get a response until got the wanted response
+    while (response_packet->type() == EVENT_PACKET)
+    {
+        // Try get the packet's response
+        error = SocketManager::GetResponse(*_socket, _data, MAX_DATA_LEN);
+        if (error)
+        {
+            // Unlock socket mutex for other threads trying to access the socket
+            _socket_lock.unlock();
+
+            throw QuesyncError(error);
+        }
+
+        // Parse the response packet
+        response_packet = (ResponsePacket *)Utils::ParsePacket(_data);
+    }
+
+    // Unlock socket mutex for other threads trying to access the socket
+    _socket_lock.unlock();
 
     return response_packet;
 }
