@@ -16,6 +16,7 @@
 #include "packets/friendship_status_packet.h"
 #include "packets/ping_packet.h"
 #include "packets/profile_packet.h"
+#include "packets/events/event_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -79,6 +80,10 @@ Packet *Utils::ParsePacket(std::string packet)
     case PONG_PACKET:
     case PROFILE_PACKET:
         p = new ResponsePacket(packet_type, "");
+        break;
+
+    case EVENT_PACKET:
+        p = new EventPacket();
         break;
     }
 

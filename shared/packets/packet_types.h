@@ -19,8 +19,11 @@ typedef enum PacketType
     FRIENDSHIP_STATUS_SET_PACKET,
     PROFILE_PACKET,
 
-    // When an error occurred
+    // On error
     ERROR_PACKET = 400,
+
+    // On event
+    EVENT_PACKET = 800,
 
     PONG_PACKET = 999
 } PacketType;

@@ -3,6 +3,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <nlohmann/json.hpp>
 
 #include "../utils.h"
 
