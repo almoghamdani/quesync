@@ -2,5 +2,5 @@
 
 typedef enum QuesyncEvent
 {
-    CALL_EVENT
+    FRIEND_REQUEST_EVENT
 } QuesyncEvent;
