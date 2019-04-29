@@ -16,7 +16,7 @@
 #include "packets/friendship_status_packet.h"
 #include "packets/ping_packet.h"
 #include "packets/profile_packet.h"
-#include "packets/events/event_packet.h"
+#include "packets/event_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
