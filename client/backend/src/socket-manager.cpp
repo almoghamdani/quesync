@@ -16,7 +16,6 @@ template void SocketManager::GetEndpoint(const char *ip_address, int port, tcp::
 
 QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *data, const int MAX_RESPONSE_LEN)
 {
-    int error = 0;
     QuesyncError quesync_error = SUCCESS;
 
     try
@@ -29,43 +28,67 @@ QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *da
     }
     catch (std::system_error &ex)
     {
-        // Get error code
-        error = ex.code().value();
-
-#ifdef _WIN32
-        // If the server cannot be reached
-        if (error == WSAENOTCONN || error == WSAESHUTDOWN || error == WSAETIMEDOUT || error == WSAECONNREFUSED || error == WSAEHOSTDOWN || error == WSAEHOSTUNREACH || error == WSAEDESTADDRREQ)
-        {
-            quesync_error = CANNOT_REACH_SERVER;
-        }
-        // If the network connection is down
-        else if (error == WSAENETDOWN || error == WSAENETUNREACH || error == WSAENETRESET || error == WSAECONNABORTED)
-        {
-            quesync_error = NO_CONNECTION;
-        }
-        // Any other error
-        else
-        {
-            quesync_error = UNKNOWN_ERROR;
-        }
-#else
-        // If the server cannot be reached
-        if (error == EADDRNOTAVAIL || error == EDESTADDRREQ || error == ECONNREFUSED || error == EHOSTDOWN || error == EHOSTUNREACH || error == EFAULT || error == ENOTSOCK || error == EPIPE || error == ETIMEDOUT || error == ESHUTDOWN)
-        {
-            quesync_error = CANNOT_REACH_SERVER;
-        }
-        // If the network connection is down
-        else if (error == ENETDOWN || error == ENETRESET || error == ENETUNREACH || error == ECONNABORTED || error == ECONNRESET || error == ENOTCONN)
-        {
-            quesync_error = NO_CONNECTION;
-        }
-        // Any other error
-        else
-        {
-            quesync_error = UNKNOWN_ERROR;
-        }
-#endif
+        // Get Quesync error code by the system error
+        quesync_error = SocketManager::ErrorForSystemError(ex);
     }
 
     return quesync_error;
+}
+
+QuesyncError SocketManager::GetResponse(tcp::socket &socket, char *data, const int MAX_RESPONSE_LEN)
+{
+    QuesyncError quesync_error = SUCCESS;
+
+    try
+    {
+        // Get a response from the server
+        socket.read_some(asio::buffer(data, MAX_RESPONSE_LEN));
+    }
+    catch (std::system_error &ex)
+    {
+        // Get Quesync error code by the system error
+        quesync_error = SocketManager::ErrorForSystemError(ex);
+    }
+
+    return quesync_error;
+}
+
+QuesyncError SocketManager::ErrorForSystemError(std::system_error &ex)
+{
+    // Get error code
+    int error = ex.code().value();
+
+#ifdef _WIN32
+    // If the server cannot be reached
+    if (error == WSAENOTCONN || error == WSAESHUTDOWN || error == WSAETIMEDOUT || error == WSAECONNREFUSED || error == WSAEHOSTDOWN || error == WSAEHOSTUNREACH || error == WSAEDESTADDRREQ)
+    {
+        return CANNOT_REACH_SERVER;
+    }
+    // If the network connection is down
+    else if (error == WSAENETDOWN || error == WSAENETUNREACH || error == WSAENETRESET || error == WSAECONNABORTED)
+    {
+        return NO_CONNECTION;
+    }
+    // Any other error
+    else
+    {
+        return UNKNOWN_ERROR;
+    }
+#else
+    // If the server cannot be reached
+    if (error == EADDRNOTAVAIL || error == EDESTADDRREQ || error == ECONNREFUSED || error == EHOSTDOWN || error == EHOSTUNREACH || error == EFAULT || error == ENOTSOCK || error == EPIPE || error == ETIMEDOUT || error == ESHUTDOWN)
+    {
+        return CANNOT_REACH_SERVER;
+    }
+    // If the network connection is down
+    else if (error == ENETDOWN || error == ENETRESET || error == ENETUNREACH || error == ECONNABORTED || error == ECONNRESET || error == ENOTCONN)
+    {
+        return NO_CONNECTION;
+    }
+    // Any other error
+    else
+    {
+        return UNKNOWN_ERROR;
+    }
+#endif
 }
