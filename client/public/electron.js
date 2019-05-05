@@ -11,7 +11,7 @@ const {
 	REDUX_DEVTOOLS
 } = require("electron-devtools-installer");
 
-const quesync = require("../backend/bin/win32-x64-64/backend.node");
+const quesync = require("../backend/bin/win32-x64-69/backend.node");
 
 // Set the main window as a global var
 let mainWindow;
