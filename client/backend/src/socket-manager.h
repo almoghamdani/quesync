@@ -23,6 +23,8 @@ class SocketManager
     static void GetEndpoint(const char *ip_address, int port, T &endpoint);
 
     static QuesyncError SendServerWithResponse(tcp::socket &socket, char *data, const int MAX_RESPONSE_LEN);
+    
+    static QuesyncError SendServer(tcp::socket &socket, char *data, size_t size);
     static QuesyncError GetResponse(tcp::socket &socket, char *data, const int MAX_RESPONSE_LEN);
 
   private:

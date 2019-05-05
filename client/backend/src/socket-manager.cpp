@@ -35,6 +35,24 @@ QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *da
     return quesync_error;
 }
 
+QuesyncError SocketManager::SendServer(tcp::socket & socket, char * data, size_t size)
+{
+    QuesyncError quesync_error = SUCCESS;
+
+    try
+    {
+        // Send the server the data
+        socket.write_some(asio::buffer(data, size));
+    }
+    catch (std::system_error &ex)
+    {
+        // Get Quesync error code by the system error
+        quesync_error = SocketManager::ErrorForSystemError(ex);
+    }
+
+    return quesync_error;
+}
+
 QuesyncError SocketManager::GetResponse(tcp::socket &socket, char *data, const int MAX_RESPONSE_LEN)
 {
     QuesyncError quesync_error = SUCCESS;
