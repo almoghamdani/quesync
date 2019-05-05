@@ -18,11 +18,11 @@
   },
   "homepage": "https://gitlab.com/almogh52/quesync#readme",
   "dependencies": {
-    "node-addon-api": "^1.6.2",
+    "node-addon-api": "^1.6.3",
     "node-gyp": "^3.8.0"
   },
   "devDependencies": {
-    "electron-rebuild": "^1.8.2",
+    "electron-rebuild": "^1.8.4",
     "glob": "^7.1.3"
   }
 }

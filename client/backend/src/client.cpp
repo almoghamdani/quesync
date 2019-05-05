@@ -61,7 +61,7 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
     Executer *e = new Executer([this, username, password]() {
         QuesyncError error = SUCCESS;
 
-        ResponsePacket *response_packet;
+        std::shared_ptr<ResponsePacket> response_packet;
         nlohmann::json res;
 
         // Create a login packet from the username and password
@@ -92,7 +92,7 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
         if (response_packet && response_packet->type() == ERROR_PACKET)
         {
             // Set the error code from the response packet
-            res["error"] = ((ErrorPacket *)response_packet)->error();
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
         }
         else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
         {
@@ -119,9 +119,6 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
             res["error"] = UNKNOWN_ERROR;
         }
 
-        // Free the response packet
-        delete response_packet;
-
         return res;
     },
                                deferred);
@@ -143,7 +140,7 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
 
     Executer *e = new Executer([this, username, password, email]() {
         QuesyncError error = SUCCESS;
-        ResponsePacket *response_packet;
+        std::shared_ptr<ResponsePacket> response_packet;
         nlohmann::json res;
 
         // Create a login packet from the username and password
@@ -174,7 +171,7 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
         if (response_packet && response_packet->type() == ERROR_PACKET)
         {
             // Set the error code from the response packet
-            res["error"] = ((ErrorPacket *)response_packet)->error();
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
         }
         else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
         {
@@ -201,9 +198,6 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
             res["error"] = UNKNOWN_ERROR;
         }
 
-        // Free the response packet
-        delete response_packet;
-
         return res;
     },
                                deferred);
@@ -225,7 +219,7 @@ Napi::Value Client::getUserProfile(const Napi::CallbackInfo &info)
     Executer *e = new Executer([this, user_id]() {
         QuesyncError error = SUCCESS;
 
-        ResponsePacket *response_packet;
+        std::shared_ptr<ResponsePacket> response_packet;
         nlohmann::json res;
 
         // Create a profile packet from the user id
@@ -256,7 +250,7 @@ Napi::Value Client::getUserProfile(const Napi::CallbackInfo &info)
         if (response_packet && response_packet->type() == ERROR_PACKET)
         {
             // Set the error code from the response packet
-            res["error"] = ((ErrorPacket *)response_packet)->error();
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
         }
         else if (response_packet && response_packet->type() == PROFILE_PACKET) // If the response packet is a valid user's profile packet
         {
@@ -276,9 +270,6 @@ Napi::Value Client::getUserProfile(const Napi::CallbackInfo &info)
             // We shouldn't get here
             res["error"] = UNKNOWN_ERROR;
         }
-
-        // Free the response packet
-        delete response_packet;
 
         return res;
     },
@@ -301,7 +292,7 @@ Napi::Value Client::search(const Napi::CallbackInfo &info)
 
     Executer *e = new Executer([this, nickname, tag]() {
         QuesyncError error = SUCCESS;
-        ResponsePacket *response_packet;
+        std::shared_ptr<ResponsePacket> response_packet;
         nlohmann::json res;
 
         SearchPacket search_packet(nickname, tag);
@@ -331,7 +322,7 @@ Napi::Value Client::search(const Napi::CallbackInfo &info)
         if (response_packet && response_packet->type() == ERROR_PACKET)
         {
             // Set the error code from the response packet
-            res["error"] = ((ErrorPacket *)response_packet)->error();
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
         }
         // If the response packet is a valid search results response, get the user from it
         else if (response_packet && response_packet->type() == SEARCH_RESULTS_PACKET)
@@ -353,9 +344,6 @@ Napi::Value Client::search(const Napi::CallbackInfo &info)
             res["error"] = UNKNOWN_ERROR;
         }
 
-        // Free the response packet
-        delete response_packet;
-
         return res;
     },
                                deferred);
@@ -376,7 +364,7 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
 
     Executer *e = new Executer([this, friend_id]() {
         QuesyncError error = SUCCESS;
-        ResponsePacket *response_packet;
+        std::shared_ptr<ResponsePacket> response_packet;
         nlohmann::json res;
 
         FriendRequestPacket friend_request_packet(friend_id);
@@ -406,7 +394,7 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
         if (response_packet && response_packet->type() == ERROR_PACKET)
         {
             // Set the error code from the response packet
-            res["error"] = ((ErrorPacket *)response_packet)->error();
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
         }
         // If the response packet is a friend request confirmation response, get the user from it
         else if (response_packet && response_packet->type() == FRIEND_REQUEST_SENT_PACKET)
@@ -424,9 +412,6 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
             // We shouldn't get here
             res["error"] = UNKNOWN_ERROR;
         }
-
-        // Free the response packet
-        delete response_packet;
 
         return res;
     },
