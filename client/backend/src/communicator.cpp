@@ -222,6 +222,11 @@ std::shared_ptr<ResponsePacket> Communicator::send(SerializedPacket *packet)
     return response_packet;
 }
 
+EventHandler &Communicator::eventHandler()
+{
+    return _event_handler;
+}
+
 double Communicator::ms_diff(clock_t end_clock, clock_t start_clock)
 {
     double diffticks = end_clock - start_clock;
