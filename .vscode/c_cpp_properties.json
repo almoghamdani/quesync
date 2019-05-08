@@ -11,7 +11,9 @@
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE",
-                "ASIO_STANDALONE"
+                "ASIO_STANDALONE",
+                "QUESYNC_CLIENT",
+                "QUESYNC_SERVER"
             ],
             "windowsSdkVersion": "10.0.17134.0",
             "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.15.26726/bin/Hostx64/x64/cl.exe",
@@ -31,7 +33,9 @@
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE",
-                "ASIO_STANDALONE"
+                "ASIO_STANDALONE",
+                "QUESYNC_CLIENT",
+                "QUESYNC_SERVER"
             ],
             "windowsSdkVersion": "10.0.17134.0",
             "compilerPath": "/usr/bin/gcc",
