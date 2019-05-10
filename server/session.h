@@ -28,7 +28,8 @@ public:
 
 private:
   User *_user;
-  tcp::socket _socket;
   Quesync *_server;
+
+  tcp::socket _socket;
   char _data[MAX_DATA_LEN];
 };

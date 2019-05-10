@@ -89,12 +89,13 @@ void Session::send(std::string data)
 {
     auto self(shared_from_this());
 
-    // Copy the data string to the data array
-    Utils::CopyString(data, _data);
+    // Create a buffer with the size of the data and copy the data to it
+    std::shared_ptr<char> buf(new char[data.length() + 1]);
+    Utils::CopyString(data, buf.get());
 
     // Send the data to the client
-    asio::async_write(_socket, asio::buffer(_data, data.length() + 1),
-                      [this, self](std::error_code ec, std::size_t) {
+    asio::async_write(_socket, asio::buffer(buf.get(), data.length() + 1),
+                      [this, self, buf](std::error_code ec, std::size_t) {
                           // If no error occurred, return to the receiving function
                           if (!ec)
                           {
