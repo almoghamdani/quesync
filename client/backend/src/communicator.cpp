@@ -1,12 +1,13 @@
 #include "communicator.h"
 
+#include <iostream>
 #include <memory>
 #include <ctime>
 #include <chrono>
 
+#include "event_names.h"
 #include "../../../shared/quesync_exception.h"
 #include "../../../shared/utils.h"
-
 #include "../../../shared/packets/ping_packet.h"
 
 Communicator::Communicator() : _socket(nullptr), _connected(false)
@@ -66,6 +67,10 @@ void Communicator::connect(std::string server_ip)
     // Set the socket as connected
     _connected = true;
 
+    // Start the events thread
+    _events_thread = std::thread(&Communicator::events_handler, this);
+    _events_thread.detach();
+
     // Start the receiver thread
     _receiver_thread = std::thread(&Communicator::recv, this);
     _receiver_thread.detach();
@@ -103,7 +108,13 @@ void Communicator::recv()
         // If the resposne is an event, push it to the vector of events
         if (response_packet->type() == EVENT_PACKET)
         {
+            std::unique_lock<std::mutex> lk(_events_lock);
+
+            // Push the packet as an EventPacket to the vector of events packets
             _event_packets.push_back(std::static_pointer_cast<EventPacket>(response_packet));
+
+            // Notify the events handler thread that there is new events waiting to be handled
+            _events_cv.notify_one();
         }
         else
         {
@@ -179,6 +190,51 @@ void Communicator::keep_alive()
         }
 
         std::cout << "Ping is " << ms_diff(recv_clock, send_clock) << "ms" << std::endl;
+    }
+}
+
+void Communicator::events_handler()
+{
+    while (true)
+    {
+        std::unique_lock<std::mutex> events_lk(_events_lock);
+
+        // While no event packets are waiting to be handled, wait
+        while (_event_packets.empty())
+        {
+            _events_cv.wait(events_lk);
+        }
+
+        // While there are more event packets to handle
+        while (!_event_packets.empty())
+        {
+            Event evt;
+            std::string event_name;
+            std::shared_ptr<EventPacket> event_packet;
+            nlohmann::json event_data;
+
+            // Get the event packet
+            event_packet = _event_packets.back();
+            _event_packets.pop_back();
+
+            // Get the event from the event packet
+            evt = event_packet->event();
+
+            // Get the event type from the event names map and the event data
+            event_name = EVENT_NAMES.at(evt.event_type());
+            event_data = evt.json();
+
+            try
+            {
+                // Call the event handler
+                _event_handler.callEvent(event_name, event_data);
+            }
+            catch (std::runtime_error &ex)
+            {
+                // Print error
+                std::cout << "An error occurred trying to call event: " << ex.what() << std::endl;
+            }
+        }
     }
 }
 

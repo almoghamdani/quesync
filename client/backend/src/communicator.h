@@ -31,10 +31,16 @@ private:
   std::vector<std::shared_ptr<EventPacket>> _event_packets;
   std::vector<std::shared_ptr<ResponsePacket>> _response_packets;
 
+  // Locks
   std::mutex _socket_get_lock;
-  std::condition_variable _response_cv;
   std::mutex _socket_send_lock;
+  std::mutex _events_lock;
 
+  // Condition Variables
+  std::condition_variable _response_cv;
+  std::condition_variable _events_cv;
+
+  // Socket
   bool _connected;
   tcp::socket *_socket;
   char _recv_data[MAX_DATA_LEN];
@@ -43,8 +49,10 @@ private:
   // Threads
   std::thread _keep_alive_thread;
   std::thread _receiver_thread;
+  std::thread _events_thread;
   void keep_alive();
   void recv();
+  void events_handler();
 
   // Helper functions
   double ms_diff(clock_t end_clock, clock_t start_clock);
