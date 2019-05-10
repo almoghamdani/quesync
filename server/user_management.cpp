@@ -3,9 +3,12 @@
 #include <sole.hpp>
 
 #include "session.h"
+#include "event_management.h"
+
 #include "../shared/utils.h"
 #include "../shared/validation.h"
 #include "../shared/quesync_exception.h"
+#include "../shared/events/friend_request_event.h"
 
 UserManagement::UserManagement(sql::Schema &db) : users_table(db, "users"),
                                                   friendships_table(db, "friendships"),
@@ -204,6 +207,8 @@ std::vector<std::string> UserManagement::getFriends(std::string user_id)
 
 void UserManagement::sendFriendRequest(std::string requester_id, std::string recipient_id)
 {
+    FriendRequestEvent friend_request_event(requester_id);
+
     // Check if the recipient exists
     if (!users_table.select("1").where("id = :id").bind("id", recipient_id).execute().count())
     {
@@ -232,6 +237,9 @@ void UserManagement::sendFriendRequest(std::string requester_id, std::string rec
     {
         throw QuesyncException(UNKNOWN_ERROR);
     }
+
+    // Trigger an event in the recipient if online
+    EventManagement::TriggerEvent(*this, friend_request_event, recipient_id);
 }
 
 void UserManagement::setFriendshipStatus(std::string user_id, std::string friend_id, bool status)
