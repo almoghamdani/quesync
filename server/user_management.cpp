@@ -12,7 +12,7 @@ UserManagement::UserManagement(sql::Schema &db) : users_table(db, "users"),
 {
 }
 
-User *UserManagement::authenticateUser(std::string username, std::string password)
+User *UserManagement::authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password)
 {
     User *user = nullptr;
 
@@ -44,10 +44,14 @@ User *UserManagement::authenticateUser(std::string username, std::string passwor
                     user_res[5],
                     getFriends(user_res[0]));
 
+    // Add the user to the authenticated sessions
+    _authenticated_sessions[user_res[0]] = sess;
+
     return user;
 }
 
-User *UserManagement::registerUser(std::string username,
+User *UserManagement::registerUser(std::shared_ptr<Session> sess,
+                                   std::string username,
                                    std::string password,
                                    std::string email,
                                    std::string nickname)
@@ -111,6 +115,9 @@ User *UserManagement::registerUser(std::string username,
 
         // Create the object for the user
         user = new User(id, username, email, nickname, tag, std::vector<std::string>());
+
+        // Add the user to the authenticated sessions
+        _authenticated_sessions[id] = sess;
     }
     else
     {
@@ -155,8 +162,8 @@ Profile *UserManagement::getUserProfile(std::string user_id)
 
     // Create the profile from the db response
     profile = new Profile(profile_res[0],
-                    profile_res[1],
-                    profile_res[2]);
+                          profile_res[1],
+                          profile_res[2]);
 
     return profile;
 }

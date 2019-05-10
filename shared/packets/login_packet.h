@@ -42,7 +42,7 @@ class LoginPacket : public SerializedPacket
         try
         {
             // Authenticate the user, if failed an exception will be thrown
-            user = session->server()->userManagement().authenticateUser(_data["username"], _data["password"]);
+            user = session->server()->userManagement().authenticateUser(session->getShared(), _data["username"], _data["password"]);
 
             // Set the user in the client's session
             session->setUser(user);

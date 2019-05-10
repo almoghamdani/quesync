@@ -119,6 +119,11 @@ Quesync *Session::server() const
     return _server;
 }
 
+std::shared_ptr<Session> Session::getShared()
+{
+    return shared_from_this();
+}
+
 void Session::setUser(User *user)
 {
     _user = user;

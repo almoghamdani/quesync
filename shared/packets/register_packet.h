@@ -46,7 +46,8 @@ class RegisterPacket : public SerializedPacket
         try
         {
             // Register the new user, if failed an exception will be thrown
-            user = session->server()->userManagement().registerUser(_data["username"],
+            user = session->server()->userManagement().registerUser(session->getShared(),
+                                                                    _data["username"],
                                                                     _data["password"],
                                                                     _data["email"],
                                                                     _data["nickname"]);

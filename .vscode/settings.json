@@ -99,7 +99,8 @@
         "__tree": "cpp",
         "__tuple": "cpp",
         "cwctype": "cpp",
-        "coroutine": "cpp"
+        "coroutine": "cpp",
+        "*.tcc": "cpp"
     },
     "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/",
     "python.pythonPath": "C:\\Users\\Almog\\AppData\\Local\\Programs\\Python\\Python37\\python.exe"
