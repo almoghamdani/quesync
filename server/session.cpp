@@ -117,6 +117,26 @@ void Session::send(std::string data)
                       });
 }
 
+void Session::sendOnly(std::string data)
+{
+    auto self(shared_from_this());
+
+    // Create a buffer with the size of the data and copy the data to it
+    std::shared_ptr<char> buf(new char[data.length() + 1]);
+    Utils::CopyString(data, buf.get());
+
+    // Send the data to the client
+    asio::async_write(_socket, asio::buffer(buf.get(), data.length() + 1),
+                      [this, self, buf](std::error_code ec, std::size_t) {
+                          // If an error occurred during sending the data, print the error(only if not a disconnect error)
+                          if (ec && ec != asio::error::misc_errors::eof)
+                          {
+                              // Print error
+                              std::cout << "An error occurred: " << ec << std::endl;
+                          }
+                      });
+}
+
 Quesync *Session::server() const
 {
     return _server;

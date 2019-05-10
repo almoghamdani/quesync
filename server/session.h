@@ -16,8 +16,7 @@ public:
   ~Session();
 
   void start();
-  void recv();
-  void send(std::string data);
+  void sendOnly(std::string data);
 
   Quesync *server() const;
   std::shared_ptr<Session> getShared();
@@ -32,4 +31,7 @@ private:
 
   tcp::socket _socket;
   char _data[MAX_DATA_LEN];
+
+  void recv();
+  void send(std::string data);
 };
