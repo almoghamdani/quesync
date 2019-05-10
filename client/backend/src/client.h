@@ -15,25 +15,27 @@ using asio::ip::tcp;
 
 class Client : public Napi::ObjectWrap<Client>
 {
-  public:
-    static Napi::Object Init(Napi::Env env, Napi::Object exports);
-    Client(const Napi::CallbackInfo &info);
+public:
+  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  Client(const Napi::CallbackInfo &info);
 
-    Napi::Value connect(const Napi::CallbackInfo &info);
+  Napi::Value connect(const Napi::CallbackInfo &info);
 
-    Napi::Value login(const Napi::CallbackInfo &info);
-    Napi::Value signup(const Napi::CallbackInfo &info);
+  Napi::Value login(const Napi::CallbackInfo &info);
+  Napi::Value signup(const Napi::CallbackInfo &info);
 
-    Napi::Value getUserProfile(const Napi::CallbackInfo &info);
+  Napi::Value getUserProfile(const Napi::CallbackInfo &info);
 
-    Napi::Value search(const Napi::CallbackInfo &info);
-    Napi::Value sendFriendRequest(const Napi::CallbackInfo &info);
+  Napi::Value search(const Napi::CallbackInfo &info);
+  Napi::Value sendFriendRequest(const Napi::CallbackInfo &info);
 
-  private:
-    static Napi::FunctionReference constructor;
+  Napi::Value registerEventHandler(const Napi::CallbackInfo &info);
 
-    User *_user;
-    VoiceChat *_voice_chat_manager;
+private:
+  static Napi::FunctionReference constructor;
 
-    Communicator _communicator;
+  User *_user;
+  VoiceChat *_voice_chat_manager;
+
+  Communicator _communicator;
 };

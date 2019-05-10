@@ -1,6 +1,9 @@
 var quesync = require("./build/Release/quesync.node")
 
 var smth = new quesync.Client()
+
+smth.registerEventHandler("sima", (j) => console.log(j))
+
 smth.connect("127.0.0.1")
     .then(() => {
         smth.login("almogh52", "123456789")
@@ -12,6 +15,10 @@ smth.connect("127.0.0.1")
                     .catch((ex) => {
                         console.log(ex)
                     })
+
+                setInterval(() => {
+                    
+                }, 1000)
             })
             .catch((ex) => {
                 console.log(ex)

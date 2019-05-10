@@ -2,6 +2,7 @@
 
 #include "socket-manager.h"
 #include "executer.h"
+#include "event-worker.h"
 
 #include "../../../shared/utils.h"
 #include "../../../shared/packets/login_packet.h"
@@ -29,13 +30,18 @@ Napi::Value Client::connect(const Napi::CallbackInfo &info)
     std::string ip = info[0].As<Napi::String>();
 
     // Create a new executer worker that will make the connection to the server
-    Executer *e = new Executer([this, ip]() {       
-        try {
+    Executer *e = new Executer([this, ip]() {
+        try
+        {
             // Try to connect to the server
             _communicator.connect(ip);
-        } catch (QuesyncException &ex) {
+        }
+        catch (QuesyncException &ex)
+        {
             return nlohmann::json{{"error", ex.getErrorCode()}};
-        } catch (...) {
+        }
+        catch (...)
+        {
             return nlohmann::json{{"error", UNKNOWN_ERROR}};
         }
 
@@ -76,13 +82,18 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
         }
 
         // Send the login packet
-        try {
+        try
+        {
             response_packet = _communicator.send(&login_packet);
-        } catch (QuesyncException &ex) {
+        }
+        catch (QuesyncException &ex)
+        {
             res["error"] = ex.getErrorCode();
 
             return res;
-        } catch (...) {
+        }
+        catch (...)
+        {
             res["error"] = UNKNOWN_ERROR;
 
             return res;
@@ -155,13 +166,18 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
         }
 
         // Send the register packet
-        try {
+        try
+        {
             response_packet = _communicator.send(&register_packet);
-        } catch (QuesyncException &ex) {
+        }
+        catch (QuesyncException &ex)
+        {
             res["error"] = ex.getErrorCode();
 
             return res;
-        } catch (...) {
+        }
+        catch (...)
+        {
             res["error"] = UNKNOWN_ERROR;
 
             return res;
@@ -234,13 +250,18 @@ Napi::Value Client::getUserProfile(const Napi::CallbackInfo &info)
         }
 
         // Send the profile packet
-        try {
+        try
+        {
             response_packet = _communicator.send(&profile_packet);
-        } catch (QuesyncException &ex) {
+        }
+        catch (QuesyncException &ex)
+        {
             res["error"] = ex.getErrorCode();
 
             return res;
-        } catch (...) {
+        }
+        catch (...)
+        {
             res["error"] = UNKNOWN_ERROR;
 
             return res;
@@ -306,13 +327,18 @@ Napi::Value Client::search(const Napi::CallbackInfo &info)
         }
 
         // Send the search packet
-        try {
+        try
+        {
             response_packet = _communicator.send(&search_packet);
-        } catch (QuesyncException &ex) {
+        }
+        catch (QuesyncException &ex)
+        {
             res["error"] = ex.getErrorCode();
 
             return res;
-        } catch (...) {
+        }
+        catch (...)
+        {
             res["error"] = UNKNOWN_ERROR;
 
             return res;
@@ -378,13 +404,18 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
         }
 
         // Send the friend request packet
-        try {
+        try
+        {
             response_packet = _communicator.send(&friend_request_packet);
-        } catch (QuesyncException &ex) {
+        }
+        catch (QuesyncException &ex)
+        {
             res["error"] = ex.getErrorCode();
 
             return res;
-        } catch (...) {
+        }
+        catch (...)
+        {
             res["error"] = UNKNOWN_ERROR;
 
             return res;
@@ -423,13 +454,30 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
     return deferred.Promise();
 }
 
+Napi::Value Client::registerEventHandler(const Napi::CallbackInfo &info)
+{
+    std::string event_name = info[0].As<Napi::String>();
+    Napi::Function event_handle_function = info[1].As<Napi::Function>();
+
+    // Register an event handler that will create an event worker
+    _communicator
+        .eventHandler()
+        .registerEventHandler(event_name, [event_handle_function](nlohmann::json &event_data) {
+            // Create an event worker with the event handle function
+            EventWorker *eventWorker = new EventWorker(event_handle_function, event_data);
+            eventWorker->Queue();
+        });
+
+    return info.Env().Null();
+}
+
 Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
 {
     // Create scope for Client object
     Napi::HandleScope scope(env);
 
     // This method is used to hook the accessor and method callbacks
-    Napi::Function func = DefineClass(env, "Client", {InstanceMethod("connect", &Client::connect), InstanceMethod("login", &Client::login), InstanceMethod("register", &Client::signup), InstanceMethod("getUserProfile", &Client::getUserProfile), InstanceMethod("search", &Client::search), InstanceMethod("sendFriendRequest", &Client::sendFriendRequest)});
+    Napi::Function func = DefineClass(env, "Client", {InstanceMethod("connect", &Client::connect), InstanceMethod("login", &Client::login), InstanceMethod("register", &Client::signup), InstanceMethod("getUserProfile", &Client::getUserProfile), InstanceMethod("search", &Client::search), InstanceMethod("sendFriendRequest", &Client::sendFriendRequest), InstanceMethod("registerEventHandler", &Client::registerEventHandler)});
 
     // Create a peristent reference to the class constructor. This will allow
     // a function called on a class prototype and a function
