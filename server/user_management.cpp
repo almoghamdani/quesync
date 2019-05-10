@@ -320,3 +320,14 @@ void UserManagement::unauthenticateSession(std::string user_id)
 
     }
 }
+
+std::shared_ptr<Session> UserManagement::getAuthenticatedSessionOfUser(std::string user_id)
+{
+    try {
+        // Try to get the authenticated session for the user id
+        return _authenticated_sessions[user_id];
+    } catch (...) {
+        // If not found return null
+        return nullptr;
+    }
+}
