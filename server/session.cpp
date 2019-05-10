@@ -12,9 +12,11 @@ Session::Session(tcp::socket socket, Quesync *server) : _socket(std::move(socket
 
 Session::~Session()
 {
-    // If the user authenticated delete the user object
+    // If the user authenticated
     if (_user)
     {
+        // Unauthenticate session and free the user object
+        _server->userManagement().unauthenticateSession(_user->id());
         delete _user;
     }
 

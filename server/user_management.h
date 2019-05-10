@@ -18,6 +18,7 @@ public:
 
   User *registerUser(std::shared_ptr<Session> sess, std::string username, std::string password, std::string email, std::string nickname);
   User *authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password);
+  void unauthenticateSession(std::string user_id);
 
   Profile *getUserProfile(std::string id);  
 

@@ -310,3 +310,13 @@ void UserManagement::setFriendshipStatus(std::string user_id, std::string friend
         }
     }
 }
+
+void UserManagement::unauthenticateSession(std::string user_id)
+{
+    // Try to erase the session from the authenticated sessions and silence errors
+    try {
+        _authenticated_sessions.erase(user_id);
+    } catch (...) {
+
+    }
+}
