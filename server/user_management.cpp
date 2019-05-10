@@ -2,6 +2,7 @@
 
 #include <sole.hpp>
 
+#include "session.h"
 #include "../shared/utils.h"
 #include "../shared/validation.h"
 #include "../shared/quesync_exception.h"

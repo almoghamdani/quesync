@@ -5,10 +5,11 @@ namespace sql = mysqlx;
 
 #include <unordered_map>
 
-#include "session.h"
-
 #include "../shared/user.h"
 #include "../shared/profile.h"
+
+// Prevent loop header include
+class Session;
 
 class UserManagement
 {
