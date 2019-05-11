@@ -2,7 +2,7 @@ var quesync = require("./build/Release/quesync.node")
 
 var smth = new quesync.Client()
 
-smth.registerEventHandler("sima", (j) => console.log(j))
+smth.registerEventHandler("friend-request", (j) => console.log(j))
 
 smth.connect("127.0.0.1")
     .then(() => {

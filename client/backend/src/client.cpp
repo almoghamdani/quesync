@@ -459,12 +459,18 @@ Napi::Value Client::registerEventHandler(const Napi::CallbackInfo &info)
     std::string event_name = info[0].As<Napi::String>();
     Napi::Function event_handle_function = info[1].As<Napi::Function>();
 
+    // Create an event worker with the event handle function
+    std::shared_ptr<EventWorker> eventWorker(new EventWorker(event_handle_function));
+    eventWorker->SuppressDestruct(); // Prevent from the event worker to destruct when calling OnOK
+
     // Register an event handler that will create an event worker
     _communicator
         .eventHandler()
-        .registerEventHandler(event_name, [event_handle_function](nlohmann::json &event_data) {
-            // Create an event worker with the event handle function
-            EventWorker *eventWorker = new EventWorker(event_handle_function, event_data);
+        .registerEventHandler(event_name, [eventWorker](nlohmann::json &event_data) {
+            // Set the event data
+            eventWorker->setEventData(event_data);
+            
+            // Queue the event worker
             eventWorker->Queue();
         });
 
