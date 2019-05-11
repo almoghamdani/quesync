@@ -5,13 +5,13 @@
 int main()
 {
     asio::io_context io_context;
-    Quesync *server;
+    std::unique_ptr<Quesync> server;
 
     try
     {
         std::cout << "Initializing Quesync server.." << std::endl;
         // Create the Quesync server
-        server = new Quesync(io_context);
+        server = std::unique_ptr<Quesync>(new Quesync(io_context));
 
         std::cout << "Starting server.." << std::endl;
         // Start the server

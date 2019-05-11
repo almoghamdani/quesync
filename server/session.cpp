@@ -17,7 +17,6 @@ Session::~Session()
     {
         // Unauthenticate session and free the user object
         _server->userManagement().unauthenticateSession(_user->id());
-        delete _user;
     }
 
     // Close the client's socket in case it's not closed
@@ -43,22 +42,20 @@ void Session::recv()
     // Get a request from the user
     _socket.async_read_some(asio::buffer(_data, MAX_DATA_LEN),
                             [this, self](std::error_code ec, std::size_t length) {
-                                Packet *packet;
+                                std::shared_ptr<Packet> packet;
                                 std::string response;
 
                                 // If no error occurred, parse the request
                                 if (!ec)
                                 {
                                     // Parse the packet
-                                    packet = Utils::ParsePacket(_data);
+                                    packet = std::shared_ptr<Packet>(Utils::ParsePacket(_data));
 
                                     // If the packet has parsed successfully handle it
                                     if (packet)
                                     {
                                         // Handle the client's request and get a respond
                                         response = packet->handle(this);
-
-                                        delete packet;
                                     }
                                     else
                                     {
@@ -147,7 +144,7 @@ std::shared_ptr<Session> Session::getShared()
     return shared_from_this();
 }
 
-void Session::setUser(User *user)
+void Session::setUser(std::shared_ptr<User> user)
 {
     _user = user;
 }
@@ -157,7 +154,7 @@ bool Session::authenticated() const
     return (_user != nullptr);
 }
 
-User *Session::user() const
+std::shared_ptr<User> Session::user() const
 {
     return _user;
 }

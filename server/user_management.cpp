@@ -16,9 +16,9 @@ UserManagement::UserManagement(sql::Schema &db) : users_table(db, "users"),
 {
 }
 
-User *UserManagement::authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password)
+std::shared_ptr<User> UserManagement::authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password)
 {
-    User *user = nullptr;
+    std::shared_ptr<User> user = nullptr;
 
     sql::Row user_res;
 
@@ -41,12 +41,12 @@ User *UserManagement::authenticateUser(std::shared_ptr<Session> sess, std::strin
     }
 
     // Create the user from the db response
-    user = new User(user_res[0],
-                    user_res[1],
-                    user_res[3],
-                    user_res[4],
-                    user_res[5],
-                    getFriends(user_res[0]));
+    user = std::shared_ptr<User>(new User(user_res[0],
+                                          user_res[1],
+                                          user_res[3],
+                                          user_res[4],
+                                          user_res[5],
+                                          getFriends(user_res[0])));
 
     // Add the user to the authenticated sessions
     _authenticated_sessions[user_res[0]] = sess;
@@ -54,13 +54,13 @@ User *UserManagement::authenticateUser(std::shared_ptr<Session> sess, std::strin
     return user;
 }
 
-User *UserManagement::registerUser(std::shared_ptr<Session> sess,
-                                   std::string username,
-                                   std::string password,
-                                   std::string email,
-                                   std::string nickname)
+std::shared_ptr<User> UserManagement::registerUser(std::shared_ptr<Session> sess,
+                                                   std::string username,
+                                                   std::string password,
+                                                   std::string email,
+                                                   std::string nickname)
 {
-    User *user = nullptr;
+    std::shared_ptr<User> user = nullptr;
     std::string id, password_hashed;
     int tag;
 
@@ -118,7 +118,7 @@ User *UserManagement::registerUser(std::shared_ptr<Session> sess,
         }
 
         // Create the object for the user
-        user = new User(id, username, email, nickname, tag, std::vector<std::string>());
+        user = std::shared_ptr<User>(new User(id, username, email, nickname, tag, std::vector<std::string>()));
 
         // Add the user to the authenticated sessions
         _authenticated_sessions[id] = sess;
@@ -145,9 +145,9 @@ User *UserManagement::registerUser(std::shared_ptr<Session> sess,
     return user;
 }
 
-Profile *UserManagement::getUserProfile(std::string user_id)
+std::shared_ptr<Profile> UserManagement::getUserProfile(std::string user_id)
 {
-    Profile *profile = nullptr;
+    std::shared_ptr<Profile> profile = nullptr;
 
     sql::Row profile_res;
 
@@ -165,9 +165,9 @@ Profile *UserManagement::getUserProfile(std::string user_id)
     }
 
     // Create the profile from the db response
-    profile = new Profile(profile_res[0],
-                          profile_res[1],
-                          profile_res[2]);
+    profile = std::shared_ptr<Profile>(new Profile(profile_res[0],
+                                                   profile_res[1],
+                                                   profile_res[2]));
 
     return profile;
 }
@@ -322,19 +322,24 @@ void UserManagement::setFriendshipStatus(std::string user_id, std::string friend
 void UserManagement::unauthenticateSession(std::string user_id)
 {
     // Try to erase the session from the authenticated sessions and silence errors
-    try {
+    try
+    {
         _authenticated_sessions.erase(user_id);
-    } catch (...) {
-
+    }
+    catch (...)
+    {
     }
 }
 
 std::shared_ptr<Session> UserManagement::getAuthenticatedSessionOfUser(std::string user_id)
 {
-    try {
+    try
+    {
         // Try to get the authenticated session for the user id
         return _authenticated_sessions[user_id];
-    } catch (...) {
+    }
+    catch (...)
+    {
         // If not found return null
         return nullptr;
     }

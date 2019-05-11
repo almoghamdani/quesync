@@ -22,11 +22,11 @@ public:
   std::shared_ptr<Session> getShared();
 
   bool authenticated() const;
-  void setUser(User *user);
-  User *user() const;
+  void setUser(std::shared_ptr<User> user);
+  std::shared_ptr<User> user() const;
 
 private:
-  User *_user;
+  std::shared_ptr<User> _user;
   Quesync *_server;
 
   tcp::socket _socket;

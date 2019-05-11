@@ -31,7 +31,7 @@ class LoginPacket : public SerializedPacket
 #ifdef QUESYNC_SERVER
     virtual std::string handle(Session *session)
     {
-        User *user;
+        std::shared_ptr<User> user;
 
         // If the user is already authenticated, return error
         if (session->authenticated())

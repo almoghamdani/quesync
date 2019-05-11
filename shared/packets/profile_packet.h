@@ -29,7 +29,7 @@ class ProfilePacket : public SerializedPacket
 #ifdef QUESYNC_SERVER
     virtual std::string handle(Session *session)
     {
-        Profile *profile;
+        std::shared_ptr<Profile> profile;
         std::string profile_serialized;
 
         // If the user isn't authenticated, throw error
@@ -41,11 +41,10 @@ class ProfilePacket : public SerializedPacket
         try
         {
             // Try get the profile of the requested user
-            profile = session->server()->userManagement().getUserProfile(_data["user_id"]);
+            profile = std::shared_ptr<Profile>(session->server()->userManagement().getUserProfile(_data["user_id"]));
 
             // Serialize the profile object and deallocate it
             profile_serialized = profile->serialize();
-            delete profile;
 
             // Return the profile of the user
             return ResponsePacket(PROFILE_PACKET, profile_serialized).encode();

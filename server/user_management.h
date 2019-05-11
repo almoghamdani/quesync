@@ -16,12 +16,12 @@ class UserManagement
 public:
   UserManagement(sql::Schema &db);
 
-  User *registerUser(std::shared_ptr<Session> sess, std::string username, std::string password, std::string email, std::string nickname);
-  User *authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password);
+  std::shared_ptr<User> registerUser(std::shared_ptr<Session> sess, std::string username, std::string password, std::string email, std::string nickname);
+  std::shared_ptr<User> authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password);
   void unauthenticateSession(std::string user_id);
   std::shared_ptr<Session> getAuthenticatedSessionOfUser(std::string user_id);
 
-  Profile *getUserProfile(std::string id);  
+  std::shared_ptr<Profile> getUserProfile(std::string id);  
 
   void sendFriendRequest(std::string requester_id, std::string recipient_id);
   void setFriendshipStatus(std::string requester_id, std::string friend_id, bool status);
