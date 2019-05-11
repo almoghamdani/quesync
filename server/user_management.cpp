@@ -49,7 +49,7 @@ std::shared_ptr<User> UserManagement::authenticateUser(std::shared_ptr<Session> 
                                           getFriends(user_res[0])));
 
     // Add the user to the authenticated sessions
-    _authenticated_sessions[user_res[0]] = sess;
+    _authenticated_sessions.insert_or_assign(user_res[0], sess);
 
     return user;
 }
@@ -336,7 +336,7 @@ std::shared_ptr<Session> UserManagement::getAuthenticatedSessionOfUser(std::stri
     try
     {
         // Try to get the authenticated session for the user id
-        return _authenticated_sessions[user_id];
+        return _authenticated_sessions[user_id].lock();
     }
     catch (...)
     {

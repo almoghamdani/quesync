@@ -13,7 +13,7 @@ sock.connect(server_address)
 idk = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
 #sock.send(('QUESYNC|002|{ "username": "almogh23", "email": "' + idk + '@gmail.com", "nickname": "sdsd", "password": "123456789" }|').encode())
 #sock.send(b'QUESYNC|003|{ "nickname": "s", "tag": 9591 }|')
-sock.send(b'QUESYNC|001|{ "username": "almogh13", "password": "123456789" }|')
+sock.send(b'QUESYNC|001|{ "username": "almogh23", "password": "123456789" }|')
 print(sock.recv(512).decode())
 
 sock.send(b'QUESYNC|005|{ "recipient_id": "5464a7ba-4417-4a21-895d-0902bf4f9343" }|')

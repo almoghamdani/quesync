@@ -31,7 +31,7 @@ private:
   sql::Table friendships_table;
   sql::Table profiles_table;
 
-  std::unordered_map<std::string, std::shared_ptr<Session>> _authenticated_sessions;
+  std::unordered_map<std::string, std::weak_ptr<Session>> _authenticated_sessions;
 
   std::vector<std::string> getFriends(std::string user_id);
 };
