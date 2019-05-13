@@ -21,19 +21,26 @@ class FriendsPage extends Component {
 		return (
 			<DrawerPage
 				className="quesync-friends-page"
-				drawerContent={friends.map((friend, idx) => (
-					<ListItem className="quesync-friend-list-item" key={idx}>
-						<ListItemGraphic
-							icon={
-								<Avatar
-									className="quesync-friend-avatar"
-									src="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
-								/>
-							}
-						/>
-						<ListItemText className="quesync-friend-text">{friend}</ListItemText>
-					</ListItem>
-				))}
+				drawerTabs={["All", "Pending"]}
+				selectedDrawerTab={0}
+				drawerTabSelected={tabIdx => console.log(tabIdx)}
+				drawerContent={[
+					friends.map((friend, idx) => (
+						<ListItem className="quesync-friend-list-item" key={idx}>
+							<ListItemGraphic
+								icon={
+									<Avatar
+										className="quesync-friend-avatar"
+										src="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+									/>
+								}
+							/>
+							<ListItemText className="quesync-friend-text">
+								{friend}
+							</ListItemText>
+						</ListItem>
+					))
+				]}
 				tableWidth="14rem"
 				drawerItemClicked={this.friendItemClicked}
 			/>
