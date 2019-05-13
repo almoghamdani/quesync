@@ -454,6 +454,11 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
     return deferred.Promise();
 }
 
+Napi::Value Client::getUser(const Napi::CallbackInfo &info)
+{
+    return _user ? Utils::JsonToObject(info.Env(), _user->json()) : info.Env().Null();
+}
+
 Napi::Value Client::registerEventHandler(const Napi::CallbackInfo &info)
 {
     std::string event_name = info[0].As<Napi::String>();
@@ -469,7 +474,7 @@ Napi::Value Client::registerEventHandler(const Napi::CallbackInfo &info)
         .registerEventHandler(event_name, [eventWorker](nlohmann::json &event_data) {
             // Set the event data
             eventWorker->setEventData(event_data);
-            
+
             // Queue the event worker
             eventWorker->Queue();
         });
@@ -483,7 +488,7 @@ Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
     Napi::HandleScope scope(env);
 
     // This method is used to hook the accessor and method callbacks
-    Napi::Function func = DefineClass(env, "Client", {InstanceMethod("connect", &Client::connect), InstanceMethod("login", &Client::login), InstanceMethod("register", &Client::signup), InstanceMethod("getUserProfile", &Client::getUserProfile), InstanceMethod("search", &Client::search), InstanceMethod("sendFriendRequest", &Client::sendFriendRequest), InstanceMethod("registerEventHandler", &Client::registerEventHandler)});
+    Napi::Function func = DefineClass(env, "Client", {InstanceMethod("connect", &Client::connect), InstanceMethod("login", &Client::login), InstanceMethod("register", &Client::signup), InstanceMethod("getUserProfile", &Client::getUserProfile), InstanceMethod("search", &Client::search), InstanceMethod("sendFriendRequest", &Client::sendFriendRequest), InstanceMethod("registerEventHandler", &Client::registerEventHandler), InstanceMethod("getUser", &Client::getUser)});
 
     // Create a peristent reference to the class constructor. This will allow
     // a function called on a class prototype and a function

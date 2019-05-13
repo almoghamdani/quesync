@@ -12,6 +12,13 @@ export function register(client, username, email, password) {
 	};
 }
 
+export function setUser(user) {
+	return {
+		type: "USER_SET",
+		payload: { user }
+	};
+}
+
 export function startAuth() {
 	return {
 		type: "AUTH_STARTED",

@@ -16,7 +16,8 @@ export default function reducer(
 			return { ...state, authError: action.payload.error };
 
 		case "USER_REGISTER_FULFILLED":
-		case "USER_LOGIN_FULFILLED":
+        case "USER_LOGIN_FULFILLED":
+        case "USER_SET":
 			return { ...state, user: action.payload.user };
 
 		case "AUTH_STARTED":

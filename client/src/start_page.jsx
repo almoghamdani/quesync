@@ -16,6 +16,9 @@ import "@rmwc/circular-progress/circular-progress.css";
 import "./start_page.scss";
 
 import clientSet from "./actions/clientActions";
+import { setUser } from "./actions/authActions";
+
+import update from "./updater";
 
 const electron = window.require("electron");
 
@@ -46,9 +49,23 @@ class StartPage extends Component {
 		this.startLoadingAnimation(null, LoginForm, false);
 
 		// Try to conenct to the server
-		this.connectRepeat(client, "127.0.0.1", () => {
-			// Stop the loading animation when connection is successful
-			this.stopLoadingAnimation(null, LoginForm);
+		this.connectRepeat(client, "127.0.0.1", async () => {
+			var user = null;
+
+			// If the client is already authenticated, continue to the application
+			if ((user = client.getUser())) {
+				// Set user
+				this.props.dispatch(setUser(user));
+                
+				// Refresh user's data
+				await update();
+
+				// Transition to app
+				this.transitionToApp();
+			} else {
+				// Stop the loading animation when connection is successful
+				this.stopLoadingAnimation(null, LoginForm);
+			}
 		});
 	}
 
