@@ -6,6 +6,8 @@ import DrawerPage from "../components/page_layouts/drawer_page";
 import { ListItem, ListItemGraphic, ListItemText } from "@rmwc/list";
 import { Avatar } from "@rmwc/avatar";
 
+import { setFriendsPageSelectedTab } from "../actions/tabsActions";
+
 import "./friends_page.scss";
 
 class FriendsPage extends Component {
@@ -22,8 +24,8 @@ class FriendsPage extends Component {
 			<DrawerPage
 				className="quesync-friends-page"
 				drawerTabs={["All", "Pending"]}
-				selectedDrawerTab={0}
-				drawerTabSelected={tabIdx => console.log(tabIdx)}
+				selectedDrawerTab={this.props.selectedTab}
+				drawerTabSelected={tabIdx => this.props.dispatch(setFriendsPageSelectedTab(tabIdx))}
 				drawerContent={[
 					friends.map((friend, idx) => (
 						<ListItem className="quesync-friend-list-item" key={idx}>
@@ -50,5 +52,6 @@ class FriendsPage extends Component {
 
 export default connect(state => ({
 	user: state.auth.user,
-	profiles: state.users.profiles
+    profiles: state.users.profiles,
+    selectedTab: state.ui.tabs.selectedFriendsPageTab
 }))(FriendsPage);
