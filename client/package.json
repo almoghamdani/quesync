@@ -44,7 +44,10 @@
     ],
     "directories": {
       "buildResources": "assets"
-    }
+    },
+    "extraFiles": [
+        "backend/bin/**/*"
+    ]
   },
   "eslintConfig": {
     "extends": "react-app"

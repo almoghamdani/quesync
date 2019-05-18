@@ -5,7 +5,12 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const isDev = require("electron-is-dev");
 
-const quesync = require("../backend/bin/win32-x64-69/backend.node");
+const os = require("os");
+const backend_name =
+	os.platform() === "darwin" ? "darwin-x64-69" : "win32-x64-69";
+const quesync = require(isDev
+	? `../backend/bin/${backend_name}/backend.node`
+	: app.getAppPath() + `/../../backend/bin/${backend_name}/backend.node`);
 
 // Set the main window as a global var
 let mainWindow;
@@ -33,23 +38,22 @@ function createWindow() {
 	// On the close event release the window from the memory
 	mainWindow.on("closed", () => (mainWindow = null));
 
-    // If in dev mode, install devTools
-    if (isDev)
-    {
-        const {
-            default: installExtension,
-            REACT_DEVELOPER_TOOLS,
-            REDUX_DEVTOOLS
-        } = require("electron-devtools-installer");
-    
-        installExtension(REACT_DEVELOPER_TOOLS)
-            .then(name => console.log(`Added Extension:  ${name}`))
-            .catch(err => console.log("An error occurred: ", err));
-    
-        installExtension(REDUX_DEVTOOLS)
-            .then(name => console.log(`Added Extension:  ${name}`))
-            .catch(err => console.log("An error occurred: ", err));
-    }
+	// If in dev mode, install devTools
+	if (isDev) {
+		const {
+			default: installExtension,
+			REACT_DEVELOPER_TOOLS,
+			REDUX_DEVTOOLS
+		} = require("electron-devtools-installer");
+
+		installExtension(REACT_DEVELOPER_TOOLS)
+			.then(name => console.log(`Added Extension:  ${name}`))
+			.catch(err => console.log("An error occurred: ", err));
+
+		installExtension(REDUX_DEVTOOLS)
+			.then(name => console.log(`Added Extension:  ${name}`))
+			.catch(err => console.log("An error occurred: ", err));
+	}
 
 	// Set the client and it's errors as a global vars
 	global.client = client;
