@@ -6,10 +6,40 @@ import { Drawer, DrawerContent, DrawerAppContent } from "@rmwc/drawer";
 import { List } from "@rmwc/list";
 import { TabBar, Tab } from "@rmwc/tabs";
 
+import anime from "animejs";
+import Transition from "react-transition-group/Transition";
+
 import "./drawer_page.scss";
 
 class DrawerPage extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			selectedDrawerTab: props.selectedDrawerTab
+		};
+	}
+
 	render() {
+		const animateDrawerContentIn = drawerContent =>
+			anime({
+				targets: drawerContent,
+				easing: "easeInSine",
+				duration: "150",
+				opacity: "1"
+			});
+
+		const animateDrawerContentOut = drawerContent =>
+			anime({
+				targets: drawerContent,
+				easing: "easeOutSine",
+				duration: "150",
+				opacity: "0"
+			});
+
+		const animationEndCallback = () =>
+			this.setState({ selectedDrawerTab: this.props.selectedDrawerTab });
+
 		return (
 			<div className="quesync-page">
 				<Drawer
@@ -30,15 +60,29 @@ class DrawerPage extends Component {
 							</TabBar>
 						) : null}
 						<List>
-							{React.Children.map(
-								this.props.drawerTabs
-									? this.props.drawerContent[this.props.selectedDrawerTab]
-									: this.props.drawerContent,
-								child =>
-									React.cloneElement(child, {
-										onClick: () => this.props.drawerItemClicked(child.key)
-									})
-							)}
+							{this.props.drawerContent.map((drawerTabContent, idx) => (
+								<Transition
+									appear
+									unmountOnExit
+									in={
+										this.state.selectedDrawerTab ===
+											this.props.selectedDrawerTab &&
+										this.state.selectedDrawerTab === idx
+									}
+									onEnter={animateDrawerContentIn}
+									onExit={animateDrawerContentOut}
+									onExited={animationEndCallback}
+									timeout={150}
+									key={idx}>
+									<div style={{ opacity: "0" }}>
+										{React.Children.map(drawerTabContent, child =>
+											React.cloneElement(child, {
+												onClick: () => this.props.drawerItemClicked(child.key)
+											})
+										)}
+									</div>
+								</Transition>
+							))}
 						</List>
 					</DrawerContent>
 				</Drawer>
