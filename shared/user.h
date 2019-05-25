@@ -23,7 +23,7 @@ public:
         _json["nickname"] = nickname;
         _json["tag"] = tag;
         _json["friends"] = friends;
-        _json["friend_requests"] = friend_requests;
+        _json["friendRequests"] = friend_requests;
     };
 
     // Get functions for all the user's fields

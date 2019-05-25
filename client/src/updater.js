@@ -13,9 +13,27 @@ export default async function update() {
 
 	logger.info("Update started!");
 
-	// For each fend, fetch it's profile
+	// For each friend, fetch it's profile
+	logger.info("Fetching friends' profiles!");
 	for (const idx in user.friends) {
 		const friendId = user.friends[idx];
+
+		// Fetch the user's profile
+		await store
+			.dispatch(fetchUserProfile(client, friendId))
+			.then(() => {})
+			.catch(() => {
+				console.error(
+					"An error occurred fetching the profile of the user {0}",
+					friendId
+				);
+			});
+	}
+
+	// For each pending friend, fetch it's profile
+	logger.info("Fetching pending friends' profiles!");
+	for (const idx in user.friendRequests) {
+		const friendId = user.friendRequests[idx].friendId;
 
 		// Fetch the user's profile
 		await store

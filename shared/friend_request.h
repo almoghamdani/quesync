@@ -9,8 +9,8 @@ public:
 	FriendRequest(std::string friend_id, std::string friend_type)
 	{
 		// Save all fields in the json type
-		_json["friend_id"] = friend_id;
-		_json["friend_type"] = friend_type;
+		_json["friendId"] = friend_id;
+		_json["friendType"] = friend_type;
 	};
 
 	// Get functions for all the user's fields
@@ -25,5 +25,5 @@ inline void to_json(nlohmann::json &j, const FriendRequest &friend_req)
 
 inline void from_json(const nlohmann::json &j, FriendRequest &friend_req)
 {
-	friend_req = FriendRequest(j.at("friend_id").get<std::string>(), j.at("friend_type").get<std::string>());
+	friend_req = FriendRequest(j.at("friendId").get<std::string>(), j.at("friendType").get<std::string>());
 }
