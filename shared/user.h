@@ -1,12 +1,20 @@
 #pragma once
 #include "serialized_object.h"
 
+#include "friend_request.h"
+
 class User : public SerializedObject
 {
-  public:
-    User() : User("", "", "", "", 0, std::vector<std::string>()){};
+public:
+    User() : User("", "", "", "", 0, std::vector<std::string>(), std::vector<FriendRequest>()){};
 
-    User(std::string id, std::string username, std::string email, std::string nickname, int tag, std::vector<std::string> friends)
+    User(std::string id,
+         std::string username,
+         std::string email,
+         std::string nickname,
+         int tag,
+         std::vector<std::string> friends,
+         std::vector<FriendRequest> friend_requests)
     {
         // Save all fields in the json type
         _json["id"] = id;
@@ -15,6 +23,7 @@ class User : public SerializedObject
         _json["nickname"] = nickname;
         _json["tag"] = tag;
         _json["friends"] = friends;
+        _json["friend_requests"] = friend_requests;
     };
 
     // Get functions for all the user's fields
@@ -24,4 +33,5 @@ class User : public SerializedObject
     GET_FUNCTION(nickname, std::string)
     GET_FUNCTION(tag, std::string)
     GET_FUNCTION(friends, std::vector<std::string>)
+    GET_FUNCTION(friend_requests, std::vector<FriendRequest>)
 };

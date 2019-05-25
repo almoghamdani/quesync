@@ -46,7 +46,8 @@ std::shared_ptr<User> UserManagement::authenticateUser(std::shared_ptr<Session> 
                                           user_res[3],
                                           user_res[4],
                                           user_res[5],
-                                          getFriends(user_res[0])));
+                                          getFriends(user_res[0]),
+                                          getFriendRequests(user_res[0])));
 
     // Add the user to the authenticated sessions
     _authenticated_sessions.insert_or_assign(user_res[0], sess);
@@ -118,7 +119,7 @@ std::shared_ptr<User> UserManagement::registerUser(std::shared_ptr<Session> sess
         }
 
         // Create the object for the user
-        user = std::shared_ptr<User>(new User(id, username, email, nickname, tag, std::vector<std::string>()));
+        user = std::shared_ptr<User>(new User(id, username, email, nickname, tag, std::vector<std::string>(), std::vector<FriendRequest>()));
 
         // Add the user to the authenticated sessions
         _authenticated_sessions[id] = sess;
@@ -203,6 +204,39 @@ std::vector<std::string> UserManagement::getFriends(std::string user_id)
     }
 
     return friends;
+}
+
+std::vector<FriendRequest> UserManagement::getFriendRequests(std::string user_id)
+{
+    std::vector<FriendRequest> friend_requests;
+    sql::RowResult res;
+    sql::Row row;
+
+    try
+    {
+        // Get the ids of the user's friend requests
+        res = friendships_table.select("requester_id", "recipient_id").where("(requester_id = :user_id OR recipient_id = :user_id) AND approved = False").bind("user_id", user_id).execute();
+    }
+    catch (...)
+    {
+        throw QuesyncException(UNKNOWN_ERROR);
+    }
+
+    // For each friend request of the user, add it to the list of friend requests
+    while ((row = res.fetchOne()))
+    {
+        // If the "requester_id" column is the user's id, get the friend id from the "recipient_id" column
+        if ((std::string)row[0] == user_id)
+        {
+            friend_requests.push_back({ row[1], "recipient" });
+        }
+        else
+        {
+            friend_requests.push_back({ row[0], "requester" });
+        }
+    }
+
+    return friend_requests;
 }
 
 void UserManagement::sendFriendRequest(std::string requester_id, std::string recipient_id)
