@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 
 import PageContainer from "./components/page_container";
 import FriendsPage from "./pages/friends_page";
@@ -12,9 +13,17 @@ import {
 import { TabBar, Tab } from "@rmwc/tabs";
 import { ThemeProvider } from "@rmwc/theme";
 
+import EventHandler from "./event-handler";
+
 import "./app.scss";
 
 class App extends Component {
+	eventHandler = new EventHandler(this);
+
+	componentDidMount() {
+		this.eventHandler.register(this.props.client);
+	}
+
 	render() {
 		return (
 			<ThemeProvider
@@ -26,9 +35,11 @@ class App extends Component {
 					primary: "#00A8E8",
 					secondary: "#212121",
 					onSurface: "rgba(255,255,255,.87)"
-				}}
-			>
-				<TopAppBar className="quesync-top-app-bar mdc-top-app-bar--fixed-scrolled" fixed theme="secondaryBg">
+				}}>
+				<TopAppBar
+					className="quesync-top-app-bar mdc-top-app-bar--fixed-scrolled"
+					fixed
+					theme="secondaryBg">
 					<TopAppBarRow>
 						<TopAppBarSection className="quesync-page-selector-container">
 							<TabBar className="quesync-page-selector">
@@ -45,4 +56,6 @@ class App extends Component {
 	}
 }
 
-export default App;
+export default connect(state => ({
+	client: state.client.client
+}))(App);
