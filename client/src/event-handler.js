@@ -1,3 +1,8 @@
+import store from "./store";
+
+import { setUser } from "./actions/authActions";
+import { fetchUserProfile } from "./actions/usersActions";
+
 export default class EventHandler {
 	constructor(app) {
 		this.app = app;
@@ -7,7 +12,30 @@ export default class EventHandler {
 		client.registerEventHandler("friend-request", this.friendRequestEvent);
 	};
 
-	friendRequestEvent = event => {
-		console.log(event);
+	friendRequestEvent = async event => {
+		const state = store.getState();
+		const client = state.client.client;
+		const user = state.auth.user;
+		const friendId = event.requester_id;
+
+		// Fetch the user's profile
+		await store
+			.dispatch(fetchUserProfile(client, friendId))
+			.then(() => {})
+			.catch(() => {
+				console.error(
+					"An error occurred fetching the profile of the user {0}",
+					friendId
+				);
+			});
+
+		// Add the friend request
+		await store.dispatch(
+			setUser({
+				...user,
+				friendRequests:
+					user.friendRequests.concat([{ friendId, friendType: "requester" }])
+			})
+		);
 	};
 }
