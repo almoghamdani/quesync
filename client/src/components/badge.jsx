@@ -4,6 +4,8 @@ import { Typography } from "@rmwc/typography";
 
 class Badge extends Component {
 	render() {
+		if (this.props.value <= 0) return null;
+
 		return (
 			<span
 				style={{
@@ -17,7 +19,9 @@ class Badge extends Component {
 					alignItems: "center",
 					justifyContent: "center"
 				}}>
-				<Typography use="caption" style={{ fontSize: "10px" }}>{this.props.value}</Typography>
+				<Typography use="caption" style={{ fontSize: "10px" }}>
+					{this.props.value}
+				</Typography>
 			</span>
 		);
 	}
