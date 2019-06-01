@@ -7,14 +7,17 @@ class Badge extends Component {
 		return (
 			<span
 				style={{
-					width: "20px",
-					height: "20px",
-					borderRadius: "10px",
+					...this.props.style,
+					width: "16px",
+					height: "16px",
+					borderRadius: "8px",
 					backgroundColor: this.props.bgColor,
 					color: this.props.color,
-					textAlign: "center"
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center"
 				}}>
-				<Typography use="caption">{this.props.value}</Typography>
+				<Typography use="caption" style={{ fontSize: "10px" }}>{this.props.value}</Typography>
 			</span>
 		);
 	}

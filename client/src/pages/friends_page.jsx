@@ -66,6 +66,9 @@ class FriendsPage extends Component {
 				]}
 				tableWidth="14rem"
 				drawerItemClicked={this.friendItemClicked}
+				badgeBGColor="red"
+				badgeColor="white"
+				drawerTabsBadges={[10, 15]}
 			/>
 		);
 	}

@@ -4,7 +4,8 @@ import { Scrollbars } from "react-custom-scrollbars";
 
 import { Drawer, DrawerContent, DrawerAppContent } from "@rmwc/drawer";
 import { List } from "@rmwc/list";
-import { TabBar, Tab } from "@rmwc/tabs";
+import { TabBar } from "@rmwc/tabs";
+import TabBadge from "../tab_badge";
 
 import anime from "animejs";
 import Transition from "react-transition-group/Transition";
@@ -53,9 +54,9 @@ class DrawerPage extends Component {
 									this.props.drawerTabSelected(evt.detail.index)
 								}>
 								{this.props.drawerTabs.map((tabName, idx) => (
-									<Tab className="quesync-drawer-tab" key={idx}>
+									<TabBadge className="quesync-drawer-tab" key={idx} badgeBGColor={this.props.badgeBGColor} badgeColor={this.props.badgeColor} value={this.props.drawerTabsBadges[idx]}>
 										{tabName}
-									</Tab>
+									</TabBadge>
 								))}
 							</TabBar>
 						) : null}
