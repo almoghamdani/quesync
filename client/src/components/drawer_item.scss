@@ -1,0 +1,31 @@
+.quesync-drawer-list-item {
+    height: 55px !important;
+}
+
+.quesync-drawer-avatar {
+    height: 40px;
+    width: 40px;
+
+    // Override default margin from the text
+    margin-right: 16px;
+}
+
+.quesync-drawer-avatar .rmwc-avatar__icon {
+    height: 40px;
+    width: 40px;
+
+    border-radius: 20px;
+}
+
+.quesync-drawer-name {
+	font-size: 18px;
+	
+	white-space: nowrap;
+}
+
+.quesync-drawer-info {
+	font-size: 11px;
+	color: gray;
+	
+	white-space: nowrap;
+}
