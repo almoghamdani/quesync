@@ -44,23 +44,14 @@ class FriendsPage extends Component {
 							key={idx}
 							avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
 							itemName={friend}
-							itemInfo="sdsd"
 						/>
 					)),
 					pendingFriends.map((friend, idx) => (
-						<ListItem className="quesync-friend-list-item" key={idx}>
-							<ListItemGraphic
-								icon={
-									<Avatar
-										className="quesync-friend-avatar"
-										src="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
-									/>
-								}
-							/>
-							<ListItemText className="quesync-friend-text">
-								{friend}
-							</ListItemText>
-						</ListItem>
+						<DrawerItem
+							key={idx}
+							avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+							itemName={friend}
+						/>
 					))
 				]}
 				tableWidth="14rem"
