@@ -15,7 +15,7 @@ import anime from "animejs/lib/anime.es.js";
 import "@rmwc/circular-progress/circular-progress.css";
 import "./start_page.scss";
 
-import clientSet from "./actions/clientActions";
+import { setClient } from "./actions/clientActions";
 import { setUser } from "./actions/authActions";
 
 import update from "./updater";
@@ -38,7 +38,7 @@ class StartPage extends Component {
 		window.errors = client.errors;
 
 		// Set the client in the store
-		props.dispatch(clientSet(client));
+		props.dispatch(setClient(client));
 	}
 
 	componentDidMount() {
@@ -56,7 +56,7 @@ class StartPage extends Component {
 			if ((user = client.getUser())) {
 				// Set user
 				this.props.dispatch(setUser(user));
-                
+
 				// Refresh user's data
 				await update();
 

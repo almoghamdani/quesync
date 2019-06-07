@@ -1,5 +1,6 @@
 import store from "./store";
 
+import { addPingValue } from "./actions/clientActions";
 import { setUser } from "./actions/authActions";
 import { fetchUserProfile } from "./actions/usersActions";
 
@@ -10,6 +11,7 @@ export default class EventHandler {
 
 	register = client => {
 		client.registerEventHandler("friend-request", this.friendRequestEvent);
+		client.registerEventHandler("ping", this.pingEvent);
 	};
 
 	friendRequestEvent = async event => {
@@ -33,9 +35,17 @@ export default class EventHandler {
 		await store.dispatch(
 			setUser({
 				...user,
-				friendRequests:
-					user.friendRequests.concat([{ friendId, friendType: "requester" }])
+				friendRequests: user.friendRequests.concat([
+					{ friendId, friendType: "requester" }
+				])
 			})
 		);
+	};
+
+	pingEvent = async event => {
+		const pingValue = event.ping;
+
+		// Add the ping value to the list of pings
+		await store.dispatch(addPingValue(pingValue));
 	};
 }

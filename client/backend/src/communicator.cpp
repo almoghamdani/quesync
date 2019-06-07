@@ -136,6 +136,8 @@ void Communicator::keep_alive()
     QuesyncError error = SUCCESS;
     PingPacket ping_packet;
 
+	std::string ping_event_name = "ping";
+
     while (true)
     {
         std::shared_ptr<ResponsePacket> response_packet;
@@ -189,7 +191,12 @@ void Communicator::keep_alive()
             continue;
         }
 
-        std::cout << "Ping is " << ms_diff(recv_clock, send_clock) << "ms" << std::endl;
+		// Try to call the ping event
+		try {
+			_event_handler.callEvent(ping_event_name, nlohmann::json{{ "ping", ms_diff(recv_clock, send_clock) }});
+		} catch (...) {
+			// Ignore errors
+		}
     }
 }
 
