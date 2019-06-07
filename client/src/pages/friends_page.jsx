@@ -23,10 +23,12 @@ class FriendsPage extends Component {
 			: [];
 
 		const pendingFriends = this.props.user.friendRequests
-			? this.props.user.friendRequests.map(({ friendId, sentAt }) => ({
-					nickname: this.props.profiles[friendId].nickname,
-					sentAt
-			  }))
+			? this.props.user.friendRequests
+					.map(({ friendId, sentAt }) => ({
+						nickname: this.props.profiles[friendId].nickname,
+						sentAt
+					}))
+					.sort((a, b) => b.sentAt - a.sentAt)
 			: [];
 
 		return (
