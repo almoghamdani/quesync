@@ -8,6 +8,8 @@ import { TabBar } from "@rmwc/tabs";
 import TabBadge from "../tab_badge";
 
 import anime from "animejs";
+
+import TransitionGroup from "react-transition-group/TransitionGroup";
 import Transition from "react-transition-group/Transition";
 
 import "./drawer_page.scss";
@@ -54,7 +56,12 @@ class DrawerPage extends Component {
 									this.props.drawerTabSelected(evt.detail.index)
 								}>
 								{this.props.drawerTabs.map((tabName, idx) => (
-									<TabBadge className="quesync-drawer-tab" key={idx} badgeBGColor={this.props.badgeBGColor} badgeColor={this.props.badgeColor} value={this.props.drawerTabsBadges[idx]}>
+									<TabBadge
+										className="quesync-drawer-tab"
+										key={idx}
+										badgeBGColor={this.props.badgeBGColor}
+										badgeColor={this.props.badgeColor}
+										value={this.props.drawerTabsBadges[idx]}>
 										{tabName}
 									</TabBadge>
 								))}
@@ -75,13 +82,26 @@ class DrawerPage extends Component {
 									onExited={animationEndCallback}
 									timeout={150}
 									key={idx}>
-									<div style={{ opacity: "0" }}>
-										{React.Children.map(drawerTabContent, child =>
-											React.cloneElement(child, {
-												onClick: () => this.props.drawerItemClicked(child.key)
-											})
-										)}
-									</div>
+									<TransitionGroup style={{ opacity: "0" }}>
+										{React.Children.map(drawerTabContent, child => (
+											<Transition
+												appear
+												onEnter={animateDrawerContentIn}
+												onExit={animateDrawerContentOut}
+												timeout={150}
+												key={child.key}>
+												<div
+													key={child.key}
+													className="quesync-drawer-content-item-wrapper"
+													style={{ opacity: 0 }}>
+													{React.cloneElement(child, {
+														onClick: () =>
+															this.props.drawerItemClicked(child.key)
+													})}
+												</div>
+											</Transition>
+										))}
+									</TransitionGroup>
 								</Transition>
 							))}
 						</List>

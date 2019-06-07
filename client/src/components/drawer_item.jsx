@@ -12,7 +12,7 @@ import "./drawer_item.scss";
 class DrawerItem extends Component {
 	render() {
 		return (
-			<ListItem className="quesync-drawer-list-item" key={this.props.key}>
+			<ListItem className={this.props.className + " quesync-drawer-list-item"} key={this.props.key}>
 				<ListItemGraphic
 					icon={
 						<Avatar

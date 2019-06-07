@@ -8,6 +8,7 @@ class FriendRequestItem extends Component {
 	render() {
 		return (
 			<DrawerItem
+				className="quesync-friend-request-item"
 				key={this.props.key}
 				avatarUrl={this.props.friendAvatarUrl}
 				itemName={this.props.friendName}

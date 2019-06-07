@@ -17,14 +17,16 @@ class FriendsPage extends Component {
 
 	render() {
 		const friends = this.props.user.friends
-			? this.props.user.friends.map(
-					friendId => this.props.profiles[friendId].nickname
-			  )
+			? this.props.user.friends.map(friendId => ({
+					id: friendId,
+					nickname: this.props.profiles[friendId].nickname
+			  }))
 			: [];
 
 		const pendingFriends = this.props.user.friendRequests
 			? this.props.user.friendRequests
 					.map(({ friendId, sentAt }) => ({
+						id: friendId,
 						nickname: this.props.profiles[friendId].nickname,
 						sentAt
 					}))
@@ -42,17 +44,17 @@ class FriendsPage extends Component {
 				drawerContent={[
 					friends.map((friend, idx) => (
 						<DrawerItem
-							key={idx}
+							key={friend.id}
 							avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
-							itemName={friend}
+							itemName={friend.nickname}
 						/>
 					)),
 					pendingFriends.map((friend, idx) => (
 						<FriendRequestItem
-							key={idx}
+							key={friend.id}
 							friendAvatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
-							friendName={friend["nickname"]}
-							sentAt={friend["sentAt"]}
+							friendName={friend.nickname}
+							sentAt={friend.sentAt}
 						/>
 					))
 				]}
