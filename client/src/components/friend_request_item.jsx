@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import moment from "moment";
+import Moment from "react-moment";
 
 import DrawerItem from "./drawer_item";
 
@@ -11,7 +11,7 @@ class FriendRequestItem extends Component {
 				key={this.props.key}
 				avatarUrl={this.props.friendAvatarUrl}
 				itemName={this.props.friendName}
-				itemInfo={"Sent " + moment(this.props.sentAt, "X").fromNow()}
+				itemInfo={<Moment unix fromNow interval={10000} date={this.props.sentAt}/>}
 			/>
 		);
 	}
