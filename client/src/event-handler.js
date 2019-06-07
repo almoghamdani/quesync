@@ -19,6 +19,7 @@ export default class EventHandler {
 		const client = state.client.client;
 		const user = state.auth.user;
 		const friendId = event.requester_id;
+		const sentAt = event.sent_at;
 
 		// Fetch the user's profile
 		await store
@@ -36,7 +37,7 @@ export default class EventHandler {
 			setUser({
 				...user,
 				friendRequests: user.friendRequests.concat([
-					{ friendId, friendType: "requester" }
+					{ friendId, sentAt, friendType: "requester" }
 				])
 			})
 		);

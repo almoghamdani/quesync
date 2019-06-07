@@ -1,5 +1,6 @@
 #include "user_management.h"
 
+#include <ctime>
 #include <sole.hpp>
 
 #include "session.h"
@@ -241,7 +242,7 @@ std::vector<FriendRequest> UserManagement::getFriendRequests(std::string user_id
 
 void UserManagement::sendFriendRequest(std::string requester_id, std::string recipient_id)
 {
-    FriendRequestEvent friend_request_event(requester_id);
+    FriendRequestEvent friend_request_event(requester_id, std::time(nullptr));
 
     // Check if the recipient exists
     if (!users_table.select("1").where("id = :id").bind("id", recipient_id).execute().count())
