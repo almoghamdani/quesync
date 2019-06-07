@@ -28,7 +28,7 @@ class DrawerPage extends Component {
 			anime({
 				targets: drawerContent,
 				easing: "easeInSine",
-				duration: "150",
+				duration: "115",
 				opacity: "1"
 			});
 
@@ -36,7 +36,7 @@ class DrawerPage extends Component {
 			anime({
 				targets: drawerContent,
 				easing: "easeOutSine",
-				duration: "150",
+				duration: "115",
 				opacity: "0"
 			});
 
@@ -80,7 +80,7 @@ class DrawerPage extends Component {
 									onEnter={animateDrawerContentIn}
 									onExit={animateDrawerContentOut}
 									onExited={animationEndCallback}
-									timeout={150}
+									timeout={115}
 									key={idx}>
 									<TransitionGroup style={{ opacity: "0" }}>
 										{React.Children.map(drawerTabContent, child => (
@@ -88,7 +88,7 @@ class DrawerPage extends Component {
 												appear
 												onEnter={animateDrawerContentIn}
 												onExit={animateDrawerContentOut}
-												timeout={150}
+												timeout={115}
 												key={child.key}>
 												<div
 													key={child.key}
