@@ -215,7 +215,7 @@ std::vector<FriendRequest> UserManagement::getFriendRequests(std::string user_id
     try
     {
         // Get the ids of the user's friend requests
-        res = friendships_table.select("requester_id", "recipient_id").where("(requester_id = :user_id OR recipient_id = :user_id) AND approved = False").bind("user_id", user_id).execute();
+        res = friendships_table.select("requester_id", "recipient_id", "unix_timestamp(sent_at)").where("(requester_id = :user_id OR recipient_id = :user_id) AND approved = False").bind("user_id", user_id).execute();
     }
     catch (...)
     {
@@ -228,11 +228,11 @@ std::vector<FriendRequest> UserManagement::getFriendRequests(std::string user_id
         // If the "requester_id" column is the user's id, get the friend id from the "recipient_id" column
         if ((std::string)row[0] == user_id)
         {
-            friend_requests.push_back({ row[1], "recipient" });
+            friend_requests.push_back({ row[1], "recipient", row[2] });
         }
         else
         {
-            friend_requests.push_back({ row[0], "requester" });
+            friend_requests.push_back({ row[0], "requester", row[2] });
         }
     }
 

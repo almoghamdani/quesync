@@ -2,11 +2,9 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 import DrawerPage from "../components/page_layouts/drawer_page";
-
-import { ListItem, ListItemGraphic, ListItemText } from "@rmwc/list";
-import { Avatar } from "@rmwc/avatar";
-
 import DrawerItem from "../components/drawer_item";
+
+import FriendRequestItem from "../components/friend_request_item";
 
 import { setFriendsPageSelectedTab } from "../actions/tabsActions";
 
@@ -25,9 +23,10 @@ class FriendsPage extends Component {
 			: [];
 
 		const pendingFriends = this.props.user.friendRequests
-			? this.props.user.friendRequests.map(
-					({ friendId }) => this.props.profiles[friendId].nickname
-			  )
+			? this.props.user.friendRequests.map(({ friendId, sentAt }) => ({
+					nickname: this.props.profiles[friendId].nickname,
+					sentAt
+			  }))
 			: [];
 
 		return (
@@ -47,10 +46,11 @@ class FriendsPage extends Component {
 						/>
 					)),
 					pendingFriends.map((friend, idx) => (
-						<DrawerItem
+						<FriendRequestItem
 							key={idx}
-							avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
-							itemName={friend}
+							friendAvatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+							friendName={friend["nickname"]}
+							sentAt={friend["sentAt"]}
 						/>
 					))
 				]}
