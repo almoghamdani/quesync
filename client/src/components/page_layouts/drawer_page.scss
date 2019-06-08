@@ -5,34 +5,53 @@
 
 @import "./page.scss";
 
+.quesync-page {
+	display: flex;
+}
+
 .quesync-drawer {
 	@include mdc-drawer-fill-color-accessible(#303030);
 
 	// Set in a fixed position in the page and above the page content
 	z-index: auto;
-	position: fixed;
 
 	// Add elevation for the drawer
 	@include mdc-elevation(5, black, 0.15);
 }
 
 .quesync-app-drawer-content {
-	// Margin for the drawer
-	margin-left: 256px;
-
+	// Fill the rest of the page
 	height: 100%;
+	width: 100%;
 
 	// Set under the drawer
 	z-index: auto;
 }
 
 .quesync-app-content {
-    // A bit space from the drawer and the top app bar
-    margin-top: 1rem;
+	// A bit space from the drawer and the top app bar
+	margin-top: 1rem;
 	margin-left: 1rem;
 }
 
 .quesync-drawer-tab {
-    // Not overflow the drawer
-    width: 111.5px;
+	// Not overflow the drawer
+	width: 111.5px;
+}
+
+.quesync-drawer-content {
+	// Hide the scroll bars
+	overflow: hidden;
+
+	// Set the drawer list to fill the drawer
+	display: flex;
+	flex-direction: column;
+}
+
+.quesync-drawer-list {
+	// Re-enable the scroll
+	overflow: auto;
+
+	// Set to fill the height of the drawer
+	flex-grow: 1;
 }

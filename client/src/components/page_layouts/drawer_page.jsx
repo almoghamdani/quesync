@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 
 import { Scrollbars } from "react-custom-scrollbars";
+import DrawerScrollbars from "../drawer_scrollbars";
 
 import { Drawer, DrawerContent, DrawerAppContent } from "@rmwc/drawer";
 import { List } from "@rmwc/list";
@@ -67,44 +68,46 @@ class DrawerPage extends Component {
 								))}
 							</TabBar>
 						) : null}
-						<List>
-							{this.props.drawerContent.map((drawerTabContent, idx) => (
-								<Transition
-									appear
-									unmountOnExit
-									in={
-										this.state.selectedDrawerTab ===
-											this.props.selectedDrawerTab &&
-										this.state.selectedDrawerTab === idx
-									}
-									onEnter={animateDrawerContentIn}
-									onExit={animateDrawerContentOut}
-									onExited={animationEndCallback}
-									timeout={115}
-									key={idx}>
-									<TransitionGroup style={{ opacity: "0" }}>
-										{React.Children.map(drawerTabContent, child => (
-											<Transition
-												appear
-												onEnter={animateDrawerContentIn}
-												onExit={animateDrawerContentOut}
-												timeout={115}
-												key={child.key}>
-												<div
-													key={child.key}
-													className="quesync-drawer-content-item-wrapper"
-													style={{ opacity: 0 }}>
-													{React.cloneElement(child, {
-														onClick: () =>
-															this.props.drawerItemClicked(child.key)
-													})}
-												</div>
-											</Transition>
-										))}
-									</TransitionGroup>
-								</Transition>
-							))}
-						</List>
+						<DrawerScrollbars style={{ marginTop: "2px" }}>
+							<List className="quesync-drawer-list">
+								{this.props.drawerContent.map((drawerTabContent, idx) => (
+									<Transition
+										appear
+										unmountOnExit
+										in={
+											this.state.selectedDrawerTab ===
+												this.props.selectedDrawerTab &&
+											this.state.selectedDrawerTab === idx
+										}
+										onEnter={animateDrawerContentIn}
+										onExit={animateDrawerContentOut}
+										onExited={animationEndCallback}
+										timeout={115}
+										key={idx}>
+										<TransitionGroup style={{ opacity: "0" }}>
+											{React.Children.map(drawerTabContent, child => (
+												<Transition
+													appear
+													onEnter={animateDrawerContentIn}
+													onExit={animateDrawerContentOut}
+													timeout={115}
+													key={child.key}>
+													<div
+														key={child.key}
+														className="quesync-drawer-content-item-wrapper"
+														style={{ opacity: 0 }}>
+														{React.cloneElement(child, {
+															onClick: () =>
+																this.props.drawerItemClicked(child.key)
+														})}
+													</div>
+												</Transition>
+											))}
+										</TransitionGroup>
+									</Transition>
+								))}
+							</List>
+						</DrawerScrollbars>
 					</DrawerContent>
 				</Drawer>
 				<DrawerAppContent className="quesync-app-drawer-content">
