@@ -141,6 +141,7 @@ void Communicator::keep_alive()
     while (true)
     {
         std::shared_ptr<ResponsePacket> response_packet;
+        nlohmann::json ping_event_data;
 
         // Sleep for a second and a half
         std::this_thread::sleep_for(std::chrono::milliseconds(750));
@@ -193,7 +194,8 @@ void Communicator::keep_alive()
 
 		// Try to call the ping event
 		try {
-			_event_handler.callEvent(ping_event_name, nlohmann::json{{ "ping", ms_diff(recv_clock, send_clock) }});
+            ping_event_data = nlohmann::json{{ "ping", ms_diff(recv_clock, send_clock) }};
+			_event_handler.callEvent(ping_event_name, ping_event_data);
 		} catch (...) {
 			// Ignore errors
 		}

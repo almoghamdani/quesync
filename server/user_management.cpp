@@ -229,11 +229,11 @@ std::vector<FriendRequest> UserManagement::getFriendRequests(std::string user_id
         // If the "requester_id" column is the user's id, get the friend id from the "recipient_id" column
         if ((std::string)row[0] == user_id)
         {
-            friend_requests.push_back({ row[1], "recipient", row[2] });
+            friend_requests.push_back({ row[1], "recipient", (int)row[2] });
         }
         else
         {
-            friend_requests.push_back({ row[0], "requester", row[2] });
+            friend_requests.push_back({ row[0], "requester", (int)row[2] });
         }
     }
 
