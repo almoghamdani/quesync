@@ -194,7 +194,7 @@ void Communicator::keep_alive()
 
 		// Try to call the ping event
 		try {
-            ping_event_data = nlohmann::json{{ "ping", ms_diff(recv_clock, send_clock) }};
+            ping_event_data = nlohmann::json{{ "ping", (int)ms_diff(recv_clock, send_clock) }};
 			_event_handler.callEvent(ping_event_name, ping_event_data);
 		} catch (...) {
 			// Ignore errors
