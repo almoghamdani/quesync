@@ -110,6 +110,45 @@ class ConnectionStatus extends Component {
 		const chartPings = this.props.pings.slice(0, 10);
 		const status = this.getConnectionStatus();
 
+		const chartOptions = {
+			legend: {
+				display: false
+			},
+			tooltips: {
+				enabled: false
+			},
+			scales: {
+				xAxes: [
+					{
+						display: "none"
+					}
+				],
+				yAxes: [
+					{
+						ticks: {
+							beginAtZero: true
+						}
+					}
+				]
+			},
+			maintainAspectRatio: false
+		};
+
+		const chartData = {
+			labels: Array(chartPings.length).fill(""),
+			datasets: [
+				{
+					fill: true,
+					backgroundColor: this.convertHexColorToRGBA(
+						this.getTextColorForStatus(status),
+						40
+					),
+					borderColor: this.getTextColorForStatus(status),
+					data: chartPings
+				}
+			]
+		};
+
 		return (
 			<MenuSurfaceAnchor>
 				<MenuSurface
@@ -143,43 +182,8 @@ class ConnectionStatus extends Component {
 						</div>
 						<div className="quesync-connection-status-chart">
 							<Line
-								data={{
-									labels: Array(chartPings.length).fill(""),
-									datasets: [
-										{
-											fill: true,
-											backgroundColor: this.convertHexColorToRGBA(
-												this.getTextColorForStatus(status),
-												40
-											),
-											borderColor: this.getTextColorForStatus(status),
-											data: chartPings
-										}
-									]
-								}}
-								options={{
-									legend: {
-										display: false
-									},
-									tooltips: {
-										enabled: false
-									},
-									scales: {
-										xAxes: [
-											{
-												display: "none"
-											}
-										],
-										yAxes: [
-											{
-												ticks: {
-													beginAtZero: true
-												}
-											}
-										]
-									},
-									maintainAspectRatio: false
-								}}
+								data={chartData}
+								options={chartOptions}
 								width={80}
 								height={150}
 							/>
