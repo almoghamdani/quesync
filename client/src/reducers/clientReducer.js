@@ -1,4 +1,4 @@
-const MAX_PINGS_IN_LIST = 100;
+const MAX_PINGS_IN_LIST = 10;
 
 export default function reducer(
 	state = {
@@ -14,13 +14,18 @@ export default function reducer(
 		case "ADD_PING_VALUE":
 			var pingsCopy = [...state.pings, action.payload];
 
+			// If reached max pings, reset list
+			if (pingsCopy.length > MAX_PINGS_IN_LIST)
+			{
+				return {
+					...state,
+					pings: [state.pings.slice(-1)[0], action.payload]
+				}; 
+			}
+
 			return {
 				...state,
-				pings: pingsCopy.slice(
-					pingsCopy.length > MAX_PINGS_IN_LIST
-						? pingsCopy.length - MAX_PINGS_IN_LIST
-						: 0
-				)
+				pings: pingsCopy
 			};
 
 		default:
