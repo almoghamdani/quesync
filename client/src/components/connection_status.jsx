@@ -169,6 +169,13 @@ class ConnectionStatus extends Component {
 											{
 												display: "none"
 											}
+										],
+										yAxes: [
+											{
+												ticks: {
+													beginAtZero: true
+												}
+											}
 										]
 									},
 									maintainAspectRatio: false
