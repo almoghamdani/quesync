@@ -1,6 +1,8 @@
 import React, { Component } from "react";
+
 import { connect } from "react-redux";
 
+import ConnectionStatus from './components/connection_status'
 import PageContainer from "./components/page_container";
 import FriendsPage from "./pages/friends_page";
 
@@ -41,11 +43,8 @@ class App extends Component {
 					fixed
 					theme="secondaryBg">
 					<TopAppBarRow>
-						<TopAppBarSection className="quesync-page-selector-container">
-							<TabBar className="quesync-page-selector">
-								<Tab className="quesync-page-tab">Friends</Tab>
-								<Tab className="quesync-page-tab">Recent</Tab>
-							</TabBar>
+						<TopAppBarSection alignEnd>
+							<ConnectionStatus />
 						</TopAppBarSection>
 					</TopAppBarRow>
 				</TopAppBar>

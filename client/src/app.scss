@@ -22,16 +22,6 @@
 	padding-top: 15px;
 }
 
-.quesync-page-selector {
-	width: 300px;
-}
-
-.quesync-page-selector-container {
-	// Center the page selector
-	display: flex;
-	justify-content: center;
-}
-
 // Override ripple color to transparent in order to remove it
 .quesync-page-tab .mdc-tab__ripple::before {
 	background: transparent;
