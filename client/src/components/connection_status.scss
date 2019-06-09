@@ -1,0 +1,55 @@
+@import "@material/ripple/mixins";
+
+.quesync-connection-status {
+    @include mdc-states-base-color(white);
+    
+    // Align item in the center
+    display: flex;
+    align-items: center;
+
+    padding: 5px 8px;
+    border-radius: 20px;
+}
+
+.quesync-connection-status-menu {
+    width: 14rem;
+    height: 11rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    // Hide scrollbar
+    overflow: hidden;
+}
+
+.quesync-connection-status-chart {
+    padding-top: 20px;
+    padding-right: 10px;
+    padding-left: 10px;
+
+    position: relative;
+
+    // Fill parent height
+    flex-grow: 1;
+
+    // Remove space between end of the menu
+    margin-bottom: -8px;
+}
+
+.quesync-connection-status-menu-surface {
+    background: #303030;
+}
+
+.quesync-connection-status-info {
+    height: 2rem;
+
+    padding-top: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    // Center children
+    align-items: center;
+    justify-content: center;
+}
