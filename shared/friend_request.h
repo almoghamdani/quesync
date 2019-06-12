@@ -17,9 +17,9 @@ public:
 	};
 
 	// Get functions for all the user's fields
-	GET_FUNCTION(friend_id, std::string)
-	GET_FUNCTION(friend_type, std::string)
-	GET_FUNCTION(sent_at, std::time_t)
+	GET_FUNCTION(friendId, std::string)
+	GET_FUNCTION(friendType, std::string)
+	GET_FUNCTION(sentAt, std::time_t)
 };
 
 inline void to_json(nlohmann::json &j, const FriendRequest &friend_req)

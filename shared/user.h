@@ -33,5 +33,5 @@ public:
     GET_FUNCTION(nickname, std::string)
     GET_FUNCTION(tag, std::string)
     GET_FUNCTION(friends, std::vector<std::string>)
-    GET_FUNCTION(friend_requests, std::vector<FriendRequest>)
+    GET_FUNCTION(friendRequests, std::vector<FriendRequest>)
 };
