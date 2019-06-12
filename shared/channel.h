@@ -6,7 +6,7 @@
 class Channel : public SerializedObject
 {
 public:
-    Channel() : Channel("", 0){};
+    Channel() : Channel("", (std::time_t)0){};
 
     Channel(std::string id, std::time_t created_at)
     {

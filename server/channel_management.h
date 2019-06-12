@@ -7,7 +7,7 @@ namespace sql = mysqlx;
 
 #include "../shared/friend_request.h"
 #include "../shared/user.h"
-#include "../shared/private_channel.h"
+#include "../shared/channel.h"
 
 // Prevent loop header include
 class Session;

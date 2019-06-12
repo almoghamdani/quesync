@@ -5,6 +5,7 @@
 
 #include "session.h"
 #include "event_management.h"
+#include "../shared/quesync_exception.h"
 
 ChannelManagement::ChannelManagement(sql::Schema &db) : users_table(db, "users"),
                                                         channels_table(db, "channels")
@@ -18,6 +19,4 @@ std::shared_ptr<Channel> ChannelManagement::getPrivateChannel(std::shared_ptr<Se
     {
         throw QuesyncException(USER_NOT_FOUND);
     }
-
-    
 }
