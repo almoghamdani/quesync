@@ -19,8 +19,13 @@ public:
     ChannelManager(std::shared_ptr<Quesync> server);
 
     std::shared_ptr<Channel> getPrivateChannel(std::shared_ptr<Session> sess, std::string participant_id);
+    std::shared_ptr<Channel> getChannel(std::string channel_id);
+    void addParticipantToRoom(std::string channel_id, std::string participant_id);
 
 private:
     sql::Table users_table;
+    sql::Table channel_participants_table;
     sql::Table channels_table;
+
+    std::shared_ptr<Channel> createChannel(bool is_private);
 };
