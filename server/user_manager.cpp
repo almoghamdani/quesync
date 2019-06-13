@@ -1,23 +1,24 @@
-#include "user_management.h"
+#include "user_manager.h"
 
 #include <ctime>
 #include <sole.hpp>
 
+#include "quesync.h"
 #include "session.h"
-#include "event_management.h"
 
 #include "../shared/utils.h"
 #include "../shared/validation.h"
 #include "../shared/quesync_exception.h"
 #include "../shared/events/friend_request_event.h"
 
-UserManagement::UserManagement(sql::Schema &db) : users_table(db, "users"),
-                                                  friendships_table(db, "friendships"),
-                                                  profiles_table(db, "profiles")
+UserManager::UserManager(std::shared_ptr<Quesync> server) : Manager(server),
+                                                            users_table(server->db(), "users"),
+                                                            friendships_table(server->db(), "friendships"),
+                                                            profiles_table(server->db(), "profiles")
 {
 }
 
-std::shared_ptr<User> UserManagement::authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password)
+std::shared_ptr<User> UserManager::authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password)
 {
     std::shared_ptr<User> user = nullptr;
 
@@ -56,11 +57,11 @@ std::shared_ptr<User> UserManagement::authenticateUser(std::shared_ptr<Session> 
     return user;
 }
 
-std::shared_ptr<User> UserManagement::registerUser(std::shared_ptr<Session> sess,
-                                                   std::string username,
-                                                   std::string password,
-                                                   std::string email,
-                                                   std::string nickname)
+std::shared_ptr<User> UserManager::registerUser(std::shared_ptr<Session> sess,
+                                                std::string username,
+                                                std::string password,
+                                                std::string email,
+                                                std::string nickname)
 {
     std::shared_ptr<User> user = nullptr;
     std::string id, password_hashed;
@@ -147,7 +148,7 @@ std::shared_ptr<User> UserManagement::registerUser(std::shared_ptr<Session> sess
     return user;
 }
 
-std::shared_ptr<Profile> UserManagement::getUserProfile(std::string user_id)
+std::shared_ptr<Profile> UserManager::getUserProfile(std::string user_id)
 {
     std::shared_ptr<Profile> profile = nullptr;
 
@@ -174,7 +175,7 @@ std::shared_ptr<Profile> UserManagement::getUserProfile(std::string user_id)
     return profile;
 }
 
-std::vector<std::string> UserManagement::getFriends(std::string user_id)
+std::vector<std::string> UserManager::getFriends(std::string user_id)
 {
     std::vector<std::string> friends;
     sql::RowResult res;
@@ -207,7 +208,7 @@ std::vector<std::string> UserManagement::getFriends(std::string user_id)
     return friends;
 }
 
-std::vector<FriendRequest> UserManagement::getFriendRequests(std::string user_id)
+std::vector<FriendRequest> UserManager::getFriendRequests(std::string user_id)
 {
     std::vector<FriendRequest> friend_requests;
     sql::RowResult res;
@@ -229,18 +230,18 @@ std::vector<FriendRequest> UserManagement::getFriendRequests(std::string user_id
         // If the "requester_id" column is the user's id, get the friend id from the "recipient_id" column
         if ((std::string)row[0] == user_id)
         {
-            friend_requests.push_back({ row[1], "recipient", (int)row[2] });
+            friend_requests.push_back({row[1], "recipient", (int)row[2]});
         }
         else
         {
-            friend_requests.push_back({ row[0], "requester", (int)row[2] });
+            friend_requests.push_back({row[0], "requester", (int)row[2]});
         }
     }
 
     return friend_requests;
 }
 
-void UserManagement::sendFriendRequest(std::string requester_id, std::string recipient_id)
+void UserManager::sendFriendRequest(std::string requester_id, std::string recipient_id)
 {
     FriendRequestEvent friend_request_event(requester_id, std::time(nullptr));
 
@@ -274,10 +275,10 @@ void UserManagement::sendFriendRequest(std::string requester_id, std::string rec
     }
 
     // Trigger an event in the recipient if online
-    EventManagement::TriggerEvent(*this, friend_request_event, recipient_id);
+    _server->eventManager()->triggerEvent(friend_request_event, recipient_id);
 }
 
-void UserManagement::setFriendshipStatus(std::string user_id, std::string friend_id, bool status)
+void UserManager::setFriendshipStatus(std::string user_id, std::string friend_id, bool status)
 {
     std::string requester, recipient;
     bool approved = false;
@@ -354,7 +355,7 @@ void UserManagement::setFriendshipStatus(std::string user_id, std::string friend
     }
 }
 
-void UserManagement::unauthenticateSession(std::string user_id)
+void UserManager::unauthenticateSession(std::string user_id)
 {
     // Try to erase the session from the authenticated sessions and silence errors
     try
@@ -366,7 +367,7 @@ void UserManagement::unauthenticateSession(std::string user_id)
     }
 }
 
-std::shared_ptr<Session> UserManagement::getAuthenticatedSessionOfUser(std::string user_id)
+std::shared_ptr<Session> UserManager::getAuthenticatedSessionOfUser(std::string user_id)
 {
     try
     {

@@ -41,7 +41,7 @@ class FriendRequestPacket : public SerializedPacket
         try
         {
             // Send the user a friend request, if failed an exception will be thrown
-            session->server()->userManagement().sendFriendRequest(session->user()->id(), _data["recipient_id"]);
+            session->server()->userManager()->sendFriendRequest(session->user()->id(), _data["recipient_id"]);
 
             // Return confirmation for the friend request
             return ResponsePacket(FRIEND_REQUEST_SENT_PACKET).encode();

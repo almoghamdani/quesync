@@ -43,7 +43,7 @@ class FriendshipStatusPacket : public SerializedPacket
         try
         {
             // Set the friendship status, if failed an exception will be thrown
-            session->server()->userManagement().setFriendshipStatus(session->user()->id(), _data["friend_id"], _data["status"]);
+            session->server()->userManager()->setFriendshipStatus(session->user()->id(), _data["friend_id"], _data["status"]);
 
             // Return confirmation for the friendship status
             return ResponsePacket(FRIENDSHIP_STATUS_SET_PACKET).encode();

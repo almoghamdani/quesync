@@ -41,7 +41,7 @@ class ProfilePacket : public SerializedPacket
         try
         {
             // Try get the profile of the requested user
-            profile = std::shared_ptr<Profile>(session->server()->userManagement().getUserProfile(_data["user_id"]));
+            profile = std::shared_ptr<Profile>(session->server()->userManager()->getUserProfile(_data["user_id"]));
 
             // Serialize the profile object and deallocate it
             profile_serialized = profile->serialize();

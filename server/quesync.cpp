@@ -6,8 +6,7 @@
 
 Quesync::Quesync(asio::io_context &io_context) : _acceptor(io_context, tcp::endpoint(tcp::v4(), MAIN_SERVER_PORT)),
                                                  _sess("localhost", 33060, "server", "123456789"),
-                                                 _db(_sess, "quesync"),
-                                                 _userManagement(_db)
+                                                 _db(_sess, "quesync")
 {
 }
 
@@ -23,6 +22,11 @@ Quesync::~Quesync()
 
 void Quesync::start()
 {
+    // Initialize managers
+    _user_manager = std::make_shared<UserManager>(shared_from_this());
+    _event_manager = std::make_shared<EventManager>(shared_from_this());
+    _channel_manager = std::make_shared<ChannelManager>(shared_from_this());
+
     std::cout << "Listening for TCP connections.." << std::endl;
 
     // Start acception requests
@@ -41,7 +45,7 @@ void Quesync::acceptClient()
                 std::cout << "Client connected from " << socket.remote_endpoint().address().to_string() << ":" << (int)socket.remote_endpoint().port() << std::endl;
 
                 // Create a shared session for the client socket
-                std::make_shared<Session>(std::move(socket), this)->start();
+                std::make_shared<Session>(std::move(socket), shared_from_this())->start();
             }
             else
             {
@@ -54,9 +58,19 @@ void Quesync::acceptClient()
         });
 }
 
-UserManagement &Quesync::userManagement()
+std::shared_ptr<UserManager> Quesync::userManager()
 {
-    return _userManagement;
+    return _user_manager;
+}
+
+std::shared_ptr<EventManager> Quesync::eventManager()
+{
+    return _event_manager;
+}
+
+std::shared_ptr<ChannelManager> Quesync::channelManager()
+{
+    return _channel_manager;
 }
 
 sql::Schema &Quesync::db()

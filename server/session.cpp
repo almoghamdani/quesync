@@ -4,9 +4,9 @@
 #include "../shared/utils.h"
 #include "../shared/packets/error_packet.h"
 
-Session::Session(tcp::socket socket, Quesync *server) : _socket(std::move(socket)), // Copy the client's socket
-                                                        _server(server),            // Save the server for data transfer,
-                                                        _user(nullptr)
+Session::Session(tcp::socket socket, std::shared_ptr<Quesync> server) : _socket(std::move(socket)), // Copy the client's socket
+                                                                        _server(server),            // Save the server for data transfer,
+                                                                        _user(nullptr)
 {
 }
 
@@ -16,7 +16,7 @@ Session::~Session()
     if (_user)
     {
         // Unauthenticate session and free the user object
-        _server->userManagement().unauthenticateSession(_user->id());
+        _server->userManager()->unauthenticateSession(_user->id());
     }
 
     // Close the client's socket in case it's not closed
@@ -134,7 +134,7 @@ void Session::sendOnly(std::string data)
                       });
 }
 
-Quesync *Session::server() const
+std::shared_ptr<Quesync> Session::server() const
 {
     return _server;
 }

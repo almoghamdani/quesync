@@ -12,13 +12,13 @@ using asio::ip::tcp;
 class Session : public std::enable_shared_from_this<Session>
 {
 public:
-  Session(tcp::socket socket, Quesync *server);
+  Session(tcp::socket socket, std::shared_ptr<Quesync> server);
   ~Session();
 
   void start();
   void sendOnly(std::string data);
 
-  Quesync *server() const;
+  std::shared_ptr<Quesync> server() const;
   std::shared_ptr<Session> getShared();
 
   bool authenticated() const;
@@ -27,7 +27,7 @@ public:
 
 private:
   std::shared_ptr<User> _user;
-  Quesync *_server;
+  std::shared_ptr<Quesync> _server;
 
   tcp::socket _socket;
   char _data[MAX_DATA_LEN];

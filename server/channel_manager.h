@@ -1,4 +1,5 @@
 #pragma once
+#include "manager.h"
 
 #include <mysqlx/xdevapi.h>
 namespace sql = mysqlx;
@@ -12,10 +13,10 @@ namespace sql = mysqlx;
 // Prevent loop header include
 class Session;
 
-class ChannelManagement
+class ChannelManager : Manager
 {
 public:
-    ChannelManagement(sql::Schema &db);
+    ChannelManager(std::shared_ptr<Quesync> server);
 
     std::shared_ptr<Channel> getPrivateChannel(std::shared_ptr<Session> sess, std::string participant_id);
 

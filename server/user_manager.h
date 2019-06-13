@@ -1,4 +1,5 @@
 #pragma once
+#include "manager.h"
 
 #include <mysqlx/xdevapi.h>
 namespace sql = mysqlx;
@@ -12,10 +13,10 @@ namespace sql = mysqlx;
 // Prevent loop header include
 class Session;
 
-class UserManagement
+class UserManager : Manager
 {
 public:
-    UserManagement(sql::Schema &db);
+    UserManager(std::shared_ptr<Quesync> server);
 
     std::shared_ptr<User> registerUser(std::shared_ptr<Session> sess, std::string username, std::string password, std::string email, std::string nickname);
     std::shared_ptr<User> authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password);
