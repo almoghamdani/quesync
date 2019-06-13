@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `quesync` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */;
-USE `quesync`;
 -- MySQL dump 10.13  Distrib 8.0.15, for macos10.14 (x86_64)
 --
 -- Host: localhost    Database: quesync
@@ -40,7 +38,7 @@ CREATE TABLE `channel_participants` (
 
 LOCK TABLES `channel_participants` WRITE;
 /*!40000 ALTER TABLE `channel_participants` DISABLE KEYS */;
-INSERT INTO `channel_participants` VALUES ('98ca2d33-7b83-487f-909c-478020a592e0','0739e80c-b634-4f9e-a54f-5ee75d441a96'),('98ca2d33-7b83-487f-909c-478020a592e0','20734f93-c8d3-48a8-a6a6-e554a42395d8'),('9a1dfb07-f2e6-4b70-852b-12f415b47537','20734f93-c8d3-48a8-a6a6-e554a42395d8'),('98ca2d33-7b83-487f-909c-478020a592e0','32b0358b-a54d-48f1-b7a6-2c48d9470d6a'),('9a1dfb07-f2e6-4b70-852b-12f415b47537','32b0358b-a54d-48f1-b7a6-2c48d9470d6a');
+INSERT INTO `channel_participants` VALUES ('98ca2d33-7b83-487f-909c-478020a592e0','0739e80c-b634-4f9e-a54f-5ee75d441a96'),('98ca2d33-7b83-487f-909c-478020a592e0','20734f93-c8d3-48a8-a6a6-e554a42395d8'),('9a1dfb07-f2e6-4b70-852b-12f415b47537','20734f93-c8d3-48a8-a6a6-e554a42395d8'),('98ca2d33-7b83-487f-909c-478020a592e0','32b0358b-a54d-48f1-b7a6-2c48d9470d6a'),('9a1dfb07-f2e6-4b70-852b-12f415b47537','32b0358b-a54d-48f1-b7a6-2c48d9470d6a'),('aa557985-25e0-42a7-9b33-4258a610283f','79bbcce2-01f4-4e12-b88d-c3f985d960f5');
 /*!40000 ALTER TABLE `channel_participants` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -53,8 +51,10 @@ DROP TABLE IF EXISTS `channels`;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `channels` (
   `id` varchar(36) NOT NULL,
+  `is_private` tinyint(4) NOT NULL DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -64,7 +64,7 @@ CREATE TABLE `channels` (
 
 LOCK TABLES `channels` WRITE;
 /*!40000 ALTER TABLE `channels` DISABLE KEYS */;
-INSERT INTO `channels` VALUES ('98ca2d33-7b83-487f-909c-478020a592e0','2019-06-10 17:08:36'),('9a1dfb07-f2e6-4b70-852b-12f415b47537','2019-06-10 17:08:36'),('aa557985-25e0-42a7-9b33-4258a610283f','2019-06-10 17:09:07');
+INSERT INTO `channels` VALUES ('98ca2d33-7b83-487f-909c-478020a592e0',0,'2019-06-10 17:08:36'),('9a1dfb07-f2e6-4b70-852b-12f415b47537',1,'2019-06-10 17:08:36'),('aa557985-25e0-42a7-9b33-4258a610283f',0,'2019-06-10 17:09:07');
 /*!40000 ALTER TABLE `channels` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -149,6 +149,37 @@ UNLOCK TABLES;
 --
 -- Dumping routines for database 'quesync'
 --
+/*!50003 DROP PROCEDURE IF EXISTS `get_private_channel` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_private_channel`(
+	IN user_1 VARCHAR(36),
+    IN user_2 VARCHAR(36)
+)
+BEGIN
+	SELECT c1.id
+    FROM channels c1
+    RIGHT JOIN
+	(SELECT channel_id
+    FROM channel_participants
+    WHERE user_id IN (user_1, user_2)
+    GROUP BY channel_id
+    HAVING COUNT(user_id) = 2) c2
+    ON c1.id = c2.channel_id
+    WHERE is_private = True;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Final view structure for view `profiles`
@@ -177,4 +208,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-12  0:40:30
+-- Dump completed on 2019-06-14  0:54:50
