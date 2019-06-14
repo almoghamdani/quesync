@@ -217,8 +217,8 @@ std::string Utils::QuesyncErrorToString(QuesyncError error)
         return "SELF_APPROVE_FRIEND_REQUEST";
     case CHANNEL_NOT_FOUND:
         return "CHANNEL_NOT_FOUND";
-    case ALREADY_PARTICIPANT:
-        return "ALREADY_PARTICIPANT";
+    case ALREADY_MEMBER:
+        return "ALREADY_MEMBER";
     }
 
     return "";

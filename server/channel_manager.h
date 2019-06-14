@@ -18,14 +18,14 @@ public:
 
     bool doesChannelExists(std::string channel_id);
 
-    std::shared_ptr<Channel> getPrivateChannel(std::shared_ptr<Session> sess, std::string participant_id);
+    std::shared_ptr<Channel> getPrivateChannel(std::shared_ptr<Session> sess, std::string user_id);
     std::shared_ptr<Channel> getChannel(std::string channel_id);
 
-    bool isUserParticipantOfChannel(std::string user_id, std::string channel_id);
-    void addParticipantToChannel(std::string channel_id, std::string participant_id);
+    bool isUserMemberOfChannel(std::string user_id, std::string channel_id);
+    void addMemberToChannel(std::string channel_id, std::string member_id);
 
 private:
-    sql::Table channel_participants_table;
+    sql::Table channel_members_table;
     sql::Table channels_table;
 
     std::shared_ptr<Channel> createChannel(bool is_private);

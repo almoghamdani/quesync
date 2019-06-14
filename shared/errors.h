@@ -21,5 +21,5 @@ typedef enum QuesyncError
     NOT_FRIENDS,
     SELF_APPROVE_FRIEND_REQUEST,
     CHANNEL_NOT_FOUND,
-    ALREADY_PARTICIPANT
+    ALREADY_MEMBER
 } QuesyncError;

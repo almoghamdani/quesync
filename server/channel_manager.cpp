@@ -10,7 +10,7 @@
 
 ChannelManager::ChannelManager(std::shared_ptr<Quesync> server) : Manager(server),
                                                                   channels_table(server->db(), "channels"),
-                                                                  channel_participants_table(server->db(), "channel_participants")
+                                                                  channel_members_table(server->db(), "channel_members")
 {
 }
 
@@ -31,7 +31,7 @@ bool ChannelManager::doesChannelExists(std::string channel_id)
     }
 }
 
-std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Session> sess, std::string participant_id)
+std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Session> sess, std::string user_id)
 {
     std::shared_ptr<Channel> channel;
     sql::Row channel_res;
@@ -42,8 +42,8 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
         throw QuesyncException(NOT_AUTHENTICATED);
     }
 
-    // Check if the other participant exists
-    if (!_server->userManager()->doesUserExists(participant_id))
+    // Check if the other user exists
+    if (!_server->userManager()->doesUserExists(user_id))
     {
         throw QuesyncException(USER_NOT_FOUND);
     }
@@ -55,7 +55,7 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
                           .getSession()
                           .sql("CALL get_private_channel(?, ?);")
                           .bind(sess->user()->id())
-                          .bind(participant_id)
+                          .bind(user_id)
                           .execute()
                           .fetchOne();
     }
@@ -70,9 +70,9 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
         // Create a channel for the users
         channel = createChannel(true);
 
-        // Add the users as a participants in the channel
-        addParticipantToChannel(channel->id(), sess->user()->id());
-        addParticipantToChannel(channel->id(), participant_id);
+        // Add the users as a members in the channel
+        addMemberToChannel(channel->id(), sess->user()->id());
+        addMemberToChannel(channel->id(), user_id);
     }
     else
     {
@@ -83,12 +83,12 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
     return channel;
 }
 
-bool ChannelManager::isUserParticipantOfChannel(std::string user_id, std::string channel_id)
+bool ChannelManager::isUserMemberOfChannel(std::string user_id, std::string channel_id)
 {
     try {
-        return channel_participants_table
+        return channel_members_table
             .select("1")
-            .where("channel_id = :channel_id AND user_id = :user_id")
+            .where("channel_id = :channel_id AND member_id = :user_id")
             .bind("channel_id", channel_id)
             .bind("user_id", user_id)
             .execute()
@@ -98,7 +98,7 @@ bool ChannelManager::isUserParticipantOfChannel(std::string user_id, std::string
     }
 }
 
-void ChannelManager::addParticipantToChannel(std::string channel_id, std::string participant_id)
+void ChannelManager::addMemberToChannel(std::string channel_id, std::string member_id)
 {
     // If the channel is not found, throw error
     if (!doesChannelExists(channel_id))
@@ -106,18 +106,18 @@ void ChannelManager::addParticipantToChannel(std::string channel_id, std::string
         throw QuesyncException(CHANNEL_NOT_FOUND);
     }
 
-    // If the participant already exists, throw error
-    if (isUserParticipantOfChannel(participant_id, channel_id))
+    // If the member already exists, throw error
+    if (isUserMemberOfChannel(member_id, channel_id))
     {
-        throw QuesyncException(ALREADY_PARTICIPANT);
+        throw QuesyncException(ALREADY_MEMBER);
     }
 
     try
     {
-        // Add the user as a participant in the room
-        channel_participants_table
-            .insert("channel_id", "user_id")
-            .values(channel_id, participant_id)
+        // Add the user as a member in the room
+        channel_members_table
+            .insert("channel_id", "member_id")
+            .values(channel_id, member_id)
             .execute();
     }
     catch (...)
