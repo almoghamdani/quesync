@@ -16,7 +16,6 @@ public:
 		_json["sentAt"] = sent_at;
 	};
 
-	// Get functions for all the user's fields
 	GET_FUNCTION(friendId, std::string)
 	GET_FUNCTION(friendType, std::string)
 	GET_FUNCTION(sentAt, std::time_t)

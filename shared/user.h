@@ -26,7 +26,6 @@ public:
         _json["friendRequests"] = friend_requests;
     };
 
-    // Get functions for all the user's fields
     GET_FUNCTION(id, std::string)
     GET_FUNCTION(username, std::string)
     GET_FUNCTION(email, std::string)

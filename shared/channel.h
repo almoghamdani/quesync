@@ -16,8 +16,7 @@ public:
         _json["createdAt"] = created_at;
     };
 
-    // Get functions for all the user's fields
     GET_FUNCTION(id, std::string)
-    GET_FUNCTION(isPrivate, bool);
+    GET_FUNCTION(isPrivate, bool)
     GET_FUNCTION(createdAt, std::time_t)
 };

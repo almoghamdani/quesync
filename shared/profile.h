@@ -14,7 +14,6 @@ class Profile : public SerializedObject
         _json["tag"] = tag;
     };
 
-    // Get functions for all the user's fields
     GET_FUNCTION(id, std::string)
     GET_FUNCTION(nickname, std::string)
     GET_FUNCTION(tag, std::string)
