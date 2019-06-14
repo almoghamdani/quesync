@@ -20,7 +20,7 @@ public:
 
 	std::shared_ptr<Message> sendMessage(std::shared_ptr<Session> sess, std::string content, std::string channel_id);
 
-	std::vector<Message> getMessages(std::shared_ptr<Session> sess, std::string channel_id, unsigned int offset, unsigned int amount);
+	std::vector<Message> getMessages(std::shared_ptr<Session> sess, std::string channel_id, unsigned int amount, unsigned int offset);
 
 private:
 	sql::Table messages_table;

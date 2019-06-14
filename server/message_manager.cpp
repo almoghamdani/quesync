@@ -55,7 +55,7 @@ std::shared_ptr<Message> MessageManager::sendMessage(std::shared_ptr<Session> se
     return message;
 }
 
-std::vector<Message> MessageManager::getMessages(std::shared_ptr<Session> sess, std::string channel_id, unsigned int offset, unsigned int amount)
+std::vector<Message> MessageManager::getMessages(std::shared_ptr<Session> sess, std::string channel_id, unsigned int amount, unsigned int offset)
 {
     std::vector<Message> messages;
 

@@ -21,8 +21,10 @@ sock.send(b'QUESYNC|007|{ "userId": "530e9407-7cfd-4be4-9cc6-70ab38e6310c" }|')
 res = sock.recv(512).decode()
 print(res[12:-2])
 res = json.loads(res[12:-2])
-sock.send(('QUESYNC|008|{ "content": "TESTING", "channelId": "2e98d4b8-8cf0-4726-a2d5-285bf3b3adfc" }|').encode())
-
+channelId = res["id"]
+print(('QUESYNC|009|{ "amount": 300, "offset": 0, "channelId": "' + channelId + '" }|'))
+sock.send(('QUESYNC|009|{ "amount": 100, "offset": 0, "channelId": "' + "49dc2dce-509d-46af-a563-05bef5ddcc67" + '" }|').encode())
+#sock.send(('QUESYNC|008|{ "content": "TESTING", "channelId": "' + res["id"] + '" }|').encode())
 #sock.send(b'QUESYNC|005|{ "recipientId": "5464a7ba-4417-4a21-895d-0902bf4f9343" }|')
 
-print(sock.recv(512).decode())
+print(sock.recv(2048).decode())

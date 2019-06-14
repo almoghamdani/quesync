@@ -19,6 +19,7 @@
 #include "packets/event_packet.h"
 #include "packets/get_private_channel_packet.h"
 #include "packets/send_message_packet.h"
+#include "packets/get_channel_messages.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -79,6 +80,10 @@ Packet *Utils::ParsePacket(std::string packet)
         p = new SendMessagePacket();
         break;
 
+    case GET_CHANNEL_MESSAGES_PACKET:
+        p = new GetChannelMessagesPacket();
+        break;
+
     case ERROR_PACKET:
         p = new ErrorPacket();
         break;
@@ -91,6 +96,7 @@ Packet *Utils::ParsePacket(std::string packet)
     case PROFILE_PACKET:
     case PRIVATE_CHANNEL_PACKET:
     case MESSAGE_ID_PACKET:
+    case CHANNEL_MESSAGES_PACKET:
         p = new ResponsePacket(packet_type, "");
         break;
 
