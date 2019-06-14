@@ -17,12 +17,12 @@ class ProfilePacket : public SerializedPacket
 
     ProfilePacket(std::string user_id) : SerializedPacket(PROFILE_REQUEST_PACKET)
     {
-        _data["user_id"] = user_id;
+        _data["userId"] = user_id;
     };
 
     virtual bool verify() const
     {
-        return exists("user_id");
+        return exists("userId");
     };
 
 // A handle function for the server
@@ -41,7 +41,7 @@ class ProfilePacket : public SerializedPacket
         try
         {
             // Try get the profile of the requested user
-            profile = std::shared_ptr<Profile>(session->server()->userManager()->getUserProfile(_data["user_id"]));
+            profile = std::shared_ptr<Profile>(session->server()->userManager()->getUserProfile(_data["userId"]));
 
             // Serialize the profile object and deallocate it
             profile_serialized = profile->serialize();

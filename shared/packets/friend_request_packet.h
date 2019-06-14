@@ -14,12 +14,12 @@ class FriendRequestPacket : public SerializedPacket
 
     FriendRequestPacket(std::string recipient_id) : SerializedPacket(FRIEND_REQUEST_PACKET)
     {
-        _data["recipient_id"] = recipient_id;
+        _data["recipientId"] = recipient_id;
     };
 
     virtual bool verify() const
     {
-        return (exists("recipient_id"));
+        return (exists("recipientId"));
     };
 
 // A handle function for the server
@@ -33,7 +33,7 @@ class FriendRequestPacket : public SerializedPacket
         }
 
         // If the recipient id is the user's id, return error
-        if (session->user()->id() == _data["recipient_id"])
+        if (session->user()->id() == _data["recipientId"])
         {
             return ErrorPacket(SELF_FRIEND_REQUEST).encode();
         }
@@ -41,7 +41,7 @@ class FriendRequestPacket : public SerializedPacket
         try
         {
             // Send the user a friend request, if failed an exception will be thrown
-            session->server()->userManager()->sendFriendRequest(session->user()->id(), _data["recipient_id"]);
+            session->server()->userManager()->sendFriendRequest(session->user()->id(), _data["recipientId"]);
 
             // Return confirmation for the friend request
             return ResponsePacket(FRIEND_REQUEST_SENT_PACKET).encode();

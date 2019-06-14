@@ -14,13 +14,13 @@ class FriendshipStatusPacket : public SerializedPacket
 
     FriendshipStatusPacket(std::string friend_id, bool status) : SerializedPacket(FRIENDSHIP_STATUS_PACKET)
     {
-        _data["friend_id"] = friend_id;
+        _data["friendId"] = friend_id;
         _data["status"] = status;
     };
 
     virtual bool verify() const
     {
-        return (exists("friend_id") &&
+        return (exists("friendId") &&
                 exists("status"));
     };
 
@@ -35,7 +35,7 @@ class FriendshipStatusPacket : public SerializedPacket
         }
 
         // If the friend id is the user's id, return error
-        if (session->user()->id() == _data["friend_id"])
+        if (session->user()->id() == _data["friendId"])
         {
             return ErrorPacket(SELF_FRIEND_REQUEST).encode();
         }
@@ -43,7 +43,7 @@ class FriendshipStatusPacket : public SerializedPacket
         try
         {
             // Set the friendship status, if failed an exception will be thrown
-            session->server()->userManager()->setFriendshipStatus(session->user()->id(), _data["friend_id"], _data["status"]);
+            session->server()->userManager()->setFriendshipStatus(session->user()->id(), _data["friendId"], _data["status"]);
 
             // Return confirmation for the friendship status
             return ResponsePacket(FRIENDSHIP_STATUS_SET_PACKET).encode();
