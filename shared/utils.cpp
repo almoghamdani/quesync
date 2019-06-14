@@ -18,6 +18,7 @@
 #include "packets/profile_packet.h"
 #include "packets/event_packet.h"
 #include "packets/get_private_channel_packet.h"
+#include "packets/send_message_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -74,6 +75,10 @@ Packet *Utils::ParsePacket(std::string packet)
         p = new GetPrivateChannelPacket();
         break;
 
+    case SEND_MESSAGE_PACKET:
+        p = new SendMessagePacket();
+        break;
+
     case ERROR_PACKET:
         p = new ErrorPacket();
         break;
@@ -85,6 +90,7 @@ Packet *Utils::ParsePacket(std::string packet)
     case PONG_PACKET:
     case PROFILE_PACKET:
     case PRIVATE_CHANNEL_PACKET:
+    case MESSAGE_ID_PACKET:
         p = new ResponsePacket(packet_type, "");
         break;
 
@@ -219,6 +225,8 @@ std::string Utils::QuesyncErrorToString(QuesyncError error)
         return "CHANNEL_NOT_FOUND";
     case ALREADY_MEMBER:
         return "ALREADY_MEMBER";
+    case NOT_MEMBER_OF_CHANNEL:
+        return "NOT_MEMBER_OF_CHANNEL";
     }
 
     return "";

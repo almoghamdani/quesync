@@ -6,7 +6,7 @@
 #include "response_packet.h"
 #include "error_packet.h"
 #include "serialized_packet.h"
-#include "../utils.h"
+
 #include "../quesync_exception.h"
 
 class GetPrivateChannelPacket : public SerializedPacket
