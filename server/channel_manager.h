@@ -4,8 +4,6 @@
 #include <mysqlx/xdevapi.h>
 namespace sql = mysqlx;
 
-#include <unordered_map>
-
 #include "../shared/channel.h"
 
 // Prevent loop header include

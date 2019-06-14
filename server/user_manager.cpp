@@ -212,7 +212,11 @@ std::vector<std::string> UserManager::getFriends(std::string user_id)
     try
     {
         // Get the ids of the user's friends
-        res = friendships_table.select("requester_id", "recipient_id").where("(requester_id = :user_id OR recipient_id = :user_id) AND approved = True").bind("user_id", user_id).execute();
+        res = friendships_table
+                  .select("requester_id", "recipient_id")
+                  .where("(requester_id = :user_id OR recipient_id = :user_id) AND approved = True")
+                  .bind("user_id", user_id)
+                  .execute();
     }
     catch (...)
     {

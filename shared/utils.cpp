@@ -227,6 +227,8 @@ std::string Utils::QuesyncErrorToString(QuesyncError error)
         return "ALREADY_MEMBER";
     case NOT_MEMBER_OF_CHANNEL:
         return "NOT_MEMBER_OF_CHANNEL";
+    case AMOUNT_EXCEEDED_MAX:
+        return "AMOUNT_EXCEEDED_MAX";
     }
 
     return "";
