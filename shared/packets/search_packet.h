@@ -9,7 +9,7 @@
 
 class SearchPacket : public SerializedPacket
 {
-  public:
+public:
     SearchPacket() : SearchPacket("", -1){};
 
     SearchPacket(std::string nickname, int tag) : SerializedPacket(SEARCH_PACKET)
@@ -32,44 +32,51 @@ class SearchPacket : public SerializedPacket
 
         std::string nickname = _data["nickname"];
 
-        sql::Table users_table = session->server()->db().getTable("users");
-        std::vector<sql::Row> res;
-
-        // Insert % before and after the string to match any string containing the nickname
-        nickname.insert(0, "%");
-        nickname.append("%");
-
-        // If the user is not authenticed, send error
-        if (!session->authenticated())
+        try
         {
-            return ErrorPacket(NOT_AUTHENTICATED).encode();
+            sql::Table users_table = session->server()->db().getTable("users");
+            std::vector<sql::Row> res;
+
+            // Insert % before and after the string to match any string containing the nickname
+            nickname.insert(0, "%");
+            nickname.append("%");
+
+            // If the user is not authenticed, send error
+            if (!session->authenticated())
+            {
+                return ErrorPacket(NOT_AUTHENTICATED).encode();
+            }
+
+            // If a tag was entered, select with it as a requirement
+            if ((int)_data["tag"] != -1)
+            {
+                // Get all users matching the searched nickname and tag
+                res = users_table.select("id", "nickname", "tag")
+                          .where("nickname LIKE :nickname AND tag = :tag")
+                          .bind("nickname", nickname)
+                          .bind("tag", (int)_data["tag"])
+                          .execute()
+                          .fetchAll();
+            }
+            else
+            {
+                // Get all users matching the searched nickname
+                res = users_table.select("id", "nickname", "tag")
+                          .where("nickname LIKE :nickname")
+                          .bind("nickname", nickname)
+                          .execute()
+                          .fetchAll();
+            }
+
+            // Format the results in the json type
+            for (int i = 0; i < res.size(); i++)
+            {
+                results[std::string(res[i][0])] = nlohmann::json({{"nickname", res[i][1]}, {"tag", (int)res[i][2]}});
+            }
         }
-
-        // If a tag was entered, select with it as a requirement
-        if ((int)_data["tag"] != -1)
+        catch (...)
         {
-            // Get all users matching the searched nickname and tag
-            res = users_table.select("id", "nickname", "tag")
-                      .where("nickname LIKE :nickname AND tag = :tag")
-                      .bind("nickname", nickname)
-                      .bind("tag", (int)_data["tag"])
-                      .execute()
-                      .fetchAll();
-        }
-        else
-        {
-            // Get all users matching the searched nickname
-            res = users_table.select("id", "nickname", "tag")
-                      .where("nickname LIKE :nickname")
-                      .bind("nickname", nickname)
-                      .execute()
-                      .fetchAll();
-        }
-
-        // Format the results in the json type
-        for (int i = 0; i < res.size(); i++)
-        {
-            results[std::string(res[i][0])] = nlohmann::json({{"nickname", res[i][1]}, {"tag", (int)res[i][2]}});
+            return ErrorPacket(UNKNOWN_ERROR).encode();
         }
 
         try
@@ -81,6 +88,10 @@ class SearchPacket : public SerializedPacket
         {
             // Return the error code
             return ErrorPacket(ex.getErrorCode()).encode();
+        }
+        catch (...)
+        {
+            return ErrorPacket(UNKNOWN_ERROR).encode();
         }
     };
 #endif

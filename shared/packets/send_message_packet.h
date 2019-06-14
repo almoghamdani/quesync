@@ -50,6 +50,10 @@ public:
 			// Return the error code
 			return ErrorPacket(ex.getErrorCode()).encode();
 		}
+		catch (...)
+        {
+            return ErrorPacket(UNKNOWN_ERROR).encode();
+        }
 	};
 #endif
 };
