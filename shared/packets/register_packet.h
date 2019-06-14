@@ -1,8 +1,6 @@
 #pragma once
 #include "serialized_packet.h"
 
-#include <sstream>
-
 #include "response_packet.h"
 #include "error_packet.h"
 #include "../quesync_exception.h"

@@ -2,7 +2,6 @@
 #include "serialized_packet.h"
 
 #include <vector>
-#include <sstream>
 
 #include "response_packet.h"
 #include "error_packet.h"
