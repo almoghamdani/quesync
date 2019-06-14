@@ -5,15 +5,30 @@
 
 #include "quesync.h"
 #include "session.h"
-#include "event_manager.h"
 
 #include "../shared/quesync_exception.h"
 
 ChannelManager::ChannelManager(std::shared_ptr<Quesync> server) : Manager(server),
-                                                                  users_table(server->db(), "users"),
                                                                   channels_table(server->db(), "channels"),
                                                                   channel_participants_table(server->db(), "channel_participants")
 {
+}
+
+bool ChannelManager::doesChannelExists(std::string channel_id)
+{
+    try
+    {
+        return channels_table
+            .select("1")
+            .where("id = :channel_id")
+            .bind("channel_id", channel_id)
+            .execute()
+            .count();
+    }
+    catch (...)
+    {
+        return false;
+    }
 }
 
 std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Session> sess, std::string participant_id)
@@ -28,7 +43,7 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
     }
 
     // Check if the other participant exists
-    if (!users_table.select("1").where("id = :id").bind("id", participant_id).execute().count())
+    if (!_server->userManager()->doesUserExists(participant_id))
     {
         throw QuesyncException(USER_NOT_FOUND);
     }
@@ -56,8 +71,8 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
         channel = createChannel(true);
 
         // Add the users as a participants in the channel
-        addParticipantToRoom(channel->id(), sess->user()->id());
-        addParticipantToRoom(channel->id(), participant_id);
+        addParticipantToChannel(channel->id(), sess->user()->id());
+        addParticipantToChannel(channel->id(), participant_id);
     }
     else
     {
@@ -68,27 +83,16 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
     return channel;
 }
 
-void ChannelManager::addParticipantToRoom(std::string channel_id, std::string participant_id)
+void ChannelManager::addParticipantToChannel(std::string channel_id, std::string participant_id)
 {
     // If the channel is not found, throw error
-    if (!channels_table
-             .select("1")
-             .where("id = :channel_id")
-             .bind("channel_id", channel_id)
-             .execute()
-             .count())
+    if (!doesChannelExists(channel_id))
     {
         throw QuesyncException(CHANNEL_NOT_FOUND);
     }
 
     // If the participant already exists, throw error
-    if (channel_participants_table
-            .select("1")
-            .where("channel_id = :channel_id AND user_id = :participant_id")
-            .bind("channel_id", channel_id)
-            .bind("participant_id", participant_id)
-            .execute()
-            .count())
+    if (isUserParticipantOfChannel(participant_id, channel_id))
     {
         throw QuesyncException(ALREADY_PARTICIPANT);
     }

@@ -18,6 +18,19 @@ UserManager::UserManager(std::shared_ptr<Quesync> server) : Manager(server),
 {
 }
 
+bool UserManager::doesUserExists(std::string user_id)
+{
+    try
+    {
+        // Check if the user exists
+        return users_table.select("1").where("id = :id").bind("id", user_id).execute().count();
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
 std::shared_ptr<User> UserManager::authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password)
 {
     std::shared_ptr<User> user = nullptr;
@@ -25,11 +38,18 @@ std::shared_ptr<User> UserManager::authenticateUser(std::shared_ptr<Session> ses
     sql::Row user_res;
 
     // Search for the user row in the database
-    user_res = users_table.select("*")
-                   .where("username = :username")
-                   .bind("username", username)
-                   .execute()
-                   .fetchOne();
+    try
+    {
+        user_res = users_table.select("*")
+                       .where("username = :username")
+                       .bind("username", username)
+                       .execute()
+                       .fetchOne();
+    }
+    catch (...)
+    {
+        throw QuesyncException(UNKNOWN_ERROR);
+    }
 
     // If the user is not found
     if (user_res.isNull())
@@ -156,11 +176,18 @@ std::shared_ptr<Profile> UserManager::getUserProfile(std::string user_id)
     sql::Row profile_res;
 
     // Search for the profile row in the database
-    profile_res = profiles_table.select("*")
-                      .where("id = :user_id")
-                      .bind("user_id", user_id)
-                      .execute()
-                      .fetchOne();
+    try
+    {
+        profile_res = profiles_table.select("*")
+                          .where("id = :user_id")
+                          .bind("user_id", user_id)
+                          .execute()
+                          .fetchOne();
+    }
+    catch (...)
+    {
+        throw QuesyncException(UNKNOWN_ERROR);
+    }
 
     // If the user's profile is not found
     if (profile_res.isNull())
@@ -247,20 +274,27 @@ void UserManager::sendFriendRequest(std::string requester_id, std::string recipi
     FriendRequestEvent friend_request_event(requester_id, std::time(nullptr));
 
     // Check if the recipient exists
-    if (!users_table.select("1").where("id = :id").bind("id", recipient_id).execute().count())
+    if (!doesUserExists(recipient_id))
     {
         throw QuesyncException(USER_NOT_FOUND);
     }
 
     // Check if the 2 users are already friends
-    if (friendships_table.select("1")
-            .where("(requester_id = :requester_id AND recipient_id = :recipient_id) OR (requester_id = :recipient_id AND recipient_id = :requester_id)")
-            .bind("requester_id", requester_id)
-            .bind("recipient_id", recipient_id)
-            .execute()
-            .count())
+    try
     {
-        throw QuesyncException(ALREADY_FRIENDS);
+        if (friendships_table.select("1")
+                .where("(requester_id = :requester_id AND recipient_id = :recipient_id) OR (requester_id = :recipient_id AND recipient_id = :requester_id)")
+                .bind("requester_id", requester_id)
+                .bind("recipient_id", recipient_id)
+                .execute()
+                .count())
+        {
+            throw QuesyncException(ALREADY_FRIENDS);
+        }
+    }
+    catch (...)
+    {
+        throw QuesyncException(UNKNOWN_ERROR);
     }
 
     try
@@ -286,18 +320,25 @@ void UserManager::setFriendshipStatus(std::string user_id, std::string friend_id
     sql::Row friendship_row;
 
     // Check if the friend exists
-    if (!users_table.select("1").where("id = :id").bind("id", friend_id).execute().count())
+    if (!doesUserExists(friend_id))
     {
         throw QuesyncException(USER_NOT_FOUND);
     }
 
     // Get the friendship between the user and the friend
-    friendship_row = friendships_table.select("requester_id", "recipient_id", "approved")
-                         .where("(requester_id = :requester_id AND recipient_id = :recipient_id) OR (requester_id = :recipient_id AND recipient_id = :requester_id)")
-                         .bind("requester_id", user_id)
-                         .bind("recipient_id", friend_id)
-                         .execute()
-                         .fetchOne();
+    try
+    {
+        friendship_row = friendships_table.select("requester_id", "recipient_id", "approved")
+                             .where("(requester_id = :requester_id AND recipient_id = :recipient_id) OR (requester_id = :recipient_id AND recipient_id = :requester_id)")
+                             .bind("requester_id", user_id)
+                             .bind("recipient_id", friend_id)
+                             .execute()
+                             .fetchOne();
+    }
+    catch (...)
+    {
+        throw QuesyncException(UNKNOWN_ERROR);
+    }
 
     // If the user doesn't have the friend as his friend throw an error
     if (friendship_row.isNull())

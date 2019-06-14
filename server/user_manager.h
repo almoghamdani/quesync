@@ -18,6 +18,8 @@ class UserManager : Manager
 public:
     UserManager(std::shared_ptr<Quesync> server);
 
+    bool doesUserExists(std::string user_id);
+
     std::shared_ptr<User> registerUser(std::shared_ptr<Session> sess, std::string username, std::string password, std::string email, std::string nickname);
     std::shared_ptr<User> authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password);
     std::shared_ptr<Session> getAuthenticatedSessionOfUser(std::string user_id);
