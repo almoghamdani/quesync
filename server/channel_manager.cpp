@@ -83,6 +83,21 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
     return channel;
 }
 
+bool ChannelManager::isUserParticipantOfChannel(std::string user_id, std::string channel_id)
+{
+    try {
+        return channel_participants_table
+            .select("1")
+            .where("channel_id = :channel_id AND user_id = :user_id")
+            .bind("channel_id", channel_id)
+            .bind("user_id", user_id)
+            .execute()
+            .count();
+    } catch (...) {
+        return false;
+    }
+}
+
 void ChannelManager::addParticipantToChannel(std::string channel_id, std::string participant_id)
 {
     // If the channel is not found, throw error
