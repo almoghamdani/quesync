@@ -10,6 +10,7 @@ namespace sql = mysqlx;
 #include "user_manager.h"
 #include "event_manager.h"
 #include "channel_manager.h"
+#include "message_manager.h"
 
 #define MAIN_SERVER_PORT 61110
 
@@ -26,6 +27,7 @@ public:
   std::shared_ptr<UserManager> userManager();
   std::shared_ptr<EventManager> eventManager();
   std::shared_ptr<ChannelManager> channelManager();
+  std::shared_ptr<MessageManager> messageManager();
 
   sql::Schema &db();
 
@@ -38,6 +40,7 @@ private:
   std::shared_ptr<UserManager> _user_manager;
   std::shared_ptr<EventManager> _event_manager;
   std::shared_ptr<ChannelManager> _channel_manager;
+  std::shared_ptr<MessageManager> _message_manager;
 
   void acceptClient();
 };
