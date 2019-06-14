@@ -19,7 +19,7 @@
 #include "packets/event_packet.h"
 #include "packets/get_private_channel_packet.h"
 #include "packets/send_message_packet.h"
-#include "packets/get_channel_messages.h"
+#include "packets/get_channel_messages_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {

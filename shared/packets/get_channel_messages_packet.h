@@ -13,7 +13,7 @@ class GetChannelMessagesPacket : public SerializedPacket
 public:
 	GetChannelMessagesPacket() : GetChannelMessagesPacket("", 0, 0){};
 
-	GetChannelMessagesPacket(std::string channel_id, unsigned int amount, unsigned int offset) : SerializedPacket(SEND_MESSAGE_PACKET)
+	GetChannelMessagesPacket(std::string channel_id, unsigned int amount, unsigned int offset) : SerializedPacket(GET_CHANNEL_MESSAGES_PACKET)
 	{
 		_data["channelId"] = channel_id;
 		_data["amount"] = amount;

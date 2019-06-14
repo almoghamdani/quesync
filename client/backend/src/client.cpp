@@ -12,6 +12,9 @@
 #include "../../../shared/packets/friend_request_packet.h"
 #include "../../../shared/packets/ping_packet.h"
 #include "../../../shared/packets/profile_packet.h"
+#include "../../../shared/packets/get_private_channel_packet.h"
+#include "../../../shared/packets/send_message_packet.h"
+#include "../../../shared/packets/get_channel_messages_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
@@ -273,7 +276,8 @@ Napi::Value Client::getUserProfile(const Napi::CallbackInfo &info)
             // Set the error code from the response packet
             res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
         }
-        else if (response_packet && response_packet->type() == PROFILE_PACKET) // If the response packet is a valid user's profile packet
+        // If the response packet is a valid user's profile packet
+        else if (response_packet && response_packet->type() == PROFILE_PACKET)
         {
             // Set success error code
             res["error"] = SUCCESS;
@@ -350,14 +354,14 @@ Napi::Value Client::search(const Napi::CallbackInfo &info)
             // Set the error code from the response packet
             res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
         }
-        // If the response packet is a valid search results response, get the user from it
+        // If the response packet is a valid search results response, get the search results from it
         else if (response_packet && response_packet->type() == SEARCH_RESULTS_PACKET)
         {
             // Set success error code
             res["error"] = SUCCESS;
 
             // Return the search results in an object
-            res["search_results"] = nlohmann::json::parse(response_packet->data());
+            res["searchResults"] = nlohmann::json::parse(response_packet->data());
         }
         else if (error)
         {
@@ -427,7 +431,7 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
             // Set the error code from the response packet
             res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
         }
-        // If the response packet is a friend request confirmation response, get the user from it
+        // If the response packet is a friend request confirmation response
         else if (response_packet && response_packet->type() == FRIEND_REQUEST_SENT_PACKET)
         {
             // Set success error code
@@ -482,13 +486,259 @@ Napi::Value Client::registerEventHandler(const Napi::CallbackInfo &info)
     return info.Env().Null();
 }
 
+Napi::Value Client::getPrivateChannel(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+    // Convert parameters to string
+    std::string user_id = info[0].As<Napi::String>();
+
+    Executer *e = new Executer([this, user_id]() {
+        QuesyncError error = SUCCESS;
+        std::shared_ptr<ResponsePacket> response_packet;
+        nlohmann::json res;
+
+        GetPrivateChannelPacket get_private_channel_packet(user_id);
+
+        // If not authenticated, return error
+        if (!_user)
+        {
+            res["error"] = NOT_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Send the get private channel packet
+        try
+        {
+            response_packet = _communicator.send(&get_private_channel_packet);
+        }
+        catch (QuesyncException &ex)
+        {
+            res["error"] = ex.getErrorCode();
+
+            return res;
+        }
+        catch (...)
+        {
+            res["error"] = UNKNOWN_ERROR;
+
+            return res;
+        }
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
+        }
+        // If the response packet is a private channel response, get the channel from it
+        else if (response_packet && response_packet->type() == PRIVATE_CHANNEL_PACKET)
+        {
+            // Set success error code
+            res["error"] = SUCCESS;
+
+            // Get the channel from the response's data
+            res["channel"] = nlohmann::json::parse(response_packet->data());
+        }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
+
+        return res;
+    },
+                               deferred);
+
+    // Queue the executer worker
+    e->Queue();
+
+    return deferred.Promise();
+}
+
+Napi::Value Client::sendMessage(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+    // Convert parameters to string
+    std::string content = info[0].As<Napi::String>();
+    std::string channel_id = info[1].As<Napi::String>();
+
+    Executer *e = new Executer([this, content, channel_id]() {
+        QuesyncError error = SUCCESS;
+        std::shared_ptr<ResponsePacket> response_packet;
+        nlohmann::json res;
+
+        SendMessagePacket send_message_packet(content, channel_id);
+
+        // If not authenticated, return error
+        if (!_user)
+        {
+            res["error"] = NOT_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Send the send message packet
+        try
+        {
+            response_packet = _communicator.send(&send_message_packet);
+        }
+        catch (QuesyncException &ex)
+        {
+            res["error"] = ex.getErrorCode();
+
+            return res;
+        }
+        catch (...)
+        {
+            res["error"] = UNKNOWN_ERROR;
+
+            return res;
+        }
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
+        }
+        // If the response packet is a message id response, get the message id from it
+        else if (response_packet && response_packet->type() == MESSAGE_ID_PACKET)
+        {
+            // Set success error code
+            res["error"] = SUCCESS;
+
+            // Get the message id from the resposne's data
+            res["messageId"] = nlohmann::json::parse(response_packet->data())["messageId"];
+        }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
+
+        return res;
+    },
+                               deferred);
+
+    // Queue the executer worker
+    e->Queue();
+
+    return deferred.Promise();
+}
+
+Napi::Value Client::getChannelMessages(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+    // Convert parameters to string
+    std::string channel_id = info[0].As<Napi::String>();
+    unsigned int amount = info[1].As<Napi::Number>();
+    unsigned int offset = info[2].As<Napi::Number>();
+
+    Executer *e = new Executer([this, channel_id, amount, offset]() {
+        QuesyncError error = SUCCESS;
+        std::shared_ptr<ResponsePacket> response_packet;
+        nlohmann::json res;
+
+        GetChannelMessagesPacket get_channel_messages_packet(channel_id, amount, offset);
+
+        // If not authenticated, return error
+        if (!_user)
+        {
+            res["error"] = NOT_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Send the send message packet
+        try
+        {
+            response_packet = _communicator.send(&get_channel_messages_packet);
+        }
+        catch (QuesyncException &ex)
+        {
+            res["error"] = ex.getErrorCode();
+
+            return res;
+        }
+        catch (...)
+        {
+            res["error"] = UNKNOWN_ERROR;
+
+            return res;
+        }
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
+        }
+        // If the response packet is a channel messages packet, get the messages from it
+        else if (response_packet && response_packet->type() == CHANNEL_MESSAGES_PACKET)
+        {
+            // Set success error code
+            res["error"] = SUCCESS;
+
+            // Get the messages from the resposne's data
+            res["messages"] = nlohmann::json::parse(response_packet->data());
+        }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
+
+        return res;
+    },
+                               deferred);
+
+    // Queue the executer worker
+    e->Queue();
+
+    return deferred.Promise();
+}
+
 Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
 {
     // Create scope for Client object
     Napi::HandleScope scope(env);
 
     // This method is used to hook the accessor and method callbacks
-    Napi::Function func = DefineClass(env, "Client", {InstanceMethod("connect", &Client::connect), InstanceMethod("login", &Client::login), InstanceMethod("register", &Client::signup), InstanceMethod("getUserProfile", &Client::getUserProfile), InstanceMethod("search", &Client::search), InstanceMethod("sendFriendRequest", &Client::sendFriendRequest), InstanceMethod("registerEventHandler", &Client::registerEventHandler), InstanceMethod("getUser", &Client::getUser)});
+    Napi::Function func = DefineClass(env,
+                                      "Client",
+                                      {InstanceMethod("connect", &Client::connect),
+                                       InstanceMethod("login", &Client::login),
+                                       InstanceMethod("register", &Client::signup),
+                                       InstanceMethod("getUserProfile", &Client::getUserProfile),
+                                       InstanceMethod("search", &Client::search),
+                                       InstanceMethod("sendFriendRequest", &Client::sendFriendRequest),
+                                       InstanceMethod("registerEventHandler", &Client::registerEventHandler),
+                                       InstanceMethod("getUser", &Client::getUser),
+                                       InstanceMethod("getPrivateChannel", &Client::getPrivateChannel),
+                                       InstanceMethod("sendMessage", &Client::sendMessage),
+                                       InstanceMethod("getChannelMessages", &Client::getChannelMessages)});
 
     // Create a peristent reference to the class constructor. This will allow
     // a function called on a class prototype and a function

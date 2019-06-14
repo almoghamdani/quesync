@@ -26,9 +26,13 @@ public:
   Napi::Value getUser(const Napi::CallbackInfo &info);
 
   Napi::Value getUserProfile(const Napi::CallbackInfo &info);
-
   Napi::Value search(const Napi::CallbackInfo &info);
   Napi::Value sendFriendRequest(const Napi::CallbackInfo &info);
+
+  Napi::Value getPrivateChannel(const Napi::CallbackInfo &info);
+
+  Napi::Value sendMessage(const Napi::CallbackInfo &info);
+  Napi::Value getChannelMessages(const Napi::CallbackInfo &info);
 
   Napi::Value registerEventHandler(const Napi::CallbackInfo &info);
 
