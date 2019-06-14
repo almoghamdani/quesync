@@ -12,7 +12,7 @@
 ChannelManager::ChannelManager(std::shared_ptr<Quesync> server) : Manager(server),
                                                                   users_table(server->db(), "users"),
                                                                   channels_table(server->db(), "channels"),
-                                                                  channel_participants_table(server->db(), "channels_participants")
+                                                                  channel_participants_table(server->db(), "channel_participants")
 {
 }
 
@@ -38,9 +38,9 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
     {
         channel_res = _server->db()
                           .getSession()
-                          .sql("CALL get_private_channel(:user_1, :user_2);")
-                          .bind("user_1", sess->user()->id())
-                          .bind("user_2", participant_id)
+                          .sql("CALL get_private_channel(?, ?);")
+                          .bind(sess->user()->id())
+                          .bind(participant_id)
                           .execute()
                           .fetchOne();
     }
@@ -50,7 +50,7 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
     }
 
     // If the channel is null create the channel
-    if (!channel_res.isNull())
+    if (channel_res.isNull())
     {
         // Create a channel for the users
         channel = createChannel(true);
@@ -72,11 +72,11 @@ void ChannelManager::addParticipantToRoom(std::string channel_id, std::string pa
 {
     // If the channel is not found, throw error
     if (!channels_table
-            .select("1")
-            .where("id = :channel_id")
-            .bind("channel_id", channel_id)
-            .execute()
-            .count())
+             .select("1")
+             .where("id = :channel_id")
+             .bind("channel_id", channel_id)
+             .execute()
+             .count())
     {
         throw QuesyncException(CHANNEL_NOT_FOUND);
     }
@@ -97,7 +97,7 @@ void ChannelManager::addParticipantToRoom(std::string channel_id, std::string pa
     {
         // Add the user as a participant in the room
         channel_participants_table
-            .insert("channel_id, user_id")
+            .insert("channel_id", "user_id")
             .values(channel_id, participant_id)
             .execute();
     }
@@ -116,9 +116,9 @@ std::shared_ptr<Channel> ChannelManager::getChannel(std::string channel_id)
     try
     {
         channel_res = channels_table
-                          .select("*")
-                          .where("channel_id = :channel_id")
-                          .bind(":channel_id", channel_id)
+                          .select("id", "is_private", "unix_timestamp(created_at)")
+                          .where("id = :channel_id")
+                          .bind("channel_id", channel_id)
                           .execute()
                           .fetchOne();
     }
@@ -134,7 +134,7 @@ std::shared_ptr<Channel> ChannelManager::getChannel(std::string channel_id)
     }
 
     // Create the channel object and return it
-    channel = std::make_shared<Channel>(channel_res[0], channel_res[1], (std::time_t)channel_res[2].get<int>());
+    channel = std::make_shared<Channel>(channel_res[0], channel_res[1], (int)channel_res[2]);
     return channel;
 }
 
@@ -146,7 +146,8 @@ std::shared_ptr<Channel> ChannelManager::createChannel(bool is_private)
     try
     {
         // Try to add the new channel
-        channels_table.insert("channel_id, is_private")
+        channels_table
+            .insert("id", "is_private")
             .values(channel_id, is_private)
             .execute();
     }

@@ -17,6 +17,7 @@
 #include "packets/ping_packet.h"
 #include "packets/profile_packet.h"
 #include "packets/event_packet.h"
+#include "packets/get_private_channel_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -69,6 +70,10 @@ Packet *Utils::ParsePacket(std::string packet)
         p = new FriendshipStatusPacket();
         break;
 
+    case GET_PRIVATE_CHANNEL_PACKET:
+        p = new GetPrivateChannelPacket();
+        break;
+
     case ERROR_PACKET:
         p = new ErrorPacket();
         break;
@@ -79,6 +84,7 @@ Packet *Utils::ParsePacket(std::string packet)
     case FRIENDSHIP_STATUS_SET_PACKET:
     case PONG_PACKET:
     case PROFILE_PACKET:
+    case PRIVATE_CHANNEL_PACKET:
         p = new ResponsePacket(packet_type, "");
         break;
 

@@ -16,6 +16,7 @@ idk = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digit
 sock.send(b'QUESYNC|001|{ "username": "almogh23", "password": "123456789" }|')
 print(sock.recv(512).decode())
 
-sock.send(b'QUESYNC|005|{ "recipient_id": "5464a7ba-4417-4a21-895d-0902bf4f9343" }|')
+sock.send(b'QUESYNC|007|{ "userId": "79bbcce2-01f4-4e12-b88d-c3f985d960f5" }|')
+#sock.send(b'QUESYNC|005|{ "recipientId": "5464a7ba-4417-4a21-895d-0902bf4f9343" }|')
 
 print(sock.recv(512).decode())

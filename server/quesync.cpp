@@ -8,6 +8,8 @@ Quesync::Quesync(asio::io_context &io_context) : _acceptor(io_context, tcp::endp
                                                  _sess("localhost", 33060, "server", "123456789"),
                                                  _db(_sess, "quesync")
 {
+    // Use the quesync database
+    _sess.sql("USE quesync").execute();
 }
 
 Quesync::~Quesync()

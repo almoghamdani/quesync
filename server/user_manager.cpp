@@ -111,7 +111,8 @@ std::shared_ptr<User> UserManager::registerUser(std::shared_ptr<Session> sess,
         try
         {
             // Insert the new user to the users table
-            users_table.insert("id", "username", "password", "email", "nickname", "tag")
+            users_table
+                .insert("id", "username", "password", "email", "nickname", "tag")
                 .values(id, username, password_hashed, email, nickname, tag)
                 .execute();
         }
