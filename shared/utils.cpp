@@ -235,6 +235,8 @@ std::string Utils::QuesyncErrorToString(QuesyncError error)
         return "NOT_MEMBER_OF_CHANNEL";
     case AMOUNT_EXCEEDED_MAX:
         return "AMOUNT_EXCEEDED_MAX";
+    case SELF_PRIVATE_CHANNEL:
+        return "SELF_PRIVATE_CHANNEL";
     }
 
     return "";

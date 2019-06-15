@@ -42,6 +42,12 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
         throw QuesyncException(NOT_AUTHENTICATED);
     }
 
+    // If the user is trying to get a private channel with itself, throw error
+    if (sess->user()->id() == user_id)
+    {
+        throw QuesyncException(SELF_PRIVATE_CHANNEL);
+    }
+
     // Check if the other user exists
     if (!_server->userManager()->doesUserExists(user_id))
     {
