@@ -4,6 +4,8 @@
 #include <mysqlx/xdevapi.h>
 namespace sql = mysqlx;
 
+#include <vector>
+
 #include "../shared/channel.h"
 
 // Prevent loop header include
@@ -21,6 +23,7 @@ public:
 
     bool isUserMemberOfChannel(std::string user_id, std::string channel_id);
     void addMemberToChannel(std::string channel_id, std::string member_id);
+    std::vector<std::string> getChannelMembers(std::shared_ptr<Session> sess, std::string channel_id);
 
 private:
     sql::Table channel_members_table;

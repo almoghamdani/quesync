@@ -12,10 +12,10 @@ public:
 
     FriendRequestEvent(std::string requester_id, std::time_t sent_at) : Event(FRIEND_REQUEST_EVENT)
     {
-        _json["requester_id"] = requester_id;
-		_json["sent_at"] = sent_at;
+        _json["requesterId"] = requester_id;
+		_json["sentAt"] = sent_at;
     }
 
-    GET_FUNCTION(requester_id, std::string)
-	GET_FUNCTION(sent_at, std::time_t)
+    GET_FUNCTION(requesterId, std::string)
+	GET_FUNCTION(sentAt, std::time_t)
 };

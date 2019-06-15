@@ -8,6 +8,7 @@
 #include "event_manager.h"
 
 #include "../shared/quesync_exception.h"
+#include "../shared/events/message_event.h"
 
 MessageManager::MessageManager(std::shared_ptr<Quesync> server) : Manager(server),
                                                                   messages_table(server->db(), "messages")
@@ -18,6 +19,9 @@ std::shared_ptr<Message> MessageManager::sendMessage(std::shared_ptr<Session> se
 {
     std::shared_ptr<Message> message;
     std::string message_id = sole::uuid4().str();
+    std::vector<std::string> channel_members;
+
+    MessageEvent message_evt;
 
     // Check if the session is authenticated
     if (!sess->authenticated())
@@ -50,8 +54,22 @@ std::shared_ptr<Message> MessageManager::sendMessage(std::shared_ptr<Session> se
         throw QuesyncException(UNKNOWN_ERROR);
     }
 
-    // Create the message object and return it
+    // Create the message object
     message = std::make_shared<Message>(message_id, sess->user()->id(), channel_id, content, std::time(nullptr));
+
+    // Create the event to be sent to the other online users
+    message_evt = MessageEvent(*message);
+
+    // Get the other channel members
+    channel_members = _server->channelManager()->getChannelMembers(sess, channel_id);
+
+    // For each other channel member
+    for (std::string& member_id : channel_members)
+    {
+        // Trigger the event in the other member
+        _server->eventManager()->triggerEvent(message_evt, member_id);
+    }
+
     return message;
 }
 

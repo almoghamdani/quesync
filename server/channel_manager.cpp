@@ -85,7 +85,8 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
 
 bool ChannelManager::isUserMemberOfChannel(std::string user_id, std::string channel_id)
 {
-    try {
+    try
+    {
         return channel_members_table
             .select("1")
             .where("channel_id = :channel_id AND member_id = :user_id")
@@ -93,7 +94,9 @@ bool ChannelManager::isUserMemberOfChannel(std::string user_id, std::string chan
             .bind("user_id", user_id)
             .execute()
             .count();
-    } catch (...) {
+    }
+    catch (...)
+    {
         return false;
     }
 }
@@ -179,4 +182,47 @@ std::shared_ptr<Channel> ChannelManager::createChannel(bool is_private)
     channel = std::make_shared<Channel>(channel_id, is_private, std::time(nullptr));
 
     return channel;
+}
+
+std::vector<std::string> ChannelManager::getChannelMembers(std::shared_ptr<Session> sess, std::string channel_id)
+{
+    std::vector<std::string> members;
+
+    sql::RowResult res;
+    sql::Row row;
+
+    // Check if the channel exists
+    if (!doesChannelExists(channel_id))
+    {
+        throw QuesyncException(CHANNEL_NOT_FOUND);
+    }
+
+    // Check if the user is a member of the wanted channel
+    if (!isUserMemberOfChannel(sess->user()->id(), channel_id))
+    {
+        throw QuesyncException(NOT_MEMBER_OF_CHANNEL);
+    }
+
+    try
+    {
+        // Get all members of channel except for the user itself
+        res = channel_members_table
+                  .select("member_id")
+                  .where("channel_id = :channel_id AND member_id != :user_id")
+                  .bind("channel_id", channel_id)
+                  .bind("user_id", sess->user()->id())
+                  .execute();
+    }
+    catch (...)
+    {
+        throw QuesyncException(UNKNOWN_ERROR);
+    }
+
+    // Add each member to the members vector
+    while ((row = res.fetchOne()))
+    {
+        members.push_back(row[0]);
+    }
+
+    return members;
 }
