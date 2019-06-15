@@ -18,8 +18,8 @@ export default class EventHandler {
 		const state = store.getState();
 		const client = state.client.client;
 		const user = state.auth.user;
-		const friendId = event.requester_id;
-		const sentAt = event.sent_at;
+		const friendId = event.requesterId;
+		const sentAt = event.sentAt;
 
 		// Fetch the user's profile
 		await store
