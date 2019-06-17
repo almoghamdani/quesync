@@ -541,6 +541,7 @@ Napi::Value Client::getPrivateChannel(const Napi::CallbackInfo &info)
 
             // Get the channel from the response's data
             res["channel"] = nlohmann::json::parse(response_packet->data());
+            res["userId"] = user_id;
         }
         else if (error)
         {

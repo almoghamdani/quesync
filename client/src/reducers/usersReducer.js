@@ -1,16 +1,16 @@
 export default function reducer(
 	state = {
 		profiles: {},
-		profileFetchError: null
+		error: null
 	},
 	action
 ) {
 	switch (action.type) {
 		case "PROFILE_FETCH_PENDING":
-			return { ...state, profileFetchError: null };
+			return { ...state, error: null };
 
 		case "PROFILE_FETCH_REJECTED":
-			return { ...state, profileFetchError: action.payload.error };
+			return { ...state, error: action.payload.error };
 
 		case "PROFILE_FETCH_FULFILLED":
             var profile = { ...action.payload.profile };

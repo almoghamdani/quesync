@@ -5,11 +5,13 @@ import client from "./clientReducer";
 import users from "./usersReducer";
 import tabs from "./tabsReducer";
 import badges from "./badgesReducer";
+import channels from "./channelsReducer";
 
 export default combineReducers({
 	auth,
 	client,
 	users,
+	channels,
 	ui: combineReducers({
 		tabs,
 		badges

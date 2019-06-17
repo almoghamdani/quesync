@@ -1,6 +1,6 @@
-export function fetchUserProfile(client, user_id) {
+export function fetchUserProfile(client, userId) {
 	return {
 		type: "PROFILE_FETCH",
-		payload: client.getUserProfile(user_id)
+		payload: client.getUserProfile(userId)
 	};
 }

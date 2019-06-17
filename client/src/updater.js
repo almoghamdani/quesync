@@ -1,5 +1,6 @@
 import store from "./store";
 
+import { getPrivateChannel } from "./actions/channelsActions";
 import { fetchUserProfile } from "./actions/usersActions";
 
 import Logger from "./logger";
@@ -13,7 +14,7 @@ export default async function update() {
 
 	logger.info("Update started!");
 
-	// For each friend, fetch it's profile
+	// For each friend, fetch it's profile and private channel
 	logger.info("Fetching friends' profiles!");
 	for (const idx in user.friends) {
 		const friendId = user.friends[idx];
@@ -23,8 +24,19 @@ export default async function update() {
 			.dispatch(fetchUserProfile(client, friendId))
 			.then(() => {})
 			.catch(() => {
-				console.error(
+				logger.error(
 					"An error occurred fetching the profile of the user {0}",
+					friendId
+				);
+			});
+
+		// Get the user's private channel
+		await store
+			.dispatch(getPrivateChannel(client, friendId))
+			.then(() => {})
+			.catch(() => {
+				logger.error(
+					"An error occurred getting the private channel of the user {0}",
 					friendId
 				);
 			});
@@ -40,8 +52,19 @@ export default async function update() {
 			.dispatch(fetchUserProfile(client, friendId))
 			.then(() => {})
 			.catch(() => {
-				console.error(
+				logger.error(
 					"An error occurred fetching the profile of the user {0}",
+					friendId
+				);
+			});
+
+		// Get the user's private channel
+		await store
+			.dispatch(getPrivateChannel(client, friendId))
+			.then(() => {})
+			.catch(() => {
+				logger.error(
+					"An error occurred getting the private channel of the user {0}",
 					friendId
 				);
 			});
