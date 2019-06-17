@@ -1,74 +1,84 @@
 import store from "./store";
 
+import { getChannelMessages } from "./actions/messagesActions";
 import { getPrivateChannel } from "./actions/channelsActions";
 import { fetchUserProfile } from "./actions/usersActions";
 
 import Logger from "./logger";
 
-const logger = new Logger("Updater", "#00b2ff");
+const AMOUNT_OF_INITIAL_MESSAGES = 100;
 
-export default async function update() {
-	const state = store.getState();
-	const client = state.client.client;
-	const user = state.auth.user;
+class Updater {
+	logger = new Logger("Updater", "#00b2ff");
 
-	logger.info("Update started!");
+	update = async () => {
+		const state = store.getState();
+		const client = state.client.client;
+		const user = state.auth.user;
 
-	// For each friend, fetch it's profile and private channel
-	logger.info("Fetching friends' profiles!");
-	for (const idx in user.friends) {
-		const friendId = user.friends[idx];
+		this.logger.info("Update started!");
 
+		// For each friend, fetch it's profile and private channel
+		this.logger.info("Fetching friends' profiles!");
+		for (const idx in user.friends) {
+			const friendId = user.friends[idx];
+
+			// Update the user
+			this.updateUser(client, friendId);
+		}
+
+		// For each pending friend, fetch it's profile
+		this.logger.info("Fetching pending friends' profiles!");
+		for (const idx in user.friendRequests) {
+			const friendId = user.friendRequests[idx].friendId;
+
+			// Update the user
+			this.updateUser(client, friendId);
+		}
+
+		this.logger.info("Update finished!");
+	}
+
+	updateUser = async (client, userId) => {
 		// Fetch the user's profile
 		await store
-			.dispatch(fetchUserProfile(client, friendId))
-			.then(() => {})
-			.catch(() => {
-				logger.error(
-					"An error occurred fetching the profile of the user {0}",
-					friendId
-				);
-			});
+			.dispatch(fetchUserProfile(client, userId))
+			.then(async () => {
+				// Get the user's private channel
+				await store
+					.dispatch(getPrivateChannel(client, userId))
+					.then(async (res) => {
+						const channelId = res.action.payload.channel.id
 
-		// Get the user's private channel
-		await store
-			.dispatch(getPrivateChannel(client, friendId))
-			.then(() => {})
-			.catch(() => {
-				logger.error(
-					"An error occurred getting the private channel of the user {0}",
-					friendId
+						// Update the channel
+						await this.updateChannel(client, channelId);
+					})
+					.catch((ex) => {
+						this.logger.error(
+							`An error occurred getting the private channel of the user ${userId}. Error: ${ex}`
+						);
+					});
+			})
+			.catch((ex) => {
+				this.logger.error(
+					`An error occurred fetching the profile of the user ${userId}. Error: ${ex}`
 				);
 			});
 	}
 
-	// For each pending friend, fetch it's profile
-	logger.info("Fetching pending friends' profiles!");
-	for (const idx in user.friendRequests) {
-		const friendId = user.friendRequests[idx].friendId;
-
-		// Fetch the user's profile
+	updateChannel = async (client, channelId) => {
+		// Get the channel's messages
 		await store
-			.dispatch(fetchUserProfile(client, friendId))
-			.then(() => {})
-			.catch(() => {
-				logger.error(
-					"An error occurred fetching the profile of the user {0}",
-					friendId
-				);
-			});
-
-		// Get the user's private channel
-		await store
-			.dispatch(getPrivateChannel(client, friendId))
-			.then(() => {})
-			.catch(() => {
-				logger.error(
-					"An error occurred getting the private channel of the user {0}",
-					friendId
+			.dispatch(getChannelMessages(client, channelId, AMOUNT_OF_INITIAL_MESSAGES, 0))
+			.then(() => { })
+			.catch((ex) => {
+				this.logger.error(
+					`An error occurred getting the messages of the channel ${channelId}. Error: ${ex}`
 				);
 			});
 	}
-
-	logger.info("Update finished!");
 }
+
+const updater = new Updater();
+
+export default updater;

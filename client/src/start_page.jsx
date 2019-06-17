@@ -18,7 +18,7 @@ import "./start_page.scss";
 import { setClient } from "./actions/clientActions";
 import { setUser } from "./actions/authActions";
 
-import update from "./updater";
+import updater from "./updater";
 
 const electron = window.require("electron");
 
@@ -57,8 +57,8 @@ class StartPage extends Component {
 				// Set user
 				this.props.dispatch(setUser(user));
 
-				// Refresh user's data
-				await update();
+				// Update user's data
+				await updater.update();
 
 				// Transition to app
 				this.transitionToApp();

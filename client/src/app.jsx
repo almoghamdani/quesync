@@ -12,7 +12,6 @@ import {
 	TopAppBarSection,
 	TopAppBarFixedAdjust
 } from "@rmwc/top-app-bar";
-import { TabBar, Tab } from "@rmwc/tabs";
 import { ThemeProvider } from "@rmwc/theme";
 
 import EventHandler from "./event-handler";

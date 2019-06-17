@@ -618,8 +618,13 @@ Napi::Value Client::sendMessage(const Napi::CallbackInfo &info)
             // Set success error code
             res["error"] = SUCCESS;
 
-            // Get the message id from the resposne's data
-            res["messageId"] = nlohmann::json::parse(response_packet->data())["messageId"];
+            // Get the message id from the resposne's data and assemble a message
+            res["message"] = nlohmann::json{
+                {"id", nlohmann::json::parse(response_packet->data())["messageId"]},
+                {"channelId", channel_id},
+                {"content", content},
+                {"sentAt", std::time(nullptr)}
+            };
         }
         else if (error)
         {
@@ -699,6 +704,7 @@ Napi::Value Client::getChannelMessages(const Napi::CallbackInfo &info)
 
             // Get the messages from the resposne's data
             res["messages"] = nlohmann::json::parse(response_packet->data());
+            res["channelId"] = channel_id;
         }
         else if (error)
         {

@@ -8,7 +8,7 @@ import { Button } from "@rmwc/button";
 
 import { connect } from "react-redux";
 
-import update from "../updater";
+import updater from "../updater";
 
 // Should be in rem units
 const height = 35;
@@ -104,7 +104,7 @@ class RegisterForm extends Component {
 					this.props.dispatch(finishAuth());
 
 					// Fetch for the first time the data of the user
-					await update();
+					await updater.update();
 
 					// Transition to the app
 					this.props.transitionToApp();
