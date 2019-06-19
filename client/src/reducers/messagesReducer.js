@@ -1,7 +1,7 @@
 const messagesSortFunction = (a, b) => {
-	if (a.sentAt < b.sentAt)
+	if (a.sentAt > b.sentAt)
 		return -1;
-	else if (a.sentAt > b.sentAt)
+	else if (a.sentAt < b.sentAt)
 		return 1;
 	else
 		return 0;
