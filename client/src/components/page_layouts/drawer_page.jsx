@@ -85,7 +85,7 @@ class DrawerPage extends Component {
 										timeout={115}
 										key={idx}>
 										<TransitionGroup style={{ opacity: "0" }}>
-											{React.Children.map(drawerTabContent, child => (
+											{React.Children.map(drawerTabContent, (child, childIdx) => (
 												<Transition
 													appear
 													onEnter={animateDrawerContentIn}
@@ -98,7 +98,7 @@ class DrawerPage extends Component {
 														style={{ opacity: 0 }}>
 														{React.cloneElement(child, {
 															onClick: () =>
-																this.props.drawerItemClicked(child.key)
+																this.props.drawerItemClicked(childIdx)
 														})}
 													</div>
 												</Transition>
