@@ -6,12 +6,12 @@ import { Avatar } from "@rmwc/avatar";
 import { Typography } from "@rmwc/typography";
 import { Elevation } from "@rmwc/elevation";
 
-import "./text_message.scss";
+import "./message_bubble.scss";
 
-class TextMessage extends Component {
+class MessageBubble extends Component {
 	render() {
 		return (
-			<div className="quesync-text-message">
+			<div className="quesync-message-bubble">
 				<Elevation z={7} className="quesync-text-bubble">
 					<div className="quesync-text-sender-info">
 						<Avatar
@@ -25,12 +25,14 @@ class TextMessage extends Component {
 						</div>
 					</div>
 					<Typography className="quesync-text-content" use="body2">
-						{this.props.content}
+						{this.props.messages.map(message => (
+							<div>{message.content}</div>
+						))}
 					</Typography>
 				</Elevation>
 				<div className="quesync-text-message-date">
 					<Typography use="caption" style={{ fontSize: "0.68rem" }}>
-						<Moment unix calendar interval={10000} date={this.props.sentAt} />
+						<Moment unix calendar interval={10000} date={this.props.messages[0].sentAt} />
 					</Typography>
 				</div>
 			</div>
@@ -38,4 +40,4 @@ class TextMessage extends Component {
 	}
 }
 
-export default TextMessage;
+export default MessageBubble;
