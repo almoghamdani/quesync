@@ -14,9 +14,6 @@ import {
 import "./friends_page.scss";
 
 class FriendsPage extends Component {
-	d;
-	friendItemClicked = friendIdx =>
-		this.props.dispatch(setFriendsPageSelectedDrawerItem(friendIdx));
 	getPrivateChannelId = friendId => this.props.privateChannels[friendId];
 	getSelectedFriendId = (friends, pendingFriends) => {
 		// Friends selected
@@ -55,9 +52,12 @@ class FriendsPage extends Component {
 				className="quesync-friends-page"
 				drawerTabs={["All", "Pending"]}
 				selectedDrawerTab={this.props.selectedTab}
-				drawerTabSelected={tabIdx =>
-					this.props.dispatch(setFriendsPageSelectedTab(tabIdx))
-				}
+				drawerTabSelected={tabIdx => {
+					this.props.dispatch(setFriendsPageSelectedTab(tabIdx));
+
+					// Reset the choice
+					this.props.dispatch(setFriendsPageSelectedDrawerItem(-1));
+				}}
 				drawerContent={[
 					friends.map((friend, idx) => (
 						<DrawerItem
@@ -76,7 +76,9 @@ class FriendsPage extends Component {
 					))
 				]}
 				tableWidth="14rem"
-				drawerItemClicked={this.friendItemClicked}
+				drawerItemClicked={friendIdx =>
+					this.props.dispatch(setFriendsPageSelectedDrawerItem(friendIdx))
+				}
 				badgeBGColor="red"
 				badgeColor="white"
 				drawerTabsBadges={[
