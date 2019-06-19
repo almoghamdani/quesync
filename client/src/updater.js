@@ -18,6 +18,16 @@ class Updater {
 
 		this.logger.info("Update started!");
 
+		// Get the user's profile
+		await store
+			.dispatch(fetchUserProfile(client, user.id))
+			.then(() => {})
+			.catch((ex) => {
+				this.logger.error(
+					`An error occurred fetching the user's profile. Error: ${ex}`
+				);
+			});
+
 		// For each friend, fetch it's profile and private channel
 		this.logger.info("Fetching friends' profiles!");
 		for (const idx in user.friends) {
