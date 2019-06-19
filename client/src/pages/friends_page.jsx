@@ -3,16 +3,28 @@ import { connect } from "react-redux";
 
 import DrawerPage from "../components/page_layouts/drawer_page";
 import DrawerItem from "../components/drawer_item";
-
 import FriendRequestItem from "../components/friend_request_item";
+import TextChannel from "../components/text_channel";
 
-import { setFriendsPageSelectedTab } from "../actions/tabsActions";
+import {
+	setFriendsPageSelectedTab,
+	setFriendsPageSelectedDrawerItem
+} from "../actions/itemsActions";
 
 import "./friends_page.scss";
 
 class FriendsPage extends Component {
-	friendItemClicked = friendIdx => {
-		console.log(friendIdx);
+	d;
+	friendItemClicked = friendIdx =>
+		this.props.dispatch(setFriendsPageSelectedDrawerItem(friendIdx));
+	getPrivateChannelId = friendId => this.props.privateChannels[friendId];
+	getSelectedFriendId = (friends, pendingFriends) => {
+		// Friends selected
+		if (this.props.selectedTab === 0) {
+			return friends[this.props.selectedDrawerItem];
+		} else {
+			return pendingFriends[this.props.selectedDrawerItem].id;
+		}
 	};
 
 	render() {
@@ -32,6 +44,11 @@ class FriendsPage extends Component {
 					}))
 					.sort((a, b) => b.sentAt - a.sentAt)
 			: [];
+
+		const currentSelectedFriendId =
+			this.props.selectedDrawerItem !== -1
+				? this.getSelectedFriendId(friends, pendingFriends)
+				: null;
 
 		return (
 			<DrawerPage
@@ -65,8 +82,13 @@ class FriendsPage extends Component {
 				drawerTabsBadges={[
 					this.props.allFriendsBadge,
 					this.props.pendingFriendsBadge
-				]}
-			/>
+				]}>
+				{this.props.selectedDrawerItem !== -1 ? (
+					<TextChannel
+						channelId={this.getPrivateChannelId(currentSelectedFriendId)}
+					/>
+				) : null}
+			</DrawerPage>
 		);
 	}
 }
@@ -74,7 +96,9 @@ class FriendsPage extends Component {
 export default connect(state => ({
 	user: state.auth.user,
 	profiles: state.users.profiles,
-	selectedTab: state.ui.tabs.selectedFriendsPageTab,
+	selectedTab: state.ui.items.selectedFriendsPageTab,
+	selectedDrawerItem: state.ui.items.selectedFriendsPageDrawerItem,
 	allFriendsBadge: state.ui.badges.allFriendsBadge,
-	pendingFriendsBadge: state.ui.badges.pendingFriendsBadge
+	pendingFriendsBadge: state.ui.badges.pendingFriendsBadge,
+	privateChannels: state.channels.privateChannels
 }))(FriendsPage);
