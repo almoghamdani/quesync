@@ -48,11 +48,12 @@ class TextChannel extends Component {
 		return (
 			<div className="quesync-text-channel">
 				<TransitionGroup className="quesync-text-messages">
-					{messages.map(messageGroup => (
+					{messages.map((messageGroup, idx) => (
 						<MessageBubble
 							sender={this.getSenderNickname(messageGroup[0].senderId)}
 							avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
 							messages={messageGroup}
+							style={{ paddingBottom: idx === messages.length - 1 ? 0 : "25px" }}
 						/>
 					))}
 				</TransitionGroup>

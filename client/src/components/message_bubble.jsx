@@ -11,7 +11,7 @@ import "./message_bubble.scss";
 class MessageBubble extends Component {
 	render() {
 		return (
-			<div className="quesync-message-bubble">
+			<div className="quesync-message-bubble" style={this.props.style}>
 				<Elevation z={7} className="quesync-text-bubble">
 					<div className="quesync-text-sender-info">
 						<Avatar
