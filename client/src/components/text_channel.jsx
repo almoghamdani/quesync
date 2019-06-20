@@ -27,7 +27,7 @@ class TextChannel extends Component {
 				lastSendDate = message.sentAt;
 			} else {
 				// Create a new group with the message
-				groupedMessages.push([message]);
+				currentGroupIdx = groupedMessages.push([message]) - 1;
 
 				// Set the new current sender
 				currentSender = message.senderId;
