@@ -622,6 +622,7 @@ Napi::Value Client::sendMessage(const Napi::CallbackInfo &info)
             res["message"] = nlohmann::json{
                 {"id", nlohmann::json::parse(response_packet->data())["messageId"]},
                 {"channelId", channel_id},
+                {"senderId", _user->id()},
                 {"content", content},
                 {"sentAt", std::time(nullptr)}
             };

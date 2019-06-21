@@ -10,6 +10,7 @@ const messagesSortFunction = (a, b) => {
 export default function reducer(
 	state = {
 		messages: {},
+		newMessages: {},
 		error: null
 	},
 	action
@@ -39,7 +40,7 @@ export default function reducer(
 			// Sort the channel messages array
 			channelMessages.sort(messagesSortFunction);
 
-			return { ...state, messages: { ...state.messages, [channelId]: channelMessages } };
+			return { ...state, messages: { ...state.messages, [channelId]: channelMessages }, newMessages: { ...state.newMessages, [channelId]: null } };
 
 		case "GET_CHANNEL_MESSAGES_FULFILLED":
 			{
@@ -77,6 +78,9 @@ export default function reducer(
 
 				return { ...state, messages: { ...state.messages, [action.payload.channelId]: channelMessages } };
 			}
+
+		case "SET_NEW_MESSAGE_FOR_CHANNEL":
+			return { ...state, newMessages: { ...state.newMessages, [action.payload.channelId]: action.payload.messageContent } }
 
 		default:
 			return state;

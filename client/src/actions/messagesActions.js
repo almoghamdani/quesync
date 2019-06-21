@@ -21,3 +21,13 @@ export function addMessageToChannel(message, channelId) {
 		}
 	};
 }
+
+export function setNewMessageForChannel(messageContent, channelId) {
+	return {
+		type: "SET_NEW_MESSAGE_FOR_CHANNEL",
+		payload: {
+			messageContent,
+			channelId
+		}
+	}
+}
