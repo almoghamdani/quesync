@@ -31,6 +31,10 @@
 .quesync-app-content {
 	// A bit space from the drawer and the top app bar
 	margin: 1rem;
+
+	display: flex;
+	
+	min-height: 100%;
 }
 
 .quesync-drawer-tab {

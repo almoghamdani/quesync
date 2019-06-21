@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 
-import { Scrollbars } from "react-custom-scrollbars";
 import DrawerScrollbars from "../drawer_scrollbars";
 
 import { Drawer, DrawerContent, DrawerAppContent } from "@rmwc/drawer";
@@ -111,9 +110,7 @@ class DrawerPage extends Component {
 					</DrawerContent>
 				</Drawer>
 				<DrawerAppContent className="quesync-app-drawer-content">
-					<Scrollbars>
 						<div className="quesync-app-content">{this.props.children}</div>
-					</Scrollbars>
 				</DrawerAppContent>
 			</div>
 		);
