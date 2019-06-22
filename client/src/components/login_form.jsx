@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { signIn, startAuth, finishAuth } from "../actions/authActions";
+import { signIn, startAuth, finishAuth } from "../actions/userActions";
 
 import { Typography } from "@rmwc/typography";
 import { TextField } from "@rmwc/textfield";

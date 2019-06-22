@@ -16,7 +16,7 @@ import "@rmwc/circular-progress/circular-progress.css";
 import "./start_page.scss";
 
 import { setClient } from "./actions/clientActions";
-import { setUser } from "./actions/authActions";
+import { setUser } from "./actions/userActions";
 
 import updater from "./updater";
 

@@ -1,7 +1,7 @@
 import store from "./store";
 
 import { addPingValue } from "./actions/clientActions";
-import { setUser } from "./actions/authActions";
+import { setUser } from "./actions/userActions";
 import { fetchUserProfile } from "./actions/usersActions";
 
 export default class EventHandler {
