@@ -17,6 +17,8 @@
 
 	// Add elevation for the drawer
 	@include mdc-elevation(5, black, 0.15);
+
+	width: 15rem;
 }
 
 .quesync-app-drawer-content {
@@ -37,8 +39,8 @@
 }
 
 .quesync-drawer-tab {
-	// Not overflow the drawer
-	width: 111.5px;
+	// Fill the parent
+	width: 100%;
 }
 
 .quesync-drawer-content {

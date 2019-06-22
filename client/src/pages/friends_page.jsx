@@ -75,7 +75,6 @@ class FriendsPage extends Component {
 						/>
 					))
 				]}
-				tableWidth="14rem"
 				drawerItemClicked={friendIdx =>
 					this.props.dispatch(setFriendsPageSelectedDrawerItem(friendIdx))
 				}
@@ -84,7 +83,8 @@ class FriendsPage extends Component {
 				drawerTabsBadges={[
 					this.props.allFriendsBadge,
 					this.props.pendingFriendsBadge
-				]}>
+				]}
+			>
 				{this.props.selectedDrawerItem !== -1 ? (
 					<TextChannel
 						channelId={this.getPrivateChannelId(currentSelectedFriendId)}

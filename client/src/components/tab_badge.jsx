@@ -5,10 +5,10 @@ import { Tab } from "@rmwc/tabs";
 
 class TabBadge extends Component {
 	render() {
-		const { badgeBGColor, badgeColor, ...propsWithBadgeProps } = this.props;
+		const { badgeBGColor, badgeColor, style, ...propsWithBadgeProps } = this.props;
 
 		return (
-			<div className="quesync-tab-badge" style={{ position: "relative" }}>
+			<div className="quesync-tab-badge" style={{ ...style, position: "relative" }}>
 				<Badge
 					style={{ position: "absolute", top: "7px", right: "7px" }}
 					value={this.props.value}

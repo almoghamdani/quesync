@@ -45,23 +45,24 @@ class DrawerPage extends Component {
 
 		return (
 			<div className="quesync-page">
-				<Drawer
-					className="quesync-drawer"
-					style={{ width: this.props.tableWidth }}>
+				<Drawer className="quesync-drawer">
 					<DrawerContent className="quesync-drawer-content">
 						{this.props.drawerTabs ? (
 							<TabBar
 								activeTabIndex={this.props.selectedDrawerTab}
 								onActivate={evt =>
 									this.props.drawerTabSelected(evt.detail.index)
-								}>
+								}
+							>
 								{this.props.drawerTabs.map((tabName, idx) => (
 									<TabBadge
 										className="quesync-drawer-tab"
 										key={idx}
 										badgeBGColor={this.props.badgeBGColor}
 										badgeColor={this.props.badgeColor}
-										value={this.props.drawerTabsBadges[idx]}>
+										value={this.props.drawerTabsBadges[idx]}
+										style={{ width: "50%" }}
+									>
 										{tabName}
 									</TabBadge>
 								))}
@@ -82,26 +83,32 @@ class DrawerPage extends Component {
 										onExit={animateDrawerContentOut}
 										onExited={animationEndCallback}
 										timeout={115}
-										key={idx}>
+										key={idx}
+									>
 										<TransitionGroup style={{ opacity: "0" }}>
-											{React.Children.map(drawerTabContent, (child, childIdx) => (
-												<Transition
-													appear
-													onEnter={animateDrawerContentIn}
-													onExit={animateDrawerContentOut}
-													timeout={115}
-													key={child.key}>
-													<div
+											{React.Children.map(
+												drawerTabContent,
+												(child, childIdx) => (
+													<Transition
+														appear
+														onEnter={animateDrawerContentIn}
+														onExit={animateDrawerContentOut}
+														timeout={115}
 														key={child.key}
-														className="quesync-drawer-content-item-wrapper"
-														style={{ opacity: 0 }}>
-														{React.cloneElement(child, {
-															onClick: () =>
-																this.props.drawerItemClicked(childIdx)
-														})}
-													</div>
-												</Transition>
-											))}
+													>
+														<div
+															key={child.key}
+															className="quesync-drawer-content-item-wrapper"
+															style={{ opacity: 0 }}
+														>
+															{React.cloneElement(child, {
+																onClick: () =>
+																	this.props.drawerItemClicked(childIdx)
+															})}
+														</div>
+													</Transition>
+												)
+											)}
 										</TransitionGroup>
 									</Transition>
 								))}
@@ -110,7 +117,7 @@ class DrawerPage extends Component {
 					</DrawerContent>
 				</Drawer>
 				<DrawerAppContent className="quesync-app-drawer-content">
-						<div className="quesync-app-content">{this.props.children}</div>
+					<div className="quesync-app-content">{this.props.children}</div>
 				</DrawerAppContent>
 			</div>
 		);
