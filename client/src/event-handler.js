@@ -17,7 +17,7 @@ export default class EventHandler {
 	friendRequestEvent = async event => {
 		const state = store.getState();
 		const client = state.client.client;
-		const user = state.auth.user;
+		const user = state.user.user;
 		const friendId = event.requesterId;
 		const sentAt = event.sentAt;
 

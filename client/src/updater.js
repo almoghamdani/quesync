@@ -14,7 +14,7 @@ class Updater {
 	update = async () => {
 		const state = store.getState();
 		const client = state.client.client;
-		const user = state.auth.user;
+		const user = state.user.user;
 
 		this.logger.info("Update started!");
 
