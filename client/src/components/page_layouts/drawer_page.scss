@@ -26,15 +26,14 @@
 
 	// Set under the drawer
 	z-index: auto;
+
+	// Use it to make the children fill the parent
+	display: flex;
 }
 
 .quesync-app-content {
-	// A bit space from the drawer and the top app bar
-	margin: 1rem;
-
 	display: flex;
-	
-	min-height: 100%;
+	flex-grow: 1;
 }
 
 .quesync-drawer-tab {
@@ -57,4 +56,13 @@
 
 	// Set to fill the height of the drawer
 	flex-grow: 1;
+}
+
+.mdc-tab--active .mdc-tab__text-label {
+	// Set the color of the tab
+	color: var(--mdc-theme-primary) !important;
+}
+
+.mdc-tab__text-label {
+	color: lightgrey !important;
 }
