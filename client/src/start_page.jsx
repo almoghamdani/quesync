@@ -345,5 +345,5 @@ class StartPage extends Component {
 
 export default connect(state => ({
 	client: state.client.client,
-	authenticating: state.auth.authenticating
+	authenticating: state.user.authenticating
 }))(StartPage);

@@ -177,5 +177,5 @@ class LoginForm extends Component {
 
 export default connect(state => ({
 	client: state.client.client,
-	error: state.auth.authError
+	error: state.user.authError
 }))(LoginForm);
