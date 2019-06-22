@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 
-import auth from "./userReducer";
+import user from "./userReducer";
 import client from "./clientReducer";
 import users from "./usersReducer";
 import items from "./itemsReducer";
@@ -9,7 +9,7 @@ import channels from "./channelsReducer";
 import messages from "./messagesReducer";
 
 export default combineReducers({
-	auth,
+	user,
 	client,
 	users,
 	channels,
