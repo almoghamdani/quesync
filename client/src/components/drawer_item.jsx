@@ -29,6 +29,7 @@ class DrawerItem extends Component {
 						</div>
 					) : null}
 				</ListItemText>
+				{this.props.children}
 			</ListItem>
 		);
 	}

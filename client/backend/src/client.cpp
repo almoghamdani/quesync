@@ -15,6 +15,7 @@
 #include "../../../shared/packets/get_private_channel_packet.h"
 #include "../../../shared/packets/send_message_packet.h"
 #include "../../../shared/packets/get_channel_messages_packet.h"
+#include "../../../shared/packets/friendship_status_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
@@ -624,8 +625,7 @@ Napi::Value Client::sendMessage(const Napi::CallbackInfo &info)
                 {"channelId", channel_id},
                 {"senderId", _user->id()},
                 {"content", content},
-                {"sentAt", std::time(nullptr)}
-            };
+                {"sentAt", std::time(nullptr)}};
         }
         else if (error)
         {
@@ -673,7 +673,7 @@ Napi::Value Client::getChannelMessages(const Napi::CallbackInfo &info)
             return res;
         }
 
-        // Send the send message packet
+        // Send the get channel messages packet
         try
         {
             response_packet = _communicator.send(&get_channel_messages_packet);
@@ -728,6 +728,84 @@ Napi::Value Client::getChannelMessages(const Napi::CallbackInfo &info)
     return deferred.Promise();
 }
 
+Napi::Value Client::setFriendshipStatus(const Napi::CallbackInfo &info)
+{
+
+    Napi::Env env = info.Env();
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+    // Convert parameters to string
+    std::string friend_id = info[0].As<Napi::String>();
+    bool status = info[1].As<Napi::Boolean>();
+
+    Executer *e = new Executer([this, friend_id, status]() {
+        QuesyncError error = SUCCESS;
+        std::shared_ptr<ResponsePacket> response_packet;
+        nlohmann::json res;
+
+        FriendshipStatusPacket friendship_status_packet(friend_id, status);
+
+        // If not authenticated, return error
+        if (!_user)
+        {
+            res["error"] = NOT_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Send the friendship status packet
+        try
+        {
+            response_packet = _communicator.send(&friendship_status_packet);
+        }
+        catch (QuesyncException &ex)
+        {
+            res["error"] = ex.getErrorCode();
+
+            return res;
+        }
+        catch (...)
+        {
+            res["error"] = UNKNOWN_ERROR;
+
+            return res;
+        }
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
+        }
+        // If the response packet is a friendship status set packet, return success
+        else if (response_packet && response_packet->type() == FRIENDSHIP_STATUS_SET_PACKET)
+        {
+            // Set success error code
+            res["error"] = SUCCESS;
+
+            res["friendId"] = friend_id;
+        }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
+
+        return res;
+    },
+                               deferred);
+
+    // Queue the executer worker
+    e->Queue();
+
+    return deferred.Promise();
+}
+
 Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
 {
     // Create scope for Client object
@@ -746,7 +824,8 @@ Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
                                        InstanceMethod("getUser", &Client::getUser),
                                        InstanceMethod("getPrivateChannel", &Client::getPrivateChannel),
                                        InstanceMethod("sendMessage", &Client::sendMessage),
-                                       InstanceMethod("getChannelMessages", &Client::getChannelMessages)});
+                                       InstanceMethod("getChannelMessages", &Client::getChannelMessages),
+                                       InstanceMethod("setFriendshipStatus", &Client::setFriendshipStatus)});
 
     // Create a peristent reference to the class constructor. This will allow
     // a function called on a class prototype and a function

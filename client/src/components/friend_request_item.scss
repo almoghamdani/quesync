@@ -1,0 +1,28 @@
+.quesync-friend-request-buttons-container {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+
+	// Fill the parent
+	flex-grow: 1
+}
+
+.quesync-friend-request-button {
+	width: 32px;
+	height: 32px;
+
+	// Disable the default padding
+	padding: 0;
+}
+
+.quesync-friend-request-approve-button {
+	color: #00c853;
+}
+
+.quesync-friend-request-reject-button {
+	color: #ff1744;
+
+	// Fix the close icon seems like its not centered
+	padding-top: 2px;
+	padding-left: 2px;
+}

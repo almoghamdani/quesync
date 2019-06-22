@@ -11,6 +11,8 @@ import {
 	setFriendsPageSelectedDrawerItem
 } from "../actions/itemsActions";
 
+import { approveFriendRequest, rejectFriendRequest } from "../actions/userActions";
+
 import "./friends_page.scss";
 
 class FriendsPage extends Component {
@@ -18,10 +20,26 @@ class FriendsPage extends Component {
 	getSelectedFriendId = (friends, pendingFriends) => {
 		// Friends selected
 		if (this.props.selectedTab === 0) {
-			return friends[this.props.selectedDrawerItem];
+			return friends[this.props.selectedDrawerItem].id;
 		} else {
 			return pendingFriends[this.props.selectedDrawerItem].id;
 		}
+	};
+
+	approveFriendRequest = friendId => {
+		// Try to approve the friend request
+		this.props.dispatch(approveFriendRequest(this.props.client, friendId))
+			.catch(() => {
+
+			})
+	};
+
+	rejectFriendRequest = friendId => {
+		// Try to reject the friend request
+		this.props.dispatch(rejectFriendRequest(this.props.client, friendId))
+			.catch(() => {
+				
+			})
 	};
 
 	render() {
@@ -72,6 +90,8 @@ class FriendsPage extends Component {
 							friendAvatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
 							friendName={friend.nickname}
 							sentAt={friend.sentAt}
+							approveRequest={() => this.approveFriendRequest(friend.id)}
+							rejectRequest={() => this.rejectFriendRequest(friend.id)}
 						/>
 					))
 				]}
@@ -96,7 +116,8 @@ class FriendsPage extends Component {
 }
 
 export default connect(state => ({
-	user: state.auth.user,
+	user: state.user.user,
+	client: state.client.client,
 	profiles: state.users.profiles,
 	selectedTab: state.ui.items.selectedFriendsPageTab,
 	selectedDrawerItem: state.ui.items.selectedFriendsPageDrawerItem,

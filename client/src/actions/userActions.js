@@ -32,3 +32,17 @@ export function finishAuth() {
 		payload: null
 	};
 }
+
+export function approveFriendRequest(client, friendId) {
+	return {
+		type: "APPROVE_FRIEND_REQUEST",
+		payload: client.setFriendshipStatus(friendId, true)
+	}
+}
+
+export function rejectFriendRequest(client, friendId) {
+	return {
+		type: "REJECT_FRIEND_REQUEST",
+		payload: client.setFriendshipStatus(friendId, false)
+	}
+}

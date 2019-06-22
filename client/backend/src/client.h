@@ -28,6 +28,7 @@ public:
   Napi::Value getUserProfile(const Napi::CallbackInfo &info);
   Napi::Value search(const Napi::CallbackInfo &info);
   Napi::Value sendFriendRequest(const Napi::CallbackInfo &info);
+  Napi::Value setFriendshipStatus(const Napi::CallbackInfo &info);
 
   Napi::Value getPrivateChannel(const Napi::CallbackInfo &info);
 
