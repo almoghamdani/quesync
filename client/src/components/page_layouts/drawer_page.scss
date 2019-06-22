@@ -13,7 +13,7 @@
 	@include mdc-drawer-fill-color-accessible(#303030);
 
 	// Set in a fixed position in the page and above the page content
-	z-index: auto;
+	z-index: 1;
 
 	// Add elevation for the drawer
 	@include mdc-elevation(5, black, 0.15);
