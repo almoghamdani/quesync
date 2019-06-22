@@ -1,9 +1,19 @@
 import React, { Component } from "react";
 
 import { connect } from "react-redux";
+
+import { Scrollbars } from "react-custom-scrollbars";
 import { TransitionGroup } from "react-transition-group";
 
 import MessageBubble from "../components/message_bubble";
+import MessageField from "../components/message_field";
+
+import {
+	sendMessage,
+	setNewMessageForChannel
+} from "../actions/messagesActions";
+
+import "./text_channel.scss";
 
 class TextChannel extends Component {
 	getGroupedMessages = () => {
@@ -47,22 +57,52 @@ class TextChannel extends Component {
 
 		return (
 			<div className="quesync-text-channel">
-				<TransitionGroup className="quesync-text-messages">
-					{messages.map((messageGroup, idx) => (
-						<MessageBubble
-							sender={this.getSenderNickname(messageGroup[0].senderId)}
-							avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
-							messages={messageGroup}
-							style={{ paddingBottom: idx === messages.length - 1 ? 0 : "25px" }}
-						/>
-					))}
-				</TransitionGroup>
+				<div className="quesync-text-messages-wrapper">
+					<Scrollbars className="quesync-text-messages">
+						<TransitionGroup className="quesync-text-messages-container">
+							{messages.map((messageGroup, idx) => (
+								<MessageBubble
+									sender={this.getSenderNickname(messageGroup[0].senderId)}
+									avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+									messages={messageGroup}
+									style={{
+										paddingTop: "0.8rem"
+									}}
+								/>
+							))}
+						</TransitionGroup>
+					</Scrollbars>
+				</div>
+				<div className="quesync-seperator" />
+				<MessageField
+					value={
+						this.props.newMessages[this.props.channelId]
+							? this.props.newMessages[this.props.channelId]
+							: ""
+					}
+					setNewValue={value =>
+						this.props.dispatch(
+							setNewMessageForChannel(value, this.props.channelId)
+						)
+					}
+					send={() =>
+						this.props.dispatch(
+							sendMessage(
+								this.props.client,
+								this.props.newMessages[this.props.channelId],
+								this.props.channelId
+							)
+						)
+					}
+				/>
 			</div>
 		);
 	}
 }
 
 export default connect(state => ({
+	client: state.client.client,
 	messages: state.messages.messages,
+	newMessages: state.messages.newMessages,
 	profiles: state.users.profiles
 }))(TextChannel);

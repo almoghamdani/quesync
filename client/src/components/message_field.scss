@@ -1,0 +1,67 @@
+.quesync-message-field {
+	height: 54px;
+	width: 100%;
+}
+
+.quesync-message-field-input {
+	resize: none !important;
+
+	overflow: auto;
+}
+
+.quesync-message-field-input::-webkit-scrollbar {
+	width: 6px;
+
+	background: transparent;
+}
+
+.quesync-message-field-input::-webkit-scrollbar-thumb {
+	border-radius: 3px;
+
+	background-color: rgba(0, 0, 0, 0.25);
+}
+
+.quesync-message-field-input::-webkit-scrollbar-track {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.quesync-message-field-content {
+	// Fill parent
+	width: 100%;
+
+	// Make the scrollbar a bit away from the side of the outline
+	margin-right: 7px;
+}
+
+.quesync-message-field .mdc-notched-outline__leading {
+	border-color: #bdbdbd !important;
+}
+
+.quesync-message-field .mdc-notched-outline__notch {
+	border-color: #bdbdbd !important;
+}
+
+.quesync-message-field .mdc-notched-outline__trailing {
+	border-color: #bdbdbd !important;
+}
+
+.quesync-message-field__focused .mdc-notched-outline__leading {
+	border-color: var(--mdc-theme-primary) !important;
+}
+
+.quesync-message-field__focused .mdc-notched-outline__notch {
+	border-color: var(--mdc-theme-primary) !important;
+}
+
+.quesync-message-field__focused .mdc-notched-outline__trailing {
+	border-color: var(--mdc-theme-primary) !important;
+}
+
+.quesync-message-field .mdc-floating-label {
+	color: #bdbdbd !important;
+}
+
+.quesync-message-field .quesync-message-field-input {
+	color: white !important;
+}
