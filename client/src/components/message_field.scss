@@ -34,27 +34,11 @@
 	margin-right: 7px;
 }
 
-.quesync-message-field .mdc-notched-outline__leading {
+.quesync-message-field [class*=mdc-notched-outline__] {
 	border-color: #bdbdbd !important;
 }
 
-.quesync-message-field .mdc-notched-outline__notch {
-	border-color: #bdbdbd !important;
-}
-
-.quesync-message-field .mdc-notched-outline__trailing {
-	border-color: #bdbdbd !important;
-}
-
-.quesync-message-field__focused .mdc-notched-outline__leading {
-	border-color: var(--mdc-theme-primary) !important;
-}
-
-.quesync-message-field__focused .mdc-notched-outline__notch {
-	border-color: var(--mdc-theme-primary) !important;
-}
-
-.quesync-message-field__focused .mdc-notched-outline__trailing {
+.quesync-message-field__focused [class*=mdc-notched-outline__] {
 	border-color: var(--mdc-theme-primary) !important;
 }
 
