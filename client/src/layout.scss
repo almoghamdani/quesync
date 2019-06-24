@@ -17,11 +17,13 @@
 	flex-direction: row;
 
 	// Fill the entire width of the screen + Fixed height of the drag holder
-	height: 30px;
+	height: 24px;
 	min-width: 100%;
 
 	// Make on top of all other elements
 	z-index: 9999;
+
+	background: rgba(0, 0, 0, 0.2);
 }
 
 .quesync-drag-zone {
@@ -33,7 +35,7 @@
 }
 
 .quesync-drag-zone-button {
-	@include mdc-icon-button-size(15px, 15px);
+	@include mdc-icon-button-size(12px, 12px);
 	@include mdc-icon-button-ink-color(white);
 }
 
@@ -47,10 +49,10 @@
 	border-radius: 0px !important;
 
 	// Fix size and position issue of the initial hover
-	left: 6px !important;
-	top: 6px !important;
-	height: 18px !important;
-	width: 18px !important;
+	left: 4.5px !important;
+	top: 4.5px !important;
+	height: 14px !important;
+	width: 14px !important;
 }
 
 // Set font size to match the size of the material icon button
