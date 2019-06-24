@@ -314,7 +314,7 @@ Napi::Value Client::search(const Napi::CallbackInfo &info)
 
     // Convert parameters to string
     std::string nickname = info[0].As<Napi::String>();
-    int tag = info[1].IsUndefined() ? -1 : info[0].As<Napi::Number>();
+    int tag = info[1].IsUndefined() ? -1 : info[1].As<Napi::Number>();
 
     Executer *e = new Executer([this, nickname, tag]() {
         QuesyncError error = SUCCESS;
