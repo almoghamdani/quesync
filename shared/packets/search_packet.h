@@ -52,9 +52,10 @@ public:
             {
                 // Get all users matching the searched nickname and tag
                 res = users_table.select("id", "nickname", "tag")
-                          .where("nickname LIKE :nickname AND tag = :tag")
+                          .where("nickname LIKE :nickname AND tag = :tag AND id != :user_id")
                           .bind("nickname", nickname)
                           .bind("tag", (int)_data["tag"])
+                          .bind("user_id", session->user()->id())
                           .execute()
                           .fetchAll();
             }
@@ -62,8 +63,9 @@ public:
             {
                 // Get all users matching the searched nickname
                 res = users_table.select("id", "nickname", "tag")
-                          .where("nickname LIKE :nickname")
+                          .where("nickname LIKE :nickname AND id != :user_id")
                           .bind("nickname", nickname)
+                          .bind("user_id", session->user()->id())
                           .execute()
                           .fetchAll();
             }
