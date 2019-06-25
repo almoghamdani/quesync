@@ -123,18 +123,21 @@ class Layout extends Component {
 						className="quesync-drag-zone-button"
 						icon="minimize"
 						onClick={this.minimize}
+						disabled={isMacOS}
 						style={{ opacity: isMacOS ? 0 : 1 }}
 					/>
 					<IconButton
 						className="quesync-drag-zone-button"
 						icon="fullscreen"
 						onClick={this.maximize}
+						disabled={isMacOS}
 						style={{ opacity: isMacOS ? 0 : 1 }}
 					/>
 					<IconButton
 						className="quesync-drag-zone-button"
 						icon="close"
 						onClick={this.close}
+						disabled={isMacOS}
 						style={{ opacity: isMacOS ? 0 : 1 }}
 					/>
 				</div>
