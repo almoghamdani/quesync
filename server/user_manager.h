@@ -30,6 +30,8 @@ public:
     void sendFriendRequest(std::string requester_id, std::string recipient_id);
     void setFriendshipStatus(std::string requester_id, std::string friend_id, bool status);
 
+    nlohmann::json search(std::shared_ptr<Session> sess, std::string nickname, int tag);
+
 private:
     sql::Table users_table;
     sql::Table friendships_table;

@@ -1,6 +1,7 @@
 #pragma once
 #include "serialized_packet.h"
 
+#include <iostream>
 #include <vector>
 
 #include "response_packet.h"
@@ -31,50 +32,12 @@ public:
         nlohmann::json results;
 
         std::string nickname = _data["nickname"];
+        int tag = _data["tag"];
 
         try
         {
-            sql::Table users_table = session->server()->db().getTable("users");
-            std::vector<sql::Row> res;
-
-            // Insert % before and after the string to match any string containing the nickname
-            nickname.insert(0, "%");
-            nickname.append("%");
-
-            // If the user is not authenticed, send error
-            if (!session->authenticated())
-            {
-                return ErrorPacket(NOT_AUTHENTICATED).encode();
-            }
-
-            // If a tag was entered, select with it as a requirement
-            if ((int)_data["tag"] != -1)
-            {
-                // Get all users matching the searched nickname and tag
-                res = users_table.select("id", "nickname", "tag")
-                          .where("nickname LIKE :nickname AND tag = :tag AND id != :user_id")
-                          .bind("nickname", nickname)
-                          .bind("tag", (int)_data["tag"])
-                          .bind("user_id", session->user()->id())
-                          .execute()
-                          .fetchAll();
-            }
-            else
-            {
-                // Get all users matching the searched nickname
-                res = users_table.select("id", "nickname", "tag")
-                          .where("nickname LIKE :nickname AND id != :user_id")
-                          .bind("nickname", nickname)
-                          .bind("user_id", session->user()->id())
-                          .execute()
-                          .fetchAll();
-            }
-
-            // Format the results in the json type
-            for (int i = 0; i < res.size(); i++)
-            {
-                results[std::string(res[i][0])] = nlohmann::json({{"nickname", res[i][1]}, {"tag", (int)res[i][2]}});
-            }
+            // Try to search the wanted nickname and tag
+            results = session->server()->userManager()->search(session->getShared(), nickname, tag);
         }
         catch (...)
         {

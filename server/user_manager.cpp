@@ -426,3 +426,66 @@ std::shared_ptr<Session> UserManager::getAuthenticatedSessionOfUser(std::string 
         return nullptr;
     }
 }
+
+nlohmann::json UserManager::search(std::shared_ptr<Session> sess, std::string nickname, int tag)
+{
+    nlohmann::json results = nlohmann::json{};
+
+    std::string nicknameInitial = nickname;
+    std::string nicknameEnd = nickname;
+
+    std::vector<sql::Row> res;
+
+    // Insert % before and after the string to match any string containing the nickname
+    nickname.insert(0, "%");
+    nickname.append("%");
+
+    // Add % at the end to get all nicknames starting with the wanted nickname
+    nicknameInitial.append("%");
+
+    // Add % at the end to get all nicknames starting with the wanted nickname
+    nicknameEnd.insert(0, "%");
+
+    try
+    {
+
+        // If a tag was entered, select with it as a requirement
+        if (tag != -1)
+        {
+            // Get all users matching the searched nickname and tag
+            res = _server->db()
+                      .getSession()
+                      .sql("SELECT id, nickname, tag FROM quesync.users WHERE nickname LIKE ? AND tag = ? AND id != ? ORDER BY CASE WHEN nickname LIKE ? THEN 0 WHEN nickname LIKE ? THEN 1 ELSE 2 END")
+                      .bind(nickname)
+                      .bind(tag)
+                      .bind(sess->user()->id())
+                      .bind(nicknameInitial)
+                      .bind(nicknameEnd)
+                      .execute()
+                      .fetchAll();
+        }
+        else
+        {
+            // Get all users matching the searched nickname
+            res = _server->db()
+                      .getSession()
+                      .sql("SELECT id, nickname, tag FROM quesync.users WHERE nickname LIKE ? AND id != ? ORDER BY CASE WHEN nickname LIKE ? THEN 0 WHEN nickname LIKE ? THEN 1 ELSE 2 END")
+                      .bind(nickname)
+                      .bind(sess->user()->id())
+                      .bind(nicknameInitial)
+                      .bind(nicknameEnd)
+                      .execute()
+                      .fetchAll();
+        }
+    } catch (...) {
+        throw QuesyncException(UNKNOWN_ERROR);
+    }
+
+    // Format the results in the json type
+    for (int i = 0; i < res.size(); i++)
+    {
+        results += nlohmann::json({{"id", res[i][0]}, {"nickname", res[i][1]}, {"tag", (int)res[i][2]}});
+    }
+
+    return results;
+}

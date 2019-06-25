@@ -144,7 +144,7 @@ class MessageField extends Component {
 		updater.sendFriendRequest(this.props.client, userId);
 
 	render() {
-		const results = this.props.results ? this.props.results : {};
+		const results = this.props.results ? this.props.results : [];
 
 		return (
 			<div className="quesync-search-field-wrapper">
@@ -197,22 +197,20 @@ class MessageField extends Component {
 									<CircularProgress />
 								</ListItem>
 							) : null}
-							{Object.keys(results).map(userId => (
+							{results.map(user => (
 								<MessageFieldItem
-									key={userId}
-									id={userId}
-									nickname={results[userId].nickname}
-									tag={results[userId].tag}
+									key={user.id}
+									id={user.id}
+									nickname={user.nickname}
+									tag={user.tag}
 									avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
-									friendsAlready={this.checkIfFriends(userId)}
+									friendsAlready={this.checkIfFriends(user.id)}
 									sendFriendRequest={this.sendFriendRequest}
-									requestSent={this.friendRequestSent(userId)}
+									requestSent={this.friendRequestSent(user.id)}
 								/>
 							))}
-							{Object.keys(results).length === 0 ? (
-								<ListItem
-									className="quesync-search-field-no-results-item"
-								>
+							{results.length === 0 ? (
+								<ListItem className="quesync-search-field-no-results-item">
 									No Results
 								</ListItem>
 							) : null}

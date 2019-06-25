@@ -1,7 +1,7 @@
 export default function reducer(
 	state = {
 		profiles: {},
-		searchResults: {},
+		searchResults: [],
 		searching: false,
 		error: null,
 		searchError: null
