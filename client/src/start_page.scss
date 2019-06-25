@@ -99,13 +99,20 @@
 }
 
 .quesync-transition {
-	height: 27rem;
-	width: 50rem;
-
 	border-radius: 5px;
 
 	// Not visible at first
 	opacity: 0;
+}
+
+.quesync-login-form-transition {
+	height: 27rem;
+	width: 50rem;
+}
+
+.quesync-register-form-transition {
+	height: 35rem;
+	width: 50rem;
 }
 
 .quesync-error-holder {
