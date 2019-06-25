@@ -4,3 +4,10 @@ export function fetchUserProfile(client, userId) {
 		payload: client.getUserProfile(userId)
 	};
 }
+
+export function searchUser(client, nickname, tag = -1) {
+	return {
+		type: "SEARCH_USER",
+		payload: client.search(nickname, tag)
+	};
+}

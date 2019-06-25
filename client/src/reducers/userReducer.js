@@ -56,6 +56,17 @@ export default function reducer(
 			return { ...state, user: { ...state.user, friendRequests: newFriendRequests } };
 		}
 
+		case "SEND_FRIEND_REQUEST_FULFILLED": {
+			const friendId = action.payload.friendId;
+
+			let newFriendRequests = [...state.user.friendRequests];
+
+			// Add the friend id to the list of friend requests
+			newFriendRequests.push(friendId);
+
+			return { ...state, user: { ...state.user, friendRequests: newFriendRequests } }
+		}
+
 		default:
 			return state;
 	}

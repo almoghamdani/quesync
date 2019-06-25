@@ -46,3 +46,10 @@ export function rejectFriendRequest(client, friendId) {
 		payload: client.setFriendshipStatus(friendId, false)
 	}
 }
+
+export function sendFriendRequest(client, userId) {
+	return {
+		type: "SEND_FRIEND_REQUEST",
+		payload: client.sendFriendRequest(userId)
+	}
+}

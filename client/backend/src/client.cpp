@@ -437,6 +437,8 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
         {
             // Set success error code
             res["error"] = SUCCESS;
+
+            res["friendId"] = friend_id;
         }
         else if (error)
         {
