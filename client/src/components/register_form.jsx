@@ -157,12 +157,14 @@ class RegisterForm extends Component {
 					invalid={this.state.usernameError}
 					outlined
 					label="Username"
+					icon="person"
 					style={{ marginTop: "38px", width: "300px" }}
 				/>
 				<TextField
 					invalid={this.state.emailError}
 					outlined
 					label="E-mail"
+					icon="email"
 					style={{ marginTop: "15px", width: "300px" }}
 				/>
 				<TextField
@@ -170,6 +172,7 @@ class RegisterForm extends Component {
 					outlined
 					label="Password"
 					type="password"
+					icon="lock"
 					style={{ marginTop: "15px", width: "300px" }}
 				/>
 				<TextField
@@ -177,6 +180,7 @@ class RegisterForm extends Component {
 					outlined
 					label="Re-enter password"
 					type="password"
+					icon="lock"
 					style={{ marginTop: "15px", width: "300px" }}
 				/>
 				<Button

@@ -129,6 +129,7 @@ class LoginForm extends Component {
 					invalid={this.state.usernameError}
 					outlined
 					label="Username"
+					icon="person"
 					style={{ marginTop: "38px", width: "300px" }}
 				/>
 				<TextField
@@ -136,6 +137,7 @@ class LoginForm extends Component {
 					outlined
 					label="Password"
 					type="password"
+					icon="lock"
 					style={{ marginTop: "15px", width: "300px" }}
 				/>
 				<Button
