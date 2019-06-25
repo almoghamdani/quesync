@@ -439,6 +439,7 @@ Napi::Value Client::sendFriendRequest(const Napi::CallbackInfo &info)
             res["error"] = SUCCESS;
 
             res["friendId"] = friend_id;
+            res["sentAt"] = std::time(nullptr);
         }
         else if (error)
         {
