@@ -77,14 +77,14 @@ class FriendsPage extends Component {
 					this.props.dispatch(setFriendsPageSelectedDrawerItem(-1));
 				}}
 				drawerContent={[
-					friends.map((friend, idx) => (
+					friends.map(friend => (
 						<DrawerItem
 							key={friend.id}
 							avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
 							itemName={friend.nickname}
 						/>
 					)),
-					pendingFriends.map((friend, idx) => (
+					pendingFriends.map(friend => (
 						<FriendRequestItem
 							key={friend.id}
 							friendAvatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
