@@ -32,7 +32,7 @@ class FriendRequestItem extends Component {
 							this.props.rejectRequest();
 						}}
 					/>
-					<IconButton
+					{!this.props.approval ? <IconButton
 						className="quesync-friend-request-button quesync-friend-request-approve-button"
 						icon="done"
 						onClick={event => {
@@ -41,7 +41,7 @@ class FriendRequestItem extends Component {
 							
 							this.props.approveRequest();
 						}}
-					/>
+					/> : null}
 				</div>
 			</DrawerItem>
 		);

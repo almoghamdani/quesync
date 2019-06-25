@@ -11,7 +11,10 @@ import {
 	setFriendsPageSelectedDrawerItem
 } from "../actions/itemsActions";
 
-import { approveFriendRequest, rejectFriendRequest } from "../actions/userActions";
+import {
+	approveFriendRequest,
+	rejectFriendRequest
+} from "../actions/userActions";
 
 import "./friends_page.scss";
 
@@ -28,18 +31,16 @@ class FriendsPage extends Component {
 
 	approveFriendRequest = friendId => {
 		// Try to approve the friend request
-		this.props.dispatch(approveFriendRequest(this.props.client, friendId))
-			.catch(() => {
-
-			})
+		this.props
+			.dispatch(approveFriendRequest(this.props.client, friendId))
+			.catch(() => {});
 	};
 
 	rejectFriendRequest = friendId => {
 		// Try to reject the friend request
-		this.props.dispatch(rejectFriendRequest(this.props.client, friendId))
-			.catch(() => {
-				
-			})
+		this.props
+			.dispatch(rejectFriendRequest(this.props.client, friendId))
+			.catch(() => {});
 	};
 
 	render() {
@@ -52,13 +53,21 @@ class FriendsPage extends Component {
 
 		const pendingFriends = this.props.user.friendRequests
 			? this.props.user.friendRequests
-					.map(({ friendId, sentAt }) => ({
+					.map(({ friendId, friendType, sentAt }) => ({
 						id: friendId,
+						type: friendType,
 						nickname: this.props.profiles[friendId].nickname,
 						sentAt
 					}))
 					.sort((a, b) => b.sentAt - a.sentAt)
 			: [];
+
+		const pendingRequests = pendingFriends.filter(
+			friend => friend.type === "requester"
+		);
+		const pendingApproval = pendingFriends.filter(
+			friend => friend.type === "recipient"
+		);
 
 		const currentSelectedFriendId =
 			this.props.selectedDrawerItem !== -1
@@ -68,7 +77,7 @@ class FriendsPage extends Component {
 		return (
 			<DrawerPage
 				className="quesync-friends-page"
-				drawerTabs={["All", "Pending"]}
+				drawerTabs={["All", "Requests"]}
 				selectedDrawerTab={this.props.selectedTab}
 				drawerTabSelected={tabIdx => {
 					this.props.dispatch(setFriendsPageSelectedTab(tabIdx));
@@ -84,16 +93,30 @@ class FriendsPage extends Component {
 							itemName={friend.nickname}
 						/>
 					)),
-					pendingFriends.map(friend => (
-						<FriendRequestItem
-							key={friend.id}
-							friendAvatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
-							friendName={friend.nickname}
-							sentAt={friend.sentAt}
-							approveRequest={() => this.approveFriendRequest(friend.id)}
-							rejectRequest={() => this.rejectFriendRequest(friend.id)}
-						/>
-					))
+					pendingRequests
+						.map(friend => (
+							<FriendRequestItem
+								key={friend.id}
+								friendAvatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+								friendName={friend.nickname}
+								sentAt={friend.sentAt}
+								approveRequest={() => this.approveFriendRequest(friend.id)}
+								rejectRequest={() => this.rejectFriendRequest(friend.id)}
+							/>
+						))
+						.concat(
+							pendingApproval.map(friend => (
+								<FriendRequestItem
+									key={friend.id}
+									friendAvatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+									friendName={friend.nickname}
+									sentAt={friend.sentAt}
+									approveRequest={() => this.approveFriendRequest(friend.id)}
+									rejectRequest={() => this.rejectFriendRequest(friend.id)}
+									approval
+								/>
+							))
+						)
 				]}
 				drawerItemClicked={friendIdx =>
 					this.props.dispatch(setFriendsPageSelectedDrawerItem(friendIdx))
