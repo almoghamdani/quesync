@@ -16,6 +16,12 @@ import {
 import "./text_channel.scss";
 
 class TextChannel extends Component {
+	endMessagesDummy = React.createRef();
+
+	componentDidMount = () => {
+		this.scrollToBottom(false);
+	};
+
 	getGroupedMessages = () => {
 		const channelMessages = this.props.messages[this.props.channelId];
 		let currentSender,
@@ -52,6 +58,11 @@ class TextChannel extends Component {
 
 	getSenderNickname = senderId => this.props.profiles[senderId].nickname;
 
+	scrollToBottom = smooth =>
+		this.endMessagesDummy.current.scrollIntoView({
+			behavior: smooth ? "smooth" : "auto"
+		});
+
 	render() {
 		const messages = this.getGroupedMessages();
 
@@ -74,6 +85,10 @@ class TextChannel extends Component {
 								</Transition>
 							))}
 						</TransitionGroup>
+						<div
+							className="quesync-messages-end-dummy"
+							ref={this.endMessagesDummy}
+						/>
 					</Scrollbars>
 				</div>
 				<div className="quesync-seperator" />
@@ -89,13 +104,15 @@ class TextChannel extends Component {
 						)
 					}
 					send={() =>
-						this.props.dispatch(
-							sendMessage(
-								this.props.client,
-								this.props.newMessages[this.props.channelId],
-								this.props.channelId
+						this.props
+							.dispatch(
+								sendMessage(
+									this.props.client,
+									this.props.newMessages[this.props.channelId],
+									this.props.channelId
+								)
 							)
-						)
+							.then(() => this.scrollToBottom(true))
 					}
 				/>
 			</div>
