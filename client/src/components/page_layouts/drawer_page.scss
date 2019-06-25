@@ -60,11 +60,20 @@
 	flex-grow: 1;
 }
 
-.mdc-tab--active .mdc-tab__text-label {
+.quesync-no-items-list-item {
+	height: 100% !important;
+
+	text-align: center;
+	white-space: pre-line;
+
+	user-select: none;
+}
+
+.quesync-drawer-tab.mdc-tab--active .mdc-tab__text-label {
 	// Set the color of the tab
 	color: var(--mdc-theme-primary) !important;
 }
 
-.mdc-tab__text-label {
+.quesync-drawer-tab .mdc-tab__text-label {
 	color: lightgrey !important;
 }

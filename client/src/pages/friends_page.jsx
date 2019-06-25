@@ -85,6 +85,10 @@ class FriendsPage extends Component {
 					// Reset the choice
 					this.props.dispatch(setFriendsPageSelectedDrawerItem(-1));
 				}}
+				drawerNoItemsMessage={[
+					"It's time to add some friends to your friends list.\nClick the search field above to get started!",
+					"You have no pending friend requests."
+				]}
 				drawerContent={[
 					friends.map(friend => (
 						<DrawerItem

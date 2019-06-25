@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import DrawerScrollbars from "../drawer_scrollbars";
 
 import { Drawer, DrawerContent, DrawerAppContent } from "@rmwc/drawer";
-import { List } from "@rmwc/list";
+import { List, ListItem } from "@rmwc/list";
 import { TabBar } from "@rmwc/tabs";
 import TabBadge from "../tab_badge";
 
@@ -13,6 +13,14 @@ import TransitionGroup from "react-transition-group/TransitionGroup";
 import Transition from "react-transition-group/Transition";
 
 import "./drawer_page.scss";
+
+function NoItemsMessage({ message }) {
+	return (
+		<ListItem className="quesync-no-items-list-item" disabled>
+			{message}
+		</ListItem>
+	);
+}
 
 class DrawerPage extends Component {
 	constructor(props) {
@@ -85,31 +93,37 @@ class DrawerPage extends Component {
 										timeout={115}
 										key={idx}
 									>
-										<TransitionGroup style={{ opacity: "0" }}>
-											{React.Children.map(
-												drawerTabContent,
-												(child, childIdx) => (
-													<Transition
-														appear
-														onEnter={animateDrawerContentIn}
-														onExit={animateDrawerContentOut}
-														timeout={115}
-														key={child.key}
-													>
-														<div
+										{drawerTabContent.length > 0 ? (
+											<TransitionGroup style={{ opacity: "0" }}>
+												{React.Children.map(
+													drawerTabContent,
+													(child, childIdx) => (
+														<Transition
+															appear
+															onEnter={animateDrawerContentIn}
+															onExit={animateDrawerContentOut}
+															timeout={115}
 															key={child.key}
-															className="quesync-drawer-content-item-wrapper"
-															style={{ opacity: 0 }}
 														>
-															{React.cloneElement(child, {
-																onClick: () =>
-																	this.props.drawerItemClicked(childIdx)
-															})}
-														</div>
-													</Transition>
-												)
-											)}
-										</TransitionGroup>
+															<div
+																key={child.key}
+																className="quesync-drawer-content-item-wrapper"
+																style={{ opacity: 0 }}
+															>
+																{React.cloneElement(child, {
+																	onClick: () =>
+																		this.props.drawerItemClicked(childIdx)
+																})}
+															</div>
+														</Transition>
+													)
+												)}
+											</TransitionGroup>
+										) : (
+											<NoItemsMessage
+												message={this.props.drawerNoItemsMessage[idx]}
+											/>
+										)}
 									</Transition>
 								))}
 							</List>
