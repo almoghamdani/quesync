@@ -1,0 +1,49 @@
+.quesync-search-field-loading-item {
+	display: flex;
+
+	justify-content: center;
+	align-items: center;
+}
+
+.quesync-search-field-no-results-item {
+	display: flex;
+
+	justify-content: center;
+	align-items: center;
+}
+
+.quesync-search-field-menu {
+	width: 450px;
+}
+
+.quesync-search-field-item {
+	display: flex;
+
+	align-items: center;
+}
+
+.quesync-search-field-item-name {
+	// Fill the space
+	flex-grow: 1;
+
+	padding-right: 8px;
+	padding-left: 8px;
+}
+
+.quesync-search-field-item-button {
+	height: 32px;
+
+	font-size: 13px;
+}
+
+.quesync-search-field-item-avatar {
+	height: 26px;
+	width: 26px;
+}
+
+.quesync-search-field-item-avatar .rmwc-avatar__icon {
+	height: 26px;
+	width: 26px;
+
+	border-radius: 13px;
+}

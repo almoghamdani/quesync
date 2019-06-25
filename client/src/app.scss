@@ -19,7 +19,7 @@
 }
 
 .quesync-top-app-bar {
-	padding-top: 15px;
+	padding-top: 22px;
 }
 
 // Override ripple color to transparent in order to remove it
@@ -31,5 +31,37 @@
 }
 
 .quesync-top-app-bar-seperator {
-	padding-bottom: 15px;
+	padding-bottom: 22px;
+}
+
+.quesync-search-field {
+	width: 270px;
+	height: 40px;
+}
+
+.quesync-search-field * {
+	color: rgba(255, 255, 255, 0.7) !important;
+	border-color: rgba(255, 255, 255, 0.7) !important;
+	caret-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.quesync-search-field.mdc-text-field--focused:not(.mdc-text-field--disabled)
+	.mdc-floating-label {
+	color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.quesync-search-field
+	.mdc-floating-label:not(.mdc-floating-label--float-above) {
+	top: 10px !important;
+}
+
+.quesync-search-field .mdc-floating-label {
+	// Override the default transition for the floating label and add to it a top transition for the custom top location
+	transition: top 150ms ease-out, transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
+		color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+		-webkit-transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quesync-search-field .mdc-text-field__icon {
+	bottom: 8px !important;
 }
