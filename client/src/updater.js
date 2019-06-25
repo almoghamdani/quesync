@@ -1,5 +1,6 @@
 import store from "./store";
 
+import { sendFriendRequest } from "./actions/userActions"
 import { getChannelMessages } from "./actions/messagesActions";
 import { getPrivateChannel } from "./actions/channelsActions";
 import { fetchUserProfile } from "./actions/usersActions";
@@ -21,7 +22,7 @@ class Updater {
 		// Get the user's profile
 		await store
 			.dispatch(fetchUserProfile(client, user.id))
-			.then(() => {})
+			.then(() => { })
 			.catch((ex) => {
 				this.logger.error(
 					`An error occurred fetching the user's profile. Error: ${ex}`
@@ -86,6 +87,18 @@ class Updater {
 					`An error occurred getting the messages of the channel ${channelId}. Error: ${ex}`
 				);
 			});
+	}
+
+	sendFriendRequest = async (client, userId) => {
+		// Fetch the user's profile
+		await store
+			.dispatch(fetchUserProfile(client, userId))
+			.then(() => store.dispatch(sendFriendRequest(client, userId))) // Send friend request
+			.then(() => store.dispatch(getPrivateChannel(client, userId))) // Get the private channel
+			.then(res => this.updateChannel(client, res.action.payload.channel.id)) // Update the channel
+			.catch(ex => this.logger.error(
+				`An error occurred sending the friend request to the user ${userId}. Error: ${ex}`
+			))
 	}
 }
 
