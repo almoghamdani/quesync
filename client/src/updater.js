@@ -1,4 +1,4 @@
-import store from "./store";
+import { store } from "./store";
 
 import { sendFriendRequest } from "./actions/userActions"
 import { getChannelMessages } from "./actions/messagesActions";

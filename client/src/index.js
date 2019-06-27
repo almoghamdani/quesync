@@ -7,13 +7,17 @@ import "./index.scss";
 
 import Layout from "./layout.jsx";
 import StartPage from "./start_page.jsx";
-import store from "./store";
+
+import { PersistGate } from 'redux-persist/integration/react'
+import { store, persistor } from "./store";
 
 const app = document.getElementById("root");
 
 ReactDOM.render(
 	<Provider store={store}>
-		<Layout child={<StartPage />} />
+		<PersistGate loading={null} persistor={persistor}>
+			<Layout child={<StartPage />} />
+		</PersistGate>
 	</Provider>,
 	app
 );

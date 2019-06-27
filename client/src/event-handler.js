@@ -1,4 +1,4 @@
-import store from "./store";
+import { store } from "./store";
 
 import { addPingValue } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";

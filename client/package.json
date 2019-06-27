@@ -28,6 +28,7 @@
     "react-redux": "^6.0.1",
     "react-transition-group": "^4.1.1",
     "redux": "^4.0.1",
+    "redux-persist": "^5.10.0",
     "redux-promise-middleware": "^6.1.1",
     "rmwc": "^5.5.2",
     "zxcvbn": "^4.4.2"
