@@ -18,8 +18,27 @@ import "./text_channel.scss";
 class TextChannel extends Component {
 	endMessagesDummy = React.createRef();
 
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			prevChannelId: props.channelId
+		};
+	}
+
 	componentDidMount = () => {
 		this.scrollToBottom(false);
+	};
+
+	componentDidUpdate = () => {
+		// If the channel has changed, scroll to bottom and reset the prev channel id
+		if (this.state.prevChannelId !== this.props.channelId) {
+			this.scrollToBottom(false);
+
+			this.setState({
+				prevChannelId: this.props.channelId
+			});
+		}
 	};
 
 	getGroupedMessages = () => {
