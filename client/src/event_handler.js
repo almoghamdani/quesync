@@ -3,11 +3,13 @@ import { store } from "./store";
 import { addPingValue } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";
 import { fetchUserProfile } from "./actions/usersActions";
+import { addMessageToChannel } from "./actions/messagesActions";
 
 class EventHandler {
 	register = client => {
-		client.registerEventHandler("friend-request", this.friendRequestEvent);
 		client.registerEventHandler("ping", this.pingEvent);
+		client.registerEventHandler("friend-request", this.friendRequestEvent);
+		client.registerEventHandler("message", this.messageEvent);
 	};
 
 	friendRequestEvent = async event => {
@@ -45,6 +47,19 @@ class EventHandler {
 		// Add the ping value to the list of pings
 		await store.dispatch(addPingValue(pingValue));
 	};
+
+	messageEvent = event => {
+		var message = { ...event.message };
+		const channelId = message.channelId;
+
+		console.log(message)
+
+		// Remove channel id field from message
+		delete message.channelId;
+
+		// Add message to channel
+		store.dispatch(addMessageToChannel(message, channelId));
+	}
 }
 
 export default new EventHandler()
