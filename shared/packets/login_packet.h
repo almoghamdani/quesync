@@ -29,6 +29,7 @@ class LoginPacket : public SerializedPacket
     virtual std::string handle(Session *session)
     {
         std::shared_ptr<User> user;
+        std::string session_id;
 
         // If the user is already authenticated, return error
         if (session->authenticated())
@@ -44,8 +45,11 @@ class LoginPacket : public SerializedPacket
             // Set the user in the client's session
             session->setUser(user);
 
+            // Create a session for the user
+            session_id = session->server()->sessionManager()->createSession(session->getShared());
+
             // Return autheticated packet with the user's info
-            return ResponsePacket(AUTHENTICATED_PACKET, user->serialize()).encode();
+            return ResponsePacket(AUTHENTICATED_PACKET, nlohmann::json{{"user", user->serialize()}, {"sessionId", session_id}}.dump()).encode();            
         }
         catch (QuesyncException &ex)
         {

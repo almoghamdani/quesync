@@ -20,6 +20,7 @@
 #include "packets/get_private_channel_packet.h"
 #include "packets/send_message_packet.h"
 #include "packets/get_channel_messages_packet.h"
+#include "packets/session_auth_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -82,6 +83,10 @@ Packet *Utils::ParsePacket(std::string packet)
 
     case GET_CHANNEL_MESSAGES_PACKET:
         p = new GetChannelMessagesPacket();
+        break;
+
+    case SESSION_AUTH_PACKET:
+        p = new SessionAuthPacket();
         break;
 
     case ERROR_PACKET:
@@ -237,6 +242,8 @@ std::string Utils::QuesyncErrorToString(QuesyncError error)
         return "AMOUNT_EXCEEDED_MAX";
     case SELF_PRIVATE_CHANNEL:
         return "SELF_PRIVATE_CHANNEL";
+    case INVALID_SESSION:
+        return "INVALID_SESSION";
     }
 
     return "";

@@ -21,6 +21,7 @@ public:
     bool doesUserExists(std::string user_id);
 
     std::shared_ptr<User> registerUser(std::shared_ptr<Session> sess, std::string username, std::string password, std::string email, std::string nickname);
+    std::shared_ptr<User> authenticateUserBySession(std::shared_ptr<Session> sess, std::string session_id);
     std::shared_ptr<User> authenticateUser(std::shared_ptr<Session> sess, std::string username, std::string password);
     std::shared_ptr<Session> getAuthenticatedSessionOfUser(std::string user_id);
     void unauthenticateSession(std::string user_id);

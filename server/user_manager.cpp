@@ -477,7 +477,9 @@ nlohmann::json UserManager::search(std::shared_ptr<Session> sess, std::string ni
                       .execute()
                       .fetchAll();
         }
-    } catch (...) {
+    }
+    catch (...)
+    {
         throw QuesyncException(UNKNOWN_ERROR);
     }
 
@@ -488,4 +490,49 @@ nlohmann::json UserManager::search(std::shared_ptr<Session> sess, std::string ni
     }
 
     return results;
+}
+
+std::shared_ptr<User> UserManager::authenticateUserBySession(std::shared_ptr<Session> sess, std::string session_id)
+{
+    std::shared_ptr<User> user = nullptr;
+    std::string user_id;
+
+    sql::Row user_res;
+
+    // Try to get the user id for the session
+    user_id = _server->sessionManager()->getUserIdForSession(session_id);
+
+    try
+    {
+        // Search for the user row in the database
+        user_res = users_table.select("*")
+                       .where("id = :user_id")
+                       .bind("user_id", user_id)
+                       .execute()
+                       .fetchOne();
+    }
+    catch (...)
+    {
+        throw QuesyncException(UNKNOWN_ERROR);
+    }
+
+    // If the user is not found
+    if (user_res.isNull())
+    {
+        throw QuesyncException(USER_NOT_FOUND);
+    }
+
+    // Create the user from the db response
+    user = std::shared_ptr<User>(new User(user_res[0],
+                                          user_res[1],
+                                          user_res[3],
+                                          user_res[4],
+                                          user_res[5],
+                                          getFriends(user_res[0]),
+                                          getFriendRequests(user_res[0])));
+
+    // Add the user to the authenticated sessions
+    _authenticated_sessions.insert_or_assign(user_res[0], sess);
+
+    return user;
 }
