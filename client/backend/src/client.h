@@ -18,6 +18,7 @@ class Client : public Napi::ObjectWrap<Client>
 public:
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
   Client(const Napi::CallbackInfo &info);
+  ~Client();
 
   Napi::Value connect(const Napi::CallbackInfo &info);
 
@@ -44,4 +45,6 @@ private:
   VoiceChat *_voice_chat_manager;
 
   Communicator _communicator;
+
+  void clean();
 };

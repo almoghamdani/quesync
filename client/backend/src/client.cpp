@@ -20,9 +20,24 @@
 Napi::FunctionReference Client::constructor;
 
 Client::Client(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Client>(info),
+                                                 _communicator(std::bind(&Client::clean, this)),
                                                  _user(nullptr)
 {
     Napi::Env env = info.Env();
+}
+
+Client::~Client() {
+    clean();
+}
+
+void Client::clean()
+{
+    // Clean user object
+    if (_user)
+    {
+        delete _user;
+        _user = nullptr;
+    }
 }
 
 Napi::Value Client::connect(const Napi::CallbackInfo &info)

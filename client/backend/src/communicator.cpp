@@ -10,8 +10,30 @@
 #include "../../../shared/utils.h"
 #include "../../../shared/packets/ping_packet.h"
 
-Communicator::Communicator() : _socket(nullptr), _connected(false)
+Communicator::Communicator(std::function<void()> clean_callback) : _socket(nullptr), _clean_callback(clean_callback)
 {
+}
+
+void Communicator::clean_connection()
+{
+    // If we currently have a socket with the server, close it and delete it
+    if (_socket)
+    {
+        // Close the socket
+        _socket->close();
+
+        // Free the socket
+        delete _socket;
+
+        // Reset socket ptr
+        _socket = nullptr;
+    }
+
+    // Reset ping retries
+    _ping_retries = 0;
+
+    // Call the clean callback
+    _clean_callback();
 }
 
 void Communicator::connect(std::string server_ip)
@@ -22,14 +44,19 @@ void Communicator::connect(std::string server_ip)
     tcp::endpoint server_endpoint;
     PingPacket ping_packet;
 
+    // Check if already connected to the wanted server
+    if (_socket && _server_ip == server_ip)
+    {
+        return;
+    }
+
     // Get the endpoint of the server to connect to
     SocketManager::GetEndpoint(server_ip.c_str(), SERVER_PORT, server_endpoint);
 
-    // If we currently have a socket with the server, close it and delete it
+    // If we currently have a socket with the server, clean the connection
     if (_socket)
     {
-        _socket->close();
-        delete _socket;
+        clean_connection();
     }
 
     try
@@ -42,7 +69,7 @@ void Communicator::connect(std::string server_ip)
     }
     catch (...)
     {
-        // Ignore errors here because they will be caught in the ping packet that is being sent to the server
+        clean_connection();
     }
 
     // Copy the ping packet to the dat buffer
@@ -52,6 +79,8 @@ void Communicator::connect(std::string server_ip)
     error = SocketManager::SendServerWithResponse(*_socket, _data, MAX_DATA_LEN);
     if (error)
     {
+        clean_connection();
+
         throw QuesyncException(error);
     }
 
@@ -61,23 +90,34 @@ void Communicator::connect(std::string server_ip)
     // If the response is not a pong packet, return unknown error
     if (!error && ((response_packet && response_packet->type() != PONG_PACKET) || !response_packet))
     {
+        clean_connection();
+
         throw QuesyncException(UNKNOWN_ERROR);
     }
 
-    // Set the socket as connected
-    _connected = true;
+    // Save the server IP
+    _server_ip = server_ip;
 
     // Start the events thread
-    _events_thread = std::thread(&Communicator::events_handler, this);
-    _events_thread.detach();
+    if (!_events_thread.joinable())
+    {
+        _events_thread = std::thread(&Communicator::events_handler, this);
+        _events_thread.detach();
+    }
 
     // Start the receiver thread
-    _receiver_thread = std::thread(&Communicator::recv, this);
-    _receiver_thread.detach();
+    if (!_receiver_thread.joinable())
+    {
+        _receiver_thread = std::thread(&Communicator::recv, this);
+        _receiver_thread.detach();
+    }
 
     // Start the keep alive thread
-    _keep_alive_thread = std::thread(&Communicator::keep_alive, this);
-    _keep_alive_thread.detach();
+    if (!_keep_alive_thread.joinable())
+    {
+        _keep_alive_thread = std::thread(&Communicator::keep_alive, this);
+        _keep_alive_thread.detach();
+    }
 }
 
 void Communicator::recv()
@@ -89,7 +129,7 @@ void Communicator::recv()
         std::shared_ptr<ResponsePacket> response_packet;
 
         // If the socket isn't connected, skip the iteration
-        if (!_socket || !_connected)
+        if (!_socket)
         {
             continue;
         }
@@ -136,7 +176,7 @@ void Communicator::keep_alive()
     QuesyncError error = SUCCESS;
     PingPacket ping_packet;
 
-	std::string ping_event_name = "ping";
+    std::string ping_event_name = "ping";
 
     while (true)
     {
@@ -150,7 +190,7 @@ void Communicator::keep_alive()
         std::unique_lock<std::mutex> send_lk(_socket_send_lock, std::defer_lock);
 
         // If the socket isn't connected, skip the iteration
-        if (!_socket || !_connected)
+        if (!_socket)
         {
             continue;
         }
@@ -168,7 +208,15 @@ void Communicator::keep_alive()
         error = SocketManager::SendServer(*_socket, _data, strlen(_data));
         if (error)
         {
-            std::cout << "Unable to send ping packet from server.." << std::endl;
+            // Increase the ping retires count and check if reached the max
+            _ping_retries += 1;
+            if (_ping_retries == MAX_PING_RETRIES)
+            {
+                // If reached max ping retries, clean the connection
+                clean_connection();
+            }
+
+            std::cout << "Unable to send ping packet to server.." << std::endl;
             continue;
         }
 
@@ -188,17 +236,31 @@ void Communicator::keep_alive()
         // If the response is not a pong packet, return unknown error
         if (!error && ((response_packet && response_packet->type() != PONG_PACKET) || !response_packet))
         {
-            std::cout << "Unable to get response from server.." << std::endl;
+            // Increase the ping retires count and check if reached the max
+            _ping_retries += 1;
+            if (_ping_retries == MAX_PING_RETRIES)
+            {
+                // If reached max ping retries, clean the connection
+                clean_connection();
+            }
+
+            std::cout << "Unable to get pong response from server.." << std::endl;
             continue;
         }
 
-		// Try to call the ping event
-		try {
-            ping_event_data = nlohmann::json{{ "ping", (int)ms_diff(recv_clock, send_clock) }};
-			_event_handler.callEvent(ping_event_name, ping_event_data);
-		} catch (...) {
-			// Ignore errors
-		}
+        // Reset the ping retires
+        _ping_retries = 0;
+
+        // Try to call the ping event
+        try
+        {
+            ping_event_data = nlohmann::json{{"ping", (int)ms_diff(recv_clock, send_clock)}};
+            _event_handler.callEvent(ping_event_name, ping_event_data);
+        }
+        catch (...)
+        {
+            // Ignore errors
+        }
     }
 }
 
@@ -256,9 +318,9 @@ std::shared_ptr<ResponsePacket> Communicator::send(SerializedPacket *packet)
     std::shared_ptr<ResponsePacket> response_packet;
 
     // If the socket isn't connected, throw error
-    if (!_socket || !_connected)
+    if (!_socket)
     {
-        throw QuesyncError(UNKNOWN_ERROR);
+        throw QuesyncError(NO_CONNECTION);
     }
 
     // Lock the socket's locks
