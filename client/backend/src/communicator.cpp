@@ -69,7 +69,7 @@ void Communicator::connect(std::string server_ip)
     }
     catch (...)
     {
-        clean_connection();
+        // Ignore errors here because they will be caught in the ping packet that is being sent to the server
     }
 
     // Copy the ping packet to the dat buffer
