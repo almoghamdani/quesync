@@ -47,6 +47,13 @@ class Updater {
 			this.updateUser(client, friendId);
 		}
 
+		// Fetch the user that is currently selected in the UI if not already fetched
+		this.logger.info("Fetching the currently selected user if needed!");
+		const currentlySelectedUserId = state.ui.items.selectedFriendsPageDrawerItemId;
+		if (!Object.keys(state.users.profiles).includes(currentlySelectedUserId)) {
+			this.updateUser(client, currentlySelectedUserId)
+		}
+
 		this.logger.info("Update finished!");
 	}
 
