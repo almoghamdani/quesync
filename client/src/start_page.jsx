@@ -12,13 +12,15 @@ import { Elevation } from "@rmwc/elevation";
 import { CircularProgress } from "@rmwc/circular-progress";
 import anime from "animejs/lib/anime.es.js";
 
-import "@rmwc/circular-progress/circular-progress.css";
-import "./start_page.scss";
-
 import { setClient } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";
 
+import eventHandler from "./event_handler";
+
 import updater from "./updater";
+
+import "@rmwc/circular-progress/circular-progress.css";
+import "./start_page.scss";
 
 const electron = window.require("electron");
 
@@ -39,6 +41,9 @@ class StartPage extends Component {
 
 		// Set the client in the store
 		props.dispatch(setClient(client));
+
+		// Register the event handler
+		eventHandler.register(client);
 	}
 
 	componentDidMount() {

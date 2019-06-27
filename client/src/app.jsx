@@ -15,20 +15,12 @@ import {
 } from "@rmwc/top-app-bar";
 import { ThemeProvider } from "@rmwc/theme";
 
-import EventHandler from "./event-handler";
-
 import "./app.scss";
 
 class App extends Component {
-	eventHandler = new EventHandler(this);
-
 	state = {
 		isSearchMenuOpen: false
 	};
-
-	componentDidMount() {
-		this.eventHandler.register(this.props.client);
-	}
 
 	render() {
 		return (

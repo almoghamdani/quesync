@@ -4,11 +4,7 @@ import { addPingValue } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";
 import { fetchUserProfile } from "./actions/usersActions";
 
-export default class EventHandler {
-	constructor(app) {
-		this.app = app;
-	}
-
+class EventHandler {
 	register = client => {
 		client.registerEventHandler("friend-request", this.friendRequestEvent);
 		client.registerEventHandler("ping", this.pingEvent);
@@ -24,7 +20,7 @@ export default class EventHandler {
 		// Fetch the user's profile
 		await store
 			.dispatch(fetchUserProfile(client, friendId))
-			.then(() => {})
+			.then(() => { })
 			.catch(() => {
 				console.error(
 					"An error occurred fetching the profile of the user {0}",
@@ -50,3 +46,5 @@ export default class EventHandler {
 		await store.dispatch(addPingValue(pingValue));
 	};
 }
+
+export default new EventHandler()
