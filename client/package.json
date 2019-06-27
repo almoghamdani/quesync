@@ -19,7 +19,6 @@
     "emoji-regex": "^8.0.0",
     "moment": "^2.24.0",
     "node-sass": "^4.12.0",
-    "npm": "^6.9.0",
     "react": "^16.8.6",
     "react-chartjs-2": "^2.7.6",
     "react-custom-scrollbars": "^4.2.1",
