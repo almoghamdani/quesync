@@ -45,7 +45,7 @@ class Updater {
 			const friendId = user.friends[idx];
 
 			// Update the user
-			this.updateUser(client, friendId);
+			await this.updateUser(client, friendId);
 		}
 
 		// For each pending friend, fetch it's profile
@@ -54,14 +54,14 @@ class Updater {
 			const friendId = user.friendRequests[idx].friendId;
 
 			// Update the user
-			this.updateUser(client, friendId);
+			await this.updateUser(client, friendId);
 		}
 
 		// Fetch the user that is currently selected in the UI if not already fetched
 		this.logger.info("Fetching the currently selected user if needed!");
 		const currentlySelectedUserId = state.ui.items.selectedFriendsPageDrawerItemId;
-		if (currentlySelectedUserId && !Object.keys(state.users.profiles).includes(currentlySelectedUserId)) {
-			this.updateUser(client, currentlySelectedUserId)
+		if (currentlySelectedUserId && !Object.keys(store.getState().users.profiles).includes(currentlySelectedUserId)) {
+			await this.updateUser(client, currentlySelectedUserId)
 		}
 
 		this.logger.info("Update finished!");
