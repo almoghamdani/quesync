@@ -12,7 +12,7 @@ public:
     {
     }
 
-    MessageEvent(Message message) : Event(FRIEND_REQUEST_EVENT)
+    MessageEvent(Message message) : Event(MESSAGE_EVENT)
     {
         _json["message"] = (nlohmann::json)message;
     }
