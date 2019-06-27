@@ -28,15 +28,15 @@
 }
 
 .quesync-text-avatar {
-    height: 26px;
-    width: 26px;
+	height: 26px;
+	width: 26px;
 }
 
 .quesync-text-avatar .rmwc-avatar__icon {
-    height: 26px;
-    width: 26px;
+	height: 26px;
+	width: 26px;
 
-    border-radius: 13px;
+	border-radius: 13px;
 }
 
 .quesync-text-content {
@@ -48,7 +48,7 @@
 
 	padding-left: 5px;
 	padding-right: 7px;
-	
+
 	margin: 10px;
 }
 
@@ -57,4 +57,16 @@
 	padding-left: 4px;
 
 	color: lightgrey;
+}
+
+.quesync-message-bubble-only-emoji {
+	height: 2.5em;
+}
+
+.quesync-message-bubble-text-emoji {
+	height: 1.3em;
+
+	margin: 0.12em;
+
+	vertical-align: middle;
 }

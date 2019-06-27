@@ -6,6 +6,9 @@ import { Avatar } from "@rmwc/avatar";
 import { Typography } from "@rmwc/typography";
 import { Elevation } from "@rmwc/elevation";
 
+import Twemoji from "react-twemoji";
+import emojiRegex from "emoji-regex";
+
 import "./message_bubble.scss";
 
 class MessageBubble extends Component {
@@ -26,13 +29,28 @@ class MessageBubble extends Component {
 					</div>
 					<Typography className="quesync-text-content" use="body2">
 						{this.props.messages.map(message => (
-							<div>{message.content}</div>
+							<Twemoji
+								options={{
+									className:
+										message.content.match(emojiRegex()) &&
+										message.content.match(emojiRegex())[0] === message.content
+											? "quesync-message-bubble-only-emoji"
+											: "quesync-message-bubble-text-emoji"
+								}}
+							>
+								{message.content}
+							</Twemoji>
 						))}
 					</Typography>
 				</Elevation>
 				<div className="quesync-text-message-date">
 					<Typography use="caption" style={{ fontSize: "0.68rem" }}>
-						<Moment unix calendar interval={10000} date={this.props.messages[0].sentAt} />
+						<Moment
+							unix
+							calendar
+							interval={10000}
+							date={this.props.messages[0].sentAt}
+						/>
 					</Typography>
 				</div>
 			</div>
