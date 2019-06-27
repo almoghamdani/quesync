@@ -1,8 +1,10 @@
+const INITIAL_STATE = {
+	allFriendsBadge: 0,
+	pendingFriendsBadge: 0
+}
+
 export default function reducer(
-	state = {
-		allFriendsBadge: 0,
-		pendingFriendsBadge: 0
-	},
+	state = INITIAL_STATE,
 	action
 ) {
 	switch (action.type) {
@@ -17,6 +19,9 @@ export default function reducer(
 
 		case "DEC_PENDING_FRIENDS_BADGE":
 			return { ...state, pendingFriendsBadge: state.pendingFriendsBadge - 1 };
+
+		case "RESET_UI":
+			return INITIAL_STATE;
 
 		default:
 			return state;

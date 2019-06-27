@@ -4,6 +4,7 @@ import { sendFriendRequest } from "./actions/userActions"
 import { getChannelMessages } from "./actions/messagesActions";
 import { getPrivateChannel } from "./actions/channelsActions";
 import { fetchUserProfile } from "./actions/usersActions";
+import { resetUI } from "./actions/uiActions"
 
 import Logger from "./logger";
 
@@ -16,6 +17,15 @@ class Updater {
 		const state = store.getState();
 		const client = state.client.client;
 		const user = state.user.user;
+
+		// If the connected user isn't the last connected user, reset the UI persist store
+		if (user.id !== this.getLastLoggedUserId()) {
+			// Reset the UI
+			store.dispatch(resetUI());
+
+			// Set the last logged user
+			this.setLastLoggedUserId(user.id);
+		}
 
 		this.logger.info("Update started!");
 
@@ -50,7 +60,7 @@ class Updater {
 		// Fetch the user that is currently selected in the UI if not already fetched
 		this.logger.info("Fetching the currently selected user if needed!");
 		const currentlySelectedUserId = state.ui.items.selectedFriendsPageDrawerItemId;
-		if (!Object.keys(state.users.profiles).includes(currentlySelectedUserId)) {
+		if (currentlySelectedUserId && !Object.keys(state.users.profiles).includes(currentlySelectedUserId)) {
 			this.updateUser(client, currentlySelectedUserId)
 		}
 
@@ -95,6 +105,9 @@ class Updater {
 				);
 			});
 	}
+
+	getLastLoggedUserId = () => localStorage.getItem("lastLoggedUserId")
+	setLastLoggedUserId = userId => localStorage.setItem("lastLoggedUserId", userId)
 
 	sendFriendRequest = async (client, userId) => {
 		// Fetch the user's profile

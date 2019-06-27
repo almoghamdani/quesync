@@ -1,8 +1,10 @@
+const INITIAL_STATE = {
+	selectedFriendsPageTab: 0,
+	selectedFriendsPageDrawerItemId: null
+}
+
 export default function reducer(
-	state = {
-		selectedFriendsPageTab: 0,
-		selectedFriendsPageDrawerItemId: null
-	},
+	state = INITIAL_STATE,
 	action
 ) {
 	switch (action.type) {
@@ -11,6 +13,9 @@ export default function reducer(
 
 		case "SET_FRIENDS_PAGE_DRAWER_ITEM_ID":
 			return { ...state, selectedFriendsPageDrawerItemId: action.payload };
+
+		case "RESET_UI":
+			return INITIAL_STATE;
 
 		default:
 			return state;
