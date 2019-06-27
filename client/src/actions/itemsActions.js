@@ -5,9 +5,9 @@ export function setFriendsPageSelectedTab(tab) {
 	};
 }
 
-export function setFriendsPageSelectedDrawerItem(item) {
+export function setFriendsPageSelectedDrawerItemId(id) {
     return {
-		type: "SET_FRIENDS_PAGE_DRAWER_ITEM",
-		payload: item
+		type: "SET_FRIENDS_PAGE_DRAWER_ITEM_ID",
+		payload: id
 	};
 }

@@ -1,7 +1,7 @@
 export default function reducer(
 	state = {
 		selectedFriendsPageTab: 0,
-		selectedFriendsPageDrawerItem: -1
+		selectedFriendsPageDrawerItemId: null
 	},
 	action
 ) {
@@ -9,8 +9,8 @@ export default function reducer(
 		case "SET_FRIENDS_PAGE_TAB":
 			return { ...state, selectedFriendsPageTab: action.payload };
 
-		case "SET_FRIENDS_PAGE_DRAWER_ITEM":
-			return { ...state, selectedFriendsPageDrawerItem: action.payload };
+		case "SET_FRIENDS_PAGE_DRAWER_ITEM_ID":
+			return { ...state, selectedFriendsPageDrawerItemId: action.payload };
 
 		default:
 			return state;

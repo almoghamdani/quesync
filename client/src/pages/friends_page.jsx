@@ -8,7 +8,7 @@ import TextChannel from "../components/text_channel";
 
 import {
 	setFriendsPageSelectedTab,
-	setFriendsPageSelectedDrawerItem
+	setFriendsPageSelectedDrawerItemId
 } from "../actions/itemsActions";
 
 import {
@@ -20,12 +20,13 @@ import "./friends_page.scss";
 
 class FriendsPage extends Component {
 	getPrivateChannelId = friendId => this.props.privateChannels[friendId];
-	getSelectedFriendId = (friends, pendingFriends) => {
+
+	getSelectedFriendId = (friends, pendingFriends, friendIdx) => {
 		// Friends selected
 		if (this.props.selectedTab === 0) {
-			return friends[this.props.selectedDrawerItem].id;
+			return friends[friendIdx].id;
 		} else {
-			return pendingFriends[this.props.selectedDrawerItem].id;
+			return pendingFriends[friendIdx].id;
 		}
 	};
 
@@ -69,22 +70,16 @@ class FriendsPage extends Component {
 			friend => friend.type === "recipient"
 		);
 
-		const currentSelectedFriendId =
-			this.props.selectedDrawerItem !== -1
-				? this.getSelectedFriendId(friends, pendingFriends)
-				: null;
+		const currentSelectedFriendId = this.props.selectedDrawerItemId;
 
 		return (
 			<DrawerPage
 				className="quesync-friends-page"
 				drawerTabs={["All", "Requests"]}
 				selectedDrawerTab={this.props.selectedTab}
-				drawerTabSelected={tabIdx => {
-					this.props.dispatch(setFriendsPageSelectedTab(tabIdx));
-
-					// Reset the choice
-					this.props.dispatch(setFriendsPageSelectedDrawerItem(-1));
-				}}
+				drawerTabSelected={tabIdx =>
+					this.props.dispatch(setFriendsPageSelectedTab(tabIdx))
+				}
 				drawerNoItemsMessage={[
 					"It's time to add some friends to your friends list.\nClick the search field above to get started!",
 					"You have no pending friend requests."
@@ -123,7 +118,11 @@ class FriendsPage extends Component {
 						)
 				]}
 				drawerItemClicked={friendIdx =>
-					this.props.dispatch(setFriendsPageSelectedDrawerItem(friendIdx))
+					this.props.dispatch(
+						setFriendsPageSelectedDrawerItemId(
+							this.getSelectedFriendId(friends, pendingFriends, friendIdx)
+						)
+					)
 				}
 				badgeBGColor="red"
 				badgeColor="white"
@@ -132,7 +131,7 @@ class FriendsPage extends Component {
 					this.props.pendingFriendsBadge
 				]}
 			>
-				{this.props.selectedDrawerItem !== -1 ? (
+				{currentSelectedFriendId ? (
 					<TextChannel
 						channelId={this.getPrivateChannelId(currentSelectedFriendId)}
 					/>
@@ -147,7 +146,7 @@ export default connect(state => ({
 	client: state.client.client,
 	profiles: state.users.profiles,
 	selectedTab: state.ui.items.selectedFriendsPageTab,
-	selectedDrawerItem: state.ui.items.selectedFriendsPageDrawerItem,
+	selectedDrawerItemId: state.ui.items.selectedFriendsPageDrawerItemId,
 	allFriendsBadge: state.ui.badges.allFriendsBadge,
 	pendingFriendsBadge: state.ui.badges.pendingFriendsBadge,
 	privateChannels: state.channels.privateChannels
