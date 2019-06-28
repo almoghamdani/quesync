@@ -17,6 +17,7 @@ export default function reducer(
 
 		case "USER_REGISTER_FULFILLED":
 		case "USER_LOGIN_FULFILLED":
+		case "SESSION_AUTH_FULFILLED":
 		case "USER_SET":
 			return { ...state, user: action.payload.user };
 

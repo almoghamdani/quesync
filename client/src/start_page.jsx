@@ -13,7 +13,7 @@ import { CircularProgress } from "@rmwc/circular-progress";
 import anime from "animejs/lib/anime.es.js";
 
 import { setClient } from "./actions/clientActions";
-import { setUser } from "./actions/userActions";
+import { sessionAuth, setUser } from "./actions/userActions";
 
 import eventHandler from "./event_handler";
 
@@ -56,6 +56,7 @@ class StartPage extends Component {
 		// Try to conenct to the server
 		this.connectRepeat(client, "127.0.0.1", async () => {
 			var user = null;
+			var sessionId = localStorage.getItem("_qpsid");
 
 			// If the client is already authenticated, continue to the application
 			if ((user = client.getUser())) {
@@ -67,6 +68,24 @@ class StartPage extends Component {
 
 				// Transition to app
 				this.transitionToApp();
+			} else if (sessionId && sessionId.length) {
+				// Try to connect via the session
+				await this.props
+					.dispatch(sessionAuth(client, sessionId))
+					.then(async () => {
+						// Update user's data
+						await updater.update();
+
+						// Transition to app
+						this.transitionToApp();
+					})
+					.catch(() => {
+						// Remove the invalid session id
+						localStorage.removeItem("_qpsid");
+
+						// Stop the loading animation
+						this.stopLoadingAnimation(null, LoginForm);
+					});
 			} else {
 				// Stop the loading animation when connection is successful
 				this.stopLoadingAnimation(null, LoginForm);
@@ -207,8 +226,8 @@ class StartPage extends Component {
 		timeline.add(
 			{
 				targets: this.state.signInVisible
-				? ".quesync-login-form-transition"
-				: ".quesync-register-form-transition",
+					? ".quesync-login-form-transition"
+					: ".quesync-register-form-transition",
 				width: "100vw",
 				height: "100vh"
 			},

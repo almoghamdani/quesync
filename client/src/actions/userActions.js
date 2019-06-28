@@ -12,6 +12,13 @@ export function register(client, username, email, password) {
 	};
 }
 
+export function sessionAuth(client, sessionId) {
+	return {
+		type: "SESSION_AUTH",
+		payload: client.sessionAuth(sessionId)
+	};
+}
+
 export function setUser(user) {
 	return {
 		type: "USER_SET",

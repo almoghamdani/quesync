@@ -24,6 +24,7 @@ public:
 
   Napi::Value login(const Napi::CallbackInfo &info);
   Napi::Value signup(const Napi::CallbackInfo &info);
+  Napi::Value sessionAuth(const Napi::CallbackInfo &info);
   Napi::Value getUser(const Napi::CallbackInfo &info);
 
   Napi::Value getUserProfile(const Napi::CallbackInfo &info);

@@ -99,7 +99,12 @@ class RegisterForm extends Component {
 		this.props.startLoadingAnimation(() => {
 			this.props
 				.dispatch(register(this.props.client, username, email, password))
-				.then(async () => {
+				.then(async res => {
+					const sessionId = res.value.sessionId;
+
+					// Set the session id
+					localStorage.setItem("_qpsid", sessionId);
+
 					// Stop authenticating
 					this.props.dispatch(finishAuth());
 

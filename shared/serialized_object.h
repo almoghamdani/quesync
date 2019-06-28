@@ -10,7 +10,7 @@
 
 class SerializedObject
 {
-  public:
+public:
     std::string serialize() const
     {
         // Convert the json object to string
@@ -23,11 +23,16 @@ class SerializedObject
         _json = nlohmann::json::parse(json);
     };
 
+    void set(nlohmann::json json)
+    {
+        _json = json;
+    };
+
     nlohmann::json json() const
     {
         return _json;
     };
 
-  protected:
+protected:
     nlohmann::json _json;
 };

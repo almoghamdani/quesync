@@ -16,6 +16,7 @@
 #include "../../../shared/packets/send_message_packet.h"
 #include "../../../shared/packets/get_channel_messages_packet.h"
 #include "../../../shared/packets/friendship_status_packet.h"
+#include "../../../shared/packets/session_auth_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
@@ -26,7 +27,8 @@ Client::Client(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Client>(info),
     Napi::Env env = info.Env();
 }
 
-Client::~Client() {
+Client::~Client()
+{
     clean();
 }
 
@@ -87,6 +89,8 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
         QuesyncError error = SUCCESS;
 
         std::shared_ptr<ResponsePacket> response_packet;
+
+        nlohmann::json server_res;
         nlohmann::json res;
 
         // Create a login packet from the username and password
@@ -126,17 +130,23 @@ Napi::Value Client::login(const Napi::CallbackInfo &info)
         }
         else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
         {
+            // Parse the server response
+            server_res = nlohmann::json::parse(response_packet->data());
+
             // Create a new user
             _user = new User();
 
-            // Deserialize the user data from the response data
-            _user->deserialize(response_packet->data());
+            // Set the user data
+            _user->set(server_res["user"]);
 
             // Set success error code
             res["error"] = SUCCESS;
 
             // Return the user serialized
             res["user"] = _user->json();
+
+            // Return the session id
+            res["sessionId"] = server_res["sessionId"];
         }
         else if (error)
         {
@@ -171,6 +181,8 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
     Executer *e = new Executer([this, username, password, email]() {
         QuesyncError error = SUCCESS;
         std::shared_ptr<ResponsePacket> response_packet;
+
+        nlohmann::json server_res;
         nlohmann::json res;
 
         // Create a login packet from the username and password
@@ -210,11 +222,106 @@ Napi::Value Client::signup(const Napi::CallbackInfo &info)
         }
         else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
         {
+            // Parse the server response
+            server_res = nlohmann::json::parse(response_packet->data());
+
             // Create a new user
             _user = new User();
 
-            // Deserialize the user data from the response data
-            _user->deserialize(response_packet->data());
+            // Set the user data
+            _user->set(server_res["user"]);
+
+            // Set success error code
+            res["error"] = SUCCESS;
+
+            // Return the user serialized
+            res["user"] = _user->json();
+
+            // Return the session id
+            res["sessionId"] = server_res["sessionId"];
+        }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
+
+        return res;
+    },
+                               deferred);
+
+    // Queue the executer worker
+    e->Queue();
+
+    return deferred.Promise();
+}
+
+Napi::Value Client::sessionAuth(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+    // Convert parameters to satring
+    std::string session_id = info[0].As<Napi::String>();
+
+    Executer *e = new Executer([this, session_id]() {
+        QuesyncError error = SUCCESS;
+
+        std::shared_ptr<ResponsePacket> response_packet;
+
+        nlohmann::json server_res;
+        nlohmann::json res;
+
+        // Create a session auth packet from the session
+        SessionAuthPacket session_auth_packet(session_id);
+
+        // If already authenticated, return error
+        if (_user)
+        {
+            res["error"] = ALREADY_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Send the session auth packet
+        try
+        {
+            response_packet = _communicator.send(&session_auth_packet);
+        }
+        catch (QuesyncException &ex)
+        {
+            res["error"] = ex.getErrorCode();
+
+            return res;
+        }
+        catch (...)
+        {
+            res["error"] = UNKNOWN_ERROR;
+
+            return res;
+        }
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
+        }
+        else if (response_packet && response_packet->type() == AUTHENTICATED_PACKET) // If the response packet is a valid authentication response, get the user from it
+        {
+            // Parse the server response
+            server_res = nlohmann::json::parse(response_packet->data());
+
+            // Create a new user
+            _user = new User();
+
+            // Set the user data
+            _user->set(server_res["user"]);
 
             // Set success error code
             res["error"] = SUCCESS;
@@ -834,6 +941,7 @@ Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
                                       "Client",
                                       {InstanceMethod("connect", &Client::connect),
                                        InstanceMethod("login", &Client::login),
+                                       InstanceMethod("sessionAuth", &Client::sessionAuth),
                                        InstanceMethod("register", &Client::signup),
                                        InstanceMethod("getUserProfile", &Client::getUserProfile),
                                        InstanceMethod("search", &Client::search),

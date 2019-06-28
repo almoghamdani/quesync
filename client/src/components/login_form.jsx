@@ -86,7 +86,12 @@ class LoginForm extends Component {
 		this.props.startLoadingAnimation(() => {
 			this.props
 				.dispatch(signIn(this.props.client, username, password))
-				.then(async () => {
+				.then(async res => {
+					const sessionId = res.value.sessionId;
+
+					// Set the session id
+					localStorage.setItem("_qpsid", sessionId);
+
 					// Stop authenticating
 					this.props.dispatch(finishAuth());
 
