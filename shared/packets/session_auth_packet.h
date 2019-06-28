@@ -43,7 +43,7 @@ public:
             session->setUser(user);
 
             // Return autheticated packet with the user's info
-            return ResponsePacket(AUTHENTICATED_PACKET, nlohmann::json{{"user", user->serialize()}}).encode();
+            return ResponsePacket(AUTHENTICATED_PACKET, nlohmann::json{{"user", user->serialize()}}.dump()).encode();
         }
         catch (QuesyncException &ex)
         {
