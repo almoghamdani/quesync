@@ -49,7 +49,7 @@ class LoginPacket : public SerializedPacket
             session_id = session->server()->sessionManager()->createSession(session->getShared());
 
             // Return autheticated packet with the user's info
-            return ResponsePacket(AUTHENTICATED_PACKET, nlohmann::json{{"user", user->serialize()}, {"sessionId", session_id}}.dump()).encode();            
+            return ResponsePacket(AUTHENTICATED_PACKET, nlohmann::json{{"user", user->json()}, {"sessionId", session_id}}.dump()).encode();            
         }
         catch (QuesyncException &ex)
         {
