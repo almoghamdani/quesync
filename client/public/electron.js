@@ -7,7 +7,7 @@ const isDev = require("electron-is-dev");
 
 const os = require("os");
 const backend_name =
-	os.platform() === "darwin" ? "darwin-x64-70" : "win32-x64-70";
+	os.platform() === "darwin" ? "darwin-x64-69" : "win32-x64-69";
 const quesync = require(isDev
 	? `../backend/bin/${backend_name}/backend.node`
 	: app.getAppPath() + `/../../backend/bin/${backend_name}/backend.node`);

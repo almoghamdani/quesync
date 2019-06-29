@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "node-gyp configure build",
-    "electron-rebuild": "electron-rebuild -f"
+    "electron-rebuild": "electron-rebuild -f -v 4.2.5"
   },
   "repository": {
     "type": "git",
