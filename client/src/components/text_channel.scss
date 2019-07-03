@@ -13,6 +13,13 @@
 	margin-right: 0.2rem;
 	margin-bottom: 0.2rem;
 	margin-left: 1rem;
+
+	display: flex;
+}
+
+.quesync-text-messages {
+	// Fix an issue where the text messages div not filling parent
+	height: inherit !important;
 }
 
 .quesync-message-field-wrapper {
