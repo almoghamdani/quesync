@@ -64,7 +64,7 @@ std::string SessionManager::getUserIdForSession(std::string session_id) {
 		throw QuesyncException(INVALID_SESSION);
 	}
 
-	return res[0];
+	return (std::string)res[0];
 }
 
 void SessionManager::destroySession(std::shared_ptr<Session> sess, std::string session_id)

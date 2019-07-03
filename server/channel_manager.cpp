@@ -83,7 +83,7 @@ std::shared_ptr<Channel> ChannelManager::getPrivateChannel(std::shared_ptr<Sessi
     else
     {
         // Get the channel
-        channel = getChannel(channel_res[0]);
+        channel = getChannel((std::string)channel_res[0]);
     }
 
     return channel;
@@ -162,7 +162,7 @@ std::shared_ptr<Channel> ChannelManager::getChannel(std::string channel_id)
     }
 
     // Create the channel object and return it
-    channel = std::make_shared<Channel>(channel_res[0], channel_res[1], (int)channel_res[2]);
+    channel = std::make_shared<Channel>((std::string)channel_res[0], (bool)channel_res[1], channel_res[2]);
     return channel;
 }
 
@@ -227,7 +227,7 @@ std::vector<std::string> ChannelManager::getChannelMembers(std::shared_ptr<Sessi
     // Add each member to the members vector
     while ((row = res.fetchOne()))
     {
-        members.push_back(row[0]);
+        members.push_back((std::string)row[0]);
     }
 
     return members;
