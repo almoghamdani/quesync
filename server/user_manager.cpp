@@ -66,7 +66,7 @@ std::shared_ptr<User> UserManager::authenticateUser(std::shared_ptr<Session> ses
 	user = std::shared_ptr<User>(new User((std::string)user_res[0],
 										  (std::string)user_res[1],
 										  (std::string)user_res[3],
-										  (std::string)user_res[4],
+										  ((std::string)user_res[4]).c_str(),
 										  user_res[5],
 										  getFriends((std::string)user_res[0]),
 										  getFriendRequests((std::string)user_res[0])));
@@ -197,7 +197,7 @@ std::shared_ptr<Profile> UserManager::getUserProfile(std::string user_id)
 
 	// Create the profile from the db response
 	profile = std::shared_ptr<Profile>(new Profile((std::string)profile_res[0],
-												   (std::string)profile_res[1],
+												   ((std::string)profile_res[1]).c_str(),
 												   profile_res[2]));
 
 	return profile;
@@ -486,7 +486,7 @@ nlohmann::json UserManager::search(std::shared_ptr<Session> sess, std::string ni
 	// Format the results in the json type
 	for (int i = 0; i < res.size(); i++)
 	{
-		results += nlohmann::json({{"id", res[i][0]}, {"nickname", res[i][1]}, {"tag", (int)res[i][2]}});
+		results += nlohmann::json({{"id", res[i][0]}, {"nickname", ((std::string)res[i][1]).c_str()}, {"tag", res[i][2]}});
 	}
 
 	return results;
@@ -526,7 +526,7 @@ std::shared_ptr<User> UserManager::authenticateUserBySession(std::shared_ptr<Ses
 	user = std::shared_ptr<User>(new User((std::string)user_res[0],
 										  (std::string)user_res[1],
 										  (std::string)user_res[3],
-										  (std::string)user_res[4],
+										  ((std::string)user_res[4]).c_str(),
 										  user_res[5],
 										  getFriends((std::string)user_res[0]),
 										  getFriendRequests((std::string)user_res[0])));

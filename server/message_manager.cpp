@@ -125,10 +125,10 @@ std::vector<Message> MessageManager::getMessages(std::shared_ptr<Session> sess, 
 	while ((row = res.fetchOne()))
 	{
 		// Create the message from the row
-		messages.push_back(Message((std::string)row[0],
-								   (std::string)row[1],
-								   (std::string)row[2],
-								   (std::string)row[3],
+		messages.push_back(Message(((std::string)row[0]).c_str(),
+								   ((std::string)row[1]).c_str(),
+								   ((std::string)row[2]).c_str(),
+								   ((std::string)row[3]).c_str(),
 								   row[4]));
 	}
 
