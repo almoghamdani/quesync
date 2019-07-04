@@ -12,6 +12,14 @@ import emojiRegex from "emoji-regex";
 import "./message_bubble.scss";
 
 class MessageBubble extends Component {
+	stringIsEmoji = str => {
+		const matches = str.match(emojiRegex());
+		const matchedStr = matches ? matches.join("") : "";
+
+		// Remove all blanks and check if matched to matched str
+		return str.replace(/\s/g, "") === matchedStr;
+	}
+
 	render() {
 		return (
 			<div className="quesync-message-bubble" style={this.props.style}>
@@ -32,8 +40,7 @@ class MessageBubble extends Component {
 							<Twemoji
 								options={{
 									className:
-										message.content.match(emojiRegex()) &&
-										message.content.match(emojiRegex())[0] === message.content
+										this.stringIsEmoji(message.content)
 											? "quesync-message-bubble-only-emoji"
 											: "quesync-message-bubble-text-emoji"
 								}}
