@@ -22,9 +22,9 @@ class SocketManager
     template <typename T>
     static void GetEndpoint(const char *ip_address, int port, T &endpoint);
 
-    static QuesyncError SendServerWithResponse(tcp::socket &socket, char *data, const int MAX_RESPONSE_LEN);
+    static QuesyncError SendServerWithResponse(tcp::socket &socket, const char *data, char *recv_data, const int MAX_RESPONSE_LEN);
     
-    static QuesyncError SendServer(tcp::socket &socket, char *data, size_t size);
+    static QuesyncError SendServer(tcp::socket &socket, const char *data, size_t size);
     static QuesyncError GetResponse(tcp::socket &socket, char *data, const int MAX_RESPONSE_LEN);
 
   private:

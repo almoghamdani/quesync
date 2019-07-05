@@ -128,7 +128,7 @@ Packet *Utils::ParsePacket(std::string packet)
 void Utils::CopyString(const std::string &input, char *dst)
 {
     // Copy the string
-    strncpy(dst, input.c_str(), input.length());
+    memcpy(dst, input.c_str(), input.length());
 
     // Null-terminate the string
     dst[input.length()] = '\0';
@@ -247,6 +247,26 @@ std::string Utils::QuesyncErrorToString(QuesyncError error)
     }
 
     return "";
+}
+
+std::string Utils::EncodeHeader(Header& header)
+{
+	char buf[sizeof(Header)];
+
+	*(uint32_t *)buf = header.version;
+	*(uint32_t *)(buf + sizeof(uint32_t)) = header.size;
+
+	return std::string(buf, sizeof(Header));
+}
+
+Header Utils::DecodeHeader(const char *buf)
+{
+	Header header;
+
+	header.version = *(uint32_t *)buf;
+	header.size = *(uint32_t *)(buf + sizeof(uint32_t));
+
+	return header;
 }
 
 #ifdef QUESYNC_SERVER

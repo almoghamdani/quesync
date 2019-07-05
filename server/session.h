@@ -5,8 +5,6 @@
 #include "quesync.h"
 #include "../shared/user.h"
 
-#define MAX_DATA_LEN 1000
-
 using asio::ip::tcp;
 
 class Session : public std::enable_shared_from_this<Session>
@@ -30,7 +28,6 @@ private:
   std::shared_ptr<Quesync> _server;
 
   tcp::socket _socket;
-  char _data[MAX_DATA_LEN];
 
   void recv();
   void send(std::string data);

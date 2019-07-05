@@ -15,6 +15,7 @@
 #include "errors.h"
 #include "packets/packet.h"
 #include "packets/packet_types.h"
+#include "header.h"
 
 class Utils
 {
@@ -26,6 +27,9 @@ class Utils
 
     static Packet *ParsePacket(std::string packet);
     static PacketType GetPacketType(std::string packet);
+
+	static std::string EncodeHeader(Header& header);
+	static Header DecodeHeader(const char *buf);
 
     static int RandomNumber(int min, int max);
 

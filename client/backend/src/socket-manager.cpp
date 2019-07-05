@@ -14,7 +14,7 @@ void SocketManager::GetEndpoint(const char *ip_address, int port, T &endpoint)
 template void SocketManager::GetEndpoint(const char *ip_address, int port, udp::endpoint &endpoint);
 template void SocketManager::GetEndpoint(const char *ip_address, int port, tcp::endpoint &endpoint);
 
-QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *data, const int MAX_RESPONSE_LEN)
+QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, const char *data, char *recv_data, const int MAX_RESPONSE_LEN)
 {
     QuesyncError quesync_error = SUCCESS;
 
@@ -24,7 +24,7 @@ QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *da
         socket.write_some(asio::buffer(data, strlen(data)));
 
         // Get a response from the server
-        socket.read_some(asio::buffer(data, MAX_RESPONSE_LEN));
+        socket.read_some(asio::buffer(recv_data, MAX_RESPONSE_LEN));
     }
     catch (std::system_error &ex)
     {
@@ -35,7 +35,7 @@ QuesyncError SocketManager::SendServerWithResponse(tcp::socket &socket, char *da
     return quesync_error;
 }
 
-QuesyncError SocketManager::SendServer(tcp::socket & socket, char * data, size_t size)
+QuesyncError SocketManager::SendServer(tcp::socket & socket, const char * data, size_t size)
 {
     QuesyncError quesync_error = SUCCESS;
 
