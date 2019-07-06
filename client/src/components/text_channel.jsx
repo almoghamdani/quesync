@@ -3,7 +3,9 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 import { Scrollbars } from "react-custom-scrollbars";
-import { TransitionGroup, Transition } from "react-transition-group";
+
+import { TransitionGroup } from "react-transition-group";
+import FadeTransition from "./fade_transition";
 
 import MessageBubble from "../components/message_bubble";
 import MessageField from "../components/message_field";
@@ -91,7 +93,7 @@ class TextChannel extends Component {
 					<Scrollbars className="quesync-text-messages">
 						<TransitionGroup className="quesync-text-messages-container">
 							{messages.map(messageGroup => (
-								<Transition unmountOnExit>
+								<FadeTransition timeout={200} unmountOnExit key={messageGroup[0].id}>
 									<MessageBubble
 										key={messageGroup[0].id}
 										sender={this.getSenderNickname(messageGroup[0].senderId)}
@@ -101,7 +103,7 @@ class TextChannel extends Component {
 											paddingTop: "0.8rem"
 										}}
 									/>
-								</Transition>
+								</FadeTransition>
 							))}
 						</TransitionGroup>
 						<div
