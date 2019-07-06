@@ -129,7 +129,7 @@ std::vector<Message> MessageManager::getMessages(std::shared_ptr<Session> sess, 
 								   ((std::string)row[1]).c_str(),
 								   ((std::string)row[2]).c_str(),
 								   ((std::string)row[3]).c_str(),
-								   row[4]));
+								   (int)row[4]));
 	}
 
 	return messages;
