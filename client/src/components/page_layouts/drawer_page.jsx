@@ -7,10 +7,8 @@ import { List, ListItem } from "@rmwc/list";
 import { TabBar } from "@rmwc/tabs";
 import TabBadge from "../tab_badge";
 
-import anime from "animejs";
-
 import TransitionGroup from "react-transition-group/TransitionGroup";
-import Transition from "react-transition-group/Transition";
+import FadeTransition from "../fade_transition";
 
 import "./drawer_page.scss";
 
@@ -32,22 +30,6 @@ class DrawerPage extends Component {
 	}
 
 	render() {
-		const animateDrawerContentIn = drawerContent =>
-			anime({
-				targets: drawerContent,
-				easing: "easeInSine",
-				duration: "115",
-				opacity: "1"
-			});
-
-		const animateDrawerContentOut = drawerContent =>
-			anime({
-				targets: drawerContent,
-				easing: "easeOutSine",
-				duration: "115",
-				opacity: "0"
-			});
-
 		const animationEndCallback = () =>
 			this.setState({ selectedDrawerTab: this.props.selectedDrawerTab });
 
@@ -79,7 +61,7 @@ class DrawerPage extends Component {
 						<DrawerScrollbars style={{ marginTop: "2px" }}>
 							<List className="quesync-drawer-list">
 								{this.props.drawerContent.map((drawerTabContent, idx) => (
-									<Transition
+									<FadeTransition
 										appear
 										unmountOnExit
 										in={
@@ -87,35 +69,26 @@ class DrawerPage extends Component {
 												this.props.selectedDrawerTab &&
 											this.state.selectedDrawerTab === idx
 										}
-										onEnter={animateDrawerContentIn}
-										onExit={animateDrawerContentOut}
 										onExited={animationEndCallback}
 										timeout={115}
 										key={idx}
 									>
 										{drawerTabContent.length > 0 ? (
-											<TransitionGroup style={{ opacity: "0" }}>
+											<TransitionGroup>
 												{React.Children.map(
 													drawerTabContent,
 													(child, childIdx) => (
-														<Transition
-															appear
-															onEnter={animateDrawerContentIn}
-															onExit={animateDrawerContentOut}
-															timeout={115}
-															key={child.key}
-														>
+														<FadeTransition timeout={115} key={child.key}>
 															<div
 																key={child.key}
 																className="quesync-drawer-content-item-wrapper"
-																style={{ opacity: 0 }}
 															>
 																{React.cloneElement(child, {
 																	onClick: () =>
 																		this.props.drawerItemClicked(childIdx)
 																})}
 															</div>
-														</Transition>
+														</FadeTransition>
 													)
 												)}
 											</TransitionGroup>
@@ -124,7 +97,7 @@ class DrawerPage extends Component {
 												message={this.props.drawerNoItemsMessage[idx]}
 											/>
 										)}
-									</Transition>
+									</FadeTransition>
 								))}
 							</List>
 						</DrawerScrollbars>

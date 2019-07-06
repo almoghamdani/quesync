@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 
+import TransitionGroup from "react-transition-group/TransitionGroup";
+import TransitionFade from "./fade_transition";
+
 import Moment from "react-moment";
 
 import { Avatar } from "@rmwc/avatar";
@@ -10,6 +13,7 @@ import Twemoji from "react-twemoji";
 import emojiRegex from "emoji-regex";
 
 import "./message_bubble.scss";
+import FadeTransition from "./fade_transition";
 
 class MessageBubble extends Component {
 	stringIsEmoji = str => {
@@ -18,7 +22,7 @@ class MessageBubble extends Component {
 
 		// Remove all blanks and check if matched to matched str
 		return str.replace(/\s/g, "") === matchedStr;
-	}
+	};
 
 	render() {
 		return (
@@ -36,18 +40,22 @@ class MessageBubble extends Component {
 						</div>
 					</div>
 					<Typography className="quesync-text-content" use="body2">
-						{this.props.messages.map(message => (
-							<Twemoji
-								options={{
-									className:
-										this.stringIsEmoji(message.content)
-											? "quesync-message-bubble-only-emoji"
-											: "quesync-message-bubble-text-emoji"
-								}}
-							>
-								{message.content}
-							</Twemoji>
-						))}
+						<TransitionGroup>
+							{this.props.messages.map(message => (
+								<FadeTransition timeout={200} key={message.id}>
+									<Twemoji
+										key={message.id}
+										options={{
+											className: this.stringIsEmoji(message.content)
+												? "quesync-message-bubble-only-emoji"
+												: "quesync-message-bubble-text-emoji"
+										}}
+									>
+										{message.content}
+									</Twemoji>
+								</FadeTransition>
+							))}
+						</TransitionGroup>
 					</Typography>
 				</Elevation>
 				<div className="quesync-text-message-date">
