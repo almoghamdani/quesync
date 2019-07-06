@@ -1,9 +1,13 @@
+import React from 'react';
+
 import { store } from "./store";
 
 import { addPingValue } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";
-import { fetchUserProfile } from "./actions/usersActions";
 import { addMessageToChannel } from "./actions/messagesActions";
+
+import updater from "./updater"
+import { queue } from "./messages_queue";
 
 class EventHandler {
 	register = client => {
@@ -19,16 +23,8 @@ class EventHandler {
 		const friendId = event.requesterId;
 		const sentAt = event.sentAt;
 
-		// Fetch the user's profile
-		await store
-			.dispatch(fetchUserProfile(client, friendId))
-			.then(() => { })
-			.catch(() => {
-				console.error(
-					"An error occurred fetching the profile of the user {0}",
-					friendId
-				);
-			});
+		// Update the user
+		await updater.updateUser(client, friendId);
 
 		// Add the friend request
 		await store.dispatch(
@@ -39,6 +35,18 @@ class EventHandler {
 				])
 			})
 		);
+
+		// Show a notification with the new friend request
+		queue.notify({
+			title: <b>New Friend Request</b>,
+			body: <span>You have a new friend request from <b>{store.getState().users.profiles[friendId].nickname}</b></span>,
+			icon: "person_add",
+			actions: [
+				{
+					title: 'Dismiss'
+				}
+			]
+		})
 	};
 
 	pingEvent = async event => {
@@ -51,8 +59,6 @@ class EventHandler {
 	messageEvent = event => {
 		var message = { ...event.message };
 		const channelId = message.channelId;
-
-		console.log(message)
 
 		// Remove channel id field from message
 		delete message.channelId;

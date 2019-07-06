@@ -14,6 +14,9 @@ import {
 	TopAppBarFixedAdjust
 } from "@rmwc/top-app-bar";
 import { ThemeProvider } from "@rmwc/theme";
+import { SnackbarQueue } from "@rmwc/snackbar";
+
+import { queue } from "./messages_queue";
 
 import "./app.scss";
 
@@ -35,6 +38,7 @@ class App extends Component {
 					onSurface: "rgba(255,255,255,.87)"
 				}}
 			>
+				<SnackbarQueue messages={queue.messages}/>
 				<TopAppBar
 					className="quesync-top-app-bar mdc-top-app-bar--fixed-scrolled"
 					fixed
