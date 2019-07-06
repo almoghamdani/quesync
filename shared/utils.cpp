@@ -125,15 +125,6 @@ Packet *Utils::ParsePacket(std::string packet)
     }
 }
 
-void Utils::CopyString(const std::string &input, char *dst)
-{
-    // Copy the string
-    memcpy(dst, input.c_str(), input.length());
-
-    // Null-terminate the string
-    dst[input.length()] = '\0';
-}
-
 std::string Utils::SHA256(const std::string str)
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];

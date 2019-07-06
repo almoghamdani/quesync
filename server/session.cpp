@@ -107,8 +107,8 @@ void Session::send(std::string data)
 	auto self(shared_from_this());
 
 	// Create a buffer with the size of the data and copy the data to it
-	std::shared_ptr<char> buf(new char[data.length() + 1]);
-	Utils::CopyString(data, buf.get());
+	std::shared_ptr<char> buf(new char[data.length()]);
+	memcpy(buf.get(), data.data(), data.length());
 
 	// Send the data to the client
 	asio::async_write(_socket, asio::buffer(buf.get(), data.length()),
@@ -138,12 +138,19 @@ void Session::sendOnly(std::string data)
 {
 	auto self(shared_from_this());
 
-	// Create a buffer with the size of the data and copy the data to it
-	std::shared_ptr<char> buf(new char[data.length() + 1]);
-	Utils::CopyString(data, buf.get());
+	Header header { 1, (uint32_t)data.length() };
+
+	// Create a buffer with the size of the data and the header
+	std::shared_ptr<char> buf(new char[data.length() + sizeof(Header) + 1]);
+
+	// Copy the header
+	memcpy(buf.get(), Utils::EncodeHeader(header).data(), sizeof(Header));
+
+	// Copy the data
+	memcpy(buf.get() + sizeof(Header), data.data(), data.length());
 
 	// Send the data to the client
-	asio::async_write(_socket, asio::buffer(buf.get(), data.length()),
+	asio::async_write(_socket, asio::buffer(buf.get(), data.length() + sizeof(Header)),
 					  [this, self, buf](std::error_code ec, std::size_t) {
 						  // If an error occurred during sending the data, print the error(only if not a disconnect error)
 						  if (ec && ec != asio::error::misc_errors::eof)

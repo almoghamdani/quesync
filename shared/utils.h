@@ -20,7 +20,6 @@
 class Utils
 {
   public:
-    static void CopyString(const std::string &input, char *dst);
     static std::vector<std::string> Split(const std::string &s, char delimiter);
 
     static std::string SHA256(const std::string str);

@@ -486,7 +486,7 @@ nlohmann::json UserManager::search(std::shared_ptr<Session> sess, std::string ni
 	// Format the results in the json type
 	for (int i = 0; i < res.size(); i++)
 	{
-		results += nlohmann::json({{"id", res[i][0]}, {"nickname", ((std::string)res[i][1]).c_str()}, {"tag", res[i][2]}});
+		results += nlohmann::json({{"id", (std::string)res[i][0]}, {"nickname", ((std::string)res[i][1]).c_str()}, {"tag", (int)res[i][2]}});
 	}
 
 	return results;
