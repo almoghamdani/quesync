@@ -10,6 +10,7 @@
 #include "../shared/validation.h"
 #include "../shared/quesync_exception.h"
 #include "../shared/events/friend_request_event.h"
+#include "../shared/events/friendship_status_event.h"
 
 UserManager::UserManager(std::shared_ptr<Quesync> server) : Manager(server),
 															users_table(server->db(), "users"),
@@ -307,20 +308,23 @@ void UserManager::sendFriendRequest(std::string requester_id, std::string recipi
 		friendships_table.insert("requester_id", "recipient_id")
 			.values(requester_id, recipient_id)
 			.execute();
+
+		// Trigger an event in the recipient if online
+		_server->eventManager()->triggerEvent(friend_request_event, recipient_id);
 	}
 	catch (...)
 	{
 		throw QuesyncException(UNKNOWN_ERROR);
 	}
-
-	// Trigger an event in the recipient if online
-	_server->eventManager()->triggerEvent(friend_request_event, recipient_id);
 }
 
 void UserManager::setFriendshipStatus(std::string user_id, std::string friend_id, bool status)
 {
+	FriendshipStatusEvent friendship_status_event(user_id, status);
+
 	std::string requester, recipient;
 	bool approved = false;
+
 	sql::Row friendship_row;
 
 	// Check if the friend exists
@@ -366,6 +370,9 @@ void UserManager::setFriendshipStatus(std::string user_id, std::string friend_id
 				.bind("requester_id", requester)
 				.bind("recipient_id", recipient)
 				.execute();
+
+			// Trigger event for friend
+			_server->eventManager()->triggerEvent(friendship_status_event, friend_id);
 		}
 		catch (...)
 		{
@@ -393,6 +400,9 @@ void UserManager::setFriendshipStatus(std::string user_id, std::string friend_id
 				.bind("requester_id", requester)
 				.bind("recipient_id", recipient)
 				.execute();
+
+			// Trigger event for friend
+			_server->eventManager()->triggerEvent(friendship_status_event, friend_id);
 		}
 		catch (...)
 		{
