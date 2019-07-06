@@ -22,7 +22,7 @@ IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set (OPENSSL_LIBS ssl crypto)
 
     set (MYSQL_DIR /usr/local/mysql-connector-c++)
-    set (MYSQL_LIBS libmysqlcppconn8.dylib)
+    set (MYSQL_LIBS libmysqlcppconn8-static.a)
 ENDIF()
 
 # If there is an openssl dir, set the include and lib directory
