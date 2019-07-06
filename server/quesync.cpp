@@ -1,6 +1,7 @@
 #include "quesync.h"
 
 #include <iostream>
+#include <termcolor/termcolor.hpp>
 
 #include "session.h"
 
@@ -31,7 +32,7 @@ void Quesync::start()
     _message_manager = std::make_shared<MessageManager>(shared_from_this());
     _session_manager = std::make_shared<SessionManager>(shared_from_this());
 
-    std::cout << "Listening for TCP connections.." << std::endl;
+    std::cout << termcolor::cyan << "Listening for TCP connections.." << termcolor::reset << std::endl;
 
     // Start acception requests
     acceptClient();
@@ -46,7 +47,7 @@ void Quesync::acceptClient()
             if (!ec)
             {
                 // Print the client ip and port
-                std::cout << "Client connected from " << socket.remote_endpoint().address().to_string() << ":" << (int)socket.remote_endpoint().port() << std::endl;
+                std::cout << termcolor::green << "Client connected from " << socket.remote_endpoint().address().to_string() << ":" << (int)socket.remote_endpoint().port() << termcolor::reset << std::endl;
 
                 // Create a shared session for the client socket
                 std::make_shared<Session>(std::move(socket), shared_from_this())->start();
@@ -54,7 +55,7 @@ void Quesync::acceptClient()
             else
             {
                 // Print error
-                std::cout << "An error occurred: " << ec << std::endl;
+                std::cout << termcolor::red << "An error occurred: " << ec << termcolor::reset << std::endl;
             }
 
             // Accept the next client

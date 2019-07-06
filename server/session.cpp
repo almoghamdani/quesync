@@ -1,6 +1,8 @@
-#include <iostream>
-
 #include "session.h"
+
+#include <iostream>
+#include <termcolor/termcolor.hpp>
+
 #include "../shared/header.h"
 #include "../shared/utils.h"
 #include "../shared/packets/error_packet.h"
@@ -88,12 +90,12 @@ void Session::recv()
 																// If the client closed the connection, close the client
 																if (ec == asio::error::misc_errors::eof)
 																{
-																	std::cout << "The client " << _socket.remote_endpoint().address().to_string() << ":" << (int)_socket.remote_endpoint().port() << " disconnected!" << std::endl;
+																	std::cout << termcolor::magenta << "The client " << _socket.remote_endpoint().address().to_string() << ":" << (int)_socket.remote_endpoint().port() << " disconnected!" << termcolor::reset << std::endl;
 																}
 																else
 																{
 																	// Print error
-																	std::cout << "An error occurred: " << ec << std::endl;
+																	std::cout << termcolor::red << "An error occurred: " << ec << termcolor::reset << std::endl;
 																}
 															}
 														});
@@ -121,12 +123,12 @@ void Session::send(std::string data)
 							  // If the client closed the connection, close the client
 							  if (ec == asio::error::misc_errors::eof)
 							  {
-								  std::cout << "The client " << _socket.remote_endpoint().address().to_string() << ":" << (int)_socket.remote_endpoint().port() << " disconnected!" << std::endl;
+								  std::cout << termcolor::magenta << "The client " << _socket.remote_endpoint().address().to_string() << ":" << (int)_socket.remote_endpoint().port() << " disconnected!" << termcolor::reset << std::endl;
 							  }
 							  else
 							  {
 								  // Print error
-								  std::cout << "An error occurred: " << ec << std::endl;
+								  std::cout << termcolor::red << "An error occurred: " << ec << termcolor::reset << std::endl;
 							  }
 						  }
 					  });
@@ -147,7 +149,7 @@ void Session::sendOnly(std::string data)
 						  if (ec && ec != asio::error::misc_errors::eof)
 						  {
 							  // Print error
-							  std::cout << "An error occurred: " << ec << std::endl;
+							  std::cout << termcolor::red << "An error occurred: " << ec << termcolor::reset << std::endl;
 						  }
 					  });
 }
