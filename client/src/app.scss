@@ -65,3 +65,15 @@
 .quesync-search-field .mdc-text-field__icon {
 	bottom: 8px !important;
 }
+
+.quesync-notifications-queue .mdc-button {
+	color: var(--mdc-theme-primary);
+}
+
+.quesync-notifications-queue .mdc-button::after {
+	background-color: var(--mdc-theme-primary);
+}
+
+.quesync-notifications-queue .mdc-button::before {
+	background-color: var(--mdc-theme-primary);
+}

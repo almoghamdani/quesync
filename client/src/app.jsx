@@ -38,7 +38,7 @@ class App extends Component {
 					onSurface: "rgba(255,255,255,.87)"
 				}}
 			>
-				<SnackbarQueue messages={queue.messages}/>
+				<SnackbarQueue className="quesync-notifications-queue" messages={queue.messages}/>
 				<TopAppBar
 					className="quesync-top-app-bar mdc-top-app-bar--fixed-scrolled"
 					fixed
