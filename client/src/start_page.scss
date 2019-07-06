@@ -63,8 +63,8 @@
 	// Fill the height of the div
 	height: 100%;
 
-	// Set it over the login form
-	z-index: 1;
+	// Set it over the forms
+	z-index: 2;
 }
 
 .quesync-form-holder {
@@ -118,9 +118,11 @@
 .quesync-error-holder {
 	width: 100%;
 	height: 15px;
+
 	display: flex;
 	justify-content: center;
 	align-items: center;
+
 	text-align: center;
 }
 
