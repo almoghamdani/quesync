@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 
 import TransitionGroup from "react-transition-group/TransitionGroup";
-import TransitionFade from "./fade_transition";
+import FadeTransition from "./fade_transition";
 
 import Moment from "react-moment";
 
@@ -13,7 +13,6 @@ import Twemoji from "react-twemoji";
 import emojiRegex from "emoji-regex";
 
 import "./message_bubble.scss";
-import FadeTransition from "./fade_transition";
 
 class MessageBubble extends Component {
 	stringIsEmoji = str => {
