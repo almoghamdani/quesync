@@ -1,6 +1,6 @@
 {
   "name": "quesync-backend",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "VoIP application",
   "main": "index.js",
   "scripts": {

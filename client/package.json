@@ -1,7 +1,9 @@
 {
 	"name": "quesync",
-	"version": "1.0.0",
+	"version": "0.1.0",
+	"author": "Almog Hamdani",
 	"main": "public/electron.js",
+	"homepage": "./",
 	"devDependencies": {
 		"concurrently": "^4.1.0",
 		"cross-env": "^5.2.0",
@@ -41,6 +43,7 @@
 		"electron": "electron .",
 		"electron-pack": "build",
 		"backend": "npm run --prefix backend electron-rebuild",
+		"prebuild": "npm run backend",
 		"build": "npm run react-build && npm run electron-pack"
 	},
 	"build": {
@@ -54,7 +57,14 @@
 		},
 		"extraFiles": [
 			"backend/bin/**/*"
-		]
+		],
+		"win": {
+			"target": "zip",
+			"publisherName": "Almog Hamdani"
+		},
+		"mac": {
+			"target": "tar.gz"
+		}
 	},
 	"eslintConfig": {
 		"extends": "react-app"
