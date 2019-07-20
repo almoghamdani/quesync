@@ -74,15 +74,15 @@ void VoiceChat::recvVoiceThread()
     OpusDecoder *opus_decoder;
     opus_int16 pcm[FRAMERATE * RECORD_CHANNELS] = {0};
 
-    HSTREAM play_stream;
+    /* HSTREAM play_stream;
 
     udp::endpoint sender_endpoint;
 
     // Create the opus decoder for the recording
-    opus_decoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, NULL);
+    opus_decoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, NULL);*/
 
     // Init the BASS library with the default device
-    BASS_Init(-1, RECORD_FREQUENCY, 0, 0, NULL);
+    /* BASS_Init(-1, RECORD_FREQUENCY, 0, 0, NULL);
     BASS_ErrorGetCode();
 
     // Create a stream to the speakers
@@ -106,5 +106,5 @@ void VoiceChat::recvVoiceThread()
             // Put the decoded pcm data in the stream
             BASS_StreamPutData(play_stream, pcm, decoded_size * sizeof(opus_int16) * RECORD_CHANNELS);
         }
-    }
+    }*/
 }

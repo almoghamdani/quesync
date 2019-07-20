@@ -1,4 +1,4 @@
-var quesync = require("./build/Release/quesync.node")
+var quesync = require("./build/Release/backend.node")
 
 var smth = new quesync.Client()
 

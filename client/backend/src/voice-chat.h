@@ -6,10 +6,9 @@
 #include <string>
 #include <thread>
 
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
-#include <opus/opus.h>
-#include <bass.h>
+#include <al.h>
+#include <alc.h>
+#include <opus.h>
 
 #define VOICE_CHAT_PORT 61111
 

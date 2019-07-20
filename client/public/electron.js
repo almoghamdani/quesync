@@ -7,9 +7,9 @@ const isDev = require("electron-is-dev");
 
 const os = require("os");
 const backend_name =
-	os.platform() === "darwin" ? "darwin-x64-69" : "win32-x64-69";
+	os.platform() === "darwin" ? "backend.node" : "Release/backend.node";
 const quesync = require(isDev
-	? `../backend/bin/${backend_name}/backend.node`
+	? `../backend/build/${backend_name}`
 	: app.getAppPath() + `/../../backend/bin/${backend_name}/backend.node`);
 
 // Set the main window as a global var

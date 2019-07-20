@@ -1,28 +1,30 @@
 {
-  "name": "quesync-backend",
-  "version": "0.1.0",
-  "description": "VoIP application",
-  "main": "index.js",
-  "scripts": {
-    "build": "node-gyp configure build",
-    "electron-rebuild": "electron-rebuild -f -v 4.2.5"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://gitlab.com/almogh52/quesync.git"
-  },
-  "author": "Almog Hamdani",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://gitlab.com/almogh52/quesync/issues"
-  },
-  "homepage": "https://gitlab.com/almogh52/quesync#readme",
-  "dependencies": {
-    "node-addon-api": "^1.6.3",
-    "node-gyp": "^3.8.0"
-  },
-  "devDependencies": {
-    "electron-rebuild": "^1.8.5",
-    "glob": "^7.1.4"
-  }
+	"name": "quesync-backend",
+	"version": "0.1.0",
+	"description": "VoIP application",
+	"main": "index.js",
+	"scripts": {
+		"build": "cmake-js compile -G \"Visual Studio 15 2017 Win64\"",
+		"electron-rebuild": "electron-rebuild -f -v 4.2.5"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://gitlab.com/almogh52/quesync.git"
+	},
+	"author": "Almog Hamdani",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://gitlab.com/almogh52/quesync/issues"
+	},
+	"homepage": "https://gitlab.com/almogh52/quesync#readme",
+	"dependencies": {
+		"node-addon-api": "^1.6.3",
+		"cmake-js": "^5.3.1",
+		"glob": "^7.1.4"
+	},
+	"cmake-js": {
+		"runtime": "electron",
+		"runtimeVersion": "5.0.7",
+		"arch": "x64"
+	}
 }
