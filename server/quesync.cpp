@@ -38,6 +38,11 @@ void Quesync::start()
     acceptClient();
 }
 
+asio::io_context &Quesync::get_io_context()
+{
+	return _acceptor.get_io_context();
+}
+
 void Quesync::acceptClient()
 {
     // Start an async accept
