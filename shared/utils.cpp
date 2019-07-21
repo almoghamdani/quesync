@@ -21,6 +21,7 @@
 #include "packets/send_message_packet.h"
 #include "packets/get_channel_messages_packet.h"
 #include "packets/session_auth_packet.h"
+#include "packets/call_request_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -89,6 +90,10 @@ Packet *Utils::ParsePacket(std::string packet)
         p = new SessionAuthPacket();
         break;
 
+	case CALL_REQUEST_PACKET:
+		p = new CallRequestPacket();
+		break;
+
     case ERROR_PACKET:
         p = new ErrorPacket();
         break;
@@ -102,6 +107,7 @@ Packet *Utils::ParsePacket(std::string packet)
     case PRIVATE_CHANNEL_PACKET:
     case MESSAGE_ID_PACKET:
     case CHANNEL_MESSAGES_PACKET:
+	case CALL_STARTED_PACKET:
         p = new ResponsePacket(packet_type, "");
         break;
 
@@ -235,6 +241,8 @@ std::string Utils::QuesyncErrorToString(QuesyncError error)
         return "SELF_PRIVATE_CHANNEL";
     case INVALID_SESSION:
         return "INVALID_SESSION";
+	case VOICE_NOT_CONNECTED:
+		return "VOICE_NOT_CONNECTED";
     }
 
     return "";
