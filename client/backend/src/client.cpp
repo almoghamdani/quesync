@@ -17,12 +17,14 @@
 #include "../../../shared/packets/get_channel_messages_packet.h"
 #include "../../../shared/packets/friendship_status_packet.h"
 #include "../../../shared/packets/session_auth_packet.h"
+#include "../../../shared/packets/call_request_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
 Client::Client(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Client>(info),
                                                  _communicator(std::bind(&Client::clean, this)),
-                                                 _user(nullptr)
+                                                 _user(nullptr),
+												 _voice_chat(nullptr)
 {
     Napi::Env env = info.Env();
 }
@@ -831,6 +833,86 @@ Napi::Value Client::getChannelMessages(const Napi::CallbackInfo &info)
             // Get the messages from the resposne's data
             res["messages"] = nlohmann::json::parse(response_packet->data());
             res["channelId"] = channel_id;
+        }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
+
+        return res;
+    },
+                               deferred);
+
+    // Queue the executer worker
+    e->Queue();
+
+    return deferred.Promise();
+}
+
+Napi::Value Client::call(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+    // Convert parameters to c++ objects
+    std::vector<std::string> users = Utils::ArrayToNative<std::string, Napi::String>(info[0].As<Napi::Array>());
+
+    Executer *e = new Executer([this, users]() {
+        QuesyncError error = SUCCESS;
+        std::shared_ptr<ResponsePacket> response_packet;
+        nlohmann::json res, voice_res;
+
+        CallRequestPacket call_request_packet(users);
+
+        // If not authenticated, return error
+        if (!_user)
+        {
+            res["error"] = NOT_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Send the call request packet
+        try
+        {
+            response_packet = _communicator.send(&call_request_packet);
+        }
+        catch (QuesyncException &ex)
+        {
+            res["error"] = ex.getErrorCode();
+
+            return res;
+        }
+        catch (...)
+        {
+            res["error"] = UNKNOWN_ERROR;
+
+            return res;
+        }
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
+        }
+        // If the response packet is a call started packet, init voice chat
+        else if (response_packet && response_packet->type() == CALL_STARTED_PACKET)
+        {
+            // Set success error code
+            res["error"] = SUCCESS;
+
+            // Get the voice info
+            voice_res = nlohmann::json::parse(response_packet->data());
+
+			// Init voice chat
+			_voice_chat = std::make_shared<VoiceChat>("127.0.0.1", voice_res["voiceSessionId"], voice_res["voiceChannelId"]);
         }
         else if (error)
         {

@@ -44,5 +44,18 @@ public:
 
 #ifdef QUESYNC_CLIENT
 	static Napi::Object JsonToObject(Napi::Env env, nlohmann::json json);
+	
+	template <typename T, typename R>
+	static std::vector<T> ArrayToNative(Napi::Array arr)
+	{
+		std::vector<T> items;
+
+		for (int i = 0; i < arr.Length(); i++)
+		{
+			items.push_back(arr.Get(i).As<R>());
+		}
+
+		return items;
+	};
 #endif
 };

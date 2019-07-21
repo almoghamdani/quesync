@@ -17,21 +17,24 @@
 #define FRAMERATE 960
 #define MAX_FRAMERATE 4800
 
-#define RECV_BUFFER_SIZE 500
+#define RECV_BUFFER_SIZE 8192
 
 class VoiceChat
 {
-  public:
-    VoiceChat(const char *server_ip);
-    ~VoiceChat();
+public:
+	VoiceChat(const char *server_ip, std::string session_id, std::string channel_id);
+	~VoiceChat();
 
-  private:
-    udp::socket _socket;
-    udp::endpoint _endpoint;
+private:
+	std::string _session_id;
+	std::string _channel_id;
 
-    std::thread sendThread;
-    std::thread recvThread;
+	udp::socket _socket;
+	udp::endpoint _endpoint;
 
-    void sendVoiceThread();
-    void recvVoiceThread();
+	std::thread sendThread;
+	std::thread recvThread;
+
+	void sendVoiceThread();
+	void recvVoiceThread();
 };

@@ -1,88 +1,108 @@
 #include "voice-chat.h"
 
-using std::cout;
-using std::endl;
+#include "../../../shared/utils.h"
+#include "../../../shared/packets/voice_packet.h"
+#include "../../../shared/packets/participant_voice_packet.h"
 
-VoiceChat::VoiceChat(const char *server_ip) : _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)) // Create an IPv4 UDP socket with a random port
+bool close = false;
+
+VoiceChat::VoiceChat(const char *server_ip, std::string session_id, std::string channel_id)
+	: _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)), // Create an IPv4 UDP socket with a random port
+	  _session_id(session_id),
+	  _channel_id(channel_id)
 {
-    // Get the endpoint of the server using the given server IP and default voice chat port
-    SocketManager::GetEndpoint(server_ip, VOICE_CHAT_PORT, _endpoint);
+	close = false;
 
-    // Create the thread of sending the voice from the client to the server and detach it
-    sendThread = std::thread(&VoiceChat::sendVoiceThread, this);
-    sendThread.detach();
+	// Get the endpoint of the server using the given server IP and default voice chat port
+	SocketManager::GetEndpoint(server_ip, VOICE_CHAT_PORT, _endpoint);
 
-    // Create the thread of receiving the voice from the server and detach it
-    recvThread = std::thread(&VoiceChat::recvVoiceThread, this);
-    recvThread.detach();
+	// Create the thread of sending the voice from the client to the server and detach it
+	sendThread = std::thread(&VoiceChat::sendVoiceThread, this);
+	sendThread.detach();
+
+	// Create the thread of receiving the voice from the server and detach it
+	recvThread = std::thread(&VoiceChat::recvVoiceThread, this);
+	recvThread.detach();
+}
+
+VoiceChat::~VoiceChat()
+{
+	close = true;
 }
 
 void VoiceChat::sendVoiceThread()
 {
-    int dataLen = 0;
-    unsigned char encoded_buffer[FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
+	int dataLen = 0;
+	unsigned char encoded_buffer[FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
 
-    ALbyte buffer[MAX_FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
-    ALint sample = 0;
-    ALCdevice *capture_device;
+	ALbyte buffer[MAX_FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
+	ALint sample = 0;
+	ALCdevice *capture_device;
 
-    int opus_error;
-    OpusEncoder *opus_encoder;
+	int opus_error;
+	OpusEncoder *opus_encoder;
 
-    // Create the opus encoder for the recording
-    opus_encoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opus_error);
+	VoicePacket voice_packet;
+	std::string voice_packet_encoded;
 
-    // Try to open the default capture device
-    capture_device = alcCaptureOpenDevice(NULL, RECORD_FREQUENCY, AL_FORMAT_STEREO16, FRAMERATE);
-    if (alGetError() != AL_NO_ERROR)
-    {
-        cout << "An error occurred opening default capture device! Exiting.." << endl;
-        exit(EXIT_FAILURE);
-    }
+	// Create the opus encoder for the recording
+	opus_encoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opus_error);
 
-    // Start to capture using the default device
-    alcCaptureStart(capture_device);
+	// Try to open the default capture device
+	capture_device = alcCaptureOpenDevice(NULL, RECORD_FREQUENCY, AL_FORMAT_STEREO16, FRAMERATE);
+	if (alGetError() != AL_NO_ERROR)
+	{
+		std::cout << "An error occurred opening default capture device! Exiting.." << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
-    // Infinity thread while the socket isn't closed (this class deleted from memory)
-    while (true)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	// Start to capture using the default device
+	alcCaptureStart(capture_device);
 
-        // Get the amount of samples waiting in the device's buffer
-        alcGetIntegerv(capture_device, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
+	// Infinity thread while the socket isn't closed (this class deleted from memory)
+	while (!close)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-        // If there is enough samples to send the server to match the server's framerate, send it
-        if (sample >= FRAMERATE)
-        {
-            // Get the capture samples
-            alcCaptureSamples(capture_device, (ALCvoid *)buffer, FRAMERATE);
+		// Get the amount of samples waiting in the device's buffer
+		alcGetIntegerv(capture_device, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
 
-            // Encode the captured data
-            dataLen = opus_encode(opus_encoder, (const opus_int16 *)buffer, FRAMERATE, encoded_buffer, FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16));
+		// If there is enough samples to send the server to match the server's framerate, send it
+		if (sample >= FRAMERATE)
+		{
+			// Get the capture samples
+			alcCaptureSamples(capture_device, (ALCvoid *)buffer, FRAMERATE);
 
-            // Send the encoded buffer to the server
-            _socket.send_to(asio::buffer(encoded_buffer, dataLen), _endpoint);
-        }
-    }
+			// Encode the captured data
+			dataLen = opus_encode(opus_encoder, (const opus_int16 *)buffer, FRAMERATE, encoded_buffer, FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16));
+
+			// Create the voice packet and encode it
+			voice_packet = VoicePacket(_session_id, _channel_id, (char *)encoded_buffer, dataLen);
+			voice_packet_encoded = voice_packet.encode();
+
+			// Send the encoded voice packet to the server
+			_socket.send_to(asio::buffer(voice_packet_encoded.c_str(), voice_packet_encoded.length()), _endpoint);
+		}
+	}
 }
 
 void VoiceChat::recvVoiceThread()
 {
-    int decoded_size = 0, recv_bytes = 0;
-    char recv_buffer[RECV_BUFFER_SIZE] = {0};
+	int decoded_size = 0, recv_bytes = 0;
+	char recv_buffer[RECV_BUFFER_SIZE] = {0};
 
-    OpusDecoder *opus_decoder;
-    opus_int16 pcm[FRAMERATE * RECORD_CHANNELS] = {0};
+	OpusDecoder *opus_decoder;
+	opus_int16 pcm[FRAMERATE * RECORD_CHANNELS] = {0};
 
-    /* HSTREAM play_stream;
+	/* HSTREAM play_stream;
 
     udp::endpoint sender_endpoint;
 
     // Create the opus decoder for the recording
     opus_decoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, NULL);*/
 
-    // Init the BASS library with the default device
-    /* BASS_Init(-1, RECORD_FREQUENCY, 0, 0, NULL);
+	// Init the BASS library with the default device
+	/* BASS_Init(-1, RECORD_FREQUENCY, 0, 0, NULL);
     BASS_ErrorGetCode();
 
     // Create a stream to the speakers
@@ -92,7 +112,7 @@ void VoiceChat::recvVoiceThread()
     // Start the BASS library to play on the stream
     BASS_ChannelPlay(play_stream, 0);
 
-    while (true)
+    while (!close)
     {
         // Receive from the server the encoded voice sample into the recv buffer
         recv_bytes = _socket.receive_from(asio::buffer(recv_buffer, RECV_BUFFER_SIZE), sender_endpoint);
