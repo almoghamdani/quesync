@@ -1,6 +1,8 @@
 #pragma once
+
 #include <string>
 #include <vector>
+#include <memory>
 #include <nlohmann/json.hpp>
 
 #ifdef QUESYNC_SERVER
@@ -19,26 +21,28 @@
 
 class Utils
 {
-  public:
-    static std::vector<std::string> Split(const std::string &s, char delimiter);
+public:
+	static std::vector<std::string> Split(const std::string &s, char delimiter);
 
-    static std::string SHA256(const std::string str);
+	static std::string SHA256(const std::string str);
 
-    static Packet *ParsePacket(std::string packet);
-    static PacketType GetPacketType(std::string packet);
+	static Packet *ParsePacket(std::string packet);
+	static PacketType GetPacketType(std::string packet);
 
-	static std::string EncodeHeader(Header& header);
+	static std::string EncodeHeader(Header &header);
 	static Header DecodeHeader(const char *buf);
 
-    static int RandomNumber(int min, int max);
+	static std::shared_ptr<char> ConvertToBuffer(std::string data);
 
-    static std::string QuesyncErrorToString(QuesyncError error);
+	static int RandomNumber(int min, int max);
+
+	static std::string QuesyncErrorToString(QuesyncError error);
 
 #ifdef QUESYNC_SERVER
-    static int GenerateTag(std::string nickname, sql::Table &users_table);
+	static int GenerateTag(std::string nickname, sql::Table &users_table);
 #endif
 
 #ifdef QUESYNC_CLIENT
-    static Napi::Object JsonToObject(Napi::Env env, nlohmann::json json);
+	static Napi::Object JsonToObject(Napi::Env env, nlohmann::json json);
 #endif
 };

@@ -31,6 +31,7 @@ void Quesync::start()
     _channel_manager = std::make_shared<ChannelManager>(shared_from_this());
     _message_manager = std::make_shared<MessageManager>(shared_from_this());
     _session_manager = std::make_shared<SessionManager>(shared_from_this());
+	_voice_manager = std::make_shared<VoiceManager>(shared_from_this());
 
     std::cout << termcolor::cyan << "Listening for TCP connections.." << termcolor::reset << std::endl;
 
@@ -91,6 +92,11 @@ std::shared_ptr<MessageManager> Quesync::messageManager()
 std::shared_ptr<SessionManager> Quesync::sessionManager()
 {
     return _session_manager;
+}
+
+std::shared_ptr<VoiceManager> Quesync::voiceManager()
+{
+    return _voice_manager;
 }
 
 sql::Schema &Quesync::db()

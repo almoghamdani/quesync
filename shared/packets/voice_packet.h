@@ -12,7 +12,7 @@ class VoicePacket
 {
 public:
 	VoicePacket(){};
-	VoicePacket(std::string session_id, std::string channel_id, unsigned char *voice_data, unsigned int voice_data_len)
+	VoicePacket(std::string session_id, std::string channel_id, char *voice_data, unsigned int voice_data_len)
 		: _session_id(session_id), _channel_id(channel_id), _voice_data(new char[voice_data_len]), _voice_data_len(voice_data_len)
 	{
 		memcpy(_voice_data, voice_data, voice_data_len);

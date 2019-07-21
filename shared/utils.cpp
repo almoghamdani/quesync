@@ -260,6 +260,16 @@ Header Utils::DecodeHeader(const char *buf)
 	return header;
 }
 
+std::shared_ptr<char> Utils::ConvertToBuffer(std::string data)
+{
+	std::shared_ptr<char> buf = std::shared_ptr<char>(new char[data.length()]);
+
+	// Copy the data to the buffer
+	memcpy(buf.get(), data.data(), data.length());
+
+	return buf;
+}
+
 #ifdef QUESYNC_SERVER
 int Utils::GenerateTag(std::string nickname, sql::Table &users_table)
 {

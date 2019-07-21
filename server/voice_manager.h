@@ -10,7 +10,7 @@
 
 #define VOICE_SERVER_PORT 61111
 
-#define MAX_DATA_LEN 1024
+#define MAX_DATA_LEN 8192
 
 using asio::ip::udp;
 
@@ -36,5 +36,7 @@ private:
 	std::unordered_map<std::string, std::string> _sessions;
 
 	void recv();
-	void send(std::size_t length);
+	void send(std::shared_ptr<char> buf, std::size_t length, udp::endpoint endpoint);
+
+	void handle_packet(std::size_t length);
 };
