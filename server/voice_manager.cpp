@@ -126,11 +126,9 @@ void VoiceManager::deleteVoiceSession(std::string user_id)
 	}
 }
 
-std::string VoiceManager::initVoiceChannel(std::string channel_id, std::vector<std::string> users)
+void VoiceManager::initVoiceChannel(std::string channel_id, std::vector<std::string> users)
 {
 	_voice_channels[channel_id] = users;
-
-	return channel_id;
 }
 
 void VoiceManager::closeVoiceChannel(std::string channel_id)

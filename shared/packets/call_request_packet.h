@@ -30,7 +30,6 @@ public:
 		IncomingCallEvent call_event;
 
 		std::string voice_session_id;
-		std::string voice_channel_id;
 
 		std::vector<std::string> users;
 
@@ -54,14 +53,13 @@ public:
 			voice_session_id = session->server()->voiceManager()->createVoiceSession(session->user()->id());
 
 			// Create a voice channel for the users
-			voice_channel_id = session->server()->voiceManager()->initVoiceChannel(_data["channelId"], _data["users"]);
+			session->server()->voiceManager()->initVoiceChannel(_data["channelId"], _data["users"]);
 
 			// Set the res
 			res["voiceSessionId"] = voice_session_id;
-			res["voiceChannelId"] = voice_channel_id;
 
 			// Create the call event
-			call_event = IncomingCallEvent(voice_channel_id);
+			call_event = IncomingCallEvent(_data["channelId"]);
 
 			// Send the call event to the other users
 			for (auto &user : users)
