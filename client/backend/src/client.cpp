@@ -1033,7 +1033,8 @@ Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
                                        InstanceMethod("getPrivateChannel", &Client::getPrivateChannel),
                                        InstanceMethod("sendMessage", &Client::sendMessage),
                                        InstanceMethod("getChannelMessages", &Client::getChannelMessages),
-                                       InstanceMethod("setFriendshipStatus", &Client::setFriendshipStatus)});
+                                       InstanceMethod("setFriendshipStatus", &Client::setFriendshipStatus),
+									   InstanceMethod("call", &Client::call)});
 
     // Create a peristent reference to the class constructor. This will allow
     // a function called on a class prototype and a function
