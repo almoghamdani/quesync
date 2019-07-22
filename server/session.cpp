@@ -20,6 +20,15 @@ Session::~Session()
 	{
 		// Unauthenticate session and free the user object
 		_server->userManager()->unauthenticateSession(_user->id());
+
+		try
+		{
+			// Leave any voice channel that the user is in
+			_server->voiceManager()->leaveVoiceChannel(_user->id());
+		}
+		catch (...)
+		{
+		}
 	}
 
 	// Close the client's socket in case it's not closed
@@ -138,7 +147,7 @@ void Session::sendOnly(std::string data)
 {
 	auto self(shared_from_this());
 
-	Header header { 1, (uint32_t)data.length() };
+	Header header{1, (uint32_t)data.length()};
 
 	// Create a buffer with the size of the data and the header
 	std::shared_ptr<char> buf(new char[data.length() + sizeof(Header) + 1]);
