@@ -42,24 +42,22 @@ void VoiceManager::handle_packet(std::size_t length)
 
 	std::string participant_session;
 	udp::endpoint participant_endpoint;
-	
+
 	ParticipantVoicePacket participant_packet;
 	std::string participant_packet_encoded;
 	std::shared_ptr<char> buf;
 
-	std::string user_id;
 	std::vector<std::string> channel_participants;
 
 	// Try to decode the packet
 	if (!packet.decode(std::string(_buf, length)))
 	{
-		throw std::exception();
+		return;
 	}
 
 	// Try to find the user id and the channel id
 	try
 	{
-		user_id = _sessions.at(packet.session_id());
 		channel_participants = _voice_channels.at(packet.channel_id());
 	}
 	catch (...)
@@ -74,33 +72,38 @@ void VoiceManager::handle_packet(std::size_t length)
 	}
 
 	// If the user isn't a part of the channel
-	if (find(channel_participants.begin(), channel_participants.end(), user_id) == channel_participants.end())
+	if (find(channel_participants.begin(), channel_participants.end(), packet.user_id()) == channel_participants.end())
 	{
 		return;
 	}
 
-	// Create the pariticipant voice packet and encode it
-	participant_packet = ParticipantVoicePacket(user_id, packet.voice_data(), packet.voice_data_len());
-	participant_packet_encoded = participant_packet.encode();
-	buf = Utils::ConvertToBuffer(participant_packet_encoded);
-
-	// Send the participant voice packet to all other participants
-	for (auto &participant : channel_participants)
+	if (packet.voice_data_len())
 	{
-		// If the given participant isn't our user
-		if (participant != user_id)
-		{
-			try
-			{
-				// Try to get the session and endpoint of the participant
-				participant_session = _sessions.at(participant);
-				participant_endpoint = _session_endpoints.at(participant_session);
-			} catch (...) {
-				continue;
-			}
+		// Create the pariticipant voice packet and encode it
+		participant_packet = ParticipantVoicePacket(packet.user_id(), packet.voice_data(), packet.voice_data_len());
+		participant_packet_encoded = participant_packet.encode();
+		buf = Utils::ConvertToBuffer(participant_packet_encoded);
 
-			// Send the participant voice packet to the participant
-			send(buf, participant_packet_encoded.length(), participant_endpoint);
+		// Send the participant voice packet to all other participants
+		for (auto &participant : channel_participants)
+		{
+			// If the given participant isn't our user
+			if (participant != packet.user_id())
+			{
+				try
+				{
+					// Try to get the session and endpoint of the participant
+					participant_session = _sessions.at(participant);
+					participant_endpoint = _session_endpoints.at(participant_session);
+				}
+				catch (...)
+				{
+					continue;
+				}
+
+				// Send the participant voice packet to the participant
+				send(buf, participant_packet_encoded.length(), participant_endpoint);
+			}
 		}
 	}
 }
@@ -159,7 +162,7 @@ void VoiceManager::leaveVoiceChannel(std::string user_id)
 	std::string channel_id;
 
 	// Check if in voice channel
-	if(_joined_voice_channels.find(user_id) == _joined_voice_channels.end())
+	if (_joined_voice_channels.find(user_id) == _joined_voice_channels.end())
 	{
 		throw QuesyncException(VOICE_NOT_CONNECTED);
 	}

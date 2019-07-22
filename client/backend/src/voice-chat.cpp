@@ -6,8 +6,9 @@
 
 bool close = false;
 
-VoiceChat::VoiceChat(const char *server_ip, std::string session_id, std::string channel_id)
+VoiceChat::VoiceChat(const char *server_ip, std::string user_id, std::string session_id, std::string channel_id)
 	: _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)), // Create an IPv4 UDP socket with a random port
+	  _user_id(user_id),
 	  _session_id(session_id),
 	  _channel_id(channel_id)
 {
@@ -77,13 +78,19 @@ void VoiceChat::sendVoiceThread()
 			dataLen = opus_encode(opus_encoder, (const opus_int16 *)buffer, FRAMERATE, encoded_buffer, FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16));
 
 			// Create the voice packet and encode it
-			voice_packet = VoicePacket(_session_id, _channel_id, (char *)encoded_buffer, dataLen);
+			voice_packet = VoicePacket(_user_id, _session_id, _channel_id, (char *)encoded_buffer, dataLen);
 			voice_packet_encoded = voice_packet.encode();
 
 			// Send the encoded voice packet to the server
 			_socket.send_to(asio::buffer(voice_packet_encoded.c_str(), voice_packet_encoded.length()), _endpoint);
 		}
 	}
+
+	// Stop the capture
+	alcCaptureStop(capture_device);
+
+	// Close the capture device
+	alcCaptureCloseDevice(capture_device);
 }
 
 void VoiceChat::recvVoiceThread()
@@ -94,37 +101,103 @@ void VoiceChat::recvVoiceThread()
 	OpusDecoder *opus_decoder;
 	opus_int16 pcm[FRAMERATE * RECORD_CHANNELS] = {0};
 
-	/* HSTREAM play_stream;
+	ALCcontext *context;
+	ALCdevice *device;
+	ALuint source;
 
-    udp::endpoint sender_endpoint;
+	udp::endpoint sender_endpoint;
+	ParticipantVoicePacket voice_packet;
 
-    // Create the opus decoder for the recording
-    opus_decoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, NULL);*/
+	// Create the opus decoder for the voice
+	opus_decoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, NULL);
 
-	// Init the BASS library with the default device
-	/* BASS_Init(-1, RECORD_FREQUENCY, 0, 0, NULL);
-    BASS_ErrorGetCode();
+	// Open default device
+	device = alcOpenDevice(NULL);
 
-    // Create a stream to the speakers
-    play_stream = BASS_StreamCreate(RECORD_FREQUENCY, RECORD_CHANNELS, BASS_SAMPLE_FX, STREAMPROC_PUSH, NULL);
-    BASS_ErrorGetCode();
+	// Create the context for the audio scene
+	context = alcCreateContext(device, NULL);
+	alcMakeContextCurrent(context);
 
-    // Start the BASS library to play on the stream
-    BASS_ChannelPlay(play_stream, 0);
+	// Init the source
+	alGenSources((ALuint)1, &source);
+	alSourcef(source, AL_PITCH, 1);
+	alSourcef(source, AL_GAIN, 1);
+	alSource3f(source, AL_POSITION, 0, 0, 0);
+	alSource3f(source, AL_VELOCITY, 0, 0, 0);
+	alSourcei(source, AL_LOOPING, AL_FALSE);
 
-    while (!close)
-    {
-        // Receive from the server the encoded voice sample into the recv buffer
-        recv_bytes = _socket.receive_from(asio::buffer(recv_buffer, RECV_BUFFER_SIZE), sender_endpoint);
+	while (!close)
+	{
+		ALuint buffer;
 
-        // If the sender is the server endpoint handle the voice sample
-        if (sender_endpoint == _endpoint)
-        {
-            // Decode the current sample from the client
-            decoded_size = opus_decode(opus_decoder, (const unsigned char *)recv_buffer, recv_bytes, (opus_int16 *)pcm, FRAMERATE, 0);
+		// Clean unused buffers of the source
+		cleanUnusedBuffers(source);
 
-            // Put the decoded pcm data in the stream
-            BASS_StreamPutData(play_stream, pcm, decoded_size * sizeof(opus_int16) * RECORD_CHANNELS);
-        }
-    }*/
+		// Generate buffer for the new data
+		alGenBuffers((ALuint)1, &buffer);
+
+		// Receive from the server the encoded voice sample into the recv buffer
+		recv_bytes = _socket.receive_from(asio::buffer(recv_buffer, RECV_BUFFER_SIZE), sender_endpoint);
+
+		// If the sender is the server endpoint handle the voice sample
+		if (sender_endpoint == _endpoint)
+		{
+			// Decode the voice packet
+			voice_packet.decode(std::string(recv_buffer, recv_bytes));
+
+			// Decode the current sample from the client
+			decoded_size = opus_decode(opus_decoder, (const unsigned char *)voice_packet.voice_data(), voice_packet.voice_data_len(), (opus_int16 *)pcm, FRAMERATE, 0);
+
+			// Fill buffer
+			alBufferData(buffer, AL_FORMAT_STEREO16, pcm, decoded_size * sizeof(opus_int16) * RECORD_CHANNELS, RECORD_FREQUENCY);
+
+			// Queue the buffer to the source
+			alSourceQueueBuffers(source, 1, &buffer);
+		}
+
+		// Clean unused buffers of the source
+		cleanUnusedBuffers(source);
+
+		// If the source isn't playing, play it
+		if (!isSourcePlaying(source))
+		{
+			alSourcePlay(source);
+		}
+	}
+
+	// Clean unused buffers of the source
+	cleanUnusedBuffers(source);
+
+	// Delete the source
+	alDeleteSources(1, &source);
+
+	// Close the device
+	alcCloseDevice(device);
+}
+
+void VoiceChat::cleanUnusedBuffers(ALuint source)
+{
+	ALint amount_of_buffers;
+	ALuint *old_buffers;
+
+	// Get the amount of buffers that already processed and allocate memory for them
+	alGetSourcei(source, AL_BUFFERS_PROCESSED, &amount_of_buffers);
+	old_buffers = new ALuint[amount_of_buffers];
+
+	// Unqueue the buffers
+	alSourceUnqueueBuffers(source, amount_of_buffers, old_buffers);
+
+	// Delete the buffers
+	alDeleteBuffers(amount_of_buffers, old_buffers);
+	delete old_buffers;
+}
+
+bool VoiceChat::isSourcePlaying(ALuint source)
+{
+	ALint source_state;
+
+	// Get the source state
+	alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+
+	return source_state == AL_PLAYING;
 }

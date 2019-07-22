@@ -18,6 +18,7 @@
 #include "../../../shared/packets/friendship_status_packet.h"
 #include "../../../shared/packets/session_auth_packet.h"
 #include "../../../shared/packets/call_request_packet.h"
+#include "../../../shared/packets/join_call_request_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
@@ -912,7 +913,87 @@ Napi::Value Client::call(const Napi::CallbackInfo &info)
             voice_res = nlohmann::json::parse(response_packet->data());
 
 			// Init voice chat
-			_voice_chat = std::make_shared<VoiceChat>("127.0.0.1", voice_res["voiceSessionId"], channel_id);
+			_voice_chat = std::make_shared<VoiceChat>("127.0.0.1", _user->id(), voice_res["voiceSessionId"], channel_id);
+        }
+        else if (error)
+        {
+            // If an error occurred, return it
+            res["error"] = error;
+        }
+        else
+        {
+            // We shouldn't get here
+            res["error"] = UNKNOWN_ERROR;
+        }
+
+        return res;
+    },
+                               deferred);
+
+    // Queue the executer worker
+    e->Queue();
+
+    return deferred.Promise();
+}
+
+Napi::Value Client::joinCall(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+    // Convert parameters to c++ objects
+    std::string channel_id = info[0].As<Napi::String>();
+
+    Executer *e = new Executer([this, channel_id]() {
+        QuesyncError error = SUCCESS;
+        std::shared_ptr<ResponsePacket> response_packet;
+        nlohmann::json res, voice_res;
+
+        JoinCallRequestPacket join_call_request_packet(channel_id);
+
+        // If not authenticated, return error
+        if (!_user)
+        {
+            res["error"] = NOT_AUTHENTICATED;
+
+            return res;
+        }
+
+        // Send the join call request packet
+        try
+        {
+            response_packet = _communicator.send(&join_call_request_packet);
+        }
+        catch (QuesyncException &ex)
+        {
+            res["error"] = ex.getErrorCode();
+
+            return res;
+        }
+        catch (...)
+        {
+            res["error"] = UNKNOWN_ERROR;
+
+            return res;
+        }
+
+        // If the response is an error, handle the error
+        if (response_packet && response_packet->type() == ERROR_PACKET)
+        {
+            // Set the error code from the response packet
+            res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
+        }
+        // If the response packet is a join call approved packet, init voice chat
+        else if (response_packet && response_packet->type() == JOIN_CALL_APPROVED_PACKET)
+        {
+            // Set success error code
+            res["error"] = SUCCESS;
+
+            // Get the voice info
+            voice_res = nlohmann::json::parse(response_packet->data());
+
+			// Init voice chat
+			_voice_chat = std::make_shared<VoiceChat>("127.0.0.1", _user->id(), voice_res["voiceSessionId"], channel_id);
         }
         else if (error)
         {
@@ -1034,7 +1115,8 @@ Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
                                        InstanceMethod("sendMessage", &Client::sendMessage),
                                        InstanceMethod("getChannelMessages", &Client::getChannelMessages),
                                        InstanceMethod("setFriendshipStatus", &Client::setFriendshipStatus),
-									   InstanceMethod("call", &Client::call)});
+									   InstanceMethod("call", &Client::call),
+									   InstanceMethod("joinCall", &Client::joinCall)});
 
     // Create a peristent reference to the class constructor. This will allow
     // a function called on a class prototype and a function

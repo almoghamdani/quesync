@@ -33,15 +33,15 @@ public:
 		// Split the packet
 		std::vector<std::string> params = Utils::Split(buf, PACKET_DELIMETER);
 
-		if (params.size() == 2)
+		if (params.size() >= 2)
 		{
 			// Parse the packet
 			_user_id = params[0];
 			
 			// Parse voice data
-			_voice_data_len = (unsigned int)params[1].length();
+			_voice_data_len = (unsigned int)(buf.length() - (_user_id.length() + 2));
 			_voice_data = new char[_voice_data_len];
-			memcpy(_voice_data, params[1].c_str(), _voice_data_len);
+			memcpy(_voice_data, buf.c_str() + (_user_id.length() + 1), _voice_data_len);
 		} else {
 			return false;
 		}

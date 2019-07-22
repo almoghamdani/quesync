@@ -45,12 +45,13 @@ public:
 		{
 			// Get the channel members
 			users = session->server()->channelManager()->getChannelMembers(session->getShared(), _data["channelId"]);
+			users.push_back(session->user()->id());
 
 			// Create a voice session for the user
 			voice_session_id = session->server()->voiceManager()->createVoiceSession(session->user()->id());
 
 			// Create a voice channel for the users
-			session->server()->voiceManager()->initVoiceChannel(_data["channelId"], _data["users"]);
+			session->server()->voiceManager()->initVoiceChannel(_data["channelId"], users);
 
 			// Join the voice channel
 			session->server()->voiceManager()->joinVoiceChannel(session->user()->id(), _data["channelId"]);

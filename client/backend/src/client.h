@@ -40,6 +40,7 @@ public:
 	Napi::Value getChannelMessages(const Napi::CallbackInfo &info);
 
 	Napi::Value call(const Napi::CallbackInfo &info);
+	Napi::Value joinCall(const Napi::CallbackInfo &info);
 
 	Napi::Value registerEventHandler(const Napi::CallbackInfo &info);
 
