@@ -128,17 +128,57 @@ void VoiceManager::deleteVoiceSession(std::string user_id)
 
 void VoiceManager::initVoiceChannel(std::string channel_id, std::vector<std::string> users)
 {
+	// If the voice channel already started
+	if (_voice_channels.find(channel_id) != _voice_channels.end())
+	{
+		throw QuesyncException(CALL_ALREADY_STARTED);
+	}
+
 	_voice_channels[channel_id] = users;
 }
 
-void VoiceManager::closeVoiceChannel(std::string channel_id)
+void VoiceManager::joinVoiceChannel(std::string user_id, std::string channel_id)
 {
-	try
+	// If the user is already in a channel, leave the channel
+	if (_joined_voice_channels.find(user_id) != _joined_voice_channels.end())
 	{
-		_voice_channels.erase(channel_id);
+		leaveVoiceChannel(user_id);
 	}
-	catch (...)
+
+	// Check if the channel exists
+	if (_voice_channels.find(channel_id) == _voice_channels.end())
 	{
 		throw QuesyncException(CHANNEL_NOT_FOUND);
 	}
+
+	_joined_voice_channels[user_id] = channel_id;
+}
+
+void VoiceManager::leaveVoiceChannel(std::string user_id)
+{
+	std::string channel_id;
+
+	// Check if in voice channel
+	if(_joined_voice_channels.find(user_id) == _joined_voice_channels.end())
+	{
+		throw QuesyncException(VOICE_NOT_CONNECTED);
+	}
+
+	// Get the channel id of the user
+	channel_id = _joined_voice_channels[user_id];
+
+	// Remove the user from the map of joined voice channels
+	_joined_voice_channels.erase(user_id);
+
+	// Check for others connected to the voice channel
+	for (auto &join_pair : _joined_voice_channels)
+	{
+		if (join_pair.second == channel_id)
+		{
+			return;
+		}
+	}
+
+	// If the channel has no one connected to it, remove it
+	_voice_channels.erase(channel_id);
 }

@@ -5,15 +5,14 @@
 #include "error_packet.h"
 #include "serialized_packet.h"
 
-#include "../events/incoming_call_event.h"
 #include "../quesync_exception.h"
 
-class CallRequestPacket : public SerializedPacket
+class JoinCallRequestPacket : public SerializedPacket
 {
 public:
-	CallRequestPacket() : CallRequestPacket(""){};
+	JoinCallRequestPacket() : JoinCallRequestPacket(""){};
 
-	CallRequestPacket(std::string channel_id) : SerializedPacket(CALL_REQUEST_PACKET)
+	JoinCallRequestPacket(std::string channel_id) : SerializedPacket(JOIN_CALL_REQUEST_PACKET)
 	{
 		_data["channelId"] = channel_id;
 	};
@@ -27,11 +26,7 @@ public:
 #ifdef QUESYNC_SERVER
 	virtual std::string handle(Session *session)
 	{
-		IncomingCallEvent call_event;
-
 		std::string voice_session_id;
-
-		std::vector<std::string> users;
 
 		nlohmann::json res;
 
@@ -43,35 +38,17 @@ public:
 
 		try
 		{
-			// Get the channel members
-			users = session->server()->channelManager()->getChannelMembers(session->getShared(), _data["channelId"]);
-
 			// Create a voice session for the user
 			voice_session_id = session->server()->voiceManager()->createVoiceSession(session->user()->id());
 
-			// Create a voice channel for the users
-			session->server()->voiceManager()->initVoiceChannel(_data["channelId"], _data["users"]);
-
-			// Join the voice channel
-			session->server()->voiceManager()->joinVoiceChannel(session->user()->id(), _data["channelId"]);
+			// Try to join the voice channel
+			session->server()->voiceManager()->joinVoiceChannel(session->user->id(), _data["channelId"]);
 
 			// Set the res
 			res["voiceSessionId"] = voice_session_id;
 
-			// Create the call event
-			call_event = IncomingCallEvent(_data["channelId"]);
-
-			// Send the call event to the other users
-			for (auto &user : users)
-			{
-				if (user != session->user()->id())
-				{
-					session->server()->eventManager()->triggerEvent(call_event, user);
-				}
-			}
-
 			// Return response packet with the voice info
-			return ResponsePacket(CALL_STARTED_PACKET, res.dump()).encode();
+			return ResponsePacket(JOIN_CALL_APPROVED_PACKET, res.dump()).encode();
 		}
 		catch (QuesyncException &ex)
 		{

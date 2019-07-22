@@ -23,7 +23,9 @@ public:
 	void deleteVoiceSession(std::string user_id);
 
 	void initVoiceChannel(std::string channel_id, std::vector<std::string> users);
-	void closeVoiceChannel(std::string channel_id);
+
+	void joinVoiceChannel(std::string user_id, std::string channel_id);
+	void leaveVoiceChannel(std::string user_id);
 
 private:
 	udp::socket _socket;
@@ -31,6 +33,7 @@ private:
 	char _buf[MAX_DATA_LEN];
 
 	std::unordered_map<std::string, std::vector<std::string>> _voice_channels;
+	std::unordered_map<std::string, std::string> _joined_voice_channels;
 
 	std::unordered_map<std::string, udp::endpoint> _session_endpoints;
 	std::unordered_map<std::string, std::string> _sessions;
