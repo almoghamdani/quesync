@@ -861,14 +861,14 @@ Napi::Value Client::call(const Napi::CallbackInfo &info)
     Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
 
     // Convert parameters to c++ objects
-    std::vector<std::string> users = Utils::ArrayToNative<std::string, Napi::String>(info[0].As<Napi::Array>());
+    std::string channel_id = info[0].As<Napi::String>();
 
-    Executer *e = new Executer([this, users]() {
+    Executer *e = new Executer([this, channel_id]() {
         QuesyncError error = SUCCESS;
         std::shared_ptr<ResponsePacket> response_packet;
         nlohmann::json res, voice_res;
 
-        CallRequestPacket call_request_packet(users);
+        CallRequestPacket call_request_packet(channel_id);
 
         // If not authenticated, return error
         if (!_user)
@@ -912,7 +912,7 @@ Napi::Value Client::call(const Napi::CallbackInfo &info)
             voice_res = nlohmann::json::parse(response_packet->data());
 
 			// Init voice chat
-			_voice_chat = std::make_shared<VoiceChat>("127.0.0.1", voice_res["voiceSessionId"], voice_res["voiceChannelId"]);
+			_voice_chat = std::make_shared<VoiceChat>("127.0.0.1", voice_res["voiceSessionId"], channel_id);
         }
         else if (error)
         {
