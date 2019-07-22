@@ -15,6 +15,7 @@ class EventHandler {
 		client.registerEventHandler("friend-request", this.friendRequestEvent);
 		client.registerEventHandler("friendship-status", this.friendshipStatusEvent);
 		client.registerEventHandler("message", this.messageEvent);
+		client.registerEventHandler("incoming-call", this.incomingCallEvent);
 	};
 
 	pingEvent = async event => {
@@ -140,6 +141,12 @@ class EventHandler {
 
 		// Add message to channel
 		store.dispatch(addMessageToChannel(message, channelId));
+	}
+
+	incomingCallEvent = event => {
+		var channelId = event.channelId;
+
+		console.log("Call from channel " + channelId);
 	}
 }
 
