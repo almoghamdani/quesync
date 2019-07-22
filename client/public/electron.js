@@ -10,7 +10,7 @@ const backend_name =
 	os.platform() === "darwin" ? "backend.node" : "Release/backend.node";
 const quesync = require(isDev
 	? `../backend/build/${backend_name}`
-	: app.getAppPath() + `/../../backend/bin/${backend_name}/backend.node`);
+	: app.getAppPath() + `/../../backend.node`);
 
 // Set the main window as a global var
 let mainWindow;

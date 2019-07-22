@@ -55,15 +55,24 @@
 		"directories": {
 			"buildResources": "assets"
 		},
-		"extraFiles": [
-			"backend/bin/**/*"
-		],
 		"win": {
 			"target": "zip",
-			"publisherName": "Almog Hamdani"
+			"publisherName": "Almog Hamdani",
+			"extraFiles": [
+				{
+					"from": "backend/build/Release/backend.node",
+					"to": "backend.node"
+				}
+			]
 		},
 		"mac": {
-			"target": "dmg"
+			"target": "dmg",
+			"extraFiles": [
+				{
+					"from": "backend/build/backend.node",
+					"to": "backend.node"
+				}
+			]
 		}
 	},
 	"eslintConfig": {
