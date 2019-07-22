@@ -42,7 +42,7 @@ public:
 			voice_session_id = session->server()->voiceManager()->createVoiceSession(session->user()->id());
 
 			// Try to join the voice channel
-			session->server()->voiceManager()->joinVoiceChannel(session->user->id(), _data["channelId"]);
+			session->server()->voiceManager()->joinVoiceChannel(session->user()->id(), _data["channelId"]);
 
 			// Set the res
 			res["voiceSessionId"] = voice_session_id;
