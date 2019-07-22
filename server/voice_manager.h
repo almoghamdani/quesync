@@ -22,7 +22,7 @@ public:
 	std::string createVoiceSession(std::string user_id);
 	void deleteVoiceSession(std::string user_id);
 
-	std::string createVoiceChannel(std::vector<std::string> users);
+	std::string initVoiceChannel(std::string channel_id, std::vector<std::string> users);
 	void closeVoiceChannel(std::string channel_id);
 
 private:

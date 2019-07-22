@@ -39,7 +39,7 @@ public:
 			_user_id = params[0];
 			
 			// Parse voice data
-			_voice_data_len = params[1].length();
+			_voice_data_len = (unsigned int)params[1].length();
 			_voice_data = new char[_voice_data_len];
 			memcpy(_voice_data, params[1].c_str(), _voice_data_len);
 		} else {

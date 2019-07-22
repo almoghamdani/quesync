@@ -5,31 +5,34 @@
 #include "error_packet.h"
 #include "serialized_packet.h"
 
+#include "../events/incoming_call_event.h"
 #include "../quesync_exception.h"
 
 class CallRequestPacket : public SerializedPacket
 {
 public:
-	CallRequestPacket() : CallRequestPacket(std::vector<std::string>()){};
+	CallRequestPacket() : CallRequestPacket(""){};
 
-	CallRequestPacket(std::vector<std::string> users) : SerializedPacket(CALL_REQUEST_PACKET)
+	CallRequestPacket(std::string channel_id) : SerializedPacket(CALL_REQUEST_PACKET)
 	{
-		_data["users"] = users;
+		_data["channelId"] = channel_id;
 	};
 
 	virtual bool verify() const
 	{
-		return exists("users");
+		return exists("channelId");
 	};
 
 // A handle function for the server
 #ifdef QUESYNC_SERVER
 	virtual std::string handle(Session *session)
 	{
+		IncomingCallEvent call_event;
+
 		std::string voice_session_id;
 		std::string voice_channel_id;
 
-		std::vector<std::string> users = _data["users"];
+		std::vector<std::string> users;
 
 		nlohmann::json res;
 
@@ -44,15 +47,30 @@ public:
 
 		try
 		{
+			// Get the channel members
+			users = session->server()->channelManager()->getChannelMembers(session->getShared(), _data["channelId"]);
+
 			// Create a voice session for the user
 			voice_session_id = session->server()->voiceManager()->createVoiceSession(session->user()->id());
 
 			// Create a voice channel for the users
-			voice_channel_id = session->server()->voiceManager()->createVoiceChannel(_data["users"]);
+			voice_channel_id = session->server()->voiceManager()->initVoiceChannel(_data["channelId"], _data["users"]);
 
 			// Set the res
 			res["voiceSessionId"] = voice_session_id;
 			res["voiceChannelId"] = voice_channel_id;
+
+			// Create the call event
+			call_event = IncomingCallEvent(voice_channel_id);
+
+			// Send the call event to the other users
+			for (auto &user : users)
+			{
+				if (user != session->user()->id())
+				{
+					session->server()->eventManager()->triggerEvent(call_event, user);
+				}
+			}
 
 			// Return response packet with the voice info
 			return ResponsePacket(CALL_STARTED_PACKET, res.dump()).encode();

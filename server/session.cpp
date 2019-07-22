@@ -77,7 +77,7 @@ void Session::recv()
 																}
 
 																// Set the size of the response
-																header.size = response.size();
+																header.size = (unsigned int)response.size();
 
 																// Encode the header in a string
 																header_str = Utils::EncodeHeader(header);

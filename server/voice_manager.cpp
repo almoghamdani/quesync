@@ -126,10 +126,8 @@ void VoiceManager::deleteVoiceSession(std::string user_id)
 	}
 }
 
-std::string VoiceManager::createVoiceChannel(std::vector<std::string> users)
+std::string VoiceManager::initVoiceChannel(std::string channel_id, std::vector<std::string> users)
 {
-	std::string channel_id = sole::uuid4().str();
-
 	_voice_channels[channel_id] = users;
 
 	return channel_id;
