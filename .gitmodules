@@ -1,3 +1,6 @@
 [submodule "vendor/opus"]
 	path = vendor/opus
 	url = https://github.com/xiph/opus
+[submodule "vendor/rnnoise-cmake"]
+	path = vendor/rnnoise-cmake
+	url = https://github.com/almogh52/rnnoise-cmake

@@ -1,5 +1,7 @@
 #include "voice-chat.h"
 
+#include <rnnoise.h>
+
 #include "../../../shared/utils.h"
 #include "../../../shared/packets/voice_packet.h"
 #include "../../../shared/packets/participant_voice_packet.h"
@@ -34,14 +36,19 @@ VoiceChat::~VoiceChat()
 void VoiceChat::sendVoiceThread()
 {
 	int dataLen = 0;
-	unsigned char encoded_buffer[FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
+	unsigned char encoded_buffer[FRAME_SIZE * sizeof(opus_int16)] = {0};
 
-	ALbyte buffer[MAX_FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16)] = {0};
+	ALbyte buffer[FRAME_SIZE * sizeof(opus_int16)] = {0};
+	float rnnoise_buffer[FRAME_SIZE] = {0};
 	ALint sample = 0;
 	ALCdevice *capture_device;
 
 	int opus_error;
 	OpusEncoder *opus_encoder;
+
+	// Allocate RNNoise state
+	DenoiseState *rnnoise_state;
+	rnnoise_state = rnnoise_create(NULL);
 
 	VoicePacket voice_packet;
 	std::string voice_packet_encoded;
@@ -50,7 +57,7 @@ void VoiceChat::sendVoiceThread()
 	opus_encoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opus_error);
 
 	// Try to open the default capture device
-	capture_device = alcCaptureOpenDevice(NULL, RECORD_FREQUENCY, AL_FORMAT_STEREO16, FRAMERATE);
+	capture_device = alcCaptureOpenDevice(NULL, RECORD_FREQUENCY, AL_FORMAT_MONO16, FRAME_SIZE);
 	if (alGetError() != AL_NO_ERROR)
 	{
 		std::cout << "An error occurred opening default capture device! Exiting.." << std::endl;
@@ -69,13 +76,28 @@ void VoiceChat::sendVoiceThread()
 		alcGetIntegerv(capture_device, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
 
 		// If there is enough samples to send the server to match the server's framerate, send it
-		if (sample >= FRAMERATE)
+		if (sample >= FRAME_SIZE)
 		{
 			// Get the capture samples
-			alcCaptureSamples(capture_device, (ALCvoid *)buffer, FRAMERATE);
+			alcCaptureSamples(capture_device, (ALCvoid *)buffer, FRAME_SIZE);
+
+			// Copy all PCM 16-bit short to an array of floats
+			for (size_t i = 0; i < FRAME_SIZE; i++)
+			{
+				rnnoise_buffer[i] = ((opus_int16 *)buffer)[i];
+			}
+
+			// Process frame using RNNoise to reduce background noise
+			float f = rnnoise_process_frame(rnnoise_state, rnnoise_buffer, rnnoise_buffer);
+
+			// Copy back the result data to the buffer
+			for (size_t i = 0; i < FRAME_SIZE; i++)
+			{
+				((opus_int16 *)buffer)[i] = rnnoise_buffer[i];
+			}
 
 			// Encode the captured data
-			dataLen = opus_encode(opus_encoder, (const opus_int16 *)buffer, FRAMERATE, encoded_buffer, FRAMERATE * RECORD_CHANNELS * sizeof(opus_int16));
+			dataLen = opus_encode(opus_encoder, (const opus_int16 *)buffer, FRAME_SIZE, encoded_buffer, FRAME_SIZE * sizeof(opus_int16));
 
 			// Create the voice packet and encode it
 			voice_packet = VoicePacket(_user_id, _session_id, _channel_id, (char *)encoded_buffer, dataLen);
@@ -85,6 +107,9 @@ void VoiceChat::sendVoiceThread()
 			_socket.send_to(asio::buffer(voice_packet_encoded.c_str(), voice_packet_encoded.length()), _endpoint);
 		}
 	}
+
+	// Deallocate the RNNoise state
+	rnnoise_destroy(rnnoise_state);
 
 	// Stop the capture
 	alcCaptureStop(capture_device);
@@ -99,7 +124,7 @@ void VoiceChat::recvVoiceThread()
 	char recv_buffer[RECV_BUFFER_SIZE] = {0};
 
 	OpusDecoder *opus_decoder;
-	opus_int16 pcm[FRAMERATE * RECORD_CHANNELS] = {0};
+	opus_int16 pcm[FRAME_SIZE] = {0};
 
 	ALCcontext *context;
 	ALCdevice *device;
@@ -146,10 +171,10 @@ void VoiceChat::recvVoiceThread()
 			voice_packet.decode(std::string(recv_buffer, recv_bytes));
 
 			// Decode the current sample from the client
-			decoded_size = opus_decode(opus_decoder, (const unsigned char *)voice_packet.voice_data(), voice_packet.voice_data_len(), (opus_int16 *)pcm, FRAMERATE, 0);
+			decoded_size = opus_decode(opus_decoder, (const unsigned char *)voice_packet.voice_data(), voice_packet.voice_data_len(), (opus_int16 *)pcm, FRAME_SIZE, 0);
 
 			// Fill buffer
-			alBufferData(buffer, AL_FORMAT_STEREO16, pcm, decoded_size * sizeof(opus_int16) * RECORD_CHANNELS, RECORD_FREQUENCY);
+			alBufferData(buffer, AL_FORMAT_MONO16, pcm, decoded_size * sizeof(opus_int16), RECORD_FREQUENCY);
 
 			// Queue the buffer to the source
 			alSourceQueueBuffers(source, 1, &buffer);

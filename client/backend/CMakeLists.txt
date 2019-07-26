@@ -14,8 +14,14 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/../../thirdparty)
 set(CMAKE_CXX_FLAGS_RELEASE "/MD")
 set(CMAKE_CXX_FLAGS_DEBUG "/MDd")
 
+# Compile Opus
 add_subdirectory(../../vendor/opus opus)
 include_directories(../../vendor/opus/include)
+
+# Compile RNNoise
+set (RNNOISE_COMPILE_OPUS OFF)
+add_subdirectory(../../vendor/rnnoise-cmake rnnoise)
+include_directories(../../vendor/rnnoise-cmake/include)
 
 # Windows dependencies
 IF (WIN32)
@@ -86,4 +92,4 @@ string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
 
 # Compile the library
-target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBS} ${OPENAL_LIBS} ${CMAKE_JS_LIB} opus)
+target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBS} ${OPENAL_LIBS} ${CMAKE_JS_LIB} opus rnnoise)
