@@ -10,8 +10,9 @@ smth.connect("127.0.0.1")
             .then(() => {
                 smth.getPrivateChannel("530e9407-7cfd-4be4-9cc6-70ab38e6310c")
                     .then(res => {
-                        console.log(res)                       
+                        console.log(res)                  
 
+						smth.call(res.channel.id)
                         smth.sendMessage("😀", res.channel.id)
                             .then(() => {
                                 smth.getChannelMessages(res.channel.id, 100, 0)
