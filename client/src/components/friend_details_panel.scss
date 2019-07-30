@@ -1,0 +1,44 @@
+.quesync-friend-details-panel {
+	width: 200px;
+
+	background: #393939;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.quesync-friend-avatar {
+	padding-top: 40px;
+	padding-bottom: 26px;
+
+	height: 64px;
+	width: 64px;
+}
+
+.quesync-friend-avatar .rmwc-avatar__icon {
+	height: 64px;
+	width: 64px;
+
+	border-radius: 32px;
+}
+
+.quesync-friend-nickname-tag {
+	line-height: 25px;
+
+	text-align: center;
+
+	color: grey;
+}
+
+.quesync-friend-nickname {
+	font-size: 29px;
+
+	color: white;
+}
+
+.quesync-friend-tag {
+	font-size: 16px;
+
+	color: #00b0ff;
+}

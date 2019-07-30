@@ -5,6 +5,7 @@ import DrawerPage from "../components/page_layouts/drawer_page";
 import DrawerItem from "../components/drawer_item";
 import FriendRequestItem from "../components/friend_request_item";
 import TextChannel from "../components/text_channel";
+import FriendDetailsPanel from "../components/friend_details_panel";
 
 import {
 	setFriendsPageSelectedTab,
@@ -71,6 +72,7 @@ class FriendsPage extends Component {
 		);
 
 		const currentSelectedFriendId = this.props.selectedDrawerItemId;
+		const currentSelectedFriend = this.props.profiles[this.props.selectedDrawerItemId];
 
 		return (
 			<DrawerPage
@@ -129,12 +131,17 @@ class FriendsPage extends Component {
 				drawerTabsBadges={[
 					this.props.allFriendsBadge,
 					this.props.pendingFriendsBadge
-				]}
-			>
+				]}>
 				{currentSelectedFriendId ? (
-					<TextChannel
-						channelId={this.getPrivateChannelId(currentSelectedFriendId)}
-					/>
+					<div className="quesync-friend-page">
+						<TextChannel
+							channelId={this.getPrivateChannelId(currentSelectedFriendId)}
+						/>
+						<FriendDetailsPanel 
+							nickname={currentSelectedFriend.nickname}
+							tag={currentSelectedFriend.tag}
+							avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"/>
+					</div>
 				) : null}
 			</DrawerPage>
 		);

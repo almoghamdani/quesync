@@ -1,5 +1,7 @@
 .quesync-text-channel {
-	min-width: 100%;
+	// Fill parent
+	flex-grow: 1;
+
 	min-height: 100%;
 
 	display: flex;
