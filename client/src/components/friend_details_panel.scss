@@ -6,10 +6,16 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: space-around;
+}
+
+.quesync-friend-details {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .quesync-friend-avatar {
-	padding-top: 40px;
 	padding-bottom: 26px;
 
 	height: 64px;
