@@ -33,7 +33,7 @@ class App extends Component {
 					...this.props.style
 				}}
 				options={{
-					primary: "#00A8E8",
+					primary: "#00b0ff",
 					secondary: "#212121",
 					onSurface: "rgba(255,255,255,.87)"
 				}}
