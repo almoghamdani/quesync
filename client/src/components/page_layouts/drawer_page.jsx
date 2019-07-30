@@ -34,7 +34,7 @@ class DrawerPage extends Component {
 			this.setState({ selectedDrawerTab: this.props.selectedDrawerTab });
 
 		return (
-			<div className="quesync-page">
+			<div className={"quesync-page " + this.props.className}>
 				<Drawer className="quesync-drawer">
 					<DrawerContent className="quesync-drawer-content">
 						{this.props.drawerTabs ? (
