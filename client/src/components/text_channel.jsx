@@ -9,6 +9,7 @@ import FadeTransition from "./fade_transition";
 
 import MessageBubble from "../components/message_bubble";
 import MessageField from "../components/message_field";
+import Seperator from "../components/seperator";
 
 import {
 	sendMessage,
@@ -112,7 +113,7 @@ class TextChannel extends Component {
 						/>
 					</Scrollbars>
 				</div>
-				<div className="quesync-seperator" />
+				<Seperator />
 				<MessageField
 					value={
 						this.props.newMessages[this.props.channelId]
