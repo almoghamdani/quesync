@@ -1,16 +1,15 @@
 import React, { Component } from "react";
 
-import { Elevation } from "@rmwc/elevation";
 import { Typography } from "@rmwc/typography";
 import { Avatar } from "@rmwc/avatar";
-import { Button } from "@rmwc/button";
+import { IconButton } from "@rmwc/icon-button";
 
-import "./friend_details_panel.scss";
+import "./friend_details.scss";
 
-class FriendDetailsPanel extends Component {
+class FriendDetails extends Component {
 	render() {
 		return (
-			<Elevation z={10} className="quesync-friend-details-panel">
+			<div className="quesync-friend-details-wrapper" style={this.props.style}>
 				<div className="quesync-friend-details">
 					<Avatar
 						className="quesync-friend-avatar"
@@ -25,11 +24,16 @@ class FriendDetailsPanel extends Component {
 					</Typography>
 				</div>
 				<div className="quesync-friend-actions">
-					<Button raised icon="call">Call</Button>
+					<IconButton
+						icon="call"
+						label="Call"
+						style={{ color: "var(--mdc-theme-primary)" }}
+						onClick={() => this.props.startCall()}
+					/>
 				</div>
-			</Elevation>
+			</div>
 		);
 	}
 }
 
-export default FriendDetailsPanel;
+export default FriendDetails;

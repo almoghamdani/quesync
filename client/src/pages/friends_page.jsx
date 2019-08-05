@@ -5,7 +5,7 @@ import DrawerPage from "../components/page_layouts/drawer_page";
 import DrawerItem from "../components/drawer_item";
 import FriendRequestItem from "../components/friend_request_item";
 import TextChannel from "../components/text_channel";
-import FriendDetailsPanel from "../components/friend_details_panel";
+import SidePanel from "../components/side_panel";
 
 import {
 	setFriendsPageSelectedTab,
@@ -72,7 +72,9 @@ class FriendsPage extends Component {
 		);
 
 		const currentSelectedFriendId = this.props.selectedDrawerItemId;
-		const currentSelectedFriend = this.props.profiles[this.props.selectedDrawerItemId];
+		const currentSelectedFriend = this.props.profiles[
+			this.props.selectedDrawerItemId
+		];
 
 		return (
 			<DrawerPage
@@ -137,10 +139,14 @@ class FriendsPage extends Component {
 						<TextChannel
 							channelId={this.getPrivateChannelId(currentSelectedFriendId)}
 						/>
-						<FriendDetailsPanel 
-							nickname={currentSelectedFriend.nickname}
-							tag={currentSelectedFriend.tag}
-							avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"/>
+						<SidePanel
+							friend={{
+								nickname: currentSelectedFriend.nickname,
+								tag: currentSelectedFriend.tag,
+								avatarUrl:
+									"https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+							}}
+						/>
 					</div>
 				) : null}
 			</DrawerPage>

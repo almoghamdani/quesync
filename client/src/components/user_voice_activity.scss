@@ -1,0 +1,21 @@
+.quesync-user-voice-activity {
+	height: 30px;
+	width: 30px;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.quesync-user-voice-activity .quesync-user-voice-activity-avatar {
+	height: 24px;
+	width: 24px;
+
+	border-radius: 12px;
+
+	transition: box-shadow 0.2s ease-in-out;
+}
+
+.quesync-user-voice-activity-talking .quesync-user-voice-activity-avatar {
+	box-shadow: 0 0 2px 2px #40c4ff;
+}
