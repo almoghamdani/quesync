@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import { store } from "./store";
 
@@ -6,14 +6,19 @@ import { addPingValue } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";
 import { addMessageToChannel } from "./actions/messagesActions";
 
-import updater from "./updater"
+import updater from "./updater";
 import { queue } from "./messages_queue";
+
+const { ipcRenderer } = window.require("electron");
 
 class EventHandler {
 	register = client => {
 		client.registerEventHandler("ping", this.pingEvent);
 		client.registerEventHandler("friend-request", this.friendRequestEvent);
-		client.registerEventHandler("friendship-status", this.friendshipStatusEvent);
+		client.registerEventHandler(
+			"friendship-status",
+			this.friendshipStatusEvent
+		);
 		client.registerEventHandler("message", this.messageEvent);
 		client.registerEventHandler("incoming-call", this.incomingCallEvent);
 	};
@@ -39,18 +44,26 @@ class EventHandler {
 		await store.dispatch(
 			setUser({
 				...user,
-				friendRequests: [...user.friendRequests, { friendId, sentAt, friendType: "requester" }]
+				friendRequests: [
+					...user.friendRequests,
+					{ friendId, sentAt, friendType: "requester" }
+				]
 			})
 		);
 
 		// Show a notification with the new friend request
 		queue.notify({
 			title: <b>New Friend Request</b>,
-			body: <span>You have a new friend request from <b>{store.getState().users.profiles[friendId].nickname}</b></span>,
+			body: (
+				<span>
+					You have a new friend request from{" "}
+					<b>{store.getState().users.profiles[friendId].nickname}</b>
+				</span>
+			),
 			icon: "person_add",
 			actions: [
 				{
-					title: 'Dismiss'
+					title: "Dismiss"
 				}
 			]
 		});
@@ -62,7 +75,9 @@ class EventHandler {
 		const { friendId, status } = event;
 
 		// Try to find the friend request
-		const friendRequest = user.friendRequests.find(req => req.friendId === friendId);
+		const friendRequest = user.friendRequests.find(
+			req => req.friendId === friendId
+		);
 
 		// If the friend request has been found
 		if (friendRequest) {
@@ -72,7 +87,9 @@ class EventHandler {
 				await store.dispatch(
 					setUser({
 						...user,
-						friendRequests: user.friendRequests.filter(req => req.friendId !== friendId),
+						friendRequests: user.friendRequests.filter(
+							req => req.friendId !== friendId
+						),
 						friends: [...user.friends, friendId]
 					})
 				);
@@ -80,11 +97,16 @@ class EventHandler {
 				// Show a notification with the new friend
 				queue.notify({
 					title: <b>Friend Request Approved</b>,
-					body: <span><b>{store.getState().users.profiles[friendId].nickname}</b> has approved your friend request</span>,
+					body: (
+						<span>
+							<b>{store.getState().users.profiles[friendId].nickname}</b> has
+							approved your friend request
+						</span>
+					),
 					icon: "person_add",
 					actions: [
 						{
-							title: 'Dismiss'
+							title: "Dismiss"
 						}
 					]
 				});
@@ -93,18 +115,33 @@ class EventHandler {
 				await store.dispatch(
 					setUser({
 						...user,
-						friendRequests: user.friendRequests.filter(req => req.friendId !== friendId)
+						friendRequests: user.friendRequests.filter(
+							req => req.friendId !== friendId
+						)
 					})
 				);
 
 				// Show a notification with the rejected friend request
 				queue.notify({
-					title: <b>{friendRequest.friendType === "requester" ? "Friend Request Removed" : "Friend Request Rejected"}</b>,
-					body: <span><b>{store.getState().users.profiles[friendId].nickname}</b> has {friendRequest.friendType === "requester" ? "removed his friend request to you" : "rejected your friend request"}</span>,
+					title: (
+						<b>
+							{friendRequest.friendType === "requester"
+								? "Friend Request Removed"
+								: "Friend Request Rejected"}
+						</b>
+					),
+					body: (
+						<span>
+							<b>{store.getState().users.profiles[friendId].nickname}</b> has{" "}
+							{friendRequest.friendType === "requester"
+								? "removed his friend request to you"
+								: "rejected your friend request"}
+						</span>
+					),
 					icon: "person_add",
 					actions: [
 						{
-							title: 'Dismiss'
+							title: "Dismiss"
 						}
 					]
 				});
@@ -121,16 +158,21 @@ class EventHandler {
 			// Show a notification with the rejected friend request
 			queue.notify({
 				title: <b>Friend Removed</b>,
-				body: <span><b>{store.getState().users.profiles[friendId].nickname}</b> has removed you from his friends list</span>,
+				body: (
+					<span>
+						<b>{store.getState().users.profiles[friendId].nickname}</b> has
+						removed you from his friends list
+					</span>
+				),
 				icon: "person",
 				actions: [
 					{
-						title: 'Dismiss'
+						title: "Dismiss"
 					}
 				]
 			});
 		}
-	}
+	};
 
 	messageEvent = event => {
 		var message = { ...event.message };
@@ -141,13 +183,35 @@ class EventHandler {
 
 		// Add message to channel
 		store.dispatch(addMessageToChannel(message, channelId));
-	}
+	};
 
 	incomingCallEvent = event => {
-		var channelId = event.channelId;
+		const state = store.getState();
+		const channels = state.channels.channels;
+		const privateChannels = state.channels.privateChannels;
+		const profiles = state.users.profiles;
 
-		console.log("Call from channel " + channelId);
-	}
+		const channelId = event.channelId;
+		const channel = channels[channelId];
+
+		// If the channel exists
+		if (channel) {
+			// If the channel is a private channel
+			if (channel.isPrivate) {
+				// Get the caller information
+				const callerId = Object.keys(privateChannels).find(key => privateChannels[key] === channelId);
+				const callerProfile = profiles[callerId];
+
+				// Create the call window
+				ipcRenderer.send("create-call-window", {
+					id: channelId,
+					nickname: callerProfile.nickname,
+					avatar:
+						"https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+				});
+			}
+		}
+	};
 }
 
-export default new EventHandler()
+export default new EventHandler();
