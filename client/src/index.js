@@ -7,7 +7,6 @@ import "./index.scss";
 
 import Layout from "./layout";
 import StartPage from "./start_page";
-import CallWindow from "./call_window";
 
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./store";
@@ -19,10 +18,14 @@ const callingWindow = window.location.search.includes("calling");
 const app = document.getElementById("root");
 
 if (callingWindow) {
-	ReactDOM.render(
-		<CallWindow {...queryString.parse(window.location.search)} />,
-		app
-	);
+	import("./call_window").then(module => {
+		const CallWindow = module.default;
+
+		ReactDOM.render(
+			<CallWindow {...queryString.parse(window.location.search)} />,
+			app
+		);
+	});
 } else {
 	ReactDOM.render(
 		<Provider store={store}>

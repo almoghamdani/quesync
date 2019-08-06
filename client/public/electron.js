@@ -3,9 +3,12 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
 const path = require("path");
+const os = require("os");
 const isDev = require("electron-is-dev");
 
-const os = require("os");
+const queryString = require("query-string");
+
+// Find the backend library and load it
 const backend_name =
 	os.platform() === "darwin" ? "backend.node" : "Release/backend.node";
 const quesync = require(isDev
@@ -16,7 +19,65 @@ const quesync = require(isDev
 let mainWindow;
 
 // Create a new backend client
-var client = new quesync.Client();
+let client = new quesync.Client();
+
+let callWindows = {};
+
+electron.ipcMain.on("create-call-window", (_, callDetails) => {
+	const query = queryString.stringify(callDetails);
+
+	// Create the call window
+	callWindows[callDetails.id] = new BrowserWindow({
+		width: 270,
+		height: 390,
+		titleBarStyle: "hidden",
+		frame: false,
+		webPreferences: { nodeIntegration: true },
+		fullscreenable: false,
+		resizable: false,
+		transparent: true,
+		center: true,
+		parent: mainWindow
+	});
+
+	// Load the calling window's content using the query
+	callWindows[callDetails.id].loadURL(
+		isDev
+			? "http://localhost:3000?calling&" + query
+			: `file://${path.join(__dirname, "../build/index.html?calling&" + query)}`
+	);
+
+	callWindows[callDetails.id].on("close", evt => {
+		// If the window should still be open, keep it open
+		if (callWindows[callDetails.id]) evt.preventDefault();
+	});
+});
+
+electron.ipcMain.on("close-call-window", (_, channelId) => {
+	const callWindow = callWindows[channelId];
+
+	// If there is a window with the call id
+	if (callWindow) {
+		callWindows[channelId] = undefined;
+
+		// Close the window
+		callWindow.close();
+	}
+});
+
+electron.ipcMain.on("close-all-call-windows", () => {
+	const callWindowsCopy = { ...callWindows };
+
+	if (callWindowsCopy) {
+		// Erase all the call windows object
+		callWindows = {};
+
+		// Close all call windows
+		Object.keys(callWindowsCopy).forEach(callId => {
+			callWindowsCopy[callWindowsCopy].close();
+		});
+	}
+});
 
 function createWindow() {
 	// Create a new browser window with a fixed initial size
