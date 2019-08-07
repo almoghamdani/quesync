@@ -22,6 +22,9 @@ class CallDetails extends Component {
 					</Typography>
 					<Scrollbars autoHide>
 						<List className="quesync-call-participants">
+							{this.props.userVoiceStates.map(userVoiceState => (
+								<UserVoiceDetails key={userVoiceState.id} {...userVoiceState} />
+							))}
 						</List>
 					</Scrollbars>
 				</div>

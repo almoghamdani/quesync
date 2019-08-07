@@ -5,6 +5,7 @@ import { store } from "./store";
 import { addPingValue } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";
 import { addMessageToChannel } from "./actions/messagesActions";
+import { setVoiceState } from "./actions/voiceActions";
 
 import updater from "./updater";
 import { queue } from "./messages_queue";
@@ -21,6 +22,7 @@ class EventHandler {
 		);
 		client.registerEventHandler("message", this.messageEvent);
 		client.registerEventHandler("incoming-call", this.incomingCallEvent);
+		client.registerEventHandler("voice-state", this.voiceStateEvent);
 	};
 
 	pingEvent = async event => {
@@ -199,7 +201,9 @@ class EventHandler {
 			// If the channel is a private channel
 			if (channel.isPrivate) {
 				// Get the caller information
-				const callerId = Object.keys(privateChannels).find(key => privateChannels[key] === channelId);
+				const callerId = Object.keys(privateChannels).find(
+					key => privateChannels[key] === channelId
+				);
 				const callerProfile = profiles[callerId];
 
 				// Create the call window
@@ -211,6 +215,10 @@ class EventHandler {
 				});
 			}
 		}
+	};
+
+	voiceStateEvent = event => {
+		store.dispatch(setVoiceState(event.userId, event.voiceState));
 	};
 }
 

@@ -146,6 +146,7 @@ class FriendsPage extends Component {
 								avatarUrl:
 									"https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
 							}}
+							channelId={this.getPrivateChannelId(currentSelectedFriendId)}
 						/>
 					</div>
 				) : null}

@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import { connect } from "react-redux";
+
 import { Elevation } from "@rmwc/elevation";
 
 import anime from "animejs";
@@ -9,12 +11,38 @@ import FriendDetails from "./friend_details";
 import CallDetails from "./call_details";
 import Seperator from "./seperator";
 
+import { call } from "../actions/voiceActions";
+
 import "./side_panel.scss";
 
 class SidePanel extends Component {
-	state = {
-		inCall: false
-	};
+	parseVoiceStates() {
+		let userVoiceStates = [];
+
+		// Add the user itself
+		userVoiceStates.push({
+			nickname: this.props.user.nickname,
+			avatar:
+				"https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png",
+			calling: false
+		});
+
+		// For each user
+		for (const userId in this.props.voiceStates) {
+			// If connected or pending
+			if (this.props.voiceStates[userId]) {
+				userVoiceStates.push({
+					id: userId,
+					nickname: this.props.profiles[userId].nickname,
+					avatar:
+						"https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png",
+					calling: this.props.voiceStates[userId] === 2
+				});
+			}
+		}
+
+		return userVoiceStates;
+	}
 
 	render() {
 		const enterTransition = content =>
@@ -35,16 +63,14 @@ class SidePanel extends Component {
 					tag={this.props.friend.tag}
 					style={{ height: "100%" }}
 					startCall={() =>
-						this.setState({
-							inCall: true
-						})
+						this.props.dispatch(call(this.props.client, this.props.channelId))
 					}
 				/>
-				<Seperator style={{ opacity: this.state.inCall ? 1 : 0 }} />
+				<Seperator style={{ opacity: this.props.inCall ? 1 : 0 }} />
 				<Transition
 					appear
 					unmountOnExit
-					in={this.state.inCall}
+					in={this.props.inCall}
 					timeout={800}
 					onEnter={enterTransition}>
 					<CallDetails
@@ -52,8 +78,9 @@ class SidePanel extends Component {
 							minHeight: 0,
 							height: 0,
 							opacity: 0,
-							pointerEvents: this.state.inCall ? "" : "none"
+							pointerEvents: this.props.inCall ? "" : "none"
 						}}
+						userVoiceStates={this.props.inCall ? this.parseVoiceStates() : []}
 					/>
 				</Transition>
 			</Elevation>
@@ -61,4 +88,11 @@ class SidePanel extends Component {
 	}
 }
 
-export default SidePanel;
+export default connect(state => ({
+	client: state.client.client,
+	user: state.user.user,
+	inCall: !!state.voice.channelId,
+	voiceChannelId: state.voice.channelId,
+	voiceStates: state.voice.voiceStates,
+	profiles: state.users.profiles
+}))(SidePanel);

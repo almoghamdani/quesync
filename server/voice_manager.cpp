@@ -244,7 +244,7 @@ void VoiceManager::handle_voice_states()
 			for (auto& user : channel.second)
 			{
 				// If pending time exceeded, change the user's state
-				if (user.second.change_time() - current_time > MAX_PENDING_SECONDS)
+				if (current_time - user.second.change_time() > MAX_PENDING_SECONDS)
 				{
 					_voice_channels[channel.first][user.first] = DISCONNECTED;
 					trigger_voice_state_event(channel.first, user.first, DISCONNECTED);

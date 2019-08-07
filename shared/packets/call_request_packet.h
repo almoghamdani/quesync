@@ -30,16 +30,16 @@ public:
 		IncomingCallEvent call_event;
 
 		std::string voice_session_id;
-
+		std::unordered_map<std::string, VoiceState> voice_states;
 		std::vector<std::string> users;
 
 		nlohmann::json res;
 
 		// If the user is not authenticed, send error
-        if (!session->authenticated())
-        {
-            return ErrorPacket(NOT_AUTHENTICATED).encode();
-        }
+		if (!session->authenticated())
+		{
+			return ErrorPacket(NOT_AUTHENTICATED).encode();
+		}
 
 		try
 		{
@@ -56,8 +56,15 @@ public:
 			// Join the voice channel
 			session->server()->voiceManager()->joinVoiceChannel(session->user()->id(), _data["channelId"]);
 
-			// Set the res
+			// Get the voice states of the channel
+			voice_states = session->server()->voiceManager()->get_voice_states(_data["channelId"]);
+
+			// Remove the user from the voice states
+			voice_states.erase(session->user()->id());
+
+			// Set the voice session id and the voice states
 			res["voiceSessionId"] = voice_session_id;
+			res["voiceStates"] = voice_states;
 
 			// Create the call event
 			call_event = IncomingCallEvent(_data["channelId"]);
@@ -79,9 +86,10 @@ public:
 			// Return the error code
 			return ErrorPacket(ex.getErrorCode()).encode();
 		}
-		catch (...) {
-            return ErrorPacket(UNKNOWN_ERROR).encode(); 
-        }
+		catch (...)
+		{
+			return ErrorPacket(UNKNOWN_ERROR).encode();
+		}
 	};
 #endif
 };

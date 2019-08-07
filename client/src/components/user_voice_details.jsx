@@ -9,7 +9,7 @@ import "./user_voice_details.scss";
 class UserVoiceDetails extends Component {
 	render() {
 		return (
-			<div className="quesync-user-voice-details">
+			<div className="quesync-user-voice-details" key={this.props.key}>
 				<UserVoiceActivity
 					calling={this.props.calling}
 					avatar={this.props.avatar}
