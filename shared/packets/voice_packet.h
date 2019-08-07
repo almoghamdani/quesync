@@ -44,7 +44,7 @@ public:
 			_channel_id = params[2];
 			
 			// Parse voice data
-			_voice_data_len = buf.length() - (_user_id.length() + _session_id.length() + _channel_id.length() + 4);
+			_voice_data_len = (unsigned int)(buf.length() - (_user_id.length() + _session_id.length() + _channel_id.length() + 4));
 			_voice_data = new char[_voice_data_len];
 			memcpy(_voice_data, buf.c_str() + (_user_id.length() + _session_id.length() + _channel_id.length() + 3), _voice_data_len);
 		} else {

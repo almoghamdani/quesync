@@ -1,6 +1,8 @@
 #include "voice-chat.h"
 
 #include <chrono>
+#include <ctime>
+#include <limits>
 #include <rnnoise.h>
 
 #include "../../../shared/utils.h"
@@ -36,20 +38,22 @@ VoiceChat::~VoiceChat()
 
 void VoiceChat::sendVoiceThread()
 {
-	int dataLen = 0;
-	unsigned char encoded_buffer[FRAME_SIZE * sizeof(opus_int16)] = {0};
-
-	ALbyte buffer[FRAME_SIZE * sizeof(opus_int16)] = {0};
-	float rnnoise_buffer[FRAME_SIZE] = {0};
+	int16_t buffer[FRAME_SIZE] = {0};
 	ALint sample = 0;
 	ALCdevice *capture_device;
 
 	int opus_error;
 	OpusEncoder *opus_encoder;
+	int encodedDataLen = 0;
+	int16_t encoded_buffer[FRAME_SIZE] = {0};
 
-	// Allocate RNNoise state
-	DenoiseState *rnnoise_state;
-	rnnoise_state = rnnoise_create(NULL);
+	float rnnoise_buffer[FRAME_SIZE] = {0};
+	DenoiseState *rnnoise_state = rnnoise_create(NULL);
+
+	uint8_t current_db_sample = 0;
+	int16_t db_check_samples[FRAME_SIZE * (CHECK_DB_TIMEOUT / 10)];
+	double db = 0;
+	uint64_t last_activated = get_ms();
 
 	VoicePacket voice_packet;
 	std::string voice_packet_encoded;
@@ -83,7 +87,7 @@ void VoiceChat::sendVoiceThread()
 			alcCaptureSamples(capture_device, (ALCvoid *)buffer, FRAME_SIZE);
 
 			// Copy all PCM 16-bit short to an array of floats
-			for (size_t i = 0; i < FRAME_SIZE; i++)
+			for (int i = 0; i < FRAME_SIZE; i++)
 			{
 				rnnoise_buffer[i] = ((opus_int16 *)buffer)[i];
 			}
@@ -92,20 +96,44 @@ void VoiceChat::sendVoiceThread()
 			float f = rnnoise_process_frame(rnnoise_state, rnnoise_buffer, rnnoise_buffer);
 
 			// Copy back the result data to the buffer
-			for (size_t i = 0; i < FRAME_SIZE; i++)
+			for (int i = 0; i < FRAME_SIZE; i++)
 			{
-				((opus_int16 *)buffer)[i] = rnnoise_buffer[i];
+				((opus_int16 *)buffer)[i] = (opus_int16)rnnoise_buffer[i];
 			}
 
-			// Encode the captured data
-			dataLen = opus_encode(opus_encoder, (const opus_int16 *)buffer, FRAME_SIZE, encoded_buffer, FRAME_SIZE * sizeof(opus_int16));
+			// Copy the current sample to the buffer of db check samples
+			for (int i = 0; i < FRAME_SIZE; i++)
+			{
+				db_check_samples[current_db_sample * FRAME_SIZE + i] = buffer[i];
+			}
 
-			// Create the voice packet and encode it
-			voice_packet = VoicePacket(_user_id, _session_id, _channel_id, (char *)encoded_buffer, dataLen);
-			voice_packet_encoded = voice_packet.encode();
+			// Check if reached the amount of samples needed for db check
+			current_db_sample++;
+			if (current_db_sample >= (CHECK_DB_TIMEOUT / 10))
+			{
+				current_db_sample = 0;
 
-			// Send the encoded voice packet to the server
-			_socket.send_to(asio::buffer(voice_packet_encoded.c_str(), voice_packet_encoded.length()), _endpoint);
+				// Calculate the db of the db check samples
+				db = calc_db(calc_rms(db_check_samples, FRAME_SIZE * (CHECK_DB_TIMEOUT / 10)));
+			}
+
+			// If the current samples are over the minimum db or we are in the stop transition time
+			if (db > MINIMUM_DB || get_ms() - last_activated < VOICE_DEACTIVATE_DELAY)
+			{
+				// Encode the captured data
+				encodedDataLen = opus_encode(opus_encoder, (const opus_int16 *)buffer, FRAME_SIZE, (unsigned char *)encoded_buffer, FRAME_SIZE * sizeof(opus_int16));
+
+				// Create the voice packet and encode it
+				voice_packet = VoicePacket(_user_id, _session_id, _channel_id, (char *)encoded_buffer, encodedDataLen);
+				voice_packet_encoded = voice_packet.encode();
+
+				// Send the encoded voice packet to the server
+				_socket.send_to(asio::buffer(voice_packet_encoded.c_str(), voice_packet_encoded.length()), _endpoint);
+
+				// If the current samples are over the minimum db, set the last played time
+				if (db > MINIMUM_DB)
+					last_activated = get_ms();
+			}
 		}
 	}
 
@@ -125,7 +153,7 @@ void VoiceChat::recvVoiceThread()
 	char recv_buffer[RECV_BUFFER_SIZE] = {0};
 
 	OpusDecoder *opus_decoder;
-	opus_int16 pcm[FRAME_SIZE] = {0};
+	int16_t pcm[FRAME_SIZE] = {0};
 
 	ALCcontext *context;
 	ALCdevice *device;
@@ -163,7 +191,7 @@ void VoiceChat::recvVoiceThread()
 		alGenBuffers((ALuint)1, &buffer);
 
 		// Receive from the server the encoded voice sample into the recv buffer
-		recv_bytes = _socket.receive_from(asio::buffer(recv_buffer, RECV_BUFFER_SIZE), sender_endpoint);
+		recv_bytes = (int)_socket.receive_from(asio::buffer(recv_buffer, RECV_BUFFER_SIZE), sender_endpoint);
 
 		// If the sender is the server endpoint handle the voice sample
 		if (sender_endpoint == _endpoint)
@@ -175,7 +203,7 @@ void VoiceChat::recvVoiceThread()
 			decoded_size = opus_decode(opus_decoder, (const unsigned char *)voice_packet.voice_data(), voice_packet.voice_data_len(), (opus_int16 *)pcm, FRAME_SIZE, 0);
 
 			// Fill buffer
-			alBufferData(buffer, AL_FORMAT_MONO16, pcm, decoded_size * sizeof(opus_int16), RECORD_FREQUENCY);
+			alBufferData(buffer, AL_FORMAT_MONO16, (opus_int16 *)pcm, decoded_size * sizeof(opus_int16), RECORD_FREQUENCY);
 
 			// Queue the buffer to the source
 			alSourceQueueBuffers(source, 1, &buffer);
@@ -199,6 +227,34 @@ void VoiceChat::recvVoiceThread()
 
 	// Close the device
 	alcCloseDevice(device);
+}
+
+double VoiceChat::calc_rms(int16_t *data, uint32_t size)
+{
+	double square_sum = 0, rms;
+	float relative_value;
+
+	const float max_value = std::numeric_limits<int16_t>::max();
+
+	for (unsigned int i = 0; i < size; i++)
+	{
+		relative_value = data[i] / max_value;
+		square_sum += relative_value * relative_value;
+	}
+
+	rms = sqrt(square_sum / size);
+	return rms;
+}
+
+double VoiceChat::calc_db(double rms)
+{
+	return 20 * log10(rms / AMP_REF);
+}
+
+uint64_t VoiceChat::get_ms()
+{
+	using namespace std::chrono;
+	return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 void VoiceChat::cleanUnusedBuffers(ALuint source)

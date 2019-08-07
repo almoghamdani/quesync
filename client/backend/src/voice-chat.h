@@ -18,6 +18,11 @@
 
 #define RECV_BUFFER_SIZE 8192
 
+#define AMP_REF 0.00001
+#define CHECK_DB_TIMEOUT 30
+#define MINIMUM_DB 40
+#define VOICE_DEACTIVATE_DELAY 100
+
 class VoiceChat
 {
 public:
@@ -37,6 +42,11 @@ private:
 
 	void sendVoiceThread();
 	void recvVoiceThread();
+
+	double calc_rms(int16_t *data, uint32_t size);
+	double calc_db(double rms);
+
+	uint64_t get_ms();
 
 	void cleanUnusedBuffers(ALuint source);
 	bool isSourcePlaying(ALuint source);
