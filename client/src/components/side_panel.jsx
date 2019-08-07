@@ -21,6 +21,7 @@ class SidePanel extends Component {
 
 		// Add the user itself
 		userVoiceStates.push({
+			id: this.props.user.id,
 			nickname: this.props.user.nickname,
 			avatar:
 				"https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png",

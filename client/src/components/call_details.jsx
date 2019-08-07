@@ -1,10 +1,13 @@
 import React, { Component } from "react";
 
 import { Scrollbars } from "react-custom-scrollbars";
+import { TransitionGroup } from "react-transition-group";
 
 import { Typography } from "@rmwc/typography";
 import { List } from "@rmwc/list";
 import { IconButton } from "@rmwc/icon-button";
+
+import FadeTransition from "./fade_transition";
 
 import UserVoiceDetails from "./user_voice_details";
 
@@ -22,9 +25,16 @@ class CallDetails extends Component {
 					</Typography>
 					<Scrollbars autoHide>
 						<List className="quesync-call-participants">
-							{this.props.userVoiceStates.map(userVoiceState => (
-								<UserVoiceDetails key={userVoiceState.id} {...userVoiceState} />
-							))}
+							<TransitionGroup>
+								{this.props.userVoiceStates.map(userVoiceState => (
+									<FadeTransition timeout={200} key={userVoiceState.id}>
+										<UserVoiceDetails
+											key={userVoiceState.id}
+											{...userVoiceState}
+										/>
+									</FadeTransition>
+								))}
+							</TransitionGroup>
 						</List>
 					</Scrollbars>
 				</div>
