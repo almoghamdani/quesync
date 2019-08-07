@@ -30,6 +30,15 @@ body {
 	-webkit-app-region: drag;
 }
 
+.quesync-call-avatar-wrapper {
+	width: 120px;
+	height: 120px;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 .quesync-call-avatar {
 	margin-top: 20px;
 
@@ -58,4 +67,6 @@ body {
 	margin-bottom: 12px;
 
 	width: 200px;
+
+	color: white !important;
 }

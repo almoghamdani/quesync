@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import anime from "animejs";
+
 import { ThemeProvider } from "@rmwc/theme";
 import { Elevation } from "@rmwc/elevation";
 import { Typography } from "@rmwc/typography";
@@ -10,6 +12,19 @@ import "./call_window.scss";
 const { ipcRenderer } = window.require("electron");
 
 class CallWindow extends Component {
+	componentDidMount() {
+		anime({
+			targets: ".quesync-call-avatar",
+			duration: 350,
+			easing: "easeOutElastic(1.2, 0.55)",
+			loop: true,
+			direction: "alternate",
+			height: ["70px", "110px"],
+			width: ["70px", "110px"],
+			borderRadius: ["35px", "55px"]
+		});
+	}
+
 	render() {
 		return (
 			<ThemeProvider
@@ -21,11 +36,13 @@ class CallWindow extends Component {
 					onSurface: "rgba(255,255,255,.87)"
 				}}>
 				<Elevation className="quesync-call-window-content" z={6}>
-					<img
-						className="quesync-call-avatar"
-						src={this.props.avatar}
-						alt="Incoming Call"
-					/>
+					<div className="quesync-call-avatar-wrapper">
+						<img
+							className="quesync-call-avatar"
+							src={this.props.avatar}
+							alt="Incoming Call"
+						/>
+					</div>
 					<Typography className="quesync-call-nickname" use="headline5">
 						{this.props.nickname}
 					</Typography>
