@@ -5,7 +5,7 @@ import { store } from "./store";
 import { addPingValue } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";
 import { addMessageToChannel } from "./actions/messagesActions";
-import { setVoiceState } from "./actions/voiceActions";
+import { joinCall, setVoiceState } from "./actions/voiceActions";
 
 import updater from "./updater";
 import { queue } from "./messages_queue";
@@ -23,6 +23,14 @@ class EventHandler {
 		client.registerEventHandler("message", this.messageEvent);
 		client.registerEventHandler("incoming-call", this.incomingCallEvent);
 		client.registerEventHandler("voice-state", this.voiceStateEvent);
+
+		ipcRenderer.on("join-call", (_, channelId) => {
+			// Close the window
+			ipcRenderer.send("close-call-window", channelId);
+
+			// Join the call
+			store.dispatch(joinCall(client, channelId));
+		});
 	};
 
 	pingEvent = async event => {

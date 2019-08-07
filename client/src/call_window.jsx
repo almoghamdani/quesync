@@ -7,6 +7,8 @@ import { Button } from "@rmwc/button";
 
 import "./call_window.scss";
 
+const { ipcRenderer } = window.require("electron");
+
 class CallWindow extends Component {
 	render() {
 		return (
@@ -32,6 +34,12 @@ class CallWindow extends Component {
 							raised
 							className="quesync-call-action-button quesync-call-accept-button"
 							label="Answer"
+							onClick={() => {
+								ipcRenderer.send("call-main-window-event", {
+									name: "join-call",
+									arg: this.props.id
+								});
+							}}
 						/>
 						<Button
 							raised

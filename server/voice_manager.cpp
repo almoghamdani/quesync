@@ -238,13 +238,13 @@ void VoiceManager::handle_voice_states()
 		std::time_t current_time = std::time(nullptr);
 
 		// For each channel
-		for (auto& channel : _voice_channels)
+		for (auto &channel : _voice_channels)
 		{
 			// For each user
-			for (auto& user : channel.second)
+			for (auto &user : channel.second)
 			{
 				// If pending time exceeded, change the user's state
-				if (current_time - user.second.change_time() > MAX_PENDING_SECONDS)
+				if (user.second == PENDING && current_time - user.second.change_time() > MAX_PENDING_SECONDS)
 				{
 					_voice_channels[channel.first][user.first] = DISCONNECTED;
 					trigger_voice_state_event(channel.first, user.first, DISCONNECTED);
@@ -261,7 +261,7 @@ void VoiceManager::trigger_voice_state_event(std::string channel_id, std::string
 	VoiceStateEvent evt(user_id, voice_state);
 
 	// For each user in the channel
-	for (auto& user : channel_participants)
+	for (auto &user : channel_participants)
 	{
 		// Check if the user is connected to the channel
 		if (user.first != user_id && user.second == CONNECTED)

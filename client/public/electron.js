@@ -79,6 +79,10 @@ electron.ipcMain.on("close-all-call-windows", () => {
 	}
 });
 
+electron.ipcMain.on("call-main-window-event", (_, { name, arg }) =>
+	mainWindow.webContents.send(name, arg)
+);
+
 function createWindow() {
 	// Create a new browser window with a fixed initial size
 	mainWindow = new BrowserWindow({
