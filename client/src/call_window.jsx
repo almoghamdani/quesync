@@ -15,13 +15,13 @@ class CallWindow extends Component {
 	componentDidMount() {
 		anime({
 			targets: ".quesync-call-avatar",
-			duration: 350,
-			easing: "easeOutElastic(1.2, 0.55)",
+			easing: "spring(0.2, 100, 4, 0)",
 			loop: true,
 			direction: "alternate",
 			height: ["70px", "110px"],
 			width: ["70px", "110px"],
-			borderRadius: ["35px", "55px"]
+			borderRadius: ["35px", "55px"],
+			boxShadow: ["0px 0px 0px 0px #40c4ff", "0px 0px 3px 3px #40c4ff", "0 0 5px 5px #40c4ff"]
 		});
 	}
 
