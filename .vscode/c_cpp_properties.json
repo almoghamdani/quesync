@@ -3,9 +3,11 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**",
+				"${workspaceFolder}/**",
+				"${workspaceFolder}/vendor/opus/include",
+				"C:/Program Files (x86)/OpenAL 1.1 SDK/include",
                 "C:/Users/${env:username}/.node-gyp/**",
-                "C:/Program Files/MySQL/Connector C++ 8.0/include/**"
+                "C:/Program Files/MySQL/Connector C++ 8.0/include"
             ],
             "defines": [
                 "_DEBUG",
