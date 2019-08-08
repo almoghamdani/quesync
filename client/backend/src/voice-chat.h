@@ -1,14 +1,15 @@
 #pragma once
 
-#include "socket-manager.h"
-
-#include <iostream>
 #include <string>
 #include <thread>
+#include <ctime>
+#include <mutex>
+#include <memory>
+#include <unordered_map>
 
-#include <al.h>
-#include <alc.h>
-#include <opus.h>
+#include "socket-manager.h"
+#include "voice-input.h"
+#include "voice-output.h"
 
 #define VOICE_CHAT_PORT 61111
 
@@ -16,20 +17,37 @@
 #define RECORD_CHANNELS 1
 #define FRAME_SIZE 480
 
-#define RECV_BUFFER_SIZE 8192
+#define DEACTIVIATION_TIMEOUT_SEC 1
 
-#define AMP_REF 0.00001
-#define CHECK_DB_TIMEOUT 30
-#define MINIMUM_DB 40
-#define VOICE_DEACTIVATE_DELAY 100
+struct VoiceActivation
+{
+	bool activated;
+	std::time_t last_activated;
+};
 
-class VoiceChat
+class VoiceChat : public std::enable_shared_from_this<VoiceChat>
 {
 public:
-	VoiceChat(const char *server_ip, std::string user_id, std::string session_id, std::string channel_id);
-	~VoiceChat();
+	VoiceChat(const char *server_ip);
+	
+	void init();
+
+	void enable(std::string user_id, std::string session_id, std::string channel_id);
+	void disable();
+
+	void activateVoice(std::string user_id);
+
+	std::string userId();
+	std::string sessionId();
+	std::string channelId();
+
+	udp::socket &socket();
+	udp::endpoint &endpoint();
 
 private:
+	std::shared_ptr<VoiceInput> _input;
+	std::shared_ptr<VoiceOutput> _output;
+
 	std::string _user_id;
 	std::string _session_id;
 	std::string _channel_id;
@@ -37,17 +55,12 @@ private:
 	udp::socket _socket;
 	udp::endpoint _endpoint;
 
-	std::thread sendThread;
-	std::thread recvThread;
+	std::mutex _activation_mutex;
+	std::unordered_map<std::string, VoiceActivation> _voice_activation;
 
-	void sendVoiceThread();
-	void recvVoiceThread();
+	std::thread activationThread;
 
-	double calc_rms(int16_t *data, uint32_t size);
-	double calc_db(double rms);
+	bool _enabled;
 
-	uint64_t get_ms();
-
-	void cleanUnusedBuffers(ALuint source);
-	bool isSourcePlaying(ALuint source);
+	void voiceActivationThread();
 };

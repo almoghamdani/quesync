@@ -69,6 +69,10 @@ Napi::Value Client::connect(const Napi::CallbackInfo &info)
 			return nlohmann::json{{"error", UNKNOWN_ERROR}};
 		}
 
+		// Initialize voice chat
+		_voice_chat = std::make_shared<VoiceChat>(ip.c_str());
+		_voice_chat->init();
+
 		return nlohmann::json{{"error", SUCCESS}};
 	},
 							   deferred);
@@ -912,8 +916,8 @@ Napi::Value Client::call(const Napi::CallbackInfo &info)
 			// Get the voice info
 			voice_res = nlohmann::json::parse(response_packet->data());
 
-			// Init voice chat
-			_voice_chat = std::make_shared<VoiceChat>("127.0.0.1", _user->id(), voice_res["voiceSessionId"], channel_id);
+			// Enable voice chat
+			_voice_chat->enable(_user->id(), voice_res["voiceSessionId"], channel_id);
 
 			// Get the voice states in the voice channel and the channel id
 			res["voiceStates"] = voice_res["voiceStates"];
@@ -996,8 +1000,8 @@ Napi::Value Client::joinCall(const Napi::CallbackInfo &info)
 			// Get the voice info
 			voice_res = nlohmann::json::parse(response_packet->data());
 
-			// Init voice chat
-			_voice_chat = std::make_shared<VoiceChat>("127.0.0.1", _user->id(), voice_res["voiceSessionId"], channel_id);
+			// Enable voice chat
+			_voice_chat->enable(_user->id(), voice_res["voiceSessionId"], channel_id);
 
 			// Get the voice states in the voice channel and the channel id
 			res["voiceStates"] = voice_res["voiceStates"];

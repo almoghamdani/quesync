@@ -1,285 +1,112 @@
 #include "voice-chat.h"
 
+#include <iostream>
 #include <chrono>
-#include <ctime>
-#include <limits>
-#include <rnnoise.h>
 
-#include "../../../shared/utils.h"
-#include "../../../shared/packets/voice_packet.h"
-#include "../../../shared/packets/participant_voice_packet.h"
-
-bool close = false;
-
-VoiceChat::VoiceChat(const char *server_ip, std::string user_id, std::string session_id, std::string channel_id)
+VoiceChat::VoiceChat(const char *server_ip)
 	: _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)), // Create an IPv4 UDP socket with a random port
-	  _user_id(user_id),
-	  _session_id(session_id),
-	  _channel_id(channel_id)
+	  _enabled(false)
 {
-	close = false;
-
 	// Get the endpoint of the server using the given server IP and default voice chat port
 	SocketManager::GetEndpoint(server_ip, VOICE_CHAT_PORT, _endpoint);
 
-	// Create the thread of sending the voice from the client to the server and detach it
-	sendThread = std::thread(&VoiceChat::sendVoiceThread, this);
-	sendThread.detach();
-
-	// Create the thread of receiving the voice from the server and detach it
-	recvThread = std::thread(&VoiceChat::recvVoiceThread, this);
-	recvThread.detach();
+	// Create the thread of activating and deactivating voice
+	activationThread = std::thread(&VoiceChat::activationThread, this);
+	activationThread.detach();
 }
 
-VoiceChat::~VoiceChat()
+void VoiceChat::init()
 {
-	close = true;
+	_input = std::make_shared<VoiceInput>(shared_from_this());
+	_output = std::make_shared<VoiceOutput>(shared_from_this());
 }
 
-void VoiceChat::sendVoiceThread()
+void VoiceChat::enable(std::string user_id, std::string session_id, std::string channel_id)
 {
-	int16_t buffer[FRAME_SIZE] = {0};
-	ALint sample = 0;
-	ALCdevice *capture_device;
+	_user_id = user_id;
+	_session_id = session_id;
+	_channel_id = channel_id;
 
-	int opus_error;
-	OpusEncoder *opus_encoder;
-	int encodedDataLen = 0;
-	int16_t encoded_buffer[FRAME_SIZE] = {0};
+	_enabled = true;
 
-	float rnnoise_buffer[FRAME_SIZE] = {0};
-	DenoiseState *rnnoise_state = rnnoise_create(NULL);
+	// Enable input and output
+	_input->enable();
+	_output->enable();
+}
 
-	uint8_t current_db_sample = 0;
-	int16_t db_check_samples[FRAME_SIZE * (CHECK_DB_TIMEOUT / 10)];
-	double db = 0;
-	uint64_t last_activated = get_ms();
+void VoiceChat::disable()
+{
+	_enabled = false;
 
-	VoicePacket voice_packet;
-	std::string voice_packet_encoded;
+	// Enable input and output
+	_input->disable();
+	_output->disable();
+}
 
-	// Create the opus encoder for the recording
-	opus_encoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opus_error);
+std::string VoiceChat::userId()
+{
+	return _user_id;
+}
 
-	// Try to open the default capture device
-	capture_device = alcCaptureOpenDevice(NULL, RECORD_FREQUENCY, AL_FORMAT_MONO16, FRAME_SIZE);
-	if (alGetError() != AL_NO_ERROR)
+std::string VoiceChat::sessionId()
+{
+	return _session_id;
+}
+
+std::string VoiceChat::channelId()
+{
+	return _channel_id;
+}
+
+udp::socket &VoiceChat::socket()
+{
+	return _socket;
+}
+
+udp::endpoint &VoiceChat::endpoint()
+{
+	return _endpoint;
+}
+
+void VoiceChat::voiceActivationThread()
+{
+	while (true)
 	{
-		std::cout << "An error occurred opening default capture device! Exiting.." << std::endl;
-		exit(EXIT_FAILURE);
-	}
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-	// Start to capture using the default device
-	alcCaptureStart(capture_device);
+		if (!_enabled)
+			continue;
 
-	// Infinity thread while the socket isn't closed (this class deleted from memory)
-	while (!close)
-	{
-		std::this_thread::sleep_for(std::chrono::microseconds(750));
+		std::unique_lock lk(_activation_mutex);
+		std::time_t current = std::time(nullptr);
 
-		// Get the amount of samples waiting in the device's buffer
-		alcGetIntegerv(capture_device, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
-
-		// If there is enough samples to send the server to match the server's framerate, send it
-		if (sample >= FRAME_SIZE)
+		// For each user in the voice activation map
+		for (auto &user : _voice_activation)
 		{
-			// Get the capture samples
-			alcCaptureSamples(capture_device, (ALCvoid *)buffer, FRAME_SIZE);
-
-			// Copy all PCM 16-bit short to an array of floats
-			for (int i = 0; i < FRAME_SIZE; i++)
+			// If the user hasn't activated in the timeout
+			if (user.second.activated && current - user.second.last_activated >= DEACTIVIATION_TIMEOUT_SEC)
 			{
-				rnnoise_buffer[i] = ((opus_int16 *)buffer)[i];
-			}
-
-			// Process frame using RNNoise to reduce background noise
-			float f = rnnoise_process_frame(rnnoise_state, rnnoise_buffer, rnnoise_buffer);
-
-			// Copy back the result data to the buffer
-			for (int i = 0; i < FRAME_SIZE; i++)
-			{
-				((opus_int16 *)buffer)[i] = (opus_int16)rnnoise_buffer[i];
-			}
-
-			// Copy the current sample to the buffer of db check samples
-			for (int i = 0; i < FRAME_SIZE; i++)
-			{
-				db_check_samples[current_db_sample * FRAME_SIZE + i] = buffer[i];
-			}
-
-			// Check if reached the amount of samples needed for db check
-			current_db_sample++;
-			if (current_db_sample >= (CHECK_DB_TIMEOUT / 10))
-			{
-				current_db_sample = 0;
-
-				// Calculate the db of the db check samples
-				db = calc_db(calc_rms(db_check_samples, FRAME_SIZE * (CHECK_DB_TIMEOUT / 10)));
-			}
-
-			// If the current samples are over the minimum db or we are in the stop transition time
-			if (db > MINIMUM_DB || get_ms() - last_activated < VOICE_DEACTIVATE_DELAY)
-			{
-				// Encode the captured data
-				encodedDataLen = opus_encode(opus_encoder, (const opus_int16 *)buffer, FRAME_SIZE, (unsigned char *)encoded_buffer, FRAME_SIZE * sizeof(opus_int16));
-
-				// Create the voice packet and encode it
-				voice_packet = VoicePacket(_user_id, _session_id, _channel_id, (char *)encoded_buffer, encodedDataLen);
-				voice_packet_encoded = voice_packet.encode();
-
-				// Send the encoded voice packet to the server
-				_socket.send_to(asio::buffer(voice_packet_encoded.c_str(), voice_packet_encoded.length()), _endpoint);
-
-				// If the current samples are over the minimum db, set the last played time
-				if (db > MINIMUM_DB)
-					last_activated = get_ms();
+				user.second.activated = false;
 			}
 		}
 	}
-
-	// Deallocate the RNNoise state
-	rnnoise_destroy(rnnoise_state);
-
-	// Stop the capture
-	alcCaptureStop(capture_device);
-
-	// Close the capture device
-	alcCaptureCloseDevice(capture_device);
 }
 
-void VoiceChat::recvVoiceThread()
+void VoiceChat::activateVoice(std::string user_id)
 {
-	int decoded_size = 0, recv_bytes = 0;
-	char recv_buffer[RECV_BUFFER_SIZE] = {0};
+	std::unique_lock lk(_activation_mutex);
 
-	OpusDecoder *opus_decoder;
-	int16_t pcm[FRAME_SIZE] = {0};
-
-	ALCcontext *context;
-	ALCdevice *device;
-	ALuint source;
-
-	udp::endpoint sender_endpoint;
-	ParticipantVoicePacket voice_packet;
-
-	// Create the opus decoder for the voice
-	opus_decoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, NULL);
-
-	// Open default device
-	device = alcOpenDevice(NULL);
-
-	// Create the context for the audio scene
-	context = alcCreateContext(device, NULL);
-	alcMakeContextCurrent(context);
-
-	// Init the source
-	alGenSources((ALuint)1, &source);
-	alSourcef(source, AL_PITCH, 1);
-	alSourcef(source, AL_GAIN, 1);
-	alSource3f(source, AL_POSITION, 0, 0, 0);
-	alSource3f(source, AL_VELOCITY, 0, 0, 0);
-	alSourcei(source, AL_LOOPING, AL_FALSE);
-
-	while (!close)
+	// If the user already exists
+	if (_voice_activation.count(user_id))
 	{
-		ALuint buffer;
-
-		// Clean unused buffers of the source
-		cleanUnusedBuffers(source);
-
-		// Generate buffer for the new data
-		alGenBuffers((ALuint)1, &buffer);
-
-		// Receive from the server the encoded voice sample into the recv buffer
-		recv_bytes = (int)_socket.receive_from(asio::buffer(recv_buffer, RECV_BUFFER_SIZE), sender_endpoint);
-
-		// If the sender is the server endpoint handle the voice sample
-		if (sender_endpoint == _endpoint)
+		// If not activated, active
+		if (!_voice_activation[user_id].activated)
 		{
-			// Decode the voice packet
-			voice_packet.decode(std::string(recv_buffer, recv_bytes));
-
-			// Decode the current sample from the client
-			decoded_size = opus_decode(opus_decoder, (const unsigned char *)voice_packet.voice_data(), voice_packet.voice_data_len(), (opus_int16 *)pcm, FRAME_SIZE, 0);
-
-			// Fill buffer
-			alBufferData(buffer, AL_FORMAT_MONO16, (opus_int16 *)pcm, decoded_size * sizeof(opus_int16), RECORD_FREQUENCY);
-
-			// Queue the buffer to the source
-			alSourceQueueBuffers(source, 1, &buffer);
-		}
-
-		// Clean unused buffers of the source
-		cleanUnusedBuffers(source);
-
-		// If the source isn't playing, play it
-		if (!isSourcePlaying(source))
-		{
-			alSourcePlay(source);
+			_voice_activation[user_id] = VoiceActivation{true, std::time(nullptr)};
 		}
 	}
-
-	// Clean unused buffers of the source
-	cleanUnusedBuffers(source);
-
-	// Delete the source
-	alDeleteSources(1, &source);
-
-	// Close the device
-	alcCloseDevice(device);
-}
-
-double VoiceChat::calc_rms(int16_t *data, uint32_t size)
-{
-	double square_sum = 0, rms;
-	float relative_value;
-
-	const float max_value = std::numeric_limits<int16_t>::max();
-
-	for (unsigned int i = 0; i < size; i++)
+	else
 	{
-		relative_value = data[i] / max_value;
-		square_sum += relative_value * relative_value;
+		_voice_activation[user_id] = VoiceActivation{true, std::time(nullptr)};
 	}
-
-	rms = sqrt(square_sum / size);
-	return rms;
-}
-
-double VoiceChat::calc_db(double rms)
-{
-	return 20 * log10(rms / AMP_REF);
-}
-
-uint64_t VoiceChat::get_ms()
-{
-	using namespace std::chrono;
-	return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-}
-
-void VoiceChat::cleanUnusedBuffers(ALuint source)
-{
-	ALint amount_of_buffers;
-	ALuint *old_buffers;
-
-	// Get the amount of buffers that already processed and allocate memory for them
-	alGetSourcei(source, AL_BUFFERS_PROCESSED, &amount_of_buffers);
-	old_buffers = new ALuint[amount_of_buffers];
-
-	// Unqueue the buffers
-	alSourceUnqueueBuffers(source, amount_of_buffers, old_buffers);
-
-	// Delete the buffers
-	alDeleteBuffers(amount_of_buffers, old_buffers);
-	delete old_buffers;
-}
-
-bool VoiceChat::isSourcePlaying(ALuint source)
-{
-	ALint source_state;
-
-	// Get the source state
-	alGetSourcei(source, AL_SOURCE_STATE, &source_state);
-
-	return source_state == AL_PLAYING;
 }
