@@ -25,13 +25,20 @@ class UserVoiceActivity extends Component {
 				callingAnimation: false
 			});
 
+			// Stop animating the avatar
 			anime.remove(this.avatar.current);
+
+			// Remove all the animation css properties and set animation for the avatar to return to it's place
+			this.avatar.current.style = "transition: all 0.15s ease-in-out;";
 		}
 		// If need to call but no animating
 		else if (this.props.calling && !this.state.callingAnimation) {
 			this.setState({
 				callingAnimation: true
 			});
+
+			// Clear the current style of the avatar
+			this.avatar.current.style = "";
 
 			// Add an animation for the user activity calling
 			UserVoiceActivity.callingAnimationTimeline.add(
