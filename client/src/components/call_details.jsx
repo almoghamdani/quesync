@@ -30,6 +30,7 @@ class CallDetails extends Component {
 									<FadeTransition timeout={200} key={userVoiceState.id}>
 										<UserVoiceDetails
 											key={userVoiceState.id}
+											talking={this.props.userVoiceActivations[userVoiceState.id]}
 											{...userVoiceState}
 										/>
 									</FadeTransition>

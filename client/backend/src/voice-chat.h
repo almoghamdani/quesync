@@ -2,7 +2,6 @@
 
 #include <string>
 #include <thread>
-#include <ctime>
 #include <mutex>
 #include <memory>
 #include <unordered_map>
@@ -17,18 +16,20 @@
 #define RECORD_CHANNELS 1
 #define FRAME_SIZE 480
 
-#define DEACTIVIATION_TIMEOUT_SEC 1
+#define DEACTIVIATION_TIMEOUT_MS 250
 
 struct VoiceActivation
 {
 	bool activated;
-	std::time_t last_activated;
+	uint64_t last_activated;
 };
+
+class Client;
 
 class VoiceChat : public std::enable_shared_from_this<VoiceChat>
 {
 public:
-	VoiceChat(const char *server_ip);
+	VoiceChat(Client *client, const char *server_ip);
 	
 	void init();
 
@@ -44,7 +45,11 @@ public:
 	udp::socket &socket();
 	udp::endpoint &endpoint();
 
+	uint64_t getMS();
+
 private:
+	Client *_client;
+
 	std::shared_ptr<VoiceInput> _input;
 	std::shared_ptr<VoiceOutput> _output;
 
@@ -57,6 +62,7 @@ private:
 
 	std::mutex _activation_mutex;
 	std::unordered_map<std::string, VoiceActivation> _voice_activation;
+	std::unordered_map<std::string, bool> _changed_voice_activity;
 
 	std::thread activationThread;
 

@@ -21,3 +21,13 @@ export function setVoiceState(userId, voiceState) {
 		}
 	};
 }
+
+export function setVoiceActivationState(userId, activated) {
+	return {
+		type: "SET_VOICE_ACTIVATED_STATE",
+		payload: {
+			userId,
+			activated
+		}
+	};
+}

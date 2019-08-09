@@ -2,6 +2,7 @@ export default function reducer(
 	state = {
 		channelId: null,
 		voiceStates: {},
+		voiceActivations: {},
 		error: null
 	},
 	action
@@ -29,6 +30,15 @@ export default function reducer(
 				voiceStates: {
 					...state.voiceStates,
 					[action.payload.userId]: action.payload.voiceState
+				}
+			};
+
+		case "SET_VOICE_ACTIVATED_STATE":
+			return {
+				...state,
+				voiceActivations: {
+					...state.voiceActivations,
+					[action.payload.userId]: action.payload.activated
 				}
 			};
 

@@ -8,7 +8,7 @@
 class EventHandler
 {
   public:
-    void callEvent(std::string& event_name, nlohmann::json& event_data);
+    void callEvent(std::string event_name, nlohmann::json event_data);
     void registerEventHandler(std::string& event_name, std::function<void(nlohmann::json&)> event_handler);
 
   private:

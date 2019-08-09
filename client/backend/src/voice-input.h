@@ -39,6 +39,4 @@ private:
 
 	double calcRMS(int16_t *data, uint32_t size);
 	double calcDB(double rms);
-
-	uint64_t getMS();
 };

@@ -81,7 +81,7 @@ void VoiceInput::inputThread()
 	uint8_t current_db_sample = 0;
 	int16_t db_check_samples[FRAME_SIZE * (CHECK_DB_TIMEOUT / 10)];
 	double db = 0;
-	uint64_t last_activated = getMS();
+	uint64_t last_activated = _voice_chat->getMS();
 
 	VoicePacket voice_packet;
 	std::string voice_packet_encoded;
@@ -135,7 +135,7 @@ void VoiceInput::inputThread()
 			}
 
 			// If the current samples are over the minimum db or we are in the stop transition time
-			if (db > MINIMUM_DB || getMS() - last_activated < VOICE_DEACTIVATE_DELAY)
+			if (db > MINIMUM_DB || _voice_chat->getMS() - last_activated < VOICE_DEACTIVATE_DELAY)
 			{
 				// Activate the user's voice
 				_voice_chat->activateVoice(_voice_chat->userId());
@@ -152,7 +152,7 @@ void VoiceInput::inputThread()
 
 				// If the current samples are over the minimum db, set the last played time
 				if (db > MINIMUM_DB)
-					last_activated = getMS();
+					last_activated = _voice_chat->getMS();
 			}
 		}
 	}
@@ -178,10 +178,4 @@ double VoiceInput::calcRMS(int16_t *data, uint32_t size)
 double VoiceInput::calcDB(double rms)
 {
 	return 20 * log10(rms / AMP_REF);
-}
-
-uint64_t VoiceInput::getMS()
-{
-	using namespace std::chrono;
-	return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }

@@ -12,6 +12,7 @@ class UserVoiceDetails extends Component {
 			<div className="quesync-user-voice-details" key={this.props.key}>
 				<UserVoiceActivity
 					calling={this.props.calling}
+					talking={this.props.talking}
 					avatar={this.props.avatar}
 				/>
 				<Typography className="quesync-user-voice-details-nickname" use="body1">

@@ -3,15 +3,18 @@
 #include <iostream>
 #include <chrono>
 
-VoiceChat::VoiceChat(const char *server_ip)
-	: _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)), // Create an IPv4 UDP socket with a random port
+#include "client.h"
+
+VoiceChat::VoiceChat(Client *client, const char *server_ip)
+	: _client(client),
+	  _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)), // Create an IPv4 UDP socket with a random port
 	  _enabled(false)
 {
 	// Get the endpoint of the server using the given server IP and default voice chat port
 	SocketManager::GetEndpoint(server_ip, VOICE_CHAT_PORT, _endpoint);
 
 	// Create the thread of activating and deactivating voice
-	activationThread = std::thread(&VoiceChat::activationThread, this);
+	activationThread = std::thread(&VoiceChat::voiceActivationThread, this);
 	activationThread.detach();
 }
 
@@ -72,23 +75,40 @@ void VoiceChat::voiceActivationThread()
 {
 	while (true)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 		if (!_enabled)
 			continue;
 
 		std::unique_lock lk(_activation_mutex);
-		std::time_t current = std::time(nullptr);
+		uint64_t current = getMS();
 
 		// For each user in the voice activation map
 		for (auto &user : _voice_activation)
 		{
 			// If the user hasn't activated in the timeout
-			if (user.second.activated && current - user.second.last_activated >= DEACTIVIATION_TIMEOUT_SEC)
+			if (user.second.activated && current - user.second.last_activated >= DEACTIVIATION_TIMEOUT_MS)
 			{
 				user.second.activated = false;
+
+				_changed_voice_activity[user.first] = false;
 			}
 		}
+
+		// If user's activity has changed, call the voice activity event
+		if (_changed_voice_activity.size())
+		{
+			try
+			{
+				_client->communicator().eventHandler().callEvent("voice-activity", nlohmann::json{{"changedActivity", _changed_voice_activity}});
+			}
+			catch (...)
+			{
+			}
+		}
+
+		// Clear the changed voice activity
+		_changed_voice_activity.clear();
 	}
 }
 
@@ -102,11 +122,23 @@ void VoiceChat::activateVoice(std::string user_id)
 		// If not activated, active
 		if (!_voice_activation[user_id].activated)
 		{
-			_voice_activation[user_id] = VoiceActivation{true, std::time(nullptr)};
+			_voice_activation[user_id] = VoiceActivation{true, getMS()};
+			_changed_voice_activity[user_id] = true;
+		}
+		else
+		{
+			_voice_activation[user_id].last_activated = getMS();
 		}
 	}
 	else
 	{
-		_voice_activation[user_id] = VoiceActivation{true, std::time(nullptr)};
+		_voice_activation[user_id] = VoiceActivation{true, getMS()};
+		_changed_voice_activity[user_id] = true;
 	}
+}
+
+uint64_t VoiceChat::getMS()
+{
+	using namespace std::chrono;
+	return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }

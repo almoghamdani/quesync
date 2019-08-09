@@ -35,6 +35,11 @@ Client::~Client()
 	clean();
 }
 
+Communicator &Client::communicator()
+{
+	return _communicator;
+}
+
 void Client::clean()
 {
 	// Clean user object
@@ -70,7 +75,7 @@ Napi::Value Client::connect(const Napi::CallbackInfo &info)
 		}
 
 		// Initialize voice chat
-		_voice_chat = std::make_shared<VoiceChat>(ip.c_str());
+		_voice_chat = std::make_shared<VoiceChat>(this, ip.c_str());
 		_voice_chat->init();
 
 		return nlohmann::json{{"error", SUCCESS}};

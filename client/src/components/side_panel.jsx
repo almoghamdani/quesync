@@ -82,6 +82,7 @@ class SidePanel extends Component {
 							pointerEvents: this.props.inCall ? "" : "none"
 						}}
 						userVoiceStates={this.props.inCall ? this.parseVoiceStates() : []}
+						userVoiceActivations={this.props.voiceActivations}
 					/>
 				</Transition>
 			</Elevation>
@@ -95,5 +96,6 @@ export default connect(state => ({
 	inCall: !!state.voice.channelId,
 	voiceChannelId: state.voice.channelId,
 	voiceStates: state.voice.voiceStates,
+	voiceActivations: state.voice.voiceActivations,
 	profiles: state.users.profiles
 }))(SidePanel);

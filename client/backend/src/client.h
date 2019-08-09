@@ -22,6 +22,8 @@ public:
 	Client(const Napi::CallbackInfo &info);
 	~Client();
 
+	Communicator& communicator();
+
 	Napi::Value connect(const Napi::CallbackInfo &info);
 
 	Napi::Value login(const Napi::CallbackInfo &info);

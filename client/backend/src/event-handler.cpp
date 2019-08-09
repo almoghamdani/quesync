@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-void EventHandler::callEvent(std::string &event_name, nlohmann::json &event_data)
+void EventHandler::callEvent(std::string event_name, nlohmann::json event_data)
 {
     try {
         // Call the event handler function for the event with the event data
