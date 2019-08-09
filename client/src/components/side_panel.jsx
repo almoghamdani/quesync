@@ -11,7 +11,7 @@ import FriendDetails from "./friend_details";
 import CallDetails from "./call_details";
 import Seperator from "./seperator";
 
-import { call } from "../actions/voiceActions";
+import { call, leaveCall } from "../actions/voiceActions";
 
 import "./side_panel.scss";
 
@@ -56,6 +56,16 @@ class SidePanel extends Component {
 				opacity: 1
 			});
 
+		const exitTransition = content =>
+			anime({
+				targets: content,
+				duration: 800,
+				easing: "easeInOutCirc",
+				minHeight: "0",
+				height: "0",
+				opacity: 0
+			});
+
 		return (
 			<Elevation z={10} className="quesync-side-panel">
 				<FriendDetails
@@ -73,7 +83,8 @@ class SidePanel extends Component {
 					unmountOnExit
 					in={this.props.inCall}
 					timeout={800}
-					onEnter={enterTransition}>
+					onEnter={enterTransition}
+					onExit={exitTransition}>
 					<CallDetails
 						style={{
 							minHeight: 0,
@@ -83,6 +94,7 @@ class SidePanel extends Component {
 						}}
 						userVoiceStates={this.props.inCall ? this.parseVoiceStates() : []}
 						userVoiceActivations={this.props.voiceActivations}
+						leaveCall={() => this.props.dispatch(leaveCall(this.props.client))}
 					/>
 				</Transition>
 			</Elevation>

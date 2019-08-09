@@ -10,10 +10,12 @@ export default function reducer(
 	switch (action.type) {
 		case "CALL_PENDING":
 		case "JOIN_CALL_PENDING":
+		case "LEAVE_CALL_PENDING":
 			return { ...state, error: 0 };
 
 		case "CALL_REJECTED":
 		case "JOIN_CALL_REJECTED":
+		case "LEAVE_CALL_REJECTED":
 			return { ...state, error: action.payload.error };
 
 		case "CALL_FULFILLED":
@@ -22,6 +24,14 @@ export default function reducer(
 				...state,
 				voiceStates: action.payload.voiceStates,
 				channelId: action.payload.channelId
+			};
+
+		case "LEAVE_CALL_FULFILLED":
+			return {
+				...state,
+				voiceStates: {},
+				voiceActivations: {},
+				channelId: null
 			};
 
 		case "SET_VOICE_STATE":

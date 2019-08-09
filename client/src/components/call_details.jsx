@@ -45,6 +45,7 @@ class CallDetails extends Component {
 						icon="call_end"
 						label="Leave call"
 						style={{ color: "#ff1744" }}
+						onClick={this.props.leaveCall}
 					/>
 				</div>
 			</div>

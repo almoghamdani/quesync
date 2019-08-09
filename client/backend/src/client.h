@@ -43,6 +43,7 @@ public:
 
 	Napi::Value call(const Napi::CallbackInfo &info);
 	Napi::Value joinCall(const Napi::CallbackInfo &info);
+	Napi::Value leaveCall(const Napi::CallbackInfo &info);
 
 	Napi::Value registerEventHandler(const Napi::CallbackInfo &info);
 

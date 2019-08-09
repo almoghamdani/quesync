@@ -19,6 +19,7 @@
 #include "../../../shared/packets/session_auth_packet.h"
 #include "../../../shared/packets/call_request_packet.h"
 #include "../../../shared/packets/join_call_request_packet.h"
+#include "../../../shared/packets/leave_call_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
@@ -1033,6 +1034,80 @@ Napi::Value Client::joinCall(const Napi::CallbackInfo &info)
 	return deferred.Promise();
 }
 
+Napi::Value Client::leaveCall(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+	Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+	Executer *e = new Executer([this]() {
+		QuesyncError error = SUCCESS;
+		std::shared_ptr<ResponsePacket> response_packet;
+		nlohmann::json res;
+
+		LeaveCallPacket leave_call_packet;
+
+		// If not authenticated, return error
+		if (!_user)
+		{
+			res["error"] = NOT_AUTHENTICATED;
+
+			return res;
+		}
+
+		// Send the leave call packet
+		try
+		{
+			response_packet = _communicator.send(&leave_call_packet);
+		}
+		catch (QuesyncException &ex)
+		{
+			res["error"] = ex.getErrorCode();
+
+			return res;
+		}
+		catch (...)
+		{
+			res["error"] = UNKNOWN_ERROR;
+
+			return res;
+		}
+
+		// If the response is an error, handle the error
+		if (response_packet && response_packet->type() == ERROR_PACKET)
+		{
+			// Set the error code from the response packet
+			res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
+		}
+		// If the response packet is a join call approved packet, init voice chat
+		else if (response_packet && response_packet->type() == CALL_LEFT_PACKET)
+		{
+			// Set success error code
+			res["error"] = SUCCESS;
+
+			// Disable the voice chat
+			_voice_chat->disable();
+		}
+		else if (error)
+		{
+			// If an error occurred, return it
+			res["error"] = error;
+		}
+		else
+		{
+			// We shouldn't get here
+			res["error"] = UNKNOWN_ERROR;
+		}
+
+		return res;
+	},
+							   deferred);
+
+	// Queue the executer worker
+	e->Queue();
+
+	return deferred.Promise();
+}
+
 Napi::Value Client::setFriendshipStatus(const Napi::CallbackInfo &info)
 {
 
@@ -1133,7 +1208,8 @@ Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
 									   InstanceMethod("getChannelMessages", &Client::getChannelMessages),
 									   InstanceMethod("setFriendshipStatus", &Client::setFriendshipStatus),
 									   InstanceMethod("call", &Client::call),
-									   InstanceMethod("joinCall", &Client::joinCall)});
+									   InstanceMethod("joinCall", &Client::joinCall),
+									   InstanceMethod("leaveCall", &Client::leaveCall)});
 
 	// Create a peristent reference to the class constructor. This will allow
 	// a function called on a class prototype and a function

@@ -23,6 +23,7 @@
 #include "packets/session_auth_packet.h"
 #include "packets/call_request_packet.h"
 #include "packets/join_call_request_packet.h"
+#include "packets/leave_call_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -99,6 +100,10 @@ Packet *Utils::ParsePacket(std::string packet)
 		p = new JoinCallRequestPacket();
 		break;
 
+	case LEAVE_CALL_PACKET:
+		p = new LeaveCallPacket();
+		break;
+
 	case ERROR_PACKET:
 		p = new ErrorPacket();
 		break;
@@ -114,6 +119,7 @@ Packet *Utils::ParsePacket(std::string packet)
 	case CHANNEL_MESSAGES_PACKET:
 	case CALL_STARTED_PACKET:
 	case JOIN_CALL_APPROVED_PACKET:
+	case CALL_LEFT_PACKET:
 		p = new ResponsePacket(packet_type, "");
 		break;
 

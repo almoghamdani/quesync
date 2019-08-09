@@ -12,6 +12,13 @@ export function joinCall(client, channelId) {
 	};
 }
 
+export function leaveCall(client) {
+	return {
+		type: "LEAVE_CALL",
+		payload: client.leaveCall()
+	};
+}
+
 export function setVoiceState(userId, voiceState) {
 	return {
 		type: "SET_VOICE_STATE",
