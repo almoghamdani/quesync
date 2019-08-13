@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 
 import anime from "animejs";
+import Transition from "react-transition-group/Transition";
+
+import { Icon } from "@rmwc/icon";
 
 import "./user_voice_activity.scss";
 
@@ -44,9 +47,9 @@ class UserVoiceActivity extends Component {
 			UserVoiceActivity.callingAnimationTimeline.add(
 				{
 					targets: this.avatar.current,
-					height: ["20px", "28px"],
-					width: ["20px", "28px"],
-					borderRadius: ["10px", "14px"]
+					height: ["26px", "34px"],
+					width: ["26px", "34px"],
+					borderRadius: ["13px", "17px"]
 				},
 				0
 			);
@@ -54,6 +57,28 @@ class UserVoiceActivity extends Component {
 	}
 
 	render() {
+		const voiceStateEnterAnimation = content =>
+			anime({
+				targets: content,
+				easing: "easeInOutQuint",
+				duration: 150,
+				minHeight: ["0px", "14px"],
+				minWidth: ["0px", "14px"],
+				borderRadius: ["0px", "7px"],
+				fontSize: ["0px", "12px"]
+			});
+
+		const voiceStateExitAnimation = content =>
+			anime({
+				targets: content,
+				easing: "easeInOutQuint",
+				duration: 150,
+				minHeight: ["14px", "0px"],
+				minWidth: ["14px", "0px"],
+				borderRadius: ["7px", "0px"],
+				fontSize: ["12px", "0px"]
+			});
+
 		return (
 			<div
 				className={
@@ -67,6 +92,24 @@ class UserVoiceActivity extends Component {
 					src={this.props.avatar}
 					alt="User Voice Activity"
 				/>
+				<div className="quesync-voice-state-icon-wrapper quesync-voice-state-volume-icon">
+					<Transition
+						appear
+						in={this.props.deafen}
+						onEnter={voiceStateEnterAnimation}
+						onExit={voiceStateExitAnimation}>
+						<Icon className="quesync-voice-state-icon" icon="volume_off" />
+					</Transition>
+				</div>
+				<div className="quesync-voice-state-icon-wrapper quesync-voice-state-mic-icon">
+					<Transition
+						appear
+						in={this.props.muted}
+						onEnter={voiceStateEnterAnimation}
+						onExit={voiceStateExitAnimation}>
+						<Icon className="quesync-voice-state-icon" icon="mic_off" />
+					</Transition>
+				</div>
 			</div>
 		);
 	}

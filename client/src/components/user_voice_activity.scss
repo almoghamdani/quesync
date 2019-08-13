@@ -1,6 +1,8 @@
 .quesync-user-voice-activity {
-	height: 30px;
-	width: 30px;
+	position: relative;
+
+	height: 36px;
+	width: 36px;
 
 	display: flex;
 	justify-content: center;
@@ -8,14 +10,50 @@
 }
 
 .quesync-user-voice-activity .quesync-user-voice-activity-avatar {
-	height: 24px;
-	width: 24px;
+	height: 30px;
+	width: 30px;
 
-	border-radius: 12px;
+	border-radius: 15px;
 
 	transition: box-shadow 0.15s ease-in-out;
 }
 
 .quesync-user-voice-activity-talking .quesync-user-voice-activity-avatar {
 	box-shadow: 0 0 2px 2px #40c4ff;
+}
+
+.quesync-voice-state-icon-wrapper {
+	position: absolute;
+
+	height: 14px;
+	width: 14px;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.quesync-voice-state-icon {
+	min-width: 0px;
+	min-height: 0px;
+	border-radius: 0px;
+	font-size: 0px;
+
+	color: white;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	background-color: #d50000;
+}
+
+.quesync-voice-state-mic-icon {
+	left: 22px;
+	top: 22px;
+}
+
+.quesync-voice-state-volume-icon {
+	left: 22px;
+	bottom: 22px;
 }

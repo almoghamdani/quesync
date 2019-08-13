@@ -27,7 +27,9 @@ class SidePanel extends Component {
 			nickname: this.props.user.nickname,
 			avatar:
 				"https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png",
-			calling: false
+			calling: false,
+			muted: this.props.muted,
+			deafen: this.props.deafen
 		});
 
 		// For each user
