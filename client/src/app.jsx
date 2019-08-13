@@ -35,15 +35,17 @@ class App extends Component {
 				options={{
 					primary: "#00b0ff",
 					secondary: "#212121",
+					error: "#ff1744",
 					onSurface: "rgba(255,255,255,.87)"
-				}}
-			>
-				<SnackbarQueue className="quesync-notifications-queue" messages={queue.messages}/>
+				}}>
+				<SnackbarQueue
+					className="quesync-notifications-queue"
+					messages={queue.messages}
+				/>
 				<TopAppBar
 					className="quesync-top-app-bar mdc-top-app-bar--fixed-scrolled"
 					fixed
-					theme="secondaryBg"
-				>
+					theme="secondaryBg">
 					<TopAppBarRow>
 						<TopAppBarSection alignStart>
 							<SearchField />

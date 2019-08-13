@@ -27,7 +27,14 @@ class FriendDetails extends Component {
 				</div>
 				<div className="quesync-friend-actions">
 					<Button
-						className="quesync-friend-call-button"
+						className={
+							this.props.inCall
+								? "quesync-friend-call-button quesync-friend-in-call-button"
+								: this.props.activeCall
+								? "quesync-friend-call-button quesync-friend-join-button"
+								: "quesync-friend-call-button"
+						}
+						raised
 						ref={this.callButton}
 						icon="call"
 						label={
@@ -37,9 +44,6 @@ class FriendDetails extends Component {
 								? "Join Call"
 								: "Call"
 						}
-						style={{
-							color: this.props.inCall ? "gray" : "var(--mdc-theme-primary)"
-						}}
 						onClick={() => {
 							// Call the correct handler
 							this.props.activeCall

@@ -42,6 +42,8 @@ class CallDetails extends Component {
 				<div className="quesync-call-actions">
 					<Button
 						className="quesync-leave-call-button"
+						raised
+						danger
 						icon="call_end"
 						label="Leave Call"
 						onClick={this.props.leaveCall}

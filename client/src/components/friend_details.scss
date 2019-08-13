@@ -1,3 +1,5 @@
+@import "@material/button/mixins";
+
 .quesync-friend-details-wrapper {
 	display: flex;
 	flex-direction: column;
@@ -47,4 +49,12 @@
 
 .quesync-friend-call-button {
 	transition: all 400ms ease-in-out;
+}
+
+.quesync-friend-join-button {
+	@include mdc-button-filled-accessible(#00e676);
+}
+
+.quesync-friend-in-call-button {
+	@include mdc-button-filled-accessible(gray);
 }
