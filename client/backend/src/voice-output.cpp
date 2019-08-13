@@ -8,7 +8,7 @@
 #include "../../../shared/packets/participant_voice_packet.h"
 
 VoiceOutput::VoiceOutput(std::shared_ptr<VoiceChat> voice_chat)
-	: _voice_chat(voice_chat), _enabled(false)
+	: _voice_chat(voice_chat), _enabled(false), _deafen(false)
 {
 	int opus_error = 0;
 
@@ -122,6 +122,12 @@ void VoiceOutput::outputThread()
 			// Activate the user's voice
 			_voice_chat->activateVoice(voice_packet.user_id());
 
+			// If deafen, continue
+			if (_deafen)
+			{
+				continue;
+			}
+
 			// Decode the current sample from the client
 			decoded_size = opus_decode(_opus_decoder, (const unsigned char *)voice_packet.voice_data(), voice_packet.voice_data_len(), (opus_int16 *)pcm, FRAME_SIZE, 0);
 
@@ -141,6 +147,21 @@ void VoiceOutput::outputThread()
 			alSourcePlay(_source);
 		}
 	}
+}
+
+void VoiceOutput::deaf()
+{
+	_deafen = true;
+}
+
+void VoiceOutput::undeaf()
+{
+	_deafen = false;
+}
+
+bool VoiceOutput::deafen()
+{
+	return _deafen;
 }
 
 void VoiceOutput::cleanUnusedBuffers(ALuint source)

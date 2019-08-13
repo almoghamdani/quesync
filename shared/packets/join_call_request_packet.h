@@ -10,16 +10,20 @@
 class JoinCallRequestPacket : public SerializedPacket
 {
 public:
-	JoinCallRequestPacket() : JoinCallRequestPacket(""){};
+	JoinCallRequestPacket() : JoinCallRequestPacket("", false, false){};
 
-	JoinCallRequestPacket(std::string channel_id) : SerializedPacket(JOIN_CALL_REQUEST_PACKET)
+	JoinCallRequestPacket(std::string channel_id, bool muted, bool deafen) : SerializedPacket(JOIN_CALL_REQUEST_PACKET)
 	{
 		_data["channelId"] = channel_id;
+		_data["muted"] = muted;
+		_data["deafen"] = deafen;
 	};
 
 	virtual bool verify() const
 	{
-		return exists("channelId");
+		return exists("channelId") &&
+			   exists("muted") &&
+			   exists("deafen");
 	};
 
 // A handle function for the server
@@ -43,7 +47,7 @@ public:
 			voice_session_id = session->server()->voiceManager()->createVoiceSession(session->user()->id());
 
 			// Try to join the voice channel
-			session->server()->voiceManager()->joinVoiceChannel(session->user()->id(), _data["channelId"]);
+			session->server()->voiceManager()->joinVoiceChannel(session->user()->id(), _data["channelId"], _data["muted"], _data["deafen"]);
 
 			// Get the voice states of the channel
 			voice_states = session->server()->voiceManager()->get_voice_states(_data["channelId"]);

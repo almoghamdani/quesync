@@ -35,6 +35,12 @@ public:
 
 	void enable(std::string user_id, std::string session_id, std::string channel_id);
 	void disable();
+	bool enabled();
+
+	void setState(bool mute, bool deafen);
+
+	bool muted();
+	bool deafen();
 
 	void activateVoice(std::string user_id);
 

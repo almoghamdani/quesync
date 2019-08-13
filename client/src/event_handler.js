@@ -7,8 +7,8 @@ import { setUser } from "./actions/userActions";
 import { addMessageToChannel } from "./actions/messagesActions";
 import {
 	joinCall,
-	setVoiceState,
-	setVoiceActivationState
+	updateVoiceState,
+	updateVoiceActivationState
 } from "./actions/voiceActions";
 
 import updater from "./updater";
@@ -231,13 +231,13 @@ class EventHandler {
 	};
 
 	voiceStateEvent = event => {
-		store.dispatch(setVoiceState(event.userId, event.voiceState));
+		store.dispatch(updateVoiceState(event.userId, event.voiceState));
 	};
 
 	voiceActivationEvent = event => {
 		Object.keys(event.changedActivity).map(userId =>
 			store.dispatch(
-				setVoiceActivationState(userId, event.changedActivity[userId])
+				updateVoiceActivationState(userId, event.changedActivity[userId])
 			)
 		);
 	};

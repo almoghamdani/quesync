@@ -24,6 +24,7 @@
 #include "packets/call_request_packet.h"
 #include "packets/join_call_request_packet.h"
 #include "packets/leave_call_packet.h"
+#include "packets/set_voice_state_packet.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -104,6 +105,10 @@ Packet *Utils::ParsePacket(std::string packet)
 		p = new LeaveCallPacket();
 		break;
 
+	case SET_VOICE_STATE_PACKET:
+		p = new SetVoiceStatePacket();
+		break;
+
 	case ERROR_PACKET:
 		p = new ErrorPacket();
 		break;
@@ -120,6 +125,7 @@ Packet *Utils::ParsePacket(std::string packet)
 	case CALL_STARTED_PACKET:
 	case JOIN_CALL_APPROVED_PACKET:
 	case CALL_LEFT_PACKET:
+	case VOICE_STATE_SET_PACKET:
 		p = new ResponsePacket(packet_type, "");
 		break;
 

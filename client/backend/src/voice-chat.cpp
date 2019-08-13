@@ -46,6 +46,37 @@ void VoiceChat::disable()
 	_output->disable();
 }
 
+bool VoiceChat::enabled()
+{
+	return _enabled;
+}
+
+void VoiceChat::setState(bool mute, bool deafen)
+{
+	if (mute)
+	{
+		_input->mute();
+	} else {
+		_input->unmute();
+	}
+
+	if (deafen) {
+		_output->deaf();
+	} else {
+		_output->undeaf();
+	}
+}
+
+bool VoiceChat::muted()
+{
+	return _input->muted();
+}
+
+bool VoiceChat::deafen()
+{
+	return _output->deafen();
+}
+
 std::string VoiceChat::userId()
 {
 	return _user_id;

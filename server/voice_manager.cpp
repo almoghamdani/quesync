@@ -153,13 +153,13 @@ void VoiceManager::initVoiceChannel(std::string channel_id, std::vector<std::str
 	// Create user states for all the users as PENDING
 	for (auto &user : users)
 	{
-		user_states[user] = PENDING;
+		user_states[user] = VoiceState(PENDING, false, false);
 	}
 
 	_voice_channels[channel_id] = user_states;
 }
 
-void VoiceManager::joinVoiceChannel(std::string user_id, std::string channel_id)
+void VoiceManager::joinVoiceChannel(std::string user_id, std::string channel_id, bool muted, bool deafen)
 {
 	std::unique_lock lk(_mutex);
 
@@ -177,8 +177,8 @@ void VoiceManager::joinVoiceChannel(std::string user_id, std::string channel_id)
 
 	// Connect the user to the channel
 	_joined_voice_channels[user_id] = channel_id;
-	_voice_channels[channel_id][user_id] = CONNECTED;
-	trigger_voice_state_event(channel_id, user_id, CONNECTED);
+	_voice_channels[channel_id][user_id] = VoiceState(CONNECTED, muted, deafen);
+	trigger_voice_state_event(channel_id, user_id, _voice_channels[channel_id][user_id]);
 }
 
 void VoiceManager::leaveVoiceChannel(std::string user_id)
@@ -198,7 +198,7 @@ void VoiceManager::leaveVoiceChannel(std::string user_id)
 	// Remove the user from the map of joined voice channels
 	_joined_voice_channels.erase(user_id);
 	_voice_channels[channel_id][user_id] = DISCONNECTED;
-	trigger_voice_state_event(channel_id, user_id, DISCONNECTED);
+	trigger_voice_state_event(channel_id, user_id, _voice_channels[channel_id][user_id]);
 
 	// Check for others connected to the voice channel
 	for (auto &join_pair : _joined_voice_channels)
@@ -247,14 +247,50 @@ void VoiceManager::handle_voice_states()
 				if (user.second == PENDING && current_time - user.second.change_time() > MAX_PENDING_SECONDS)
 				{
 					_voice_channels[channel.first][user.first] = DISCONNECTED;
-					trigger_voice_state_event(channel.first, user.first, DISCONNECTED);
+					trigger_voice_state_event(channel.first, user.first, _voice_channels[channel.first][user.first]);
 				}
 			}
 		}
 	}
 }
 
-void VoiceManager::trigger_voice_state_event(std::string channel_id, std::string user_id, QuesyncVoiceState voice_state)
+void VoiceManager::setVoiceState(std::string user_id, bool muted, bool deafen)
+{
+	std::string channel_id;
+	std::unique_lock lk(_mutex);
+
+	// Check if in voice channel
+	if (!_joined_voice_channels.count(user_id))
+	{
+		throw QuesyncException(VOICE_NOT_CONNECTED);
+	}
+
+	// Get the channel id of the user
+	channel_id = _joined_voice_channels[user_id];
+
+	if (muted)
+	{
+		_voice_channels[channel_id][user_id].mute();
+	}
+	else
+	{
+		_voice_channels[channel_id][user_id].unmute();
+	}
+
+	if (deafen)
+	{
+		_voice_channels[channel_id][user_id].deaf();
+	}
+	else
+	{
+		_voice_channels[channel_id][user_id].undeaf();
+	}
+
+	// Send event to all participants
+	trigger_voice_state_event(channel_id, user_id, _voice_channels[channel_id][user_id]);
+}
+
+void VoiceManager::trigger_voice_state_event(std::string channel_id, std::string user_id, VoiceState voice_state)
 {
 	auto channel_participants = _voice_channels[channel_id];
 

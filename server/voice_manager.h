@@ -15,22 +15,24 @@
 
 #define MAX_DATA_LEN 8192
 
-#define MAX_PENDING_SECONDS 15
+#define MAX_PENDING_SECONDS 20
 
 using asio::ip::udp;
 
 class VoiceManager : Manager
 {
 public:
-    VoiceManager(std::shared_ptr<Quesync> server);
+	VoiceManager(std::shared_ptr<Quesync> server);
 
 	std::string createVoiceSession(std::string user_id);
 	void deleteVoiceSession(std::string user_id);
 
 	void initVoiceChannel(std::string channel_id, std::vector<std::string> users);
 
-	void joinVoiceChannel(std::string user_id, std::string channel_id);
+	void joinVoiceChannel(std::string user_id, std::string channel_id, bool muted, bool deafen);
 	void leaveVoiceChannel(std::string user_id);
+
+	void setVoiceState(std::string user_id, bool muted, bool deafen);
 
 	std::unordered_map<std::string, VoiceState> get_voice_states(std::string channel_id);
 
@@ -56,5 +58,5 @@ private:
 
 	void handle_voice_states();
 
-	void trigger_voice_state_event(std::string channel_id, std::string user_id, QuesyncVoiceState voice_state);
+	void trigger_voice_state_event(std::string channel_id, std::string user_id, VoiceState voice_state);
 };

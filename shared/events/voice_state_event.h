@@ -12,7 +12,7 @@ public:
     {
     }
 
-    VoiceStateEvent(std::string user_id, QuesyncVoiceState voice_state) : Event(VOICE_STATE_EVENT)
+    VoiceStateEvent(std::string user_id, VoiceState voice_state) : Event(VOICE_STATE_EVENT)
     {
         _json["userId"] = user_id;
 		_json["voiceState"] = voice_state;

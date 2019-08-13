@@ -19,9 +19,9 @@ export function leaveCall(client) {
 	};
 }
 
-export function setVoiceState(userId, voiceState) {
+export function updateVoiceState(userId, voiceState) {
 	return {
-		type: "SET_VOICE_STATE",
+		type: "UPDATE_VOICE_STATE",
 		payload: {
 			userId,
 			voiceState
@@ -29,12 +29,19 @@ export function setVoiceState(userId, voiceState) {
 	};
 }
 
-export function setVoiceActivationState(userId, activated) {
+export function updateVoiceActivationState(userId, activated) {
 	return {
-		type: "SET_VOICE_ACTIVATED_STATE",
+		type: "UPDATE_VOICE_ACTIVATED_STATE",
 		payload: {
 			userId,
 			activated
 		}
+	};
+}
+
+export function setVoiceState(client, mute, deafen) {
+	return {
+		type: "SET_VOICE_STATE",
+		payload: client.setVoiceState(mute, deafen)
 	};
 }

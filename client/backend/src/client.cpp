@@ -20,6 +20,7 @@
 #include "../../../shared/packets/call_request_packet.h"
 #include "../../../shared/packets/join_call_request_packet.h"
 #include "../../../shared/packets/leave_call_packet.h"
+#include "../../../shared/packets/set_voice_state_packet.h"
 
 Napi::FunctionReference Client::constructor;
 
@@ -879,7 +880,7 @@ Napi::Value Client::call(const Napi::CallbackInfo &info)
 		std::shared_ptr<ResponsePacket> response_packet;
 		nlohmann::json res, voice_res;
 
-		CallRequestPacket call_request_packet(channel_id);
+		CallRequestPacket call_request_packet(channel_id, _voice_chat->muted(), _voice_chat->deafen());
 
 		// If not authenticated, return error
 		if (!_user)
@@ -963,7 +964,7 @@ Napi::Value Client::joinCall(const Napi::CallbackInfo &info)
 		std::shared_ptr<ResponsePacket> response_packet;
 		nlohmann::json res, voice_res;
 
-		JoinCallRequestPacket join_call_request_packet(channel_id);
+		JoinCallRequestPacket join_call_request_packet(channel_id, _voice_chat->muted(), _voice_chat->deafen());
 
 		// If not authenticated, return error
 		if (!_user)
@@ -1108,6 +1109,98 @@ Napi::Value Client::leaveCall(const Napi::CallbackInfo &info)
 	return deferred.Promise();
 }
 
+Napi::Value Client::setVoiceState(const Napi::CallbackInfo &info)
+{
+	Napi::Env env = info.Env();
+	Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+	// Convert parameters to c++ objects
+	bool mute = info[0].As<Napi::Boolean>();
+	bool deafen = info[1].As<Napi::Boolean>();
+
+	Executer *e = new Executer([this, mute, deafen]() {
+		QuesyncError error = SUCCESS;
+		std::shared_ptr<ResponsePacket> response_packet;
+		nlohmann::json res;
+
+		SetVoiceStatePacket set_voice_state_packet(mute, deafen);
+
+		// If not authenticated, return error
+		if (!_user)
+		{
+			res["error"] = NOT_AUTHENTICATED;
+
+			return res;
+		}
+
+		// Set the voice state
+		_voice_chat->setState(mute, deafen);
+
+		// If not connected, don't update the server
+		if (!_voice_chat->enabled())
+		{
+			res["error"] = SUCCESS;
+
+			res["muted"] = mute;
+			res["deafen"] = deafen;
+
+			return res;
+		}
+
+		// Send the set voice state packet
+		try
+		{
+			response_packet = _communicator.send(&set_voice_state_packet);
+		}
+		catch (QuesyncException &ex)
+		{
+			res["error"] = ex.getErrorCode();
+
+			return res;
+		}
+		catch (...)
+		{
+			res["error"] = UNKNOWN_ERROR;
+
+			return res;
+		}
+
+		// If the response is an error, handle the error
+		if (response_packet && response_packet->type() == ERROR_PACKET)
+		{
+			// Set the error code from the response packet
+			res["error"] = std::static_pointer_cast<ErrorPacket>(response_packet)->error();
+		}
+		// If the response packet is a voice state set packet, return success
+		else if (response_packet && response_packet->type() == VOICE_STATE_SET_PACKET)
+		{
+			// Set success error code
+			res["error"] = SUCCESS;
+
+			res["muted"] = mute;
+			res["deafen"] = deafen;
+		}
+		else if (error)
+		{
+			// If an error occurred, return it
+			res["error"] = error;
+		}
+		else
+		{
+			// We shouldn't get here
+			res["error"] = UNKNOWN_ERROR;
+		}
+
+		return res;
+	},
+							   deferred);
+
+	// Queue the executer worker
+	e->Queue();
+
+	return deferred.Promise();
+}
+
 Napi::Value Client::setFriendshipStatus(const Napi::CallbackInfo &info)
 {
 
@@ -1209,7 +1302,8 @@ Napi::Object Client::Init(Napi::Env env, Napi::Object exports)
 									   InstanceMethod("setFriendshipStatus", &Client::setFriendshipStatus),
 									   InstanceMethod("call", &Client::call),
 									   InstanceMethod("joinCall", &Client::joinCall),
-									   InstanceMethod("leaveCall", &Client::leaveCall)});
+									   InstanceMethod("leaveCall", &Client::leaveCall),
+									   InstanceMethod("setVoiceState", &Client::setVoiceState)});
 
 	// Create a peristent reference to the class constructor. This will allow
 	// a function called on a class prototype and a function

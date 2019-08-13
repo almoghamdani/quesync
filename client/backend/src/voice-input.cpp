@@ -9,7 +9,7 @@
 #include "../../../shared/packets/voice_packet.h"
 
 VoiceInput::VoiceInput(std::shared_ptr<VoiceChat> voice_chat)
-	: _voice_chat(voice_chat), _enabled(false)
+	: _voice_chat(voice_chat), _enabled(false), _muted(false)
 {
 	int opus_error = 0;
 
@@ -103,6 +103,12 @@ void VoiceInput::inputThread()
 			// Get the capture samples
 			alcCaptureSamples(_capture_device, (ALCvoid *)buffer, FRAME_SIZE);
 
+			// If muted, continue
+			if (_muted)
+			{
+				continue;
+			}
+
 			// Copy all PCM 16-bit short to an array of floats
 			for (int i = 0; i < FRAME_SIZE; i++)
 			{
@@ -156,6 +162,23 @@ void VoiceInput::inputThread()
 			}
 		}
 	}
+}
+
+void VoiceInput::mute()
+{
+	_muted = true;
+}
+
+
+void VoiceInput::unmute()
+{
+	_muted = false;
+}
+
+
+bool VoiceInput::muted()
+{
+	return _muted;
 }
 
 double VoiceInput::calcRMS(int16_t *data, uint32_t size)

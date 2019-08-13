@@ -3,6 +3,8 @@ export default function reducer(
 		channelId: null,
 		voiceStates: {},
 		voiceActivations: {},
+		muted: false,
+		deafen: false,
 		error: null
 	},
 	action
@@ -11,11 +13,13 @@ export default function reducer(
 		case "CALL_PENDING":
 		case "JOIN_CALL_PENDING":
 		case "LEAVE_CALL_PENDING":
+		case "SET_VOICE_STATE_PENDING":
 			return { ...state, error: 0 };
 
 		case "CALL_REJECTED":
 		case "JOIN_CALL_REJECTED":
 		case "LEAVE_CALL_REJECTED":
+		case "SET_VOICE_STATE_REJECTED":
 			return { ...state, error: action.payload.error };
 
 		case "CALL_FULFILLED":
@@ -34,7 +38,7 @@ export default function reducer(
 				channelId: null
 			};
 
-		case "SET_VOICE_STATE":
+		case "UPDATE_VOICE_STATE":
 			return {
 				...state,
 				voiceStates: {
@@ -43,13 +47,20 @@ export default function reducer(
 				}
 			};
 
-		case "SET_VOICE_ACTIVATED_STATE":
+		case "UPDATE_VOICE_ACTIVATED_STATE":
 			return {
 				...state,
 				voiceActivations: {
 					...state.voiceActivations,
 					[action.payload.userId]: action.payload.activated
 				}
+			};
+
+		case "SET_VOICE_STATE_FULFILLED":
+			return {
+				...state,
+				muted: action.payload.muted,
+				deafen: action.payload.deafen
 			};
 
 		default:

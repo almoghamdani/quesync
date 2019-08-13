@@ -20,6 +20,11 @@ public:
 	void enable();
 	void disable();
 
+	void deaf();
+	void undeaf();
+
+	bool deafen();
+
 private:
 	std::shared_ptr<VoiceChat> _voice_chat;
 
@@ -32,6 +37,7 @@ private:
 	OpusDecoder *_opus_decoder;
 
 	bool _enabled;
+	bool _deafen;
 
 	void outputThread();
 

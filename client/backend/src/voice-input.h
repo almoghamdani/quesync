@@ -24,6 +24,11 @@ public:
 	void enable();
 	void disable();
 
+	void mute();
+	void unmute();
+
+	bool muted();
+
 private:
 	std::shared_ptr<VoiceChat> _voice_chat;
 
@@ -34,6 +39,7 @@ private:
 	DenoiseState *_rnnoise_state;
 
 	bool _enabled;
+	bool _muted;
 
 	void inputThread();
 
