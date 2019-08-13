@@ -37,8 +37,14 @@ electron.ipcMain.on("create-call-window", (_, callDetails) => {
 		resizable: false,
 		transparent: true,
 		center: true,
+		alwaysOnTop: true,
 		parent: mainWindow
 	});
+
+	// Disable resize
+	callWindows[callDetails.id].setFullScreenable(false);
+	callWindows[callDetails.id].setMaximizable(false);
+	callWindows[callDetails.id].setResizable(false);
 
 	// Load the calling window's content using the query
 	callWindows[callDetails.id].loadURL(

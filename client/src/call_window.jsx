@@ -13,6 +13,11 @@ const { ipcRenderer } = window.require("electron");
 
 class CallWindow extends Component {
 	componentDidMount() {
+		// Set the window to auto-close itself after 20 seconds
+		setTimeout(() => {
+			ipcRenderer.send("close-call-window", this.props.id);
+		}, 20 * 1000);
+
 		anime({
 			targets: ".quesync-call-avatar",
 			easing: "spring(0.2, 100, 4, 0)",
@@ -21,7 +26,12 @@ class CallWindow extends Component {
 			height: ["70px", "110px"],
 			width: ["70px", "110px"],
 			borderRadius: ["35px", "55px"],
-			boxShadow: ["0px 0px 0px 0px #40c4ff", "0px 0px 3px 3px #40c4ff", "0 0 5px 5px #40c4ff"]
+			boxShadow: [
+				"0px 0px 0px 0px #40c4ff",
+				"0px 0px 4px 4px #40c4ff",
+				"0px 0px 4.5px 4.5px #40c4ff",
+				"0px 0px 5px 5px #40c4ff"
+			]
 		});
 	}
 
@@ -63,6 +73,9 @@ class CallWindow extends Component {
 							danger
 							className="quesync-call-action-button quesync-call-decline-button"
 							label="Reject"
+							onClick={() => {
+								ipcRenderer.send("close-call-window", this.props.id);
+							}}
 						/>
 					</div>
 				</Elevation>
