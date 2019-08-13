@@ -75,4 +75,6 @@ private:
 	bool _enabled;
 
 	void voiceActivationThread();
+
+	void sendDummyMessage();
 };

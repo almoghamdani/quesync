@@ -5,6 +5,8 @@
 
 #include "client.h"
 
+#include "../../../shared/packets/voice_packet.h"
+
 VoiceChat::VoiceChat(Client *client, const char *server_ip)
 	: _client(client),
 	  _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)), // Create an IPv4 UDP socket with a random port
@@ -30,18 +32,19 @@ void VoiceChat::enable(std::string user_id, std::string session_id, std::string 
 	_session_id = session_id;
 	_channel_id = channel_id;
 
-	_enabled = true;
+	// Send dummy message to the voice server so it can recongnize the client
+	sendDummyMessage();
 
-	// Enable input and output
+	// Enable voice chat and input and output
+	_enabled = true;
 	_input->enable();
 	_output->enable();
 }
 
 void VoiceChat::disable()
 {
+	// Disable voice chat and input and output
 	_enabled = false;
-
-	// Enable input and output
 	_input->disable();
 	_output->disable();
 }
@@ -172,4 +175,13 @@ uint64_t VoiceChat::getMS()
 {
 	using namespace std::chrono;
 	return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
+void VoiceChat::sendDummyMessage()
+{
+	VoicePacket voice_packet(_user_id, _session_id, _channel_id, nullptr, 0);
+	std::string voice_packet_encoded = voice_packet.encode();
+
+	// Send the dummy packet to the server
+	_socket.send_to(asio::buffer(voice_packet_encoded.c_str(), voice_packet_encoded.length()), _endpoint);
 }
