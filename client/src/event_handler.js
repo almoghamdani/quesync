@@ -8,7 +8,9 @@ import { addMessageToChannel } from "./actions/messagesActions";
 import {
 	joinCall,
 	updateVoiceState,
-	updateVoiceActivationState
+	updateVoiceActivationState,
+	removeActiveCall,
+	setActiveCall
 } from "./actions/voiceActions";
 
 import updater from "./updater";
@@ -28,6 +30,7 @@ class EventHandler {
 		client.registerEventHandler("incoming-call", this.incomingCallEvent);
 		client.registerEventHandler("voice-state", this.voiceStateEvent);
 		client.registerEventHandler("voice-activity", this.voiceActivationEvent);
+		client.registerEventHandler("call-ended", this.callEndedEvent);
 
 		ipcRenderer.on("join-call", (_, channelId) => {
 			// Close the window
@@ -209,6 +212,9 @@ class EventHandler {
 		const channelId = event.channelId;
 		const channel = channels[channelId];
 
+		// Set the channel as an active call
+		store.dispatch(setActiveCall(channelId));
+
 		// If the channel exists
 		if (channel) {
 			// If the channel is a private channel
@@ -240,6 +246,14 @@ class EventHandler {
 				updateVoiceActivationState(userId, event.changedActivity[userId])
 			)
 		);
+	};
+
+	callEndedEvent = event => {
+		// Remove the call as an active call
+		store.dispatch(removeActiveCall(event.channelId));
+
+		// Close the call window in case there is one
+		ipcRenderer.send("close-call-window", event.channelId);
 	};
 }
 

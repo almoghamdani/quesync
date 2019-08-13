@@ -39,10 +39,23 @@ export default function reducer(
 			};
 
 		case "LEAVE_CALL_FULFILLED":
+			let activeCalls = state.activeCalls;
+			const connectedUsers = Object.keys(state.voiceStates).filter(
+				user => state.voiceStates[user].state === 1
+			);
+
+			// If no one is connected to the channel, remove the channel as an active channel
+			if (!connectedUsers.length) {
+				activeCalls = [...state.activeCalls].filter(
+					channel => channel !== state.channelId
+				);
+			}
+
 			return {
 				...state,
 				voiceStates: {},
 				voiceActivations: {},
+				activeCalls,
 				channelId: null
 			};
 
@@ -76,6 +89,17 @@ export default function reducer(
 				...state,
 				activeCalls: [...state.activeCalls, action.payload]
 			};
+
+		case "REMOVE_ACTIVE_CALL": {
+			const activeCalls = [...state.activeCalls].filter(
+				channel => channel !== action.payload
+			);
+
+			return {
+				...state,
+				activeCalls: activeCalls
+			};
+		}
 
 		default:
 			return state;

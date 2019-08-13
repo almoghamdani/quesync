@@ -7,6 +7,7 @@
 #include "../shared/packets/voice_packet.h"
 #include "../shared/packets/participant_voice_packet.h"
 #include "../shared/events/voice_state_event.h"
+#include "../shared/events/call_ended_event.h"
 #include "../shared/quesync_exception.h"
 
 VoiceManager::VoiceManager(std::shared_ptr<Quesync> server) : Manager(server),
@@ -191,6 +192,8 @@ void VoiceManager::leaveVoiceChannel(std::string user_id)
 	std::string channel_id;
 	std::unique_lock lk(_mutex);
 
+	CallEndedEvent call_ended_event;
+
 	// Check if in voice channel
 	if (!_joined_voice_channels.count(user_id))
 	{
@@ -212,6 +215,13 @@ void VoiceManager::leaveVoiceChannel(std::string user_id)
 		{
 			return;
 		}
+	}
+
+	// Send call ended event for all participants of the call
+	call_ended_event = CallEndedEvent(channel_id);
+	for (auto& user : _voice_channels[channel_id])
+	{
+		_server->eventManager()->triggerEvent(call_ended_event, user.first);
 	}
 
 	// If the channel has no one connected to it, remove it

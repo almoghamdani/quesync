@@ -52,3 +52,10 @@ export function setActiveCall(channelId) {
 		payload: channelId
 	};
 }
+
+export function removeActiveCall(channelId) {
+	return {
+		type: "REMOVE_ACTIVE_CALL",
+		payload: channelId
+	};
+}
