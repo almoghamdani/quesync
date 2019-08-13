@@ -45,3 +45,10 @@ export function setVoiceState(client, mute, deafen) {
 		payload: client.setVoiceState(mute, deafen)
 	};
 }
+
+export function setActiveCall(channelId) {
+	return {
+		type: "SET_ACTIVE_CALL",
+		payload: channelId
+	};
+}

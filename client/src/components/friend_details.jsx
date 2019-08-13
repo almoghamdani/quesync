@@ -2,11 +2,13 @@ import React, { Component } from "react";
 
 import { Typography } from "@rmwc/typography";
 import { Avatar } from "@rmwc/avatar";
-import { IconButton } from "@rmwc/icon-button";
+import { Button } from "@rmwc/button";
 
 import "./friend_details.scss";
 
 class FriendDetails extends Component {
+	callButton = React.createRef();
+
 	render() {
 		return (
 			<div className="quesync-friend-details-wrapper" style={this.props.style}>
@@ -24,11 +26,30 @@ class FriendDetails extends Component {
 					</Typography>
 				</div>
 				<div className="quesync-friend-actions">
-					<IconButton
+					<Button
+						className="quesync-friend-call-button"
+						ref={this.callButton}
 						icon="call"
-						label="Call"
-						style={{ color: "var(--mdc-theme-primary)" }}
-						onClick={() => this.props.startCall()}
+						label={
+							this.props.inCall
+								? "In Call"
+								: this.props.activeCall
+								? "Join Call"
+								: "Call"
+						}
+						style={{
+							color: this.props.inCall ? "gray" : "var(--mdc-theme-primary)"
+						}}
+						onClick={() => {
+							// Call the correct handler
+							this.props.activeCall
+								? this.props.joinCall()
+								: this.props.startCall();
+
+							// Blur the button
+							this.callButton.current.blur();
+						}}
+						disabled={this.props.inCall}
 					/>
 				</div>
 			</div>

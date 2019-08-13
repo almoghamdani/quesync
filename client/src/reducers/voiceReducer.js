@@ -1,6 +1,7 @@
 export default function reducer(
 	state = {
 		channelId: null,
+		activeCalls: [],
 		voiceStates: {},
 		voiceActivations: {},
 		muted: false,
@@ -23,6 +24,13 @@ export default function reducer(
 			return { ...state, error: action.payload.error };
 
 		case "CALL_FULFILLED":
+			return {
+				...state,
+				activeCalls: [...state.activeCalls, action.payload.channelId],
+				voiceStates: action.payload.voiceStates,
+				channelId: action.payload.channelId
+			};
+
 		case "JOIN_CALL_FULFILLED":
 			return {
 				...state,
@@ -61,6 +69,12 @@ export default function reducer(
 				...state,
 				muted: action.payload.muted,
 				deafen: action.payload.deafen
+			};
+
+		case "SET_ACTIVE_CALL":
+			return {
+				...state,
+				activeCalls: [...state.activeCalls, action.payload]
 			};
 
 		default:

@@ -1,10 +1,11 @@
 import { store } from "./store";
 
-import { sendFriendRequest } from "./actions/userActions"
+import { sendFriendRequest } from "./actions/userActions";
 import { getChannelMessages } from "./actions/messagesActions";
 import { getPrivateChannel } from "./actions/channelsActions";
 import { fetchUserProfile } from "./actions/usersActions";
-import { resetUI } from "./actions/uiActions"
+import { setActiveCall } from "./actions/voiceActions";
+import { resetUI } from "./actions/uiActions";
 
 import Logger from "./logger";
 
@@ -32,8 +33,8 @@ class Updater {
 		// Get the user's profile
 		await store
 			.dispatch(fetchUserProfile(client, user.id))
-			.then(() => { })
-			.catch((ex) => {
+			.then(() => {})
+			.catch(ex => {
 				this.logger.error(
 					`An error occurred fetching the user's profile. Error: ${ex}`
 				);
@@ -59,13 +60,19 @@ class Updater {
 
 		// Fetch the user that is currently selected in the UI if not already fetched
 		this.logger.info("Fetching the currently selected user if needed!");
-		const currentlySelectedUserId = state.ui.items.selectedFriendsPageDrawerItemId;
-		if (currentlySelectedUserId && !Object.keys(store.getState().users.profiles).includes(currentlySelectedUserId)) {
-			await this.updateUser(client, currentlySelectedUserId)
+		const currentlySelectedUserId =
+			state.ui.items.selectedFriendsPageDrawerItemId;
+		if (
+			currentlySelectedUserId &&
+			!Object.keys(store.getState().users.profiles).includes(
+				currentlySelectedUserId
+			)
+		) {
+			await this.updateUser(client, currentlySelectedUserId);
 		}
 
 		this.logger.info("Update finished!");
-	}
+	};
 
 	updateUser = async (client, userId) => {
 		// Fetch the user's profile
@@ -75,39 +82,48 @@ class Updater {
 				// Get the user's private channel
 				await store
 					.dispatch(getPrivateChannel(client, userId))
-					.then(async (res) => {
-						const channelId = res.action.payload.channel.id
+					.then(async res => {
+						const channelId = res.action.payload.channel.id;
+						const callActive = res.action.payload.callActive;
+
+						// If a call is active in the channel
+						if (callActive) {
+							store.dispatch(setActiveCall(channelId));
+						}
 
 						// Update the channel
 						await this.updateChannel(client, channelId);
 					})
-					.catch((ex) => {
+					.catch(ex => {
 						this.logger.error(
 							`An error occurred getting the private channel of the user ${userId}. Error: ${ex}`
 						);
 					});
 			})
-			.catch((ex) => {
+			.catch(ex => {
 				this.logger.error(
 					`An error occurred fetching the profile of the user ${userId}. Error: ${ex}`
 				);
 			});
-	}
+	};
 
 	updateChannel = async (client, channelId) => {
 		// Get the channel's messages
 		await store
-			.dispatch(getChannelMessages(client, channelId, AMOUNT_OF_INITIAL_MESSAGES, 0))
-			.then(() => { })
-			.catch((ex) => {
+			.dispatch(
+				getChannelMessages(client, channelId, AMOUNT_OF_INITIAL_MESSAGES, 0)
+			)
+			.then(() => {})
+			.catch(ex => {
 				this.logger.error(
 					`An error occurred getting the messages of the channel ${channelId}. Error: ${ex}`
 				);
 			});
-	}
+	};
 
-	getLastLoggedUserId = () => localStorage.getItem("lastLoggedUserId")
-	setLastLoggedUserId = userId => localStorage.setItem("lastLoggedUserId", userId)
+	getLastLoggedUserId = () => localStorage.getItem("lastLoggedUserId");
+	setLastLoggedUserId = userId =>
+		localStorage.setItem("lastLoggedUserId", userId);
 
 	sendFriendRequest = async (client, userId) => {
 		// Fetch the user's profile
@@ -116,10 +132,12 @@ class Updater {
 			.then(() => store.dispatch(sendFriendRequest(client, userId))) // Send friend request
 			.then(() => store.dispatch(getPrivateChannel(client, userId))) // Get the private channel
 			.then(res => this.updateChannel(client, res.action.payload.channel.id)) // Update the channel
-			.catch(ex => this.logger.error(
-				`An error occurred sending the friend request to the user ${userId}. Error: ${ex}`
-			))
-	}
+			.catch(ex =>
+				this.logger.error(
+					`An error occurred sending the friend request to the user ${userId}. Error: ${ex}`
+				)
+			);
+	};
 }
 
 const updater = new Updater();

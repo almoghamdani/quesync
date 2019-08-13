@@ -13,7 +13,12 @@ import FriendDetails from "./friend_details";
 import CallDetails from "./call_details";
 import Seperator from "./seperator";
 
-import { call, leaveCall, setVoiceState } from "../actions/voiceActions";
+import {
+	call,
+	joinCall,
+	leaveCall,
+	setVoiceState
+} from "../actions/voiceActions";
 
 import "./side_panel.scss";
 
@@ -83,6 +88,13 @@ class SidePanel extends Component {
 						startCall={() =>
 							this.props.dispatch(call(this.props.client, this.props.channelId))
 						}
+						joinCall={() =>
+							this.props.dispatch(
+								joinCall(this.props.client, this.props.channelId)
+							)
+						}
+						inCall={this.props.voiceChannelId === this.props.channelId}
+						activeCall={this.props.activeCalls.includes(this.props.channelId)}
 					/>
 					<Seperator style={{ opacity: this.props.inCall ? 1 : 0 }} />
 					<Transition
@@ -170,6 +182,7 @@ export default connect(state => ({
 	voiceChannelId: state.voice.channelId,
 	voiceStates: state.voice.voiceStates,
 	voiceActivations: state.voice.voiceActivations,
+	activeCalls: state.voice.activeCalls,
 	muted: state.voice.muted,
 	deafen: state.voice.deafen,
 	profiles: state.users.profiles

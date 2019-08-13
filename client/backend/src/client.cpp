@@ -637,7 +637,7 @@ Napi::Value Client::getPrivateChannel(const Napi::CallbackInfo &info)
 	Executer *e = new Executer([this, user_id]() {
 		QuesyncError error = SUCCESS;
 		std::shared_ptr<ResponsePacket> response_packet;
-		nlohmann::json res;
+		nlohmann::json res, server_res;
 
 		GetPrivateChannelPacket get_private_channel_packet(user_id);
 
@@ -679,8 +679,11 @@ Napi::Value Client::getPrivateChannel(const Napi::CallbackInfo &info)
 			// Set success error code
 			res["error"] = SUCCESS;
 
-			// Get the channel from the response's data
-			res["channel"] = nlohmann::json::parse(response_packet->data());
+			// Parse the server res
+			server_res = nlohmann::json::parse(response_packet->data());
+
+			// Add the server res to the result
+			res.insert(server_res.begin(), server_res.end());
 			res["userId"] = user_id;
 		}
 		else if (error)

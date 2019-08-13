@@ -28,6 +28,7 @@ public:
 	void deleteVoiceSession(std::string user_id);
 
 	void initVoiceChannel(std::string channel_id, std::vector<std::string> users);
+	bool isVoiceChannelActive(std::string channel_id);
 
 	void joinVoiceChannel(std::string user_id, std::string channel_id, bool muted, bool deafen);
 	void leaveVoiceChannel(std::string user_id);

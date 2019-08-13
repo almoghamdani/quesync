@@ -5,7 +5,7 @@ import { TransitionGroup } from "react-transition-group";
 
 import { Typography } from "@rmwc/typography";
 import { List } from "@rmwc/list";
-import { IconButton } from "@rmwc/icon-button";
+import { Button } from "@rmwc/button";
 
 import FadeTransition from "./fade_transition";
 
@@ -40,11 +40,10 @@ class CallDetails extends Component {
 					</Scrollbars>
 				</div>
 				<div className="quesync-call-actions">
-					<IconButton
+					<Button
 						className="quesync-leave-call-button"
 						icon="call_end"
-						label="Leave call"
-						style={{ color: "#ff1744" }}
+						label="Leave Call"
 						onClick={this.props.leaveCall}
 					/>
 				</div>

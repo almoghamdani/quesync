@@ -159,6 +159,11 @@ void VoiceManager::initVoiceChannel(std::string channel_id, std::vector<std::str
 	_voice_channels[channel_id] = user_states;
 }
 
+bool VoiceManager::isVoiceChannelActive(std::string channel_id)
+{
+	return _voice_channels.count(channel_id);
+}
+
 void VoiceManager::joinVoiceChannel(std::string user_id, std::string channel_id, bool muted, bool deafen)
 {
 	std::unique_lock lk(_mutex);

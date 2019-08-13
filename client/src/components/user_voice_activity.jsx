@@ -97,7 +97,8 @@ class UserVoiceActivity extends Component {
 						appear
 						in={this.props.deafen}
 						onEnter={voiceStateEnterAnimation}
-						onExit={voiceStateExitAnimation}>
+						onExit={voiceStateExitAnimation}
+						timeout={150}>
 						<Icon className="quesync-voice-state-icon" icon="volume_off" />
 					</Transition>
 				</div>
@@ -106,7 +107,8 @@ class UserVoiceActivity extends Component {
 						appear
 						in={this.props.muted}
 						onEnter={voiceStateEnterAnimation}
-						onExit={voiceStateExitAnimation}>
+						onExit={voiceStateExitAnimation}
+						timeout={150}>
 						<Icon className="quesync-voice-state-icon" icon="mic_off" />
 					</Transition>
 				</div>

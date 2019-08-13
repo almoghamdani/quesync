@@ -20,3 +20,15 @@
 .quesync-call-actions {
 	margin-top: 15px;
 }
+
+.quesync-leave-call-button {
+	color: #ff1744 !important;
+}
+
+.quesync-leave-call-button::after {
+	background: #ff1744 !important;
+}
+
+.quesync-leave-call-button::before {
+	background: #ff1744 !important;
+}
