@@ -1,14 +1,17 @@
 import React, { Component } from "react";
 
-import { register, startAuth, finishAuth } from "../actions/userActions";
+import { connect } from "react-redux";
 
 import { Typography } from "@rmwc/typography";
 import { TextField } from "@rmwc/textfield";
 import { Button } from "@rmwc/button";
 
-import { connect } from "react-redux";
+import { register, startAuth, finishAuth } from "../actions/userActions";
+
+import zxcvbn from "zxcvbn";
 
 import updater from "../updater";
+import PasswordMeter from "./password_meter";
 
 // Should be in rem units
 const height = 35;
@@ -17,6 +20,7 @@ const formClass = "quesync-register-form";
 
 class RegisterForm extends Component {
 	state = {
+		password: "",
 		usernameError: false,
 		passwordError: false,
 		passwordMismatchError: false,
@@ -24,6 +28,16 @@ class RegisterForm extends Component {
 	};
 
 	formatError = error => {
+		if (this.state.usernameError) {
+			return "Username field is missing or invalid!";
+		} else if (this.state.emailError) {
+			return "Email field is missing or invalid!";
+		} else if (this.state.passwordError) {
+			return "Password is too weak!";
+		} else if (this.state.passwordMismatchError) {
+			return "Passwords do not match!";
+		}
+
 		// Set the error message by the error code
 		switch (error) {
 			case 0:
@@ -35,7 +49,7 @@ class RegisterForm extends Component {
 			case window.errors.INVALID_EMAIL:
 				return "The e-mail entered is invalid!";
 
-			case window.errors.USER_ALREADY_IN_USE:
+			case window.errors.USERNAME_ALREADY_IN_USE:
 				return "The username chosen is already taken!";
 
 			case window.errors.EMAIL_ALREADY_IN_USE:
@@ -64,21 +78,27 @@ class RegisterForm extends Component {
 		});
 
 		// If the username field is empty
-		if (username.length === 0) {
+		if (
+			username.length === 0 ||
+			!/^[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9]){3,20}$/.test(username)
+		) {
 			this.setState({
 				usernameError: true
 			});
 			return;
 		}
 		// If the e-mail field is empty
-		else if (email.length === 0) {
+		else if (
+			email.length === 0 ||
+			!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email)
+		) {
 			this.setState({
 				emailError: true
 			});
 			return;
 		}
 		// If the password field is empty
-		else if (password.length === 0) {
+		else if (password.length === 0 || zxcvbn(password).score < 2) {
 			this.setState({
 				passwordError: true
 			});
@@ -158,12 +178,25 @@ class RegisterForm extends Component {
 					}}>
 					Register
 				</Typography>
+				<div className="quesync-error-holder">
+					<Typography
+						className="quesync-register-error"
+						use="caption"
+						style={{
+							color: "#ff1744",
+							userSelect: "none",
+							whiteSpace: "pre-line",
+							lineHeight: "12px"
+						}}>
+						{this.formatError(this.props.error)}
+					</Typography>
+				</div>
 				<TextField
 					invalid={this.state.usernameError}
 					outlined
 					label="Username"
 					icon="person"
-					style={{ marginTop: "38px", width: "300px" }}
+					style={{ width: "300px" }}
 				/>
 				<TextField
 					invalid={this.state.emailError}
@@ -178,8 +211,14 @@ class RegisterForm extends Component {
 					label="Password"
 					type="password"
 					icon="lock"
+					onChange={evt =>
+						this.setState({
+							password: evt.target.value
+						})
+					}
 					style={{ marginTop: "15px", width: "300px" }}
 				/>
+				<PasswordMeter password={this.state.password} />
 				<TextField
 					invalid={this.state.passwordMismatchError}
 					outlined
@@ -191,7 +230,7 @@ class RegisterForm extends Component {
 				<Button
 					type="submit"
 					raised
-					style={{ marginTop: "30px", width: "300px" }}
+					style={{ marginTop: "25px", width: "300px" }}
 					theme={["secondary"]}>
 					Register
 				</Button>
@@ -206,20 +245,6 @@ class RegisterForm extends Component {
 					onClick={this.haveAccountBtnClicked}>
 					Already have an account?
 				</Button>
-				<div className="quesync-error-holder">
-					<Typography
-						className="quesync-register-error"
-						use="caption"
-						style={{
-							color: "#ff1744",
-							paddingTop: "25px",
-							userSelect: "none",
-							whiteSpace: "pre-line",
-							lineHeight: "12px"
-						}}>
-						{this.formatError(this.props.error)}
-					</Typography>
-				</div>
 			</form>
 		);
 	}

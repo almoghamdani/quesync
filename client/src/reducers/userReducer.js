@@ -36,12 +36,19 @@ export default function reducer(
 			// Remove from the friend requests the approved friend request
 			newFriendRequests = newFriendRequests.filter(friendRequest => {
 				return friendRequest.friendId !== friendId;
-			})
+			});
 
 			// Add to the friends list the new friend
 			newFriends.push(friendId);
 
-			return { ...state, user: { ...state.user, friendRequests: newFriendRequests, friends: newFriends } };
+			return {
+				...state,
+				user: {
+					...state.user,
+					friendRequests: newFriendRequests,
+					friends: newFriends
+				}
+			};
 		}
 
 		case "REJECT_FRIEND_REQUEST_FULFILLED": {
@@ -52,9 +59,12 @@ export default function reducer(
 			// Remove from the friend requests the approved friend request
 			newFriendRequests = newFriendRequests.filter(friendRequest => {
 				return friendRequest.friendId !== friendId;
-			})
+			});
 
-			return { ...state, user: { ...state.user, friendRequests: newFriendRequests } };
+			return {
+				...state,
+				user: { ...state.user, friendRequests: newFriendRequests }
+			};
 		}
 
 		case "SEND_FRIEND_REQUEST_FULFILLED": {
@@ -66,8 +76,17 @@ export default function reducer(
 			// Add the friend to the list of friend requests
 			newFriendRequests.push({ friendId, friendType: "recipient", sentAt });
 
-			return { ...state, user: { ...state.user, friendRequests: newFriendRequests } }
+			return {
+				...state,
+				user: { ...state.user, friendRequests: newFriendRequests }
+			};
 		}
+
+		case "RESET_AUTH_ERROR":
+			return {
+				...state,
+				authError: 0
+			};
 
 		default:
 			return state;

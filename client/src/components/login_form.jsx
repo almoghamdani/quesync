@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 
-import { signIn, startAuth, finishAuth } from "../actions/userActions";
+import { connect } from "react-redux";
 
 import { Typography } from "@rmwc/typography";
 import { TextField } from "@rmwc/textfield";
 import { Button } from "@rmwc/button";
 
-import { connect } from "react-redux";
+import { signIn, startAuth, finishAuth } from "../actions/userActions";
 
 import updater from "../updater";
 
@@ -34,6 +34,12 @@ class LoginForm extends Component {
 	}
 
 	formatError = error => {
+		if (this.state.usernameError) {
+			return "No username entered!";
+		} else if (this.state.passwordError) {
+			return "No password entered!";
+		}
+
 		// Set the error message by the error code
 		switch (error) {
 			case 0:
@@ -130,12 +136,25 @@ class LoginForm extends Component {
 					}}>
 					Login
 				</Typography>
+				<div className="quesync-error-holder">
+					<Typography
+						className="quesync-login-error"
+						use="caption"
+						style={{
+							color: "#ff1744",
+							userSelect: "none",
+							whiteSpace: "pre-line",
+							lineHeight: "12px"
+						}}>
+						{this.formatError(this.props.error)}
+					</Typography>
+				</div>
 				<TextField
 					invalid={this.state.usernameError}
 					outlined
 					label="Username"
 					icon="person"
-					style={{ marginTop: "38px", width: "300px" }}
+					style={{ width: "300px" }}
 				/>
 				<TextField
 					invalid={this.state.passwordError}
@@ -163,20 +182,6 @@ class LoginForm extends Component {
 					onClick={this.registerBtnClicked}>
 					Don't have an account yet?
 				</Button>
-				<div className="quesync-error-holder">
-					<Typography
-						className="quesync-login-error"
-						use="caption"
-						style={{
-							color: "#ff1744",
-							paddingTop: "25px",
-							userSelect: "none",
-							whiteSpace: "pre-line",
-							lineHeight: "12px"
-						}}>
-						{this.formatError(this.props.error)}
-					</Typography>
-				</div>
 			</form>
 		);
 	}
