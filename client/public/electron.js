@@ -38,6 +38,7 @@ electron.ipcMain.on("create-call-window", (_, callDetails) => {
 		transparent: true,
 		center: true,
 		alwaysOnTop: true,
+		show: false,
 		parent: mainWindow
 	});
 
@@ -57,6 +58,11 @@ electron.ipcMain.on("create-call-window", (_, callDetails) => {
 		// If the window should still be open, keep it open
 		if (callWindows[callDetails.id]) evt.preventDefault();
 	});
+
+	callWindows[callDetails.id].on(
+		"ready-to-show",
+		callWindows[callDetails.id].show
+	);
 });
 
 electron.ipcMain.on("close-call-window", (_, channelId) => {
@@ -97,7 +103,8 @@ function createWindow() {
 		titleBarStyle: "hidden",
 		frame: false,
 		webPreferences: { nodeIntegration: true },
-		fullscreenable: false
+		fullscreenable: false,
+		show: false
 	});
 
 	// Load the dev url if electron ran on dev or load the static html file when electron is running in production
@@ -109,6 +116,9 @@ function createWindow() {
 
 	// On the close event release the window from the memory
 	mainWindow.on("closed", () => (mainWindow = null));
+
+	// Only show the window when it's ready
+	mainWindow.on("ready-to-show", mainWindow.show);
 
 	// If in dev mode, install devTools
 	if (isDev) {
