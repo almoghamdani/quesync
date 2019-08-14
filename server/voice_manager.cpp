@@ -118,12 +118,15 @@ void VoiceManager::handle_packet(std::size_t length)
 
 std::string VoiceManager::createVoiceSession(std::string user_id)
 {
-	std::string session_id = sole::uuid4().str();
 	std::unique_lock lk(_mutex);
 
-	_sessions[user_id] = session_id;
+	// If a session doesn't exists for the user
+	if (!_sessions.count(user_id))
+	{
+		_sessions[user_id] = sole::uuid4().str();
+	}
 
-	return session_id;
+	return _sessions[user_id];
 }
 
 void VoiceManager::deleteVoiceSession(std::string user_id)
@@ -219,7 +222,7 @@ void VoiceManager::leaveVoiceChannel(std::string user_id)
 
 	// Send call ended event for all participants of the call
 	call_ended_event = CallEndedEvent(channel_id);
-	for (auto& user : _voice_channels[channel_id])
+	for (auto &user : _voice_channels[channel_id])
 	{
 		_server->eventManager()->triggerEvent(call_ended_event, user.first);
 	}

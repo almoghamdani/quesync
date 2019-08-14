@@ -32,8 +32,9 @@ void VoiceChat::enable(std::string user_id, std::string session_id, std::string 
 	_session_id = session_id;
 	_channel_id = channel_id;
 
-	// Send dummy message to the voice server so it can recongnize the client
-	sendDummyMessage();
+	// If not enabled before, Send dummy message to the voice server so it can recongnize the client
+	if (!_enable)
+		sendDummyMessage();
 
 	// Enable voice chat and input and output
 	_enabled = true;
@@ -59,13 +60,18 @@ void VoiceChat::setState(bool mute, bool deafen)
 	if (mute)
 	{
 		_input->mute();
-	} else {
+	}
+	else
+	{
 		_input->unmute();
 	}
 
-	if (deafen) {
+	if (deafen)
+	{
 		_output->deaf();
-	} else {
+	}
+	else
+	{
 		_output->undeaf();
 	}
 }

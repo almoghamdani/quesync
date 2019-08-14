@@ -43,6 +43,15 @@ public:
 
 		try
 		{
+			try
+			{
+				// Try to leave the current voice channel if in one
+				session->server()->voiceManager()->leaveVoiceChannel(session->user()->id());
+			}
+			catch (...)
+			{
+			}
+
 			// Create a voice session for the user
 			voice_session_id = session->server()->voiceManager()->createVoiceSession(session->user()->id());
 
