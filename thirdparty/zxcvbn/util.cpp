@@ -69,7 +69,7 @@ bool utf8_valid(const std::string & str) {
 
 template<class It>
 It _utf8_iter(It start, It end) {
-  assert(start != end);
+  //assert(start != end);
   std::mbstate_t st;
   auto amt = char32_conv.length(st, &*start, &*end, 1);
   return start + amt;
@@ -88,7 +88,7 @@ std::string::const_iterator utf8_iter(std::string::const_iterator start,
 std::string::size_type character_len(const std::string & str,
                                      std::string::size_type start,
                                      std::string::size_type end) {
-  assert(utf8_valid(str.begin() + start, str.begin() + end));
+  //assert(utf8_valid(str.begin() + start, str.begin() + end));
 
   std::string::size_type clen = 0;
   for (auto it = str.begin() + start;
@@ -109,18 +109,18 @@ std::pair<char32_t, It> _utf8_decode(It it, It end) {
   char32_t new_char;
   char32_t *to_next;
 
-  assert(it != end);
+  //assert(it != end);
 
   const char *from = &*it;
   const char *from_end = &*end;
   const char *from_next;
   auto res = char32_conv.in(st, from, from_end, from_next,
                             &new_char, &new_char + 1, to_next);
-  assert((res == std::codecvt_utf8<char32_t>::partial &&
+  /*assert((res == std::codecvt_utf8<char32_t>::partial &&
           from_next != from_end) ||
          (res == std::codecvt_utf8<char32_t>::ok &&
           from_next == from_end));
-  (void) res;
+  (void) res;*/
 
   return std::make_pair(new_char, it + (from_next - from));
 }

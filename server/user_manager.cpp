@@ -102,6 +102,12 @@ std::shared_ptr<User> UserManager::registerUser(std::shared_ptr<Session> sess,
 		throw QuesyncException(INVALID_EMAIL);
 	}
 
+	// Check if the password is below fair
+	if (Validation::ScorePassword(password) < 2)
+	{
+		throw QuesyncException(PASSWORD_TOO_WEAK);
+	}
+
 	// Check if there are any users with the username/email/nickname of the new user
 	try
 	{

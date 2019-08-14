@@ -233,6 +233,8 @@ std::string Utils::QuesyncErrorToString(QuesyncError error)
 		return "INVALID_USERNAME";
 	case INVALID_EMAIL:
 		return "INVALID_EMAIL";
+	case PASSWORD_TOO_WEAK:
+		return "PASSWORD_TOO_WEAK";
 	case USERNAME_ALREADY_IN_USE:
 		return "USERNAME_ALREADY_IN_USE";
 	case EMAIL_ALREADY_IN_USE:
