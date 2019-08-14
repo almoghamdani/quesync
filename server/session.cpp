@@ -68,61 +68,61 @@ void Session::recv()
 	char *header_buf = new char[sizeof(Header)];
 
 	// Get the header of the request
-	_socket.async_read_some(asio::buffer(header_buf, sizeof(Header)),
-							[this, self, header_buf](std::error_code ec, std::size_t length) {
-								Header req_header = Utils::DecodeHeader(header_buf);
-								std::shared_ptr<char> buf = std::shared_ptr<char>(new char[req_header.size]);
+	asio::async_read(_socket, asio::buffer(header_buf, sizeof(Header)),
+					 [this, self, header_buf](std::error_code ec, std::size_t length) {
+						 Header req_header = Utils::DecodeHeader(header_buf);
+						 std::shared_ptr<char> buf = std::shared_ptr<char>(new char[req_header.size]);
 
-								// Get a request from the user
-								_socket.async_read_some(asio::buffer(buf.get(), req_header.size),
-														[this, self, buf, req_header](std::error_code ec, std::size_t length) {
-															Header header{1, 0};
-															std::string header_str;
-															std::shared_ptr<Packet> packet;
-															std::string response;
+						 // Get a request from the user
+						 asio::async_read(_socket, asio::buffer(buf.get(), req_header.size),
+										  [this, self, buf, req_header](std::error_code ec, std::size_t length) {
+											  Header header{1, 0};
+											  std::string header_str;
+											  std::shared_ptr<Packet> packet;
+											  std::string response;
 
-															// If no error occurred, parse the request
-															if (!ec)
-															{
-																// Parse the packet
-																packet = std::shared_ptr<Packet>(Utils::ParsePacket(std::string(buf.get(), req_header.size)));
+											  // If no error occurred, parse the request
+											  if (!ec)
+											  {
+												  // Parse the packet
+												  packet = std::shared_ptr<Packet>(Utils::ParsePacket(std::string(buf.get(), req_header.size)));
 
-																// If the packet has parsed successfully handle it
-																if (packet)
-																{
-																	// Handle the client's request and get a respond
-																	response = packet->handle(this);
-																}
-																else
-																{
-																	// Return an invalid packet error packet
-																	response = ErrorPacket(INVALID_PACKET).encode();
-																}
+												  // If the packet has parsed successfully handle it
+												  if (packet)
+												  {
+													  // Handle the client's request and get a respond
+													  response = packet->handle(this);
+												  }
+												  else
+												  {
+													  // Return an invalid packet error packet
+													  response = ErrorPacket(INVALID_PACKET).encode();
+												  }
 
-																// Set the size of the response
-																header.size = (unsigned int)response.size();
+												  // Set the size of the response
+												  header.size = (unsigned int)response.size();
 
-																// Encode the header in a string
-																header_str = Utils::EncodeHeader(header);
+												  // Encode the header in a string
+												  header_str = Utils::EncodeHeader(header);
 
-																// Send the header + server's response to the server
-																send(header_str + response);
-															}
-															else
-															{
-																// If the client closed the connection, close the client
-																if (ec == asio::error::misc_errors::eof)
-																{
-																	std::cout << termcolor::magenta << "The client " << _socket.lowest_layer().remote_endpoint().address().to_string() << ":" << (int)_socket.lowest_layer().remote_endpoint().port() << " disconnected!" << termcolor::reset << std::endl;
-																}
-																else
-																{
-																	// Print error
-																	std::cout << termcolor::red << "An error occurred: " << ec << termcolor::reset << std::endl;
-																}
-															}
-														});
-							});
+												  // Send the header + server's response to the server
+												  send(header_str + response);
+											  }
+											  else
+											  {
+												  // If the client closed the connection, close the client
+												  if (ec == asio::error::misc_errors::eof)
+												  {
+													  std::cout << termcolor::magenta << "The client " << _socket.lowest_layer().remote_endpoint().address().to_string() << ":" << (int)_socket.lowest_layer().remote_endpoint().port() << " disconnected!" << termcolor::reset << std::endl;
+												  }
+												  else
+												  {
+													  // Print error
+													  std::cout << termcolor::red << "An error occurred: " << ec << termcolor::reset << std::endl;
+												  }
+											  }
+										  });
+					 });
 }
 
 void Session::send(std::string data)

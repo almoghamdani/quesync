@@ -66,14 +66,15 @@ electron.ipcMain.on("create-call-window", (_, callDetails) => {
 });
 
 electron.ipcMain.on("close-call-window", (_, channelId) => {
-	const callWindow = callWindows[channelId];
-
 	// If there is a window with the call id
-	if (callWindow) {
-		callWindows[channelId] = undefined;
+	if (channelId in callWindows) {
+		const window = callWindows[channelId];
 
+		// Remove the window from the call windows
+		delete callWindows[channelId];
+		
 		// Close the window
-		callWindow.close();
+		window.close();
 	}
 });
 
@@ -86,7 +87,7 @@ electron.ipcMain.on("close-all-call-windows", () => {
 
 		// Close all call windows
 		Object.keys(callWindowsCopy).forEach(callId => {
-			callWindowsCopy[callWindowsCopy].close();
+			callWindowsCopy[callId].close();
 		});
 	}
 });

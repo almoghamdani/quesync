@@ -33,7 +33,7 @@ void VoiceChat::enable(std::string user_id, std::string session_id, std::string 
 	_channel_id = channel_id;
 
 	// If not enabled before, Send dummy message to the voice server so it can recongnize the client
-	if (!_enable)
+	if (!_enabled)
 		sendDummyMessage();
 
 	// Enable voice chat and input and output

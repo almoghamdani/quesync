@@ -21,7 +21,7 @@ QuesyncError SocketManager::Send(asio::ssl::stream<tcp::socket> &socket, const c
 	try
 	{
 		// Send the server the data
-		socket.write_some(asio::buffer(data, size));
+		asio::write(socket, asio::buffer(data, size));
 	}
 	catch (std::system_error &ex)
 	{
