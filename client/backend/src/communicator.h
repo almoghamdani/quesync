@@ -44,7 +44,8 @@ private:
 	std::string _server_ip;
 	bool _connected;
 	unsigned int _ping_retries;
-	tcp::socket *_socket;
+	asio::ssl::stream<tcp::socket> *_socket;
+	asio::ssl::context _context;
 
 	// Threads
 	std::thread _keep_alive_thread;

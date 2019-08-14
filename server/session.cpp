@@ -7,9 +7,10 @@
 #include "../shared/utils.h"
 #include "../shared/packets/error_packet.h"
 
-Session::Session(tcp::socket socket, std::shared_ptr<Quesync> server) : _socket(std::move(socket)), // Copy the client's socket
-																		_server(server),			// Save the server for data transfer,
-																		_user(nullptr)
+Session::Session(tcp::socket socket, asio::ssl::context &context, std::shared_ptr<Quesync> server)
+	: _socket(std::move(socket), context), // Copy the client's socket
+	  _server(server),					   // Save the server for data transfer,
+	  _user(nullptr)
 {
 }
 
@@ -34,7 +35,7 @@ Session::~Session()
 	// Close the client's socket in case it's not closed
 	try
 	{
-		_socket.close();
+		_socket.lowest_layer().close();
 	}
 	catch (...)
 	{
@@ -43,8 +44,21 @@ Session::~Session()
 
 void Session::start()
 {
-	// Start receiving from the client
-	recv();
+	// Start the SSL handshake with the client
+	handshake();
+}
+
+void Session::handshake()
+{
+	auto self(shared_from_this());
+
+	_socket.async_handshake(asio::ssl::stream_base::server,
+							[this, self](const std::error_code &ec) {
+								if (!ec)
+								{
+									recv();
+								}
+							});
 }
 
 void Session::recv()
@@ -99,7 +113,7 @@ void Session::recv()
 																// If the client closed the connection, close the client
 																if (ec == asio::error::misc_errors::eof)
 																{
-																	std::cout << termcolor::magenta << "The client " << _socket.remote_endpoint().address().to_string() << ":" << (int)_socket.remote_endpoint().port() << " disconnected!" << termcolor::reset << std::endl;
+																	std::cout << termcolor::magenta << "The client " << _socket.lowest_layer().remote_endpoint().address().to_string() << ":" << (int)_socket.lowest_layer().remote_endpoint().port() << " disconnected!" << termcolor::reset << std::endl;
 																}
 																else
 																{
@@ -132,7 +146,7 @@ void Session::send(std::string data)
 							  // If the client closed the connection, close the client
 							  if (ec == asio::error::misc_errors::eof)
 							  {
-								  std::cout << termcolor::magenta << "The client " << _socket.remote_endpoint().address().to_string() << ":" << (int)_socket.remote_endpoint().port() << " disconnected!" << termcolor::reset << std::endl;
+								  std::cout << termcolor::magenta << "The client " << _socket.lowest_layer().remote_endpoint().address().to_string() << ":" << (int)_socket.lowest_layer().remote_endpoint().port() << " disconnected!" << termcolor::reset << std::endl;
 							  }
 							  else
 							  {

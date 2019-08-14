@@ -11,8 +11,12 @@
 #include "../../../shared/utils.h"
 #include "../../../shared/packets/ping_packet.h"
 
-Communicator::Communicator(std::function<void()> clean_callback) : _socket(nullptr), _clean_callback(clean_callback)
+Communicator::Communicator(std::function<void()> clean_callback)
+	: _socket(nullptr),
+	  _context(asio::ssl::context::sslv23),
+	  _clean_callback(clean_callback)
 {
+	_context.load_verify_file("cert.pem");
 }
 
 void Communicator::clean_connection()
@@ -21,7 +25,7 @@ void Communicator::clean_connection()
 	if (_socket)
 	{
 		// Close the socket
-		_socket->close();
+		_socket->lowest_layer().close();
 
 		// Free the socket
 		delete _socket;
@@ -50,7 +54,7 @@ QuesyncError Communicator::send_with_header(std::string data)
 	full_packet = Utils::EncodeHeader(header) + data;
 
 	// Send to the server the data
-	error = SocketManager::SendServer(*_socket, full_packet.data(), full_packet.length());
+	error = SocketManager::Send(*_socket, full_packet.data(), full_packet.length());
 
 	return error;
 }
@@ -62,7 +66,7 @@ QuesyncError Communicator::get_header(Header &header)
 	char *header_buf = new char[sizeof(Header)];
 
 	// Get from the server the header
-	error = SocketManager::GetResponse(*_socket, header_buf, sizeof(Header));
+	error = SocketManager::Recv(*_socket, header_buf, sizeof(Header));
 	if (!error)
 	{
 		// Decode the header
@@ -103,10 +107,14 @@ void Communicator::connect(std::string server_ip)
 	try
 	{
 		// Allocate a new socket
-		_socket = new tcp::socket(SocketManager::io_context);
+		_socket = new asio::ssl::stream<tcp::socket>(SocketManager::io_context, _context);
+		_socket->set_verify_mode(asio::ssl::verify_peer);
 
 		// Try to connect to the server
-		_socket->connect(server_endpoint);
+		_socket->lowest_layer().connect(server_endpoint);
+
+		// Try to handshake
+		_socket->handshake(asio::ssl::stream_base::client);
 	}
 	catch (...)
 	{
@@ -135,7 +143,7 @@ void Communicator::connect(std::string server_ip)
 	buf = std::shared_ptr<char>(new char[header.size]);
 
 	// Get from the server the response
-	error = SocketManager::GetResponse(*_socket, buf.get(), header.size);
+	error = SocketManager::Recv(*_socket, buf.get(), header.size);
 	if (error)
 	{
 		clean_connection();
@@ -208,7 +216,7 @@ void Communicator::recv()
 		buf = std::shared_ptr<char>(new char[header.size]);
 
 		// Get a response from the server
-		error = SocketManager::GetResponse(*_socket, buf.get(), header.size);
+		error = SocketManager::Recv(*_socket, buf.get(), header.size);
 		if (error)
 		{
 			// Skip iteration

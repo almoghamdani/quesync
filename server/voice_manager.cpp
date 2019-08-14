@@ -224,7 +224,8 @@ void VoiceManager::leaveVoiceChannel(std::string user_id)
 	call_ended_event = CallEndedEvent(channel_id);
 	for (auto &user : _voice_channels[channel_id])
 	{
-		_server->eventManager()->triggerEvent(call_ended_event, user.first);
+		if (user.first != user_id)
+			_server->eventManager()->triggerEvent(call_ended_event, user.first);
 	}
 
 	// If the channel has no one connected to it, remove it

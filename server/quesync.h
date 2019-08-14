@@ -1,6 +1,7 @@
 #pragma once
 
 #include <asio.hpp>
+#include <asio/ssl.hpp>
 #include <map>
 #include <memory>
 
@@ -39,6 +40,7 @@ public:
 
 private:
 	tcp::acceptor _acceptor;
+	asio::ssl::context _context;
 
 	sql::Session _sess;
 	sql::Schema _db;

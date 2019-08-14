@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <asio.hpp>
+#include <asio/ssl.hpp>
 
 #include "quesync.h"
 #include "../shared/user.h"
@@ -10,25 +11,26 @@ using asio::ip::tcp;
 class Session : public std::enable_shared_from_this<Session>
 {
 public:
-  Session(tcp::socket socket, std::shared_ptr<Quesync> server);
-  ~Session();
+	Session(tcp::socket socket, asio::ssl::context &context, std::shared_ptr<Quesync> server);
+	~Session();
 
-  void start();
-  void sendOnly(std::string data);
+	void start();
+	void sendOnly(std::string data);
 
-  std::shared_ptr<Quesync> server() const;
-  std::shared_ptr<Session> getShared();
+	std::shared_ptr<Quesync> server() const;
+	std::shared_ptr<Session> getShared();
 
-  bool authenticated() const;
-  void setUser(std::shared_ptr<User> user);
-  std::shared_ptr<User> user() const;
+	bool authenticated() const;
+	void setUser(std::shared_ptr<User> user);
+	std::shared_ptr<User> user() const;
 
 private:
-  std::shared_ptr<User> _user;
-  std::shared_ptr<Quesync> _server;
+	std::shared_ptr<User> _user;
+	std::shared_ptr<Quesync> _server;
 
-  tcp::socket _socket;
+	asio::ssl::stream<tcp::socket> _socket;
 
-  void recv();
-  void send(std::string data);
+	void handshake();
+	void recv();
+	void send(std::string data);
 };
