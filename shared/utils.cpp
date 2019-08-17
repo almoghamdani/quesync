@@ -28,6 +28,10 @@
 #include "packets/join_call_request_packet.h"
 #include "packets/leave_call_packet.h"
 #include "packets/set_voice_state_packet.h"
+#include "packets/voice_packet.h"
+#include "packets/participant_voice_packet.h"
+
+#include "voice_header.h"
 
 Packet *Utils::ParsePacket(std::string packet)
 {
@@ -303,7 +307,7 @@ std::shared_ptr<unsigned char> Utils::RandBytes(unsigned int amount)
 	return buf;
 }
 
-std::string Utils::AES256Encrypt(std::string data, std::shared_ptr<unsigned char> key, std::shared_ptr<unsigned char> iv)
+std::string Utils::AES256Encrypt(std::string data, unsigned char *key, unsigned char *iv)
 {
 	EVP_CIPHER_CTX *ctx;
 
@@ -314,7 +318,7 @@ std::string Utils::AES256Encrypt(std::string data, std::shared_ptr<unsigned char
 	ctx = EVP_CIPHER_CTX_new();
 
 	// Init EVP context
-	EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key.get(), iv.get());
+	EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv);
 
 	// Encrypt the data
 	EVP_EncryptUpdate(ctx, encrypted.get(), &len, (unsigned char *)data.data(), (int)data.length());
@@ -330,7 +334,7 @@ std::string Utils::AES256Encrypt(std::string data, std::shared_ptr<unsigned char
 	return std::string((char *)encrypted.get(), total);
 }
 
-std::string Utils::AES256Decrypt(std::string data, std::shared_ptr<unsigned char> key, std::shared_ptr<unsigned char> iv)
+std::string Utils::AES256Decrypt(std::string data, unsigned char *key, unsigned char *iv)
 {
 	EVP_CIPHER_CTX *ctx;
 
@@ -341,7 +345,7 @@ std::string Utils::AES256Decrypt(std::string data, std::shared_ptr<unsigned char
 	ctx = EVP_CIPHER_CTX_new();
 
 	// Init EVP context
-	EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key.get(), iv.get());
+	EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv);
 
 	// Decrypt the data
 	EVP_DecryptUpdate(ctx, decrypted.get(), &len, (unsigned char *)data.data(), (int)data.length());
@@ -357,16 +361,77 @@ std::string Utils::AES256Decrypt(std::string data, std::shared_ptr<unsigned char
 	return std::string((char *)decrypted.get(), total);
 }
 
-std::string Utils::HMAC(std::string data, std::shared_ptr<unsigned char> key, int key_len)
+std::string Utils::HMAC(std::string data, unsigned char *key, int key_len)
 {
 	unsigned int len = 0;
 	std::shared_ptr<unsigned char> hmac(new unsigned char[EVP_MAX_MD_SIZE]);
 
 	// Calculate HMAC
-	::HMAC(EVP_sha1(), key.get(), key_len, (unsigned char *)data.data(), data.length(), hmac.get(), &len);
+	::HMAC(EVP_sha1(), key, key_len, (unsigned char *)data.data(), data.length(), hmac.get(), &len);
 
 	return std::string((char *)hmac.get(), len);
 }
+
+template <class T>
+std::string Utils::EncryptVoicePacket(T *packet, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len)
+{
+	std::shared_ptr<unsigned char> iv = RandBytes(16);
+	VoiceHeader voice_header;
+
+	std::string encrypted, hmac;
+
+	// Encode the packet
+	encrypted = AES256Encrypt(packet->encode(), aes_key, iv.get());
+
+	// Calculate HMAC
+	hmac = HMAC(encrypted, hmac_key, hmac_key_len);
+
+	// Format voice header
+	memcpy(voice_header.iv, iv.get(), 16);
+	memcpy(voice_header.hmac, hmac.c_str(), hmac.length());
+
+	return std::string((char *)&voice_header, sizeof(VoiceHeader)) + encrypted;
+}
+
+template std::string Utils::EncryptVoicePacket(VoicePacket *packet, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len);
+template std::string Utils::EncryptVoicePacket(ParticipantVoicePacket *packet, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len);
+
+template <typename T>
+std::shared_ptr<T> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len)
+{
+	std::shared_ptr<T> packet = nullptr;
+	VoiceHeader voice_header;
+
+	std::string encrypted, decrypted, hmac;
+
+	// Get the voice header
+	memcpy(&voice_header, data.data(), sizeof(VoiceHeader));
+
+	// Get the encrypted packet
+	encrypted = data.substr(sizeof(VoiceHeader));
+
+	// Calculate HMAC
+	hmac = HMAC(encrypted, hmac_key, hmac_key_len);
+
+	// If the HMAC equals
+	if (memcmp(hmac.data(), voice_header.hmac, 20) == 0)
+	{
+		// Decrypt the packet
+		decrypted = AES256Decrypt(encrypted, aes_key, voice_header.iv);
+
+		// Decode the packet
+		packet = std::make_shared<T>();
+		if (!packet->decode(decrypted))
+		{
+			packet = nullptr;
+		}
+	}
+
+	return packet;
+}
+
+template std::shared_ptr<VoicePacket> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len);
+template std::shared_ptr<ParticipantVoicePacket> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len);
 
 std::shared_ptr<char> Utils::ConvertToBuffer(std::string data)
 {

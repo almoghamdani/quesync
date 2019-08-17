@@ -34,10 +34,16 @@ public:
 
 	static std::shared_ptr<unsigned char> RandBytes(unsigned int amount);
 
-	static std::string AES256Encrypt(std::string data, std::shared_ptr<unsigned char> key, std::shared_ptr<unsigned char> iv);
-	static std::string AES256Decrypt(std::string data, std::shared_ptr<unsigned char> key, std::shared_ptr<unsigned char> iv);
+	static std::string AES256Encrypt(std::string data, unsigned char *key, unsigned char *iv);
+	static std::string AES256Decrypt(std::string data, unsigned char *key, unsigned char *iv);
 
-	static std::string HMAC(std::string data, std::shared_ptr<unsigned char> key, int key_len);
+	static std::string HMAC(std::string data, unsigned char *key, int key_len);
+
+	template <typename T>
+	static std::string EncryptVoicePacket(T *packet, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len);
+	
+	template <typename T>
+	static std::shared_ptr<T> DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len);
 
 	static std::shared_ptr<char> ConvertToBuffer(std::string data);
 
