@@ -361,19 +361,19 @@ std::string Utils::AES256Decrypt(std::string data, unsigned char *key, unsigned 
 	return std::string((char *)decrypted.get(), total);
 }
 
-std::string Utils::HMAC(std::string data, unsigned char *key, int key_len)
+std::string Utils::HMAC(std::string data, unsigned char *key)
 {
 	unsigned int len = 0;
 	std::shared_ptr<unsigned char> hmac(new unsigned char[EVP_MAX_MD_SIZE]);
 
 	// Calculate HMAC
-	::HMAC(EVP_sha1(), key, key_len, (unsigned char *)data.data(), data.length(), hmac.get(), &len);
+	::HMAC(EVP_sha1(), key, HMAC_KEY_SIZE, (unsigned char *)data.data(), data.length(), hmac.get(), &len);
 
 	return std::string((char *)hmac.get(), len);
 }
 
 template <class T>
-std::string Utils::EncryptVoicePacket(T *packet, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len)
+std::string Utils::EncryptVoicePacket(T *packet, unsigned char *aes_key, unsigned char *hmac_key)
 {
 	std::shared_ptr<unsigned char> iv = RandBytes(16);
 	VoiceHeader voice_header;
@@ -384,7 +384,7 @@ std::string Utils::EncryptVoicePacket(T *packet, unsigned char *aes_key, unsigne
 	encrypted = AES256Encrypt(packet->encode(), aes_key, iv.get());
 
 	// Calculate HMAC
-	hmac = HMAC(encrypted, hmac_key, hmac_key_len);
+	hmac = HMAC(encrypted, hmac_key, HMAC_KEY_SIZE);
 
 	// Format voice header
 	memcpy(voice_header.iv, iv.get(), 16);
@@ -393,11 +393,11 @@ std::string Utils::EncryptVoicePacket(T *packet, unsigned char *aes_key, unsigne
 	return std::string((char *)&voice_header, sizeof(VoiceHeader)) + encrypted;
 }
 
-template std::string Utils::EncryptVoicePacket(VoicePacket *packet, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len);
-template std::string Utils::EncryptVoicePacket(ParticipantVoicePacket *packet, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len);
+template std::string Utils::EncryptVoicePacket(VoicePacket *packet, unsigned char *aes_key, unsigned char *hmac_key);
+template std::string Utils::EncryptVoicePacket(ParticipantVoicePacket *packet, unsigned char *aes_key, unsigned char *hmac_key);
 
 template <typename T>
-std::shared_ptr<T> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len)
+std::shared_ptr<T> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key)
 {
 	std::shared_ptr<T> packet = nullptr;
 	VoiceHeader voice_header;
@@ -411,10 +411,10 @@ std::shared_ptr<T> Utils::DecryptVoicePacket(std::string data, unsigned char *ae
 	encrypted = data.substr(sizeof(VoiceHeader));
 
 	// Calculate HMAC
-	hmac = HMAC(encrypted, hmac_key, hmac_key_len);
+	hmac = HMAC(encrypted, hmac_key, HMAC_KEY_SIZE);
 
 	// If the HMAC equals
-	if (memcmp(hmac.data(), voice_header.hmac, 20) == 0)
+	if (memcmp(hmac.data(), voice_header.hmac, HMAC_KEY_SIZE) == 0)
 	{
 		// Decrypt the packet
 		decrypted = AES256Decrypt(encrypted, aes_key, voice_header.iv);
@@ -430,8 +430,8 @@ std::shared_ptr<T> Utils::DecryptVoicePacket(std::string data, unsigned char *ae
 	return packet;
 }
 
-template std::shared_ptr<VoicePacket> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len);
-template std::shared_ptr<ParticipantVoicePacket> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key, unsigned int hmac_key_len);
+template std::shared_ptr<VoicePacket> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key);
+template std::shared_ptr<ParticipantVoicePacket> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key);
 
 std::shared_ptr<char> Utils::ConvertToBuffer(std::string data)
 {
