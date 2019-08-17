@@ -6,6 +6,7 @@
 #include "quesync.h"
 #include "../shared/packets/voice_packet.h"
 #include "../shared/packets/participant_voice_packet.h"
+#include "../shared/packets/voice_otp_packet.h"
 #include "../shared/events/voice_state_event.h"
 #include "../shared/events/call_ended_event.h"
 #include "../shared/quesync_exception.h"
@@ -44,79 +45,119 @@ void VoiceManager::send(std::shared_ptr<char> buf, size_t length, udp::endpoint 
 
 void VoiceManager::handle_packet(std::size_t length)
 {
-	VoicePacket packet;
+	VoiceOTPPacket otp_packet;
 
+	VoiceEncryptionInfo encryption_info;
+	std::string user_session;
+	std::shared_ptr<VoicePacket> packet;
+
+	VoiceEncryptionInfo participant_encryption_info;
 	std::string participant_session;
 	udp::endpoint participant_endpoint;
 
 	ParticipantVoicePacket participant_packet;
-	std::string participant_packet_encoded;
+	std::string participant_packet_encrypted;
 	std::shared_ptr<char> buf;
 
 	std::unordered_map<std::string, VoiceState> channel_participants;
 
 	std::unique_lock lk(_mutex);
 
-	// Try to decode the packet
-	if (!packet.decode(std::string(_buf, length)))
+	// If the packet is an OTP packet
+	if (otp_packet.decode(std::string(_buf, length)))
 	{
+		try
+		{
+			// Get user's session
+			user_session = _otps[otp_packet.otp()];
+
+			// Save endpoint
+			_session_endpoints[user_session] = _sender_endpoint;
+
+			// Remove OTP
+			_otps.erase(otp_packet.otp());
+		}
+		catch (...)
+		{
+		}
+
 		return;
 	}
 
-	// Try to find the user id and the channel id
+	// Try to find the participant session by his endpoint and get it's encryption info
 	try
 	{
-		channel_participants = _voice_channels.at(packet.channel_id());
+		user_session = std::find_if(_session_endpoints.begin(), _session_endpoints.end(),
+									[this](const std::pair<std::string, udp::endpoint> &p) {
+										return p.second == _sender_endpoint;
+									})
+						   ->first;
+
+		encryption_info = _session_keys.at(user_session);
 	}
 	catch (...)
 	{
 		return;
 	}
 
-	// If the user's session isn't in the endpoints list, insert it
-	if (!_session_endpoints.count(packet.session_id()))
-	{
-		_session_endpoints[packet.session_id()] = _sender_endpoint;
-	}
-
-	// If the user isn't a part of the channel
-	if (!channel_participants.count(packet.user_id()))
+	// Try to decrypt the voice packet
+	packet = Utils::DecryptVoicePacket<VoicePacket>(std::string(_buf, length), encryption_info.aes_key.get(), encryption_info.hmac_key.get());
+	if (!packet)
 	{
 		return;
 	}
 
-	if (packet.voice_data_len())
+	// Try to find the channel participants
+	try
+	{
+		channel_participants = _voice_channels.at(packet->channel_id());
+	}
+	catch (...)
+	{
+		return;
+	}
+
+	// If the user isn't a part of the channel
+	if (!channel_participants.count(packet->user_id()))
+	{
+		return;
+	}
+
+	if (packet->voice_data_len())
 	{
 		// Create the pariticipant voice packet and encode it
-		participant_packet = ParticipantVoicePacket(packet.user_id(), packet.voice_data(), packet.voice_data_len());
-		participant_packet_encoded = participant_packet.encode();
-		buf = Utils::ConvertToBuffer(participant_packet_encoded);
+		participant_packet = ParticipantVoicePacket(packet->user_id(), packet->voice_data(), packet->voice_data_len());
 
 		// Send the participant voice packet to all other participants
 		for (auto &participant : channel_participants)
 		{
 			// If the given participant isn't our user
-			if (participant.first != packet.user_id())
+			if (participant.first != packet->user_id())
 			{
 				try
 				{
-					// Try to get the session and endpoint of the participant
+					// Try to get the session, key and endpoint of the participant
 					participant_session = _sessions.at(participant.first);
 					participant_endpoint = _session_endpoints.at(participant_session);
+					participant_encryption_info = _session_keys.at(participant_session);
 				}
 				catch (...)
 				{
 					continue;
 				}
 
+				// Encrypt the packet and convert it to buffer
+				participant_packet_encrypted = Utils::EncryptVoicePacket<ParticipantVoicePacket>(&participant_packet, participant_encryption_info.aes_key.get(), participant_encryption_info.hmac_key.get());
+				buf = Utils::ConvertToBuffer<char>(participant_packet_encrypted);
+
 				// Send the participant voice packet to the participant
-				send(buf, participant_packet_encoded.length(), participant_endpoint);
+				send(buf, participant_packet_encrypted.length(), participant_endpoint);
 			}
 		}
 	}
 }
 
-std::string VoiceManager::createVoiceSession(std::string user_id)
+std::pair<std::string, VoiceEncryptionInfo> VoiceManager::createVoiceSession(std::string user_id)
 {
 	std::unique_lock lk(_mutex);
 
@@ -126,7 +167,10 @@ std::string VoiceManager::createVoiceSession(std::string user_id)
 		_sessions[user_id] = sole::uuid4().str();
 	}
 
-	return _sessions[user_id];
+	// Create the aes key and hmac key for the session
+	_session_keys[_sessions[user_id]] = VoiceEncryptionInfo{Utils::RandBytes(AES_KEY_SIZE), Utils::RandBytes(HMAC_KEY_SIZE)};
+
+	return *_session_keys.find(_sessions[user_id]);
 }
 
 void VoiceManager::deleteVoiceSession(std::string user_id)
@@ -135,12 +179,39 @@ void VoiceManager::deleteVoiceSession(std::string user_id)
 
 	try
 	{
+		// Remove OTP if exists
+		_otps.erase(_sessions[user_id]);
+	}
+	catch (...)
+	{
+	}
+
+	try
+	{
+		_session_endpoints.erase(_sessions[user_id]);
+		_session_keys.erase(_sessions[user_id]);
 		_sessions.erase(user_id);
 	}
 	catch (...)
 	{
 		throw QuesyncException(VOICE_NOT_CONNECTED);
 	}
+}
+
+std::string VoiceManager::generateOTP(std::string session_id)
+{
+	std::unique_lock lk(_mutex);
+
+	std::string otp;
+
+	// Generate random bytes for the OTP
+	std::shared_ptr<unsigned char> bytes = Utils::RandBytes(OTP_SIZE);
+
+	// Save the OTP
+	otp = std::string((char *)bytes.get(), OTP_SIZE);
+	_otps[otp] = session_id;
+
+	return otp;
 }
 
 void VoiceManager::initVoiceChannel(std::string channel_id, std::vector<std::string> users)
@@ -165,6 +236,8 @@ void VoiceManager::initVoiceChannel(std::string channel_id, std::vector<std::str
 
 bool VoiceManager::isVoiceChannelActive(std::string channel_id)
 {
+	std::unique_lock lk(_mutex);
+
 	return _voice_channels.count(channel_id);
 }
 

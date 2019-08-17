@@ -885,6 +885,9 @@ Napi::Value Client::call(const Napi::CallbackInfo &info)
 
 		CallRequestPacket call_request_packet(channel_id, _voice_chat->muted(), _voice_chat->deafen());
 
+		std::shared_ptr<unsigned char> aes_key, hmac_key;
+		std::string otp;
+
 		// If not authenticated, return error
 		if (!_user)
 		{
@@ -926,8 +929,13 @@ Napi::Value Client::call(const Napi::CallbackInfo &info)
 			// Get the voice info
 			voice_res = nlohmann::json::parse(response_packet->data());
 
+			// Get the AES key, HMAC key and the OTP
+			aes_key = Utils::ConvertToBuffer<unsigned char>(Utils::Base64Decode(voice_res["voiceSessionAESKey"]));
+			hmac_key = Utils::ConvertToBuffer<unsigned char>(Utils::Base64Decode(voice_res["voiceSessionHMACKey"]));
+			otp = Utils::Base64Decode(voice_res["voiceSessionOTP"]);
+
 			// Enable voice chat
-			_voice_chat->enable(_user->id(), voice_res["voiceSessionId"], channel_id);
+			_voice_chat->enable(_user->id(), voice_res["voiceSessionId"], channel_id, aes_key, hmac_key, otp);
 
 			// Get the voice states in the voice channel and the channel id
 			res["voiceStates"] = voice_res["voiceStates"];
@@ -968,6 +976,9 @@ Napi::Value Client::joinCall(const Napi::CallbackInfo &info)
 		nlohmann::json res, voice_res;
 
 		JoinCallRequestPacket join_call_request_packet(channel_id, _voice_chat->muted(), _voice_chat->deafen());
+
+		std::shared_ptr<unsigned char> aes_key, hmac_key;
+		std::string otp;
 
 		// If not authenticated, return error
 		if (!_user)
@@ -1010,8 +1021,13 @@ Napi::Value Client::joinCall(const Napi::CallbackInfo &info)
 			// Get the voice info
 			voice_res = nlohmann::json::parse(response_packet->data());
 
+			// Get the AES key, HMAC key and the OTP
+			aes_key = Utils::ConvertToBuffer<unsigned char>(Utils::Base64Decode(voice_res["voiceSessionAESKey"]));
+			hmac_key = Utils::ConvertToBuffer<unsigned char>(Utils::Base64Decode(voice_res["voiceSessionHMACKey"]));
+			otp = Utils::Base64Decode(voice_res["voiceSessionOTP"]);
+
 			// Enable voice chat
-			_voice_chat->enable(_user->id(), voice_res["voiceSessionId"], channel_id);
+			_voice_chat->enable(_user->id(), voice_res["voiceSessionId"], channel_id, aes_key, hmac_key, otp);
 
 			// Get the voice states in the voice channel and the channel id
 			res["voiceStates"] = voice_res["voiceStates"];

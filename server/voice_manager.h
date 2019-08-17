@@ -19,13 +19,21 @@
 
 using asio::ip::udp;
 
+struct VoiceEncryptionInfo
+{
+	std::shared_ptr<unsigned char> aes_key;
+	std::shared_ptr<unsigned char> hmac_key;
+};
+
 class VoiceManager : Manager
 {
 public:
 	VoiceManager(std::shared_ptr<Quesync> server);
 
-	std::string createVoiceSession(std::string user_id);
+	std::pair<std::string, VoiceEncryptionInfo> createVoiceSession(std::string user_id);
 	void deleteVoiceSession(std::string user_id);
+
+	std::string generateOTP(std::string session_id);
 
 	void initVoiceChannel(std::string channel_id, std::vector<std::string> users);
 	bool isVoiceChannelActive(std::string channel_id);
@@ -46,7 +54,10 @@ private:
 	std::unordered_map<std::string, std::string> _joined_voice_channels;
 
 	std::unordered_map<std::string, udp::endpoint> _session_endpoints;
+	std::unordered_map<std::string, VoiceEncryptionInfo> _session_keys;
 	std::unordered_map<std::string, std::string> _sessions;
+
+	std::unordered_map<std::string, std::string> _otps;
 
 	std::mutex _mutex;
 

@@ -1,6 +1,8 @@
 #pragma once
 #include "packet.h"
 
+#include <asio.hpp>
+
 #include "response_packet.h"
 #include "error_packet.h"
 #include "serialized_packet.h"
@@ -33,7 +35,7 @@ public:
 	{
 		IncomingCallEvent call_event;
 
-		std::string voice_session_id;
+		std::pair<std::string, VoiceEncryptionInfo> voice_session_details;
 		std::unordered_map<std::string, VoiceState> voice_states;
 		std::vector<std::string> users;
 
@@ -61,7 +63,10 @@ public:
 			}
 
 			// Create a voice session for the user
-			voice_session_id = session->server()->voiceManager()->createVoiceSession(session->user()->id());
+			voice_session_details = session->server()->voiceManager()->createVoiceSession(session->user()->id());
+
+			// Generate OTP for the session
+			res["voiceSessionOTP"] = Utils::Base64Encode(session->server()->voiceManager()->generateOTP(voice_session_details.first));
 
 			// Create a voice channel for the users
 			session->server()->voiceManager()->initVoiceChannel(_data["channelId"], users);
@@ -75,8 +80,10 @@ public:
 			// Remove the user from the voice states
 			voice_states.erase(session->user()->id());
 
-			// Set the voice session id and the voice states
-			res["voiceSessionId"] = voice_session_id;
+			// Set the voice session details and the voice states
+			res["voiceSessionAESKey"] = Utils::Base64Encode(std::string((char *)voice_session_details.second.aes_key.get(), AES_KEY_SIZE));
+			res["voiceSessionHMACKey"] = Utils::Base64Encode(std::string((char *)voice_session_details.second.hmac_key.get(), HMAC_KEY_SIZE));
+			res["voiceSessionId"] = voice_session_details.first;
 			res["voiceStates"] = voice_states;
 
 			// Create the call event

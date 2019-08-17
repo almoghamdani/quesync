@@ -6,10 +6,13 @@
 #include "client.h"
 
 #include "../../../shared/packets/voice_packet.h"
+#include "../../../shared/packets/voice_otp_packet.h"
 
 VoiceChat::VoiceChat(Client *client, const char *server_ip)
 	: _client(client),
 	  _socket(SocketManager::io_context, udp::endpoint(udp::v4(), 0)), // Create an IPv4 UDP socket with a random port
+	  _aes_key(nullptr),
+	  _hmac_key(nullptr),
 	  _enabled(false)
 {
 	// Get the endpoint of the server using the given server IP and default voice chat port
@@ -26,15 +29,17 @@ void VoiceChat::init()
 	_output = std::make_shared<VoiceOutput>(shared_from_this());
 }
 
-void VoiceChat::enable(std::string user_id, std::string session_id, std::string channel_id)
+void VoiceChat::enable(std::string user_id, std::string session_id, std::string channel_id, std::shared_ptr<unsigned char> aes_key, std::shared_ptr<unsigned char> hmac_key, std::string otp)
 {
+	// If not enabled, send the OTP packet to the server to authenticate
+	if (!_enabled)
+		sendOTPPacket(otp);
+
 	_user_id = user_id;
 	_session_id = session_id;
 	_channel_id = channel_id;
-
-	// If not enabled before, Send dummy message to the voice server so it can recongnize the client
-	if (!_enabled)
-		sendDummyMessage();
+	_aes_key = aes_key;
+	_hmac_key = hmac_key;
 
 	// Enable voice chat and input and output
 	_enabled = true;
@@ -177,17 +182,28 @@ void VoiceChat::activateVoice(std::string user_id)
 	}
 }
 
+void VoiceChat::sendOTPPacket(std::string otp)
+{
+	VoiceOTPPacket otp_packet(otp);
+
+	std::string otp_packet_encoded = otp_packet.encode();
+
+	// Send the OTP packet to the server
+	_socket.send_to(asio::buffer(otp_packet_encoded.c_str(), otp_packet_encoded.length()), _endpoint);
+}
+
+std::shared_ptr<unsigned char> VoiceChat::AESKey()
+{
+	return _aes_key;
+}
+
+std::shared_ptr<unsigned char> VoiceChat::HMACKey()
+{
+	return _hmac_key;
+}
+
 uint64_t VoiceChat::getMS()
 {
 	using namespace std::chrono;
 	return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-}
-
-void VoiceChat::sendDummyMessage()
-{
-	VoicePacket voice_packet(_user_id, _session_id, _channel_id, nullptr, 0);
-	std::string voice_packet_encoded = voice_packet.encode();
-
-	// Send the dummy packet to the server
-	_socket.send_to(asio::buffer(voice_packet_encoded.c_str(), voice_packet_encoded.length()), _endpoint);
 }

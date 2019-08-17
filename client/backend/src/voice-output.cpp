@@ -91,7 +91,7 @@ void VoiceOutput::outputThread()
 	int16_t pcm[FRAME_SIZE] = {0};
 
 	udp::endpoint sender_endpoint;
-	ParticipantVoicePacket voice_packet;
+	std::shared_ptr<ParticipantVoicePacket> voice_packet;
 
 	while (true)
 	{
@@ -117,10 +117,14 @@ void VoiceOutput::outputThread()
 		if (sender_endpoint == _voice_chat->endpoint())
 		{
 			// Decode the voice packet
-			voice_packet.decode(std::string(recv_buffer, recv_bytes));
+			voice_packet = Utils::DecryptVoicePacket<ParticipantVoicePacket>(std::string(recv_buffer, recv_bytes), _voice_chat->AESKey().get(), _voice_chat->HMACKey().get());
+			if (!voice_packet)
+			{
+				continue;
+			}
 
 			// Activate the user's voice
-			_voice_chat->activateVoice(voice_packet.user_id());
+			_voice_chat->activateVoice(voice_packet->user_id());
 
 			// If deafen, continue
 			if (_deafen)
@@ -129,7 +133,7 @@ void VoiceOutput::outputThread()
 			}
 
 			// Decode the current sample from the client
-			decoded_size = opus_decode(_opus_decoder, (const unsigned char *)voice_packet.voice_data(), voice_packet.voice_data_len(), (opus_int16 *)pcm, FRAME_SIZE, 0);
+			decoded_size = opus_decode(_opus_decoder, (const unsigned char *)voice_packet->voice_data(), voice_packet->voice_data_len(), (opus_int16 *)pcm, FRAME_SIZE, 0);
 
 			// Fill buffer
 			alBufferData(buffer, AL_FORMAT_MONO16, (opus_int16 *)pcm, decoded_size * sizeof(opus_int16), RECORD_FREQUENCY);

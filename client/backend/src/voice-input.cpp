@@ -84,7 +84,7 @@ void VoiceInput::inputThread()
 	uint64_t last_activated = _voice_chat->getMS();
 
 	VoicePacket voice_packet;
-	std::string voice_packet_encoded;
+	std::string voice_packet_encrypted;
 
 	while (true)
 	{
@@ -93,6 +93,8 @@ void VoiceInput::inputThread()
 		// If disabled, skip
 		if (!_enabled)
 			continue;
+
+		uint64_t idk = _voice_chat->getMS();
 
 		// Get the amount of samples waiting in the device's buffer
 		alcGetIntegerv(_capture_device, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
@@ -149,12 +151,12 @@ void VoiceInput::inputThread()
 				// Encode the captured data
 				encodedDataLen = opus_encode(_opus_encoder, (const opus_int16 *)buffer, FRAME_SIZE, (unsigned char *)encoded_buffer, FRAME_SIZE * sizeof(opus_int16));
 
-				// Create the voice packet and encode it
+				// Create the voice packet and encrypt it
 				voice_packet = VoicePacket(_voice_chat->userId(), _voice_chat->sessionId(), _voice_chat->channelId(), (char *)encoded_buffer, encodedDataLen);
-				voice_packet_encoded = voice_packet.encode();
+				voice_packet_encrypted = Utils::EncryptVoicePacket(&voice_packet, _voice_chat->AESKey().get(), _voice_chat->HMACKey().get());
 
 				// Send the encoded voice packet to the server
-				_voice_chat->socket().send_to(asio::buffer(voice_packet_encoded.c_str(), voice_packet_encoded.length()), _voice_chat->endpoint());
+				_voice_chat->socket().send_to(asio::buffer(voice_packet_encrypted.c_str(), voice_packet_encrypted.length()), _voice_chat->endpoint());
 
 				// If the current samples are over the minimum db, set the last played time
 				if (db > MINIMUM_DB)
@@ -169,12 +171,10 @@ void VoiceInput::mute()
 	_muted = true;
 }
 
-
 void VoiceInput::unmute()
 {
 	_muted = false;
 }
-
 
 bool VoiceInput::muted()
 {

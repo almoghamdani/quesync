@@ -30,10 +30,10 @@ class VoiceChat : public std::enable_shared_from_this<VoiceChat>
 {
 public:
 	VoiceChat(Client *client, const char *server_ip);
-	
+
 	void init();
 
-	void enable(std::string user_id, std::string session_id, std::string channel_id);
+	void enable(std::string user_id, std::string session_id, std::string channel_id, std::shared_ptr<unsigned char> aes_key, std::shared_ptr<unsigned char> hmac_key, std::string otp);
 	void disable();
 	bool enabled();
 
@@ -43,6 +43,9 @@ public:
 	bool deafen();
 
 	void activateVoice(std::string user_id);
+
+	std::shared_ptr<unsigned char> AESKey();
+	std::shared_ptr<unsigned char> HMACKey();
 
 	std::string userId();
 	std::string sessionId();
@@ -58,6 +61,9 @@ private:
 
 	std::shared_ptr<VoiceInput> _input;
 	std::shared_ptr<VoiceOutput> _output;
+
+	std::shared_ptr<unsigned char> _aes_key;
+	std::shared_ptr<unsigned char> _hmac_key;
 
 	std::string _user_id;
 	std::string _session_id;
@@ -76,5 +82,5 @@ private:
 
 	void voiceActivationThread();
 
-	void sendDummyMessage();
+	void sendOTPPacket(std::string otp);
 };
