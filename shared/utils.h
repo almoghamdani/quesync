@@ -42,13 +42,17 @@ public:
 
 	static std::string HMAC(std::string data, unsigned char *key);
 
+	static std::string Base64Encode(std::string data);
+	static std::string Base64Decode(std::string data);
+
 	template <typename T>
 	static std::string EncryptVoicePacket(T *packet, unsigned char *aes_key, unsigned char *hmac_key);
-	
+
 	template <typename T>
 	static std::shared_ptr<T> DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key);
 
-	static std::shared_ptr<char> ConvertToBuffer(std::string data);
+	template <typename T>
+	static std::shared_ptr<T> ConvertToBuffer(std::string data);
 
 	static int RandomNumber(int min, int max);
 
@@ -60,7 +64,7 @@ public:
 
 #ifdef QUESYNC_CLIENT
 	static Napi::Object JsonToObject(Napi::Env env, nlohmann::json json);
-	
+
 	template <typename T, typename R>
 	static std::vector<T> ArrayToNative(Napi::Array arr)
 	{

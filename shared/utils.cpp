@@ -8,7 +8,9 @@
 #include <algorithm>
 #include <openssl/sha.h>
 #include <openssl/rand.h>
+#include <openssl/bio.h>
 #include <openssl/evp.h>
+#include <openssl/buffer.h>
 #include <openssl/hmac.h>
 
 #include "packets/login_packet.h"
@@ -312,7 +314,7 @@ std::string Utils::AES256Encrypt(std::string data, unsigned char *key, unsigned 
 	EVP_CIPHER_CTX *ctx;
 
 	int offset = 0, len = 0, total = 0;
-	std::shared_ptr<unsigned char> encrypted(new unsigned char[data.length() + (data.length() % 16 ? 16 - (data.length() % 16) : 0)]);
+	std::shared_ptr<unsigned char> encrypted(new unsigned char[data.length() + 16]);
 
 	// Allocate EVP context
 	ctx = EVP_CIPHER_CTX_new();
@@ -372,6 +374,77 @@ std::string Utils::HMAC(std::string data, unsigned char *key)
 	return std::string((char *)hmac.get(), len);
 }
 
+std::string Utils::Base64Encode(std::string data)
+{
+	BIO *bio, *b64;
+	BUF_MEM *buf_ptr;
+
+	std::string encoded;
+
+	// Initialize base64 encoder
+	b64 = BIO_new(BIO_f_base64());
+	bio = BIO_new(BIO_s_mem());
+	bio = BIO_push(b64, bio);
+
+	// Ignore newlines - write everything in one line
+	BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+
+	// Encode the data
+	BIO_write(bio, data.c_str(), data.length());
+	BIO_flush(bio);
+
+	// Get the pointer to the data
+	BIO_get_mem_ptr(bio, &buf_ptr);
+
+	// Create an encoded string from it
+	encoded = std::string(buf_ptr->data, buf_ptr->length);
+
+	// Free BIO
+	BIO_free_all(bio);
+
+	return encoded;
+}
+
+std::string Utils::Base64Decode(std::string data)
+{
+	auto calcDecodeLength = [](std::string &data) {
+		int padding = 0;
+
+		if (*(data.end() - 1) == '=' && *(data.end() - 2) == '=')
+		{
+			padding = 2;
+		}
+		else if (*(data.end() - 1) == '=')
+		{
+			padding = 1;
+		}
+
+		return (data.length() * 3) / 4 - padding;
+	};
+
+	BIO *bio, *b64;
+
+	int decode_len = calcDecodeLength(data), len = 0;
+	;
+	std::shared_ptr<char> buf(new char[data.length()]);
+
+	// Initialize base64 decoder
+	bio = BIO_new_mem_buf(data.c_str(), data.length());
+	b64 = BIO_new(BIO_f_base64());
+	bio = BIO_push(b64, bio);
+
+	// Ignore newlines - write everything in one line
+	BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+
+	// Decode the base64
+	len = BIO_read(bio, buf.get(), data.length());
+
+	// Free BIO
+	BIO_free_all(bio);
+
+	return std::string(buf.get(), len);
+}
+
 template <class T>
 std::string Utils::EncryptVoicePacket(T *packet, unsigned char *aes_key, unsigned char *hmac_key)
 {
@@ -384,7 +457,7 @@ std::string Utils::EncryptVoicePacket(T *packet, unsigned char *aes_key, unsigne
 	encrypted = AES256Encrypt(packet->encode(), aes_key, iv.get());
 
 	// Calculate HMAC
-	hmac = HMAC(encrypted, hmac_key, HMAC_KEY_SIZE);
+	hmac = HMAC(encrypted, hmac_key);
 
 	// Format voice header
 	memcpy(voice_header.iv, iv.get(), 16);
@@ -411,7 +484,7 @@ std::shared_ptr<T> Utils::DecryptVoicePacket(std::string data, unsigned char *ae
 	encrypted = data.substr(sizeof(VoiceHeader));
 
 	// Calculate HMAC
-	hmac = HMAC(encrypted, hmac_key, HMAC_KEY_SIZE);
+	hmac = HMAC(encrypted, hmac_key);
 
 	// If the HMAC equals
 	if (memcmp(hmac.data(), voice_header.hmac, HMAC_KEY_SIZE) == 0)
@@ -433,15 +506,19 @@ std::shared_ptr<T> Utils::DecryptVoicePacket(std::string data, unsigned char *ae
 template std::shared_ptr<VoicePacket> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key);
 template std::shared_ptr<ParticipantVoicePacket> Utils::DecryptVoicePacket(std::string data, unsigned char *aes_key, unsigned char *hmac_key);
 
-std::shared_ptr<char> Utils::ConvertToBuffer(std::string data)
+template <typename T>
+std::shared_ptr<T> Utils::ConvertToBuffer(std::string data)
 {
-	std::shared_ptr<char> buf = std::shared_ptr<char>(new char[data.length()]);
+	std::shared_ptr<T> buf = std::shared_ptr<T>(new T[data.length()]);
 
 	// Copy the data to the buffer
 	memcpy(buf.get(), data.data(), data.length());
 
 	return buf;
 }
+
+template std::shared_ptr<char> Utils::ConvertToBuffer(std::string data);
+template std::shared_ptr<unsigned char> Utils::ConvertToBuffer(std::string data);
 
 #ifdef QUESYNC_SERVER
 int Utils::GenerateTag(std::string nickname, sql::Table &users_table)
