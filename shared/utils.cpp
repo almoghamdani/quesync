@@ -7,6 +7,9 @@
 #include <vector>
 #include <algorithm>
 #include <openssl/sha.h>
+#include <openssl/rand.h>
+#include <openssl/evp.h>
+#include <openssl/hmac.h>
 
 #include "packets/login_packet.h"
 #include "packets/error_packet.h"
@@ -288,6 +291,81 @@ Header Utils::DecodeHeader(const char *buf)
 	header.size = *(uint32_t *)(buf + sizeof(uint32_t));
 
 	return header;
+}
+
+std::shared_ptr<unsigned char> Utils::RandBytes(unsigned int amount)
+{
+	std::shared_ptr<unsigned char> buf(new unsigned char[amount]);
+
+	// Generate random bytes
+	RAND_bytes(buf.get(), amount);
+
+	return buf;
+}
+
+std::string Utils::AES256Encrypt(std::string data, std::shared_ptr<unsigned char> key, std::shared_ptr<unsigned char> iv)
+{
+	EVP_CIPHER_CTX *ctx;
+
+	int offset = 0, len = 0, total = 0;
+	std::shared_ptr<unsigned char> encrypted(new unsigned char[data.length() + (data.length() % 16 ? 16 - (data.length() % 16) : 0)]);
+
+	// Allocate EVP context
+	ctx = EVP_CIPHER_CTX_new();
+
+	// Init EVP context
+	EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key.get(), iv.get());
+
+	// Encrypt the data
+	EVP_EncryptUpdate(ctx, encrypted.get(), &len, (unsigned char *)data.data(), (int)data.length());
+	total += len;
+
+	// Finalize the encryption
+	EVP_EncryptFinal(ctx, encrypted.get() + total, &len);
+	total += len;
+
+	// Free the EVP context
+	EVP_CIPHER_CTX_free(ctx);
+
+	return std::string((char *)encrypted.get(), total);
+}
+
+std::string Utils::AES256Decrypt(std::string data, std::shared_ptr<unsigned char> key, std::shared_ptr<unsigned char> iv)
+{
+	EVP_CIPHER_CTX *ctx;
+
+	int offset = 0, len = 0, total = 0;
+	std::shared_ptr<unsigned char> decrypted(new unsigned char[data.length()]);
+
+	// Allocate EVP context
+	ctx = EVP_CIPHER_CTX_new();
+
+	// Init EVP context
+	EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key.get(), iv.get());
+
+	// Decrypt the data
+	EVP_DecryptUpdate(ctx, decrypted.get(), &len, (unsigned char *)data.data(), (int)data.length());
+	total += len;
+
+	// Finalize the decryption
+	EVP_DecryptFinal(ctx, decrypted.get() + total, &len);
+	total += len;
+
+	// Free the EVP context
+	EVP_CIPHER_CTX_free(ctx);
+
+	return std::string((char *)decrypted.get(), total);
+}
+
+std::string Utils::HMAC(std::string data, std::shared_ptr<unsigned char> key, int key_len)
+{
+	unsigned int len = 0;
+	std::shared_ptr<unsigned char> hmac(new unsigned char[EVP_MAX_MD_SIZE]);
+
+	// Calculate HMAC
+	::HMAC(EVP_sha1(), key.get(), key_len, (unsigned char *)data.data(), data.length(), hmac.get(), &len);
+
+	return std::string((char *)hmac.get(), len);
 }
 
 std::shared_ptr<char> Utils::ConvertToBuffer(std::string data)

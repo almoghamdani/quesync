@@ -32,6 +32,13 @@ public:
 	static std::string EncodeHeader(Header &header);
 	static Header DecodeHeader(const char *buf);
 
+	static std::shared_ptr<unsigned char> RandBytes(unsigned int amount);
+
+	static std::string AES256Encrypt(std::string data, std::shared_ptr<unsigned char> key, std::shared_ptr<unsigned char> iv);
+	static std::string AES256Decrypt(std::string data, std::shared_ptr<unsigned char> key, std::shared_ptr<unsigned char> iv);
+
+	static std::string HMAC(std::string data, std::shared_ptr<unsigned char> key, int key_len);
+
 	static std::shared_ptr<char> ConvertToBuffer(std::string data);
 
 	static int RandomNumber(int min, int max);
