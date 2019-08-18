@@ -22,9 +22,9 @@
 #define AES_KEY_SIZE (256 / 8)
 #define HMAC_KEY_SIZE (160 / 8)
 
-#define PKBDF2_SALT_SIZE (128 / 8)
-#define PKBDF2_ITERATIONS 15000
-#define PKBDF2_HASH_SIZE (512 / 8)
+#define PBKDF2_SALT_SIZE (128 / 8)
+#define PBKDF2_ITERATIONS 15000
+#define PBKDF2_HASH_SIZE (512 / 8)
 
 class Utils
 {

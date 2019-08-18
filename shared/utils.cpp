@@ -311,13 +311,13 @@ std::shared_ptr<unsigned char> Utils::RandBytes(unsigned int amount)
 
 std::string Utils::PBKDF2_SHA512(std::string password, unsigned char *salt)
 {
-	std::shared_ptr<unsigned char> hash(new unsigned char[PKBDF2_HASH_SIZE]);
+	std::shared_ptr<unsigned char> hash(new unsigned char[PBKDF2_HASH_SIZE]);
 
 	// Hash using PBKDF2
-	PKCS5_PBKDF2_HMAC(password.data(), password.length(), salt, PKBDF2_SALT_SIZE, PKBDF2_ITERATIONS, EVP_sha512(), PKBDF2_HASH_SIZE, hash.get());
+	PKCS5_PBKDF2_HMAC(password.data(), password.length(), salt, PBKDF2_SALT_SIZE, PBKDF2_ITERATIONS, EVP_sha512(), PBKDF2_HASH_SIZE, hash.get());
 
 	// Encode the hash with base64 and combine it with the salt
-	return Utils::Base64Encode(std::string((char *)hash.get(), PKBDF2_HASH_SIZE)) + "$" + Utils::Base64Encode(std::string((char *)salt, PKBDF2_SALT_SIZE));
+	return Utils::Base64Encode(std::string((char *)hash.get(), PBKDF2_HASH_SIZE)) + "$" + Utils::Base64Encode(std::string((char *)salt, PBKDF2_SALT_SIZE));
 }
 
 bool Utils::PBKDF2_SHA512Compare(std::string password, std::string hash)
