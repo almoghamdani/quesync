@@ -22,6 +22,10 @@
 #define AES_KEY_SIZE (256 / 8)
 #define HMAC_KEY_SIZE (160 / 8)
 
+#define PKBDF2_SALT_SIZE (128 / 8)
+#define PKBDF2_ITERATIONS 15000
+#define PKBDF2_HASH_SIZE (512 / 8)
+
 class Utils
 {
 public:
@@ -36,6 +40,9 @@ public:
 	static Header DecodeHeader(const char *buf);
 
 	static std::shared_ptr<unsigned char> RandBytes(unsigned int amount);
+
+	static std::string PBKDF2_SHA512(std::string password, unsigned char *salt);
+	static bool PBKDF2_SHA512Compare(std::string password, std::string hash);
 
 	static std::string AES256Encrypt(std::string data, unsigned char *key, unsigned char *iv);
 	static std::string AES256Decrypt(std::string data, unsigned char *key, unsigned char *iv);
