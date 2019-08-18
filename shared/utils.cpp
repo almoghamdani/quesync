@@ -158,31 +158,6 @@ Packet *Utils::ParsePacket(std::string packet)
 	}
 }
 
-std::string Utils::SHA256(const std::string str)
-{
-	unsigned char hash[SHA256_DIGEST_LENGTH];
-	SHA256_CTX sha256;
-	std::stringstream encrypted_stream;
-
-	// Initialzie the SHA-256 encryptor
-	SHA256_Init(&sha256);
-
-	// Hash the string
-	SHA256_Update(&sha256, str.c_str(), str.size());
-
-	// Close the SHA-256 encryptor and finalize
-	SHA256_Final(hash, &sha256);
-
-	// Copy the hashed string to the encrypted stream to create a string
-	for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
-	{
-		encrypted_stream << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
-	}
-
-	// Return the encrypted string
-	return encrypted_stream.str();
-}
-
 PacketType Utils::GetPacketType(std::string packet)
 {
 	// Convert first 3 characters of string to the packet type (The first three should be the packet type)

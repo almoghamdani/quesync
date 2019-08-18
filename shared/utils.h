@@ -31,8 +31,6 @@ class Utils
 public:
 	static std::vector<std::string> Split(const std::string &s, char delimiter);
 
-	static std::string SHA256(const std::string str);
-
 	static Packet *ParsePacket(std::string packet);
 	static PacketType GetPacketType(std::string packet);
 

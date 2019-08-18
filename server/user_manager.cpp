@@ -58,7 +58,7 @@ std::shared_ptr<User> UserManager::authenticateUser(std::shared_ptr<Session> ses
 		throw QuesyncException(USER_NOT_FOUND);
 	}
 	// If the password the user entered doesn't match the user's password
-	else if (Utils::SHA256(password) != std::string(user_res[2]))
+	else if (!Utils::PBKDF2_SHA512Compare(password, std::string(user_res[2])))
 	{
 		throw QuesyncException(INCORRECT_PASSWORD);
 	}
@@ -85,6 +85,7 @@ std::shared_ptr<User> UserManager::registerUser(std::shared_ptr<Session> sess,
 												std::string nickname)
 {
 	std::shared_ptr<User> user = nullptr;
+	std::shared_ptr<unsigned char> password_salt;
 	std::string id, password_hashed;
 	int tag;
 
@@ -129,8 +130,11 @@ std::shared_ptr<User> UserManager::registerUser(std::shared_ptr<Session> sess,
 		// Create an ID for the user
 		id = sole::uuid4().str();
 
-		// Hash the user's password
-		password_hashed = Utils::SHA256(password);
+		// Generate a random salt for the password
+		password_salt = Utils::RandBytes(PBKDF2_SALT_SIZE);
+
+		// Hash the user's password with random salt
+		password_hashed = Utils::PBKDF2_SHA512(password, password_salt.get());
 
 		// Generate the random user tag
 		tag = Utils::GenerateTag(nickname, users_table);
