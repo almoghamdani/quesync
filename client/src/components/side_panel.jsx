@@ -22,6 +22,8 @@ import {
 
 import "./side_panel.scss";
 
+const { ipcRenderer } = window.require("electron");
+
 class SidePanel extends Component {
 	parseVoiceStates() {
 		let userVoiceStates = [];
@@ -89,9 +91,15 @@ class SidePanel extends Component {
 							this.props.dispatch(call(this.props.client, this.props.channelId))
 						}
 						joinCall={() =>
-							this.props.dispatch(
-								joinCall(this.props.client, this.props.channelId)
-							)
+							{
+								// Close the call window is case it's open
+								ipcRenderer.send("close-call-window", this.props.channelId);
+
+								// Join the call
+								this.props.dispatch(
+									joinCall(this.props.client, this.props.channelId)
+								)
+							}
 						}
 						inCall={this.props.voiceChannelId === this.props.channelId}
 						activeCall={this.props.activeCalls.includes(this.props.channelId)}
