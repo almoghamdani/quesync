@@ -11,12 +11,26 @@ add_definitions(-D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../../thirdparty)
 
 # Change runtime library to MD
-set(CMAKE_CXX_FLAGS_RELEASE "/MD")
-set(CMAKE_CXX_FLAGS_DEBUG "/MDd")
+IF (WIN32)
+    set(CMAKE_CXX_FLAGS_RELEASE "/MD")
+    set(CMAKE_CXX_FLAGS_DEBUG "/MDd")
+ENDIF()
 
 # Compile Opus
 add_subdirectory(../../vendor/opus opus)
 include_directories(../../vendor/opus/include)
+
+# Compile OpenAL
+set(ALSOFT_DLOPEN OFF)
+set(ALSOFT_UTILS OFF)
+set(ALSOFT_EXAMPLES OFF)
+set(ALSOFT_TESTS OFF)
+set(ALSOFT_CONFIG OFF)
+set(ALSOFT_HRTF_DEFS OFF)
+set(ALSOFT_AMBDEC_PRESETS OFF)
+set(ALSOFT_INSTALL OFF)
+add_subdirectory(../../vendor/openal-soft OpenAL)
+include_directories(../../vendor/openal-soft/include/AL)
 
 # Compile RNNoise
 set (RNNOISE_COMPILE_OPUS OFF)
@@ -27,20 +41,12 @@ include_directories(../../vendor/rnnoise-cmake/include)
 IF (WIN32)
     set (OPENSLL_DIR C:/OpenSSL-Win64)
 	set (OPENSSL_LIBS VC/libeay32MT VC/ssleay32MT)
-	
-	set (OPENAL_DIR "C:/Program Files (x86)/OpenAL 1.1 SDK")
-	set (OPENAL_LIB_DIR libs/Win64)
-	set (OPENAL_LIBS OpenAL32)
 ENDIF()
 
 # Macos dependencies
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set (OPENSLL_DIR /usr/local/opt/openssl)
 	set (OPENSSL_LIBS ssl crypto)
-	
-	set (OPENAL_DIR /usr/local/opt/openssl)
-	set (OPENAL_LIB_DIR lib)
-	set (OPENAL_LIBS openal)
 ENDIF()
 
 # If there is an openssl dir, set the include and lib directory
@@ -50,10 +56,6 @@ IF (OPENSLL_DIR)
 ENDIF()
 
 # If there is an openal dir, set the include and lib directory
-IF (OPENAL_DIR)
-    include_directories(${OPENAL_DIR}/include)
-    link_directories(${OPENAL_DIR}/${OPENAL_LIB_DIR})
-ENDIF()
 
 # Preprocessor defines
 add_definitions(-DASIO_STANDALONE) # Build ASIO without boost
@@ -92,4 +94,4 @@ string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
 
 # Compile the library
-target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBS} ${OPENAL_LIBS} ${CMAKE_JS_LIB} opus rnnoise)
+target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBS} ${CMAKE_JS_LIB} opus OpenAL rnnoise)
