@@ -43,7 +43,7 @@
 		"dev": "concurrently \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && electron .\"",
 		"electron": "electron .",
 		"electron-pack": "build",
-		"backend": "npm run --prefix backend build",
+		"backend": "cd backend && npm run build && cd ..",
 		"prebuild": "npm run backend",
 		"build": "npm run react-build && npm run electron-pack"
 	},

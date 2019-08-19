@@ -4,8 +4,8 @@
             "name": "Win32",
             "includePath": [
 				"${workspaceFolder}/**",
-				"${workspaceFolder}/vendor/opus/include",
-				"C:/Program Files (x86)/OpenAL 1.1 SDK/include",
+                "${workspaceFolder}/vendor/opus/include",
+                "${workspaceFolder}/vendor/openal-soft/include/AL",
                 "C:/Users/${env:username}/.node-gyp/**",
                 "C:/Program Files/MySQL/Connector C++ 8.0/include"
             ],
@@ -27,9 +27,11 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/vendor/opus/include",
+                "${workspaceFolder}/vendor/openal-soft/include/AL",
                 "${env:HOME}/.node-gyp/**",
-                "/usr/local/mysql-connector-c++/include/**",
-                "/usr/local/opt/openssl/include/**"
+                "/usr/local/mysql-connector-c++/include",
+                "/usr/local/opt/openssl/include"
             ],
             "defines": [
                 "_DEBUG",
@@ -39,11 +41,10 @@
                 "QUESYNC_CLIENT",
                 "QUESYNC_SERVER"
             ],
-            "windowsSdkVersion": "10.0.17134.0",
-            "compilerPath": "/usr/bin/gcc",
+            "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x64"
+            "intelliSenseMode": "clang-x64"
         }
     ],
     "version": 4

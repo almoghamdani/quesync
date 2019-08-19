@@ -9,8 +9,7 @@ const isDev = require("electron-is-dev");
 const queryString = require("query-string");
 
 // Find the backend library and load it
-const backend_name =
-	os.platform() === "darwin" ? "backend.node" : "Release/backend.node";
+const backend_name = "Release/backend.node";
 const quesync = require(isDev
 	? `../backend/build/${backend_name}`
 	: app.getAppPath() + `/../../backend.node`);

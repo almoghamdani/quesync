@@ -4,7 +4,9 @@
 	"description": "VoIP application",
 	"main": "index.js",
 	"scripts": {
-		"build": "cmake-js build -G \"Visual Studio 15 2017 Win64\""
+		"build": "run-script-os",
+		"build:win32": "cmake-js build -G \"Visual Studio 15 2017 Win64\"",
+		"build:darwin": "cmake-js build -DCMAKE_GENERATOR_PLATFORM=x64"
 	},
 	"repository": {
 		"type": "git",
@@ -25,5 +27,8 @@
 		"runtime": "electron",
 		"runtimeVersion": "5.0.7",
 		"arch": "x64"
+	},
+	"devDependencies": {
+		"run-script-os": "^1.0.7"
 	}
 }
