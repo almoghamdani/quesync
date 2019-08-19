@@ -15,11 +15,6 @@ VoiceInput::VoiceInput(std::shared_ptr<VoiceChat> voice_chat)
 
 	// Try to open the default capture device
 	_capture_device = alcCaptureOpenDevice(NULL, RECORD_FREQUENCY, AL_FORMAT_MONO16, FRAME_SIZE);
-	if (alGetError() != AL_NO_ERROR)
-	{
-		std::cout << "An error occurred in opening default capture device! Exiting.." << std::endl;
-		exit(EXIT_FAILURE);
-	}
 
 	// Create the opus encoder for the recording
 	_opus_encoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opus_error);

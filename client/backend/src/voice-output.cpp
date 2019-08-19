@@ -14,11 +14,6 @@ VoiceOutput::VoiceOutput(std::shared_ptr<VoiceChat> voice_chat)
 
 	// Open default device
 	_device = alcOpenDevice(NULL);
-	if (alGetError() != AL_NO_ERROR)
-	{
-		std::cout << "An error occurred in opening default device! Exiting.." << std::endl;
-		exit(EXIT_FAILURE);
-	}
 
 	// Create the context for the audio scene
 	_context = alcCreateContext(_device, NULL);
