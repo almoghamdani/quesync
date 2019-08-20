@@ -5,7 +5,7 @@
             "includePath": [
 				"${workspaceFolder}/**",
                 "${workspaceFolder}/vendor/opus/include",
-                "${workspaceFolder}/vendor/openal-soft/include/AL",
+                "${workspaceFolder}/vendor/rtaudio",
                 "C:/Users/${env:username}/.node-gyp/**",
                 "C:/Program Files/MySQL/Connector C++ 8.0/include"
             ],
@@ -28,7 +28,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/vendor/opus/include",
-                "${workspaceFolder}/vendor/openal-soft/include/AL",
+                "${workspaceFolder}/vendor/rtaudio",
                 "${env:HOME}/.node-gyp/**",
                 "/usr/local/mysql-connector-c++/include",
                 "/usr/local/opt/openssl/include"

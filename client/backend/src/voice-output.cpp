@@ -7,35 +7,50 @@
 #include "../../../shared/utils.h"
 #include "../../../shared/packets/participant_voice_packet.h"
 
+int RtOutputCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData)
+{
+	VoiceOutput *vo = (VoiceOutput *)userData;
+
+	// Wait for new output
+	std::unique_lock lk(vo->_data_mutex);
+	vo->_data_cv.wait(lk);
+
+	// Pop the last output data
+	std::shared_ptr<int16_t> buf = vo->_output_data.front();
+	vo->_output_data.pop();
+
+	// Unlock the mutex
+	lk.unlock();
+
+	// If the buffer size is the needed size
+	if (nFrames == FRAME_SIZE)
+	{
+		// Copy the buffer to the output buffer + Convert from MONO to STEREO
+		for (int i = 0; i < FRAME_SIZE; i++)
+		{
+			*((int16_t *)outputBuffer + i * 2) = *((int16_t *)outputBuffer + i * 2 + 1) = buf.get()[i]; 
+		}
+	}
+
+	return 0;
+}
+
 VoiceOutput::VoiceOutput(std::shared_ptr<VoiceChat> voice_chat)
 	: _voice_chat(voice_chat), _enabled(false), _deafen(false)
 {
 	int opus_error = 0;
 
-	// Open default device
-	_device = alcOpenDevice(NULL);
+	unsigned int frameSize = FRAME_SIZE;
 
-	// Create the context for the audio scene
-	_context = alcCreateContext(_device, NULL);
-	alcMakeContextCurrent(_context);
-	if (alGetError() != AL_NO_ERROR)
-	{
-		std::cout << "An error occurred in creating device context! Exiting.." << std::endl;
-		exit(EXIT_FAILURE);
-	}
+	// Set the output stream parameters and options
+	RtAudio::StreamParameters stream_params;
+	RtAudio::StreamOptions stream_options;
+	stream_params.deviceId = _rt_audio.getDefaultOutputDevice();
+	stream_params.nChannels = 2;
+	stream_options.streamName = "QuesyncOutput";
 
-	// Init the source
-	alGenSources((ALuint)1, &_source);
-	alSourcef(_source, AL_PITCH, 1);
-	alSourcef(_source, AL_GAIN, 1);
-	alSource3f(_source, AL_POSITION, 0, 0, 0);
-	alSource3f(_source, AL_VELOCITY, 0, 0, 0);
-	alSourcei(_source, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR)
-	{
-		std::cout << "An error occurred in creating sound source! Exiting.." << std::endl;
-		exit(EXIT_FAILURE);
-	}
+	// Open the output stream
+	_rt_audio.openStream(&stream_params, nullptr, RTAUDIO_SINT16, RECORD_FREQUENCY, &frameSize, &RtOutputCallback, this, &stream_options);
 
 	// Create the opus decoder for the voice
 	_opus_decoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, &opus_error);
@@ -52,17 +67,8 @@ VoiceOutput::VoiceOutput(std::shared_ptr<VoiceChat> voice_chat)
 
 VoiceOutput::~VoiceOutput()
 {
-	// Clean unused buffers of the source
-	cleanUnusedBuffers(_source);
-
-	// Delete the source
-	alDeleteSources(1, &_source);
-
-	// Destory device's context
-	alcDestroyContext(_context);
-
-	// Close the device
-	alcCloseDevice(_device);
+	// Stop the output stream
+	_rt_audio.closeStream();
 
 	// Destory opus decoder
 	opus_decoder_destroy(_opus_decoder);
@@ -70,11 +76,17 @@ VoiceOutput::~VoiceOutput()
 
 void VoiceOutput::enable()
 {
+	// Start the output stream
+	_rt_audio.startStream();
+
 	_enabled = true;
 }
 
 void VoiceOutput::disable()
 {
+	// Stop the output stream
+	_rt_audio.stopStream();
+
 	_enabled = false;
 }
 
@@ -90,7 +102,7 @@ void VoiceOutput::outputThread()
 
 	while (true)
 	{
-		ALuint buffer;
+		std::shared_ptr<int16_t> buffer(new int16_t[FRAME_SIZE]);
 
 		// If disabled, skip
 		if (!_enabled)
@@ -98,12 +110,6 @@ void VoiceOutput::outputThread()
 			std::this_thread::sleep_for(std::chrono::microseconds(750));
 			continue;
 		}
-
-		// Clean unused buffers of the source
-		cleanUnusedBuffers(_source);
-
-		// Generate buffer for the new data
-		alGenBuffers((ALuint)1, &buffer);
 
 		// Receive from the server the encoded voice sample into the recv buffer
 		recv_bytes = (int)_voice_chat->socket().receive_from(asio::buffer(recv_buffer, RECV_BUFFER_SIZE), sender_endpoint);
@@ -130,20 +136,16 @@ void VoiceOutput::outputThread()
 			// Decode the current sample from the client
 			decoded_size = opus_decode(_opus_decoder, (const unsigned char *)voice_packet->voice_data(), voice_packet->voice_data_len(), (opus_int16 *)pcm, FRAME_SIZE, 0);
 
-			// Fill buffer
-			alBufferData(buffer, AL_FORMAT_MONO16, (opus_int16 *)pcm, decoded_size * sizeof(opus_int16), RECORD_FREQUENCY);
+			// Copy the PCM to the buffer
+			memcpy(buffer.get(), pcm, FRAME_SIZE * sizeof(int16_t));
 
-			// Queue the buffer to the source
-			alSourceQueueBuffers(_source, 1, &buffer);
-		}
+			// Push the output buffer to the output data queue
+			std::unique_lock lk(_data_mutex);
+			_output_data.push(buffer);
 
-		// Clean unused buffers of the source
-		cleanUnusedBuffers(_source);
-
-		// If the source isn't playing, play it
-		if (!isSourcePlaying(_source))
-		{
-			alSourcePlay(_source);
+			// Notify the RtAudio thread
+			lk.unlock();
+			_data_cv.notify_one();
 		}
 	}
 }
@@ -161,31 +163,4 @@ void VoiceOutput::undeaf()
 bool VoiceOutput::deafen()
 {
 	return _deafen;
-}
-
-void VoiceOutput::cleanUnusedBuffers(ALuint source)
-{
-	ALint amount_of_buffers;
-	ALuint *old_buffers;
-
-	// Get the amount of buffers that already processed and allocate memory for them
-	alGetSourcei(source, AL_BUFFERS_PROCESSED, &amount_of_buffers);
-	old_buffers = new ALuint[amount_of_buffers];
-
-	// Unqueue the buffers
-	alSourceUnqueueBuffers(source, amount_of_buffers, old_buffers);
-
-	// Delete the buffers
-	alDeleteBuffers(amount_of_buffers, old_buffers);
-	delete old_buffers;
-}
-
-bool VoiceOutput::isSourcePlaying(ALuint source)
-{
-	ALint source_state;
-
-	// Get the source state
-	alGetSourcei(source, AL_SOURCE_STATE, &source_state);
-
-	return source_state == AL_PLAYING;
 }

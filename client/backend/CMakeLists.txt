@@ -20,22 +20,16 @@ ENDIF()
 add_subdirectory(../../vendor/opus opus)
 include_directories(../../vendor/opus/include)
 
-# Compile OpenAL
-set(ALSOFT_DLOPEN OFF)
-set(ALSOFT_UTILS OFF)
-set(ALSOFT_EXAMPLES OFF)
-set(ALSOFT_TESTS OFF)
-set(ALSOFT_CONFIG OFF)
-set(ALSOFT_HRTF_DEFS OFF)
-set(ALSOFT_AMBDEC_PRESETS OFF)
-set(ALSOFT_INSTALL OFF)
-add_subdirectory(../../vendor/openal-soft OpenAL)
-include_directories(../../vendor/openal-soft/include/AL)
-
 # Compile RNNoise
 set (RNNOISE_COMPILE_OPUS OFF)
 add_subdirectory(../../vendor/rnnoise-cmake rnnoise)
 include_directories(../../vendor/rnnoise-cmake/include)
+
+# Compile RtAudio
+set(BUILD_SHARED_LIBS ON)
+add_subdirectory(../../vendor/rtaudio rtaudio)
+include_directories(../../vendor/rtaudio)
+unset(BUILD_SHARED_LIBS)
 
 # Windows dependencies
 IF (WIN32)
@@ -94,4 +88,4 @@ string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
 
 # Compile the library
-target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBS} ${CMAKE_JS_LIB} opus OpenAL rnnoise)
+target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBS} ${CMAKE_JS_LIB} opus rtaudio rnnoise)

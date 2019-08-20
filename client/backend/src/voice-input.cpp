@@ -8,13 +8,45 @@
 #include "../../../shared/utils.h"
 #include "../../../shared/packets/voice_packet.h"
 
+int RtInputCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData)
+{
+	VoiceInput *vi = (VoiceInput *)userData;
+
+	std::unique_lock lk(vi->_data_mutex);
+	std::shared_ptr<int16_t> input_data(new int16_t[FRAME_SIZE]);
+
+	// If we have the frame size
+	if (nFrames == FRAME_SIZE)
+	{
+		// Copy to input data
+		memcpy(input_data.get(), inputBuffer, FRAME_SIZE * sizeof(int16_t));
+
+		// Add the input data
+		vi->_input_data.push(input_data);
+
+		// Notify the handle thread
+		lk.unlock();
+		vi->_data_cv.notify_one();
+	}
+
+	return 0;
+}
+
 VoiceInput::VoiceInput(std::shared_ptr<VoiceChat> voice_chat)
 	: _voice_chat(voice_chat), _enabled(false), _muted(false)
 {
 	int opus_error = 0;
+	unsigned int frameSize = FRAME_SIZE;
 
-	// Try to open the default capture device
-	_capture_device = alcCaptureOpenDevice(NULL, RECORD_FREQUENCY, AL_FORMAT_MONO16, FRAME_SIZE);
+	// Set the input stream parameters and options
+	RtAudio::StreamParameters stream_params;
+	RtAudio::StreamOptions stream_options;
+	stream_params.deviceId = _rt_audio.getDefaultInputDevice();
+	stream_params.nChannels = RECORD_CHANNELS;
+	stream_options.streamName = "QuesyncInput";
+
+	// Open the input stream
+	_rt_audio.openStream(nullptr, &stream_params, RTAUDIO_SINT16, RECORD_FREQUENCY, &frameSize, &RtInputCallback, this, &stream_options);
 
 	// Create the opus encoder for the recording
 	_opus_encoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opus_error);
@@ -34,11 +66,8 @@ VoiceInput::VoiceInput(std::shared_ptr<VoiceChat> voice_chat)
 
 VoiceInput::~VoiceInput()
 {
-	// Stop the capture
-	alcCaptureStop(_capture_device);
-
-	// Close the capture device
-	alcCaptureCloseDevice(_capture_device);
+	// Stop the input stream
+	_rt_audio.closeStream();
 
 	// Deallocate the RNNoise state
 	rnnoise_destroy(_rnnoise_state);
@@ -49,25 +78,22 @@ VoiceInput::~VoiceInput()
 
 void VoiceInput::enable()
 {
-	// Start to capture using the default device
-	alcCaptureStart(_capture_device);
+	// Start the input stream
+	_rt_audio.startStream();
 
 	_enabled = true;
 }
 
 void VoiceInput::disable()
 {
-	// Stop capturing using the default device
-	alcCaptureStop(_capture_device);
+	// Stop the input stream
+	_rt_audio.stopStream();
 
 	_enabled = false;
 }
 
 void VoiceInput::inputThread()
 {
-	int16_t buffer[FRAME_SIZE] = {0};
-	ALint sample = 0;
-
 	int encodedDataLen = 0;
 	int16_t encoded_buffer[FRAME_SIZE] = {0};
 
@@ -83,80 +109,76 @@ void VoiceInput::inputThread()
 
 	while (true)
 	{
-		std::this_thread::sleep_for(std::chrono::microseconds(750));
+		std::shared_ptr<int16_t> buffer;
 
 		// If disabled, skip
 		if (!_enabled)
 			continue;
 
-		uint64_t idk = _voice_chat->getMS();
+		// Wait for new input
+		std::unique_lock lk(_data_mutex);
+		_data_cv.wait(lk);
 
-		// Get the amount of samples waiting in the device's buffer
-		alcGetIntegerv(_capture_device, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &sample);
+		// Get input data
+		buffer = _input_data.front();
+		_input_data.pop();
 
-		// If there is enough samples to send the server to match the server's framerate, send it
-		if (sample >= FRAME_SIZE)
+		// If muted, continue
+		if (_muted)
 		{
-			// Get the capture samples
-			alcCaptureSamples(_capture_device, (ALCvoid *)buffer, FRAME_SIZE);
+			continue;
+		}
 
-			// If muted, continue
-			if (_muted)
-			{
-				continue;
-			}
+		// Copy all PCM 16-bit short to an array of floats
+		for (int i = 0; i < FRAME_SIZE; i++)
+		{
+			rnnoise_buffer[i] = ((opus_int16 *)buffer.get())[i];
+		}
 
-			// Copy all PCM 16-bit short to an array of floats
-			for (int i = 0; i < FRAME_SIZE; i++)
-			{
-				rnnoise_buffer[i] = ((opus_int16 *)buffer)[i];
-			}
+		// Process frame using RNNoise to reduce background noise
+		rnnoise_process_frame(_rnnoise_state, rnnoise_buffer, rnnoise_buffer);
 
-			// Process frame using RNNoise to reduce background noise
-			rnnoise_process_frame(_rnnoise_state, rnnoise_buffer, rnnoise_buffer);
+		// Copy back the result data to the buffer
+		for (int i = 0; i < FRAME_SIZE; i++)
+		{
+			((opus_int16 *)buffer.get())[i] = (opus_int16)rnnoise_buffer[i];
+		}
 
-			// Copy back the result data to the buffer
-			for (int i = 0; i < FRAME_SIZE; i++)
-			{
-				((opus_int16 *)buffer)[i] = (opus_int16)rnnoise_buffer[i];
-			}
+		// Copy the current sample to the buffer of db check samples
+		for (int i = 0; i < FRAME_SIZE; i++)
+		{
+			db_check_samples[current_db_sample * FRAME_SIZE + i] = buffer.get()[i];
+		}
 
-			// Copy the current sample to the buffer of db check samples
-			for (int i = 0; i < FRAME_SIZE; i++)
-			{
-				db_check_samples[current_db_sample * FRAME_SIZE + i] = buffer[i];
-			}
+		// Check if reached the amount of samples needed for db check
+		current_db_sample++;
+		if (current_db_sample >= (CHECK_DB_TIMEOUT / 10))
+		{
+			current_db_sample = 0;
 
-			// Check if reached the amount of samples needed for db check
-			current_db_sample++;
-			if (current_db_sample >= (CHECK_DB_TIMEOUT / 10))
-			{
-				current_db_sample = 0;
+			// Calculate the db of the db check samples
+			db = calcDB(calcRMS(db_check_samples, FRAME_SIZE * (CHECK_DB_TIMEOUT / 10)));
+		}
 
-				// Calculate the db of the db check samples
-				db = calcDB(calcRMS(db_check_samples, FRAME_SIZE * (CHECK_DB_TIMEOUT / 10)));
-			}
+		// If the current samples are over the minimum db or we are in the stop transition time
+		if (db > MINIMUM_DB || _voice_chat->getMS() - last_activated < VOICE_DEACTIVATE_DELAY)
+		{
+			// Activate the user's voice
+			_voice_chat->activateVoice(_voice_chat->userId());
 
-			// If the current samples are over the minimum db or we are in the stop transition time
-			if (db > MINIMUM_DB || _voice_chat->getMS() - last_activated < VOICE_DEACTIVATE_DELAY)
-			{
-				// Activate the user's voice
-				_voice_chat->activateVoice(_voice_chat->userId());
+			// Encode the captured data
+			encodedDataLen = opus_encode(_opus_encoder, (const opus_int16 *)buffer.get(), FRAME_SIZE, (unsigned char *)encoded_buffer, FRAME_SIZE * sizeof(opus_int16));
 
-				// Encode the captured data
-				encodedDataLen = opus_encode(_opus_encoder, (const opus_int16 *)buffer, FRAME_SIZE, (unsigned char *)encoded_buffer, FRAME_SIZE * sizeof(opus_int16));
+			// Create the voice packet and encrypt it
+			voice_packet = VoicePacket(_voice_chat->userId(), _voice_chat->sessionId(), _voice_chat->channelId(), (char *)encoded_buffer, encodedDataLen);
+			voice_packet_encrypted = Utils::EncryptVoicePacket(&voice_packet, _voice_chat->AESKey().get(), _voice_chat->HMACKey().get());
 
-				// Create the voice packet and encrypt it
-				voice_packet = VoicePacket(_voice_chat->userId(), _voice_chat->sessionId(), _voice_chat->channelId(), (char *)encoded_buffer, encodedDataLen);
-				voice_packet_encrypted = Utils::EncryptVoicePacket(&voice_packet, _voice_chat->AESKey().get(), _voice_chat->HMACKey().get());
+			// Send the encoded voice packet to the server
+			_voice_chat->socket().send_to(asio::buffer(voice_packet_encrypted.c_str(), voice_packet_encrypted.length()), _voice_chat->endpoint());
 
-				// Send the encoded voice packet to the server
-				_voice_chat->socket().send_to(asio::buffer(voice_packet_encrypted.c_str(), voice_packet_encrypted.length()), _voice_chat->endpoint());
-
-				// If the current samples are over the minimum db, set the last played time
-				if (db > MINIMUM_DB)
-					last_activated = _voice_chat->getMS();
-			}
+			// If the current samples are over the minimum db, set the last played time
+			if (db > MINIMUM_DB)
+				last_activated = _voice_chat->getMS();
 		}
 	}
 }

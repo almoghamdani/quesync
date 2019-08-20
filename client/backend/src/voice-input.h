@@ -3,9 +3,10 @@
 #include <string>
 #include <thread>
 #include <memory>
-
-#include <al.h>
-#include <alc.h>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <RtAudio.h>
 #include <opus.h>
 #include <rnnoise.h>
 
@@ -29,12 +30,18 @@ public:
 
 	bool muted();
 
+	friend int RtInputCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData);
+
 private:
 	std::shared_ptr<VoiceChat> _voice_chat;
 
+	std::queue<std::shared_ptr<int16_t>> _input_data;
+	std::mutex _data_mutex;
+	std::condition_variable _data_cv;
+
 	std::thread _thread;
 
-	ALCdevice *_capture_device;
+	RtAudio _rt_audio;
 	OpusEncoder *_opus_encoder;
 	DenoiseState *_rnnoise_state;
 
