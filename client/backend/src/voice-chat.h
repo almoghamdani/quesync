@@ -5,6 +5,7 @@
 #include <mutex>
 #include <memory>
 #include <unordered_map>
+#include <RtAudio.h>
 
 #include "socket-manager.h"
 #include "voice-input.h"
@@ -14,6 +15,7 @@
 
 #define RECORD_FREQUENCY 48000
 #define RECORD_CHANNELS 1
+#define PLAYBACK_CHANNELS 2
 #define FRAME_SIZE 480
 
 #define DEACTIVIATION_TIMEOUT_MS 250
@@ -56,6 +58,8 @@ public:
 
 	uint64_t getMS();
 
+	friend int RtCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData);
+
 private:
 	Client *_client;
 
@@ -77,6 +81,8 @@ private:
 	std::unordered_map<std::string, bool> _changed_voice_activity;
 
 	std::thread activationThread;
+
+	RtAudio _rt_audio;
 
 	bool _enabled;
 

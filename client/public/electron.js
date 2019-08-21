@@ -29,12 +29,12 @@ electron.ipcMain.on("create-call-window", (_, callDetails) => {
 	callWindows[callDetails.id] = new BrowserWindow({
 		width: 270,
 		height: 390,
-		titleBarStyle: "hidden",
 		frame: false,
 		webPreferences: { nodeIntegration: true },
 		fullscreenable: false,
 		resizable: false,
 		transparent: true,
+		hasShadow: false,
 		center: true,
 		alwaysOnTop: true,
 		show: false,

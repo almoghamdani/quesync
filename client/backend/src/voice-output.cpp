@@ -1,56 +1,18 @@
 #include "voice-output.h"
 
+#include <limits>
 #include <chrono>
+#include <sole.hpp>
 
 #include "voice-chat.h"
 
 #include "../../../shared/utils.h"
 #include "../../../shared/packets/participant_voice_packet.h"
 
-int RtOutputCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData)
-{
-	VoiceOutput *vo = (VoiceOutput *)userData;
-
-	// Wait for new output
-	std::unique_lock lk(vo->_data_mutex);
-	vo->_data_cv.wait(lk);
-
-	// Pop the last output data
-	std::shared_ptr<int16_t> buf = vo->_output_data.front();
-	vo->_output_data.pop();
-
-	// Unlock the mutex
-	lk.unlock();
-
-	// If the buffer size is the needed size
-	if (nFrames == FRAME_SIZE)
-	{
-		// Copy the buffer to the output buffer + Convert from MONO to STEREO
-		for (int i = 0; i < FRAME_SIZE; i++)
-		{
-			*((int16_t *)outputBuffer + i * 2) = *((int16_t *)outputBuffer + i * 2 + 1) = buf.get()[i]; 
-		}
-	}
-
-	return 0;
-}
-
 VoiceOutput::VoiceOutput(std::shared_ptr<VoiceChat> voice_chat)
 	: _voice_chat(voice_chat), _enabled(false), _deafen(false)
 {
 	int opus_error = 0;
-
-	unsigned int frameSize = FRAME_SIZE;
-
-	// Set the output stream parameters and options
-	RtAudio::StreamParameters stream_params;
-	RtAudio::StreamOptions stream_options;
-	stream_params.deviceId = _rt_audio.getDefaultOutputDevice();
-	stream_params.nChannels = 2;
-	stream_options.streamName = "QuesyncOutput";
-
-	// Open the output stream
-	_rt_audio.openStream(&stream_params, nullptr, RTAUDIO_SINT16, RECORD_FREQUENCY, &frameSize, &RtOutputCallback, this, &stream_options);
 
 	// Create the opus decoder for the voice
 	_opus_decoder = opus_decoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, &opus_error);
@@ -67,26 +29,42 @@ VoiceOutput::VoiceOutput(std::shared_ptr<VoiceChat> voice_chat)
 
 VoiceOutput::~VoiceOutput()
 {
-	// Stop the output stream
-	_rt_audio.closeStream();
-
 	// Destory opus decoder
 	opus_decoder_destroy(_opus_decoder);
 }
 
+void VoiceOutput::callbackHandler(void *output_buffer)
+{
+	std::unique_lock lk(_data_mutex);
+
+	// If empty, clean output buffer
+	if (_output_data.empty())
+	{
+		memset(output_buffer, 0, FRAME_SIZE * PLAYBACK_CHANNELS * sizeof(int16_t));
+		return;
+	}
+
+	// Pop the last output data
+	std::shared_ptr<int16_t> buf = _output_data.front();
+	_output_data.pop();
+
+	// Unlock the mutex
+	lk.unlock();
+
+	// Copy the buffer to the output buffer + Convert from MONO to STEREO
+	for (int i = 0; i < FRAME_SIZE; i++)
+	{
+		*((int16_t *)output_buffer + i * PLAYBACK_CHANNELS) = *((int16_t *)output_buffer + i * PLAYBACK_CHANNELS + 1) = buf.get()[i];
+	}
+}
+
 void VoiceOutput::enable()
 {
-	// Start the output stream
-	_rt_audio.startStream();
-
 	_enabled = true;
 }
 
 void VoiceOutput::disable()
 {
-	// Stop the output stream
-	_rt_audio.stopStream();
-
 	_enabled = false;
 }
 
@@ -142,10 +120,6 @@ void VoiceOutput::outputThread()
 			// Push the output buffer to the output data queue
 			std::unique_lock lk(_data_mutex);
 			_output_data.push(buffer);
-
-			// Notify the RtAudio thread
-			lk.unlock();
-			_data_cv.notify_one();
 		}
 	}
 }

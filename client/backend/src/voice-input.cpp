@@ -2,51 +2,17 @@
 
 #include <chrono>
 #include <limits>
+#include <sole.hpp>
 
 #include "voice-chat.h"
 
 #include "../../../shared/utils.h"
 #include "../../../shared/packets/voice_packet.h"
 
-int RtInputCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData)
-{
-	VoiceInput *vi = (VoiceInput *)userData;
-
-	std::unique_lock lk(vi->_data_mutex);
-	std::shared_ptr<int16_t> input_data(new int16_t[FRAME_SIZE]);
-
-	// If we have the frame size
-	if (nFrames == FRAME_SIZE)
-	{
-		// Copy to input data
-		memcpy(input_data.get(), inputBuffer, FRAME_SIZE * sizeof(int16_t));
-
-		// Add the input data
-		vi->_input_data.push(input_data);
-
-		// Notify the handle thread
-		lk.unlock();
-		vi->_data_cv.notify_one();
-	}
-
-	return 0;
-}
-
 VoiceInput::VoiceInput(std::shared_ptr<VoiceChat> voice_chat)
 	: _voice_chat(voice_chat), _enabled(false), _muted(false)
 {
 	int opus_error = 0;
-	unsigned int frameSize = FRAME_SIZE;
-
-	// Set the input stream parameters and options
-	RtAudio::StreamParameters stream_params;
-	RtAudio::StreamOptions stream_options;
-	stream_params.deviceId = _rt_audio.getDefaultInputDevice();
-	stream_params.nChannels = RECORD_CHANNELS;
-	stream_options.streamName = "QuesyncInput";
-
-	// Open the input stream
-	_rt_audio.openStream(nullptr, &stream_params, RTAUDIO_SINT16, RECORD_FREQUENCY, &frameSize, &RtInputCallback, this, &stream_options);
 
 	// Create the opus encoder for the recording
 	_opus_encoder = opus_encoder_create(RECORD_FREQUENCY, RECORD_CHANNELS, OPUS_APPLICATION_VOIP, &opus_error);
@@ -66,9 +32,6 @@ VoiceInput::VoiceInput(std::shared_ptr<VoiceChat> voice_chat)
 
 VoiceInput::~VoiceInput()
 {
-	// Stop the input stream
-	_rt_audio.closeStream();
-
 	// Deallocate the RNNoise state
 	rnnoise_destroy(_rnnoise_state);
 
@@ -76,19 +39,29 @@ VoiceInput::~VoiceInput()
 	opus_encoder_destroy(_opus_encoder);
 }
 
+void VoiceInput::callbackHandler(void *input_buffer)
+{
+	std::unique_lock lk(_data_mutex);
+	std::shared_ptr<int16_t> input_data(new int16_t[FRAME_SIZE]);
+
+	// Copy to input data
+	memcpy(input_data.get(), input_buffer, FRAME_SIZE * sizeof(int16_t));
+
+	// Add the input data
+	_input_data.push(input_data);
+
+	// Notify the handle thread
+	lk.unlock();
+	_data_cv.notify_one();
+}
+
 void VoiceInput::enable()
 {
-	// Start the input stream
-	_rt_audio.startStream();
-
 	_enabled = true;
 }
 
 void VoiceInput::disable()
 {
-	// Stop the input stream
-	_rt_audio.stopStream();
-
 	_enabled = false;
 }
 
@@ -113,7 +86,10 @@ void VoiceInput::inputThread()
 
 		// If disabled, skip
 		if (!_enabled)
+		{
+			std::this_thread::sleep_for(std::chrono::microseconds(750));
 			continue;
+		}
 
 		// Wait for new input
 		std::unique_lock lk(_data_mutex);

@@ -26,10 +26,9 @@ add_subdirectory(../../vendor/rnnoise-cmake rnnoise)
 include_directories(../../vendor/rnnoise-cmake/include)
 
 # Compile RtAudio
-set(BUILD_SHARED_LIBS ON)
+set(RTAUDIO_BUILD_TESTING OFF)
 add_subdirectory(../../vendor/rtaudio rtaudio)
 include_directories(../../vendor/rtaudio)
-unset(BUILD_SHARED_LIBS)
 
 # Windows dependencies
 IF (WIN32)

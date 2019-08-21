@@ -26,18 +26,16 @@ public:
 
 	bool deafen();
 
-	friend int RtOutputCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData);
+	void callbackHandler(void *output_buffer);
 
 private:
 	std::shared_ptr<VoiceChat> _voice_chat;
 
 	std::queue<std::shared_ptr<int16_t>> _output_data;
 	std::mutex _data_mutex;
-	std::condition_variable _data_cv;
 
 	std::thread _thread;
 
-	RtAudio _rt_audio;
 	OpusDecoder *_opus_decoder;
 
 	bool _enabled;

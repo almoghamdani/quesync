@@ -2,11 +2,27 @@
 
 #include <iostream>
 #include <chrono>
+#include <sole.hpp>
 
 #include "client.h"
 
 #include "../../../shared/packets/voice_packet.h"
 #include "../../../shared/packets/voice_otp_packet.h"
+
+int RtCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData)
+{
+	VoiceChat *vc = (VoiceChat *)userData;
+
+	// Validate frame size
+	if (nFrames != FRAME_SIZE)
+		return 0;
+
+	// Handle input and output
+	vc->_input->callbackHandler(inputBuffer);
+	vc->_output->callbackHandler(outputBuffer);
+
+	return 0;
+}
 
 VoiceChat::VoiceChat(Client *client, const char *server_ip)
 	: _client(client),
@@ -25,6 +41,25 @@ VoiceChat::VoiceChat(Client *client, const char *server_ip)
 
 void VoiceChat::init()
 {
+	unsigned int frame_size = FRAME_SIZE;
+
+	// Set the input stream parameters
+	RtAudio::StreamParameters input_stream_params;
+	input_stream_params.deviceId = _rt_audio.getDefaultInputDevice();
+	input_stream_params.nChannels = RECORD_CHANNELS;
+
+	// Set the output stream parameters
+	RtAudio::StreamParameters output_stream_params;
+	output_stream_params.deviceId = _rt_audio.getDefaultOutputDevice();
+	output_stream_params.nChannels = PLAYBACK_CHANNELS;
+
+	RtAudio::StreamOptions stream_options;
+	stream_options.streamName = "Quesync-" + sole::uuid4().str();
+
+	// Open the stream
+	_rt_audio.openStream(&output_stream_params, &input_stream_params, RTAUDIO_SINT16, RECORD_FREQUENCY, &frame_size, &RtCallback, this, &stream_options);
+
+	// Init input and output
 	_input = std::make_shared<VoiceInput>(shared_from_this());
 	_output = std::make_shared<VoiceOutput>(shared_from_this());
 }
@@ -41,6 +76,9 @@ void VoiceChat::enable(std::string user_id, std::string session_id, std::string 
 	_aes_key = aes_key;
 	_hmac_key = hmac_key;
 
+	// Start the stream
+	_rt_audio.startStream();
+
 	// Enable voice chat and input and output
 	_enabled = true;
 	_input->enable();
@@ -53,6 +91,15 @@ void VoiceChat::disable()
 	_enabled = false;
 	_input->disable();
 	_output->disable();
+
+	// Stop the stream
+	try
+	{
+		_rt_audio.stopStream();
+	}
+	catch (...)
+	{
+	}
 }
 
 bool VoiceChat::enabled()
