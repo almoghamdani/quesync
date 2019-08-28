@@ -1,52 +1,44 @@
 #pragma once
-#include "packet.h"
+#include "../serialized_packet.h"
 
-#include "response_packet.h"
+#include "../response_packet.h"
 #include "error_packet.h"
-#include "serialized_packet.h"
 
-#include "../quesync_exception.h"
+#include "../exception.h"
 
-class LeaveCallPacket : public SerializedPacket
-{
-public:
-	LeaveCallPacket() : SerializedPacket(LEAVE_CALL_PACKET) {};
+namespace quesync {
+namespace packets {
+class leave_call_packet : public serialized_packet {
+   public:
+    leave_call_packet() : serialized_packet(packet_type::leave_call_packet){};
 
-	virtual bool verify() const
-	{
-		return true;
-	};
+    virtual bool verify() const { return true; };
 
 // A handle function for the server
 #ifdef QUESYNC_SERVER
-	virtual std::string handle(Session *session)
-	{
-		// If the user is not authenticed, send error
-		if (!session->authenticated())
-		{
-			return ErrorPacket(NOT_AUTHENTICATED).encode();
-		}
+    virtual std::string handle(std::shared_ptr<server::session> session) {
+        // If the user is not authenticed, send error
+        if (!session->authenticated()) {
+            return error_packet(error::not_authenticated).encode();
+        }
 
-		try
-		{
-			// Leave the voice channel
-			session->server()->voiceManager()->leaveVoiceChannel(session->user()->id());
+        try {
+            // Leave the voice channel
+            session->server()->voice_manager()->leave_voice_channel(session->user()->id);
 
-			// Destroy the voice session of the user
-			session->server()->voiceManager()->deleteVoiceSession(session->user()->id());
+            // Destroy the voice session of the user
+            session->server()->voice_manager()->delete_voice_session(session->user()->id);
 
-			// Return success response packet
-			return ResponsePacket(CALL_LEFT_PACKET, "").encode();
-		}
-		catch (QuesyncException &ex)
-		{
-			// Return the error code
-			return ErrorPacket(ex.getErrorCode()).encode();
-		}
-		catch (...)
-		{
-			return ErrorPacket(UNKNOWN_ERROR).encode();
-		}
-	};
+            // Return success response packet
+            return response_packet(packet_type::call_left_packet, std::string()).encode();
+        } catch (exception &ex) {
+            // Return the error code
+            return error_packet(ex.error_code()).encode();
+        } catch (...) {
+            return error_packet(error::unknown_error).encode();
+        }
+    };
 #endif
 };
+};  // namespace packets
+};  // namespace quesync

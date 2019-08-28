@@ -1,6 +1,13 @@
 #pragma once
 
-struct VoiceHeader {
-	unsigned char iv[16];
-	unsigned char hmac[20];
+#include "utils/crypto/aes256.h"
+#include "utils/crypto/hmac.h"
+
+namespace quesync {
+namespace voice {
+struct header {
+    unsigned char iv[AES_IV_SIZE];
+    unsigned char hmac[HMAC_KEY_SIZE];
 };
+};  // namespace voice
+};  // namespace quesync

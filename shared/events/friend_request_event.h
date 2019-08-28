@@ -3,19 +3,28 @@
 
 #include <ctime>
 
-class FriendRequestEvent : public Event
-{
-public:
-    FriendRequestEvent() : Event(FRIEND_REQUEST_EVENT)
-    {
+namespace quesync {
+namespace events {
+struct friend_request_event : public event {
+    friend_request_event() : event(event_type::friend_request_event) {}
+
+    friend_request_event(std::string requester_id, std::time_t sent_at)
+        : event(event_type::friend_request_event) {
+        this->requester_id = requester_id;
+        this->sent_at = sent_at;
     }
 
-    FriendRequestEvent(std::string requester_id, std::time_t sent_at) : Event(FRIEND_REQUEST_EVENT)
-    {
-        _json["requesterId"] = requester_id;
-		_json["sentAt"] = sent_at;
+    virtual nlohmann::json encode() const {
+        return {{"eventType", type}, {"requesterId", requester_id}, {"sentAt", sent_at}};
+    }
+    virtual void decode(nlohmann::json j) {
+        type = j["eventType"];
+        requester_id = j["requesterId"];
+        sent_at = (int)j["sentAt"];
     }
 
-    GET_FUNCTION(requesterId, std::string)
-	GET_FUNCTION(sentAt, std::time_t)
+    std::string requester_id;
+    std::time_t sent_at;
 };
+};  // namespace events
+};  // namespace quesync

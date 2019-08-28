@@ -2,7 +2,9 @@
 
 #include <cstdint>
 
-struct Header {
-	uint32_t version;
-	uint32_t size;
+namespace quesync {
+struct header {
+    uint32_t version;
+    uint32_t size;
 };
+};  // namespace quesync

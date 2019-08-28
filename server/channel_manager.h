@@ -8,26 +8,31 @@ namespace sql = mysqlx;
 
 #include "../shared/channel.h"
 
+namespace quesync {
+namespace server {
 // Prevent loop header include
-class Session;
+class session;
 
-class ChannelManager : Manager
-{
-public:
-    ChannelManager(std::shared_ptr<Quesync> server);
+class channel_manager : manager {
+   public:
+    channel_manager(std::shared_ptr<server> server);
 
-    bool doesChannelExists(std::string channel_id);
+    bool does_channel_exists(std::string channel_id);
 
-    std::shared_ptr<Channel> getPrivateChannel(std::shared_ptr<Session> sess, std::string user_id);
-    std::shared_ptr<Channel> getChannel(std::string channel_id);
+    std::shared_ptr<channel> get_private_channel(std::shared_ptr<session> sess,
+                                                 std::string user_id);
+    std::shared_ptr<channel> get_channel(std::string channel_id);
 
-    bool isUserMemberOfChannel(std::string user_id, std::string channel_id);
-    void addMemberToChannel(std::string channel_id, std::string member_id);
-    std::vector<std::string> getChannelMembers(std::shared_ptr<Session> sess, std::string channel_id);
+    bool is_user_member_of_channel(std::string user_id, std::string channel_id);
+    void add_member_to_channel(std::string channel_id, std::string member_id);
+    std::vector<std::string> get_channel_members(std::shared_ptr<session> sess,
+                                                 std::string channel_id);
 
-private:
+   private:
     sql::Table channel_members_table;
     sql::Table channels_table;
 
-    std::shared_ptr<Channel> createChannel(bool is_private);
+    std::shared_ptr<channel> create_channel(bool is_private);
 };
+};  // namespace server
+};  // namespace quesync

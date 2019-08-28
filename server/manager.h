@@ -2,14 +2,17 @@
 
 #include <memory>
 
+namespace quesync {
+namespace server {
 // Prevent loop header include
-class Quesync;
+class server;
 
-class Manager
-{
-public:
-    Manager(std::shared_ptr<Quesync> server) : _server(server) {}
+class manager {
+   public:
+    manager(std::shared_ptr<server> server) : _server(server) {}
 
-protected:
-    std::shared_ptr<Quesync> _server;
+   protected:
+    std::shared_ptr<server> _server;
 };
+};  // namespace server
+};  // namespace quesync

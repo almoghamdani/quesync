@@ -19,9 +19,9 @@
 	},
 	"homepage": "https://gitlab.com/almogh52/quesync#readme",
 	"dependencies": {
-		"node-addon-api": "^1.6.3",
-		"cmake-js": "^5.3.1",
-		"glob": "^7.1.4"
+		"cmake-js": "^5.3.2",
+		"glob": "^7.1.4",
+		"node-addon-api": "^1.7.1"
 	},
 	"cmake-js": {
 		"runtime": "electron",

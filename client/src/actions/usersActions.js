@@ -1,13 +1,13 @@
 export function fetchUserProfile(client, userId) {
 	return {
 		type: "PROFILE_FETCH",
-		payload: client.getUserProfile(userId)
+		payload: client.users().getUserProfile(userId)
 	};
 }
 
 export function searchUser(client, nickname, tag = -1) {
 	return {
 		type: "SEARCH_USER",
-		payload: client.search(nickname, tag)
+		payload: client.users().search(nickname, tag)
 	};
 }

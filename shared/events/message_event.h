@@ -5,21 +5,20 @@
 
 #include "../message.h"
 
-class MessageEvent : public Event
-{
-public:
-    MessageEvent() : Event(MESSAGE_EVENT)
-    {
+namespace quesync {
+namespace events {
+struct message_event : public event {
+    message_event() : event(event_type::message_event) {}
+
+    message_event(message message) : event(event_type::message_event) { this->message = message; }
+
+    virtual nlohmann::json encode() const { return {{"eventType", type}, {"message", message}}; }
+    virtual void decode(nlohmann::json j) {
+        type = j["eventType"];
+        message = j["message"];
     }
 
-    MessageEvent(Message message) : Event(MESSAGE_EVENT)
-    {
-        _json["message"] = (nlohmann::json)message;
-    }
-
-    GET_FUNCTION(id, std::string)
-	GET_FUNCTION(senderId, std::string)
-	GET_FUNCTION(channelId, std::string)
-	GET_FUNCTION(content, std::string)
-	GET_FUNCTION(sentAt, std::time_t)
+    message message;
 };
+};  // namespace events
+};  // namespace quesync

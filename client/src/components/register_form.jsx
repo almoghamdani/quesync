@@ -43,16 +43,16 @@ class RegisterForm extends Component {
 			case 0:
 				return "";
 
-			case window.errors.INVALID_USERNAME:
+			case window.errors.invalid_username:
 				return "The username entered is invalid!";
 
-			case window.errors.INVALID_EMAIL:
+			case window.errors.invalid_email:
 				return "The e-mail entered is invalid!";
 
-			case window.errors.USERNAME_ALREADY_IN_USE:
+			case window.errors.username_already_in_use:
 				return "The username chosen is already taken!";
 
-			case window.errors.EMAIL_ALREADY_IN_USE:
+			case window.errors.email_already_in_use:
 				return "The e-mail entered is already used!";
 
 			default:

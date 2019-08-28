@@ -45,10 +45,10 @@ class LoginForm extends Component {
 			case 0:
 				return "";
 
-			case window.errors.USER_NOT_FOUND:
+			case window.errors.user_not_found:
 				return "The requested user is not found!";
 
-			case window.errors.INCORRECT_PASSWORD:
+			case window.errors.incorrect_password:
 				return "Incorrect password!";
 
 			default:

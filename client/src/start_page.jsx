@@ -12,17 +12,12 @@ import { Elevation } from "@rmwc/elevation";
 import { CircularProgress } from "@rmwc/circular-progress";
 import anime from "animejs/lib/anime.es.js";
 
-import { setClient } from "./actions/clientActions";
 import { sessionAuth, setUser, resetAuthError } from "./actions/userActions";
-
-import eventHandler from "./event_handler";
 
 import updater from "./updater";
 
 import "@rmwc/circular-progress/circular-progress.css";
 import "./start_page.scss";
-
-const electron = window.require("electron");
 
 class StartPage extends Component {
 	state = {
@@ -30,36 +25,17 @@ class StartPage extends Component {
 		registerVisible: false
 	};
 
-	constructor(props) {
-		super(props);
-
-		// Get the client object from the global variables
-		var client = electron.remote.getGlobal("client");
-
-		// Save the errors object in the window to be accessible for all
-		window.errors = client.errors;
-
-		// Set the client in the store
-		props.dispatch(setClient(client));
-
-		// Register the event handler
-		eventHandler.register(client);
-	}
-
 	componentDidMount() {
-		// Get the client object from the global variables
-		var client = electron.remote.getGlobal("client");
-
 		// Set the app as loading
 		this.startLoadingAnimation(null, LoginForm, false);
 
 		// Try to conenct to the server
-		this.connectRepeat(client, "127.0.0.1", async () => {
+		this.connectRepeat(this.props.client, "127.0.0.1", async () => {
 			var user = null;
 			var sessionId = localStorage.getItem("_qpsid");
 
 			// If the client is already authenticated, continue to the application
-			if ((user = client.getUser())) {
+			if ((user = this.props.client.auth().getUser())) {
 				// Set user
 				this.props.dispatch(setUser(user));
 
@@ -71,15 +47,19 @@ class StartPage extends Component {
 			} else if (sessionId && sessionId.length) {
 				// Try to connect via the session
 				await this.props
-					.dispatch(sessionAuth(client, sessionId))
+					.dispatch(sessionAuth(this.props.client, sessionId))
 					.then(async () => {
+						console.log(1)
+
 						// Update user's data
 						await updater.update();
 
 						// Transition to app
 						this.transitionToApp();
 					})
-					.catch(() => {
+					.catch((ex) => {
+						console.log(ex)
+
 						// Remove the invalid session id
 						localStorage.removeItem("_qpsid");
 
@@ -100,7 +80,7 @@ class StartPage extends Component {
 
 			// If successful, call the callback function
 			callback();
-		} catch {
+		} catch (ex) {
 			// Retry in 500 milliseconds
 			setTimeout(() => this.connectRepeat(client, ip, callback), 500);
 		}

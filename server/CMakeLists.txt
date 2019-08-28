@@ -56,7 +56,7 @@ add_definitions(-D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS) # Silence warnings on
 file(GLOB SOURCES "*.cpp")
 
 # Get all the cpp files for the shared source
-file(GLOB SHARED_SOURCES "../shared/*.cpp")
+file(GLOB_RECURSE SHARED_SOURCES "../shared/*/**.cpp")
 
 # Get all c++ files that are associated with the libraries used
 file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../thirdparty/*.cpp")

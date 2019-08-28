@@ -3,15 +3,14 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
 const path = require("path");
-const os = require("os");
 const isDev = require("electron-is-dev");
 
 const queryString = require("query-string");
 
 // Find the backend library and load it
-const backend_name = "Release/backend.node";
+const backendName = "Release/backend.node";
 const quesync = require(isDev
-	? `../backend/build/${backend_name}`
+	? `../backend/build/${backendName}`
 	: app.getAppPath() + `/../../backend.node`);
 
 // Set the main window as a global var
@@ -137,9 +136,8 @@ function createWindow() {
 			.catch(err => console.log("An error occurred: ", err));
 	}
 
-	// Set the client and it's errors as a global vars
+	// Set the client as a global var
 	global.client = client;
-	global.client.errors = quesync.errors;
 }
 
 // When the electron app is ready, create the browser window

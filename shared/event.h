@@ -1,19 +1,26 @@
 #pragma once
-#include "serialized_object.h"
 
-#include "event_types.h"
+#include <nlohmann/json.hpp>
 
-class Event : public SerializedObject
-{
-  public:
-    Event() : Event((QuesyncEvent)0)
-    {
-    }
+#include "event_type.h"
 
-    Event(QuesyncEvent evt)
-    {
-        _json["event_type"] = evt;
-    }
+namespace quesync {
+struct event {
+    event() : event((event_type)0) {}
 
-    GET_FUNCTION(event_type, QuesyncEvent)
+    event(event_type type) { this->type = type; }
+
+    virtual nlohmann::json encode() const { return {{"eventType", type}}; }
+    virtual void decode(nlohmann::json j) {
+        type = (event_type)j["eventType"].get<int>();
+    };
+
+    event_type type;
 };
+
+inline void to_json(nlohmann::json &j, const event &e) { j = e.encode(); }
+
+inline void from_json(const nlohmann::json &j, event &e) {
+    e.decode(j);
+};
+};  // namespace quesync

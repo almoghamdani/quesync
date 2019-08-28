@@ -1,36 +1,40 @@
 #pragma once
-#include <memory>
 #include <asio.hpp>
 #include <asio/ssl.hpp>
+#include <memory>
 
-#include "quesync.h"
+#include "server.h"
+
 #include "../shared/user.h"
 
 using asio::ip::tcp;
 
-class Session : public std::enable_shared_from_this<Session>
-{
-public:
-	Session(tcp::socket socket, asio::ssl::context &context, std::shared_ptr<Quesync> server);
-	~Session();
+namespace quesync {
+namespace server {
+class session : public std::enable_shared_from_this<session> {
+   public:
+    session(tcp::socket socket, asio::ssl::context &context, std::shared_ptr<server> server);
+    ~session();
 
-	void start();
-	void sendOnly(std::string data);
+    void start();
+    void send_only(std::string data);
 
-	std::shared_ptr<Quesync> server() const;
-	std::shared_ptr<Session> getShared();
+    std::shared_ptr<server> server() const;
+    std::shared_ptr<session> get_shared();
 
-	bool authenticated() const;
-	void setUser(std::shared_ptr<User> user);
-	std::shared_ptr<User> user() const;
+    bool authenticated() const;
+    void set_user(std::shared_ptr<user> user);
+    std::shared_ptr<user> user() const;
 
-private:
-	std::shared_ptr<User> _user;
-	std::shared_ptr<Quesync> _server;
+   private:
+    std::shared_ptr<quesync::user> _user;
+    std::shared_ptr<quesync::server::server> _server;
 
-	asio::ssl::stream<tcp::socket> _socket;
+    asio::ssl::stream<tcp::socket> _socket;
 
-	void handshake();
-	void recv();
-	void send(std::string data);
+    void handshake();
+    void recv();
+    void send(std::string data);
 };
+};  // namespace server
+};  // namespace quesync

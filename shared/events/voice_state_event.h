@@ -1,23 +1,30 @@
 #pragma once
 #include "../event.h"
 
-#include <ctime>
-
 #include "../voice_state.h"
 
-class VoiceStateEvent : public Event
-{
-public:
-    VoiceStateEvent() : Event(VOICE_STATE_EVENT)
-    {
+namespace quesync {
+namespace events {
+struct voice_state_event : public event {
+    voice_state_event() : event(event_type::voice_state_event) {}
+
+    voice_state_event(std::string user_id, quesync::voice::state voice_state)
+        : event(event_type::voice_state_event) {
+        this->user_id = user_id;
+        this->voice_state = voice_state;
     }
 
-    VoiceStateEvent(std::string user_id, VoiceState voice_state) : Event(VOICE_STATE_EVENT)
-    {
-        _json["userId"] = user_id;
-		_json["voiceState"] = voice_state;
+    virtual nlohmann::json encode() const {
+        return {{"eventType", type}, {"userId", user_id}, {"voiceState", voice_state}};
+    }
+    virtual void decode(nlohmann::json j) {
+        type = j["eventType"];
+        user_id = j["userId"];
+        voice_state = (voice::state)j["voiceState"];
     }
 
-    GET_FUNCTION(userId, std::string)
-	GET_FUNCTION(voiceState, QuesyncVoiceState)
+    std::string user_id;
+    voice::state voice_state;
 };
+};  // namespace events
+};  // namespace quesync

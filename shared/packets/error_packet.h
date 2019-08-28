@@ -1,42 +1,41 @@
 #pragma once
-#include "response_packet.h"
-#include "../errors.h"
+#include "../response_packet.h"
+
+#include "../error.h"
 
 #define ERROR_CODE_LEN 3
 
-class ErrorPacket : public ResponsePacket
-{
-  public:
-    ErrorPacket() : ResponsePacket(ERROR_PACKET, ""){};
+namespace quesync {
+namespace packets {
+class error_packet : public response_packet {
+   public:
+    error_packet() : response_packet(packet_type::error_packet, std::string()){};
 
-    ErrorPacket(QuesyncError ec) : _ec(ec),
-                                   ResponsePacket(ERROR_PACKET,
-                                                  std::string(ERROR_CODE_LEN - std::to_string(ec).length(), '0') + std::to_string(ec)) // Add leading zeros to the error code
-                                   {};
+    error_packet(error ec)
+        : _ec(ec),
+          response_packet(packet_type::error_packet,
+                          std::string(ERROR_CODE_LEN - std::to_string((int)ec).length(), '0') +
+                              std::to_string((int)ec))  // Add leading zeros to the error code
+          {};
 
-    virtual bool decode(std::string packet)
-    {
+    virtual bool decode(std::string packet) {
         // Split the packet
-        std::vector<std::string> params = Utils::Split(packet, PACKET_DELIMETER);
+        std::vector<std::string> params = utils::parser::split(packet, PACKET_DELIMETER);
 
-        try
-        {
+        try {
             // Decode the error code
-            _ec = (QuesyncError)std::stoi(params[0]);
-        }
-        catch (...)
-        {
+            _ec = (quesync::error)std::stoi(params[0]);
+        } catch (...) {
             return false;
         }
 
         return true;
     };
 
-    QuesyncError error() const
-    {
-        return _ec;
-    };
+    quesync::error error() const { return _ec; };
 
-  protected:
-    QuesyncError _ec;
+   protected:
+    quesync::error _ec;
 };
+};  // namespace packets
+};  // namespace quesync

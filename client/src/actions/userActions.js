@@ -1,21 +1,21 @@
 export function signIn(client, username, password) {
 	return {
 		type: "USER_LOGIN",
-		payload: client.login(username, password)
+		payload: client.auth().login(username, password)
 	};
 }
 
 export function register(client, username, email, password) {
 	return {
 		type: "USER_REGISTER",
-		payload: client.register(username, password, email)
+		payload: client.auth().register(username, password, email)
 	};
 }
 
 export function sessionAuth(client, sessionId) {
 	return {
 		type: "SESSION_AUTH",
-		payload: client.sessionAuth(sessionId)
+		payload: client.auth().sessionAuth(sessionId)
 	};
 }
 
@@ -43,21 +43,21 @@ export function finishAuth() {
 export function approveFriendRequest(client, friendId) {
 	return {
 		type: "APPROVE_FRIEND_REQUEST",
-		payload: client.setFriendshipStatus(friendId, true)
+		payload: client.users().setFriendshipStatus(friendId, true)
 	};
 }
 
 export function rejectFriendRequest(client, friendId) {
 	return {
 		type: "REJECT_FRIEND_REQUEST",
-		payload: client.setFriendshipStatus(friendId, false)
+		payload: client.users().setFriendshipStatus(friendId, false)
 	};
 }
 
 export function sendFriendRequest(client, userId) {
 	return {
 		type: "SEND_FRIEND_REQUEST",
-		payload: client.sendFriendRequest(userId)
+		payload: client.users().sendFriendRequest(userId)
 	};
 }
 

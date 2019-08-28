@@ -1,21 +1,28 @@
 #pragma once
 #include "../event.h"
 
-#include <ctime>
+namespace quesync {
+namespace events {
+struct friendship_status_event : public event {
+    friendship_status_event() : event(event_type::friendship_status_event) {}
 
-class FriendshipStatusEvent : public Event
-{
-public:
-    FriendshipStatusEvent() : Event(FRIENDSHIP_STATUS_EVENT)
-    {
+    friendship_status_event(std::string friend_id, bool status)
+        : event(event_type::friendship_status_event) {
+        this->friend_id = friend_id;
+        this->status = status;
     }
 
-    FriendshipStatusEvent(std::string friend_id, bool status) : Event(FRIENDSHIP_STATUS_EVENT)
-    {
-        _json["friendId"] = friend_id;
-		_json["status"] = status;
+    virtual nlohmann::json encode() const {
+        return {{"eventType", type}, {"friendId", friend_id}, {"status", status}};
+    }
+    virtual void decode(nlohmann::json j) {
+        type = j["eventType"];
+        friend_id = j["friendId"];
+        status = j["status"];
     }
 
-    GET_FUNCTION(friendId, std::string)
-	GET_FUNCTION(status, bool)
+    std::string friend_id;
+    bool status;
 };
+};  // namespace events
+};  // namespace quesync

@@ -84,7 +84,7 @@ class Updater {
 					.dispatch(getPrivateChannel(client, userId))
 					.then(async res => {
 						const channelId = res.action.payload.channel.id;
-						const callActive = res.action.payload.callActive;
+						const callActive = res.action.payload.channel.callActive;
 
 						// If a call is active in the channel
 						if (callActive) {

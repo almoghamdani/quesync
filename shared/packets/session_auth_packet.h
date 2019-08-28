@@ -1,59 +1,55 @@
 #pragma once
-#include "packet.h"
+#include "../serialized_packet.h"
 
-#include "response_packet.h"
 #include "error_packet.h"
-#include "serialized_packet.h"
-#include "../utils.h"
-#include "../quesync_exception.h"
+#include "../response_packet.h"
 
-class SessionAuthPacket : public SerializedPacket
-{
-public:
-    SessionAuthPacket() : SessionAuthPacket(""){};
+#include "../exception.h"
+#include "../user.h"
 
-    SessionAuthPacket(std::string session_id) : SerializedPacket(SESSION_AUTH_PACKET)
-    {
+namespace quesync {
+namespace packets {
+class session_auth_packet : public serialized_packet {
+   public:
+    session_auth_packet() : session_auth_packet(""){};
+
+    session_auth_packet(std::string session_id)
+        : serialized_packet(packet_type::session_auth_packet) {
         _data["sessionId"] = session_id;
     };
 
-    virtual bool verify() const
-    {
-        return exists("sessionId");
-    };
+    virtual bool verify() const { return exists("sessionId"); };
 
 // A handle function for the server
 #ifdef QUESYNC_SERVER
-    virtual std::string handle(Session *session)
-    {
-        std::shared_ptr<User> user;
+    virtual std::string handle(std::shared_ptr<server::session> session) {
+        std::shared_ptr<user> user;
 
         // If the user is already authenticated, return error
-        if (session->authenticated())
-        {
-            return ErrorPacket(ALREADY_AUTHENTICATED).encode();
+        if (session->authenticated()) {
+            return error_packet(error::already_authenticated).encode();
         }
 
-        try
-        {
+        try {
             // Try to get the user id from the session id
-            user = session->server()->userManager()->authenticateUserBySession(session->getShared(), _data["sessionId"]);
+            user = session->server()->user_manager()->authenticate_user_by_session(
+                session->get_shared(), _data["sessionId"]);
 
             // Set the user in the client's session
-            session->setUser(user);
+            session->set_user(user);
 
             // Return autheticated packet with the user's info
-            return ResponsePacket(AUTHENTICATED_PACKET, nlohmann::json{{"user", user->json()}}.dump()).encode();
-        }
-        catch (QuesyncException &ex)
-        {
+            return response_packet(packet_type::authenticated_packet,
+                                   nlohmann::json{{"user", *user}})
+                .encode();
+        } catch (exception &ex) {
             // Return the error code
-            return ErrorPacket(ex.getErrorCode()).encode();
-        }
-        catch (...)
-        {
-            return ErrorPacket(UNKNOWN_ERROR).encode();
+            return error_packet(ex.error_code()).encode();
+        } catch (...) {
+            return error_packet(error::unknown_error).encode();
         }
     };
 #endif
 };
+};  // namespace packets
+};  // namespace quesync

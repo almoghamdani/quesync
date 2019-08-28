@@ -1,20 +1,27 @@
 #pragma once
-#include "serialized_object.h"
 
-class Profile : public SerializedObject
-{
-  public:
-    Profile() : Profile("", "", 0){};
+#include <nlohmann/json.hpp>
 
-    Profile(std::string id, std::string nickname, int tag)
-    {
-        // Save all fields in the json type
-        _json["id"] = id;
-        _json["nickname"] = nickname;
-        _json["tag"] = tag;
+namespace quesync {
+struct profile {
+    profile() : profile("", "", 0){};
+
+    profile(std::string id, std::string nickname, int tag) {
+        this->id = id;
+        this->nickname = nickname;
+        this->tag = tag;
     };
 
-    GET_FUNCTION(id, std::string)
-    GET_FUNCTION(nickname, std::string)
-    GET_FUNCTION(tag, std::string)
+    std::string id;
+    std::string nickname;
+    int tag;
 };
+
+inline void to_json(nlohmann::json &j, const profile &p) {
+    j = {{"id", p.id}, {"nickname", p.nickname}, {"tag", p.tag}};
+}
+
+inline void from_json(const nlohmann::json &j, profile &p) {
+    p = profile(j["id"], j["nickname"], j["tag"]);
+};
+};  // namespace quesync

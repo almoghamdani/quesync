@@ -2,11 +2,11 @@
 #include "manager.h"
 
 #include <asio.hpp>
-#include <string>
-#include <vector>
 #include <mutex>
+#include <string>
 #include <thread>
 #include <unordered_map>
+#include <vector>
 
 #include "../shared/event.h"
 #include "../shared/voice_state.h"
@@ -19,56 +19,61 @@
 
 using asio::ip::udp;
 
-struct VoiceEncryptionInfo
-{
-	std::shared_ptr<unsigned char> aes_key;
-	std::shared_ptr<unsigned char> hmac_key;
+namespace quesync {
+namespace voice {
+struct encryption_info {
+    std::shared_ptr<unsigned char> aes_key;
+    std::shared_ptr<unsigned char> hmac_key;
 };
+};  // namespace voice
 
-class VoiceManager : Manager
-{
-public:
-	VoiceManager(std::shared_ptr<Quesync> server);
+namespace server {
+class voice_manager : manager {
+   public:
+    voice_manager(std::shared_ptr<server> server);
 
-	std::pair<std::string, VoiceEncryptionInfo> createVoiceSession(std::string user_id);
-	void deleteVoiceSession(std::string user_id);
+    std::pair<std::string, voice::encryption_info> create_voice_session(std::string user_id);
+    void delete_voice_session(std::string user_id);
 
-	std::string generateOTP(std::string session_id);
+    std::string generate_otp(std::string session_id);
 
-	void initVoiceChannel(std::string channel_id, std::vector<std::string> users);
-	bool isVoiceChannelActive(std::string channel_id);
+    void init_voice_channel(std::string channel_id, std::vector<std::string> users);
+    bool is_voice_channel_active(std::string channel_id);
 
-	void joinVoiceChannel(std::string user_id, std::string channel_id, bool muted, bool deafen);
-	void leaveVoiceChannel(std::string user_id);
+    void join_voice_channel(std::string user_id, std::string channel_id, bool muted, bool deafen);
+    void leave_voice_channel(std::string user_id);
 
-	void setVoiceState(std::string user_id, bool muted, bool deafen);
+    void set_voice_state(std::string user_id, bool muted, bool deafen);
 
-	std::unordered_map<std::string, VoiceState> get_voice_states(std::string channel_id);
+    std::unordered_map<std::string, voice::state> get_voice_states(std::string channel_id);
 
-private:
-	udp::socket _socket;
-	udp::endpoint _sender_endpoint;
-	char _buf[MAX_DATA_LEN];
+   private:
+    udp::socket _socket;
+    udp::endpoint _sender_endpoint;
+    char _buf[MAX_DATA_LEN];
 
-	std::unordered_map<std::string, std::unordered_map<std::string, VoiceState>> _voice_channels;
-	std::unordered_map<std::string, std::string> _joined_voice_channels;
+    std::unordered_map<std::string, std::unordered_map<std::string, voice::state>> _voice_channels;
+    std::unordered_map<std::string, std::string> _joined_voice_channels;
 
-	std::unordered_map<std::string, udp::endpoint> _session_endpoints;
-	std::unordered_map<std::string, VoiceEncryptionInfo> _session_keys;
-	std::unordered_map<std::string, std::string> _sessions;
+    std::unordered_map<std::string, udp::endpoint> _session_endpoints;
+    std::unordered_map<std::string, voice::encryption_info> _session_keys;
+    std::unordered_map<std::string, std::string> _sessions;
 
-	std::unordered_map<std::string, std::string> _otps;
+    std::unordered_map<std::string, std::string> _otps;
 
-	std::mutex _mutex;
+    std::mutex _mutex;
 
-	std::thread _voice_states_thread;
+    std::thread _voice_states_thread;
 
-	void recv();
-	void send(std::shared_ptr<char> buf, std::size_t length, udp::endpoint endpoint);
+    void recv();
+    void send(std::shared_ptr<char> buf, std::size_t length, udp::endpoint endpoint);
 
-	void handle_packet(std::size_t length);
+    void handle_packet(std::size_t length);
 
-	void handle_voice_states();
+    void handle_voice_states();
 
-	void trigger_voice_state_event(std::string channel_id, std::string user_id, VoiceState voice_state);
+    void trigger_voice_state_event(std::string channel_id, std::string user_id,
+                                   voice::state voice_state);
 };
+};  // namespace server
+};  // namespace quesync

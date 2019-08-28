@@ -3,10 +3,13 @@
 
 #include "../shared/event.h"
 
-class EventManager : Manager
-{
-public:
-    EventManager(std::shared_ptr<Quesync> server);
+namespace quesync {
+namespace server {
+class event_manager : manager {
+   public:
+    event_manager(std::shared_ptr<server> server);
 
-    void triggerEvent(Event& evt, std::string target_user_id);
+    void trigger_event(std::shared_ptr<event> evt, std::string target_user_id);
 };
+};  // namespace server
+};  // namespace quesync

@@ -1,19 +1,24 @@
 #pragma once
 #include "../event.h"
 
-#include <ctime>
+namespace quesync {
+namespace events {
+struct call_ended_event : public event {
+    call_ended_event() : event(event_type::call_ended_event) {}
 
-class CallEndedEvent : public Event
-{
-public:
-    CallEndedEvent() : Event(CALL_ENDED_EVENT)
-    {
+    call_ended_event(std::string channel_id) : event(event_type::call_ended_event) {
+        this->channel_id = channel_id;
     }
 
-    CallEndedEvent(std::string channel_id) : Event(CALL_ENDED_EVENT)
-    {
-        _json["channelId"] = channel_id;
+    virtual nlohmann::json encode() const {
+        return {{"eventType", type}, {"channelId", channel_id}};
+    }
+    virtual void decode(nlohmann::json j) {
+        type = j["eventType"];
+        channel_id = j["channelId"];
     }
 
-    GET_FUNCTION(channelId, std::string)
+    std::string channel_id;
 };
+};  // namespace events
+};  // namespace quesync

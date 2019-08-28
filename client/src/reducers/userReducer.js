@@ -68,8 +68,8 @@ export default function reducer(
 		}
 
 		case "SEND_FRIEND_REQUEST_FULFILLED": {
-			const friendId = action.payload.friendId;
-			const sentAt = action.payload.sentAt;
+			const friendId = action.payload.friendRequest.friendId;
+			const sentAt = action.payload.friendRequest.sentAt;
 
 			let newFriendRequests = [...state.user.friendRequests];
 

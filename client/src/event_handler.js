@@ -42,7 +42,7 @@ class EventHandler {
 	};
 
 	pingEvent = async event => {
-		const pingValue = event.ping;
+		const pingValue = event.ms;
 
 		// Add the ping value to the list of pings
 		await store.dispatch(addPingValue(pingValue));

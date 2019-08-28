@@ -1,34 +1,33 @@
 #pragma once
-#include "packet.h"
+#include "../packet.h"
 
 #include <iomanip>
 #include <sstream>
 
-#include "response_packet.h"
+#include "../response_packet.h"
 
-class PingPacket : public Packet
-{
-  public:
-    PingPacket() : Packet(PING_PACKET) {}
+namespace quesync {
+namespace packets {
+class ping_packet : public packet {
+   public:
+    ping_packet() : packet(packet_type::ping_packet) {}
 
-    virtual std::string encode()
-    {
+    virtual std::string encode() {
         // Format the ping packet
-        return (std::stringstream() << PACKET_IDENTIFIER << PACKET_DELIMETER
-                                    << std::setw(PACKET_TYPE_LEN) << std::setfill('0') << _type << PACKET_DELIMETER)
+        return (std::stringstream()
+                << PACKET_IDENTIFIER << PACKET_DELIMETER << std::setw(PACKET_TYPE_LEN)
+                << std::setfill('0') << (int)_type << PACKET_DELIMETER)
             .str();
     };
 
-    virtual bool decode(std::string packet)
-    {
-        return true;
-    }
+    virtual bool decode(std::string packet) { return true; }
 
 #ifdef QUESYNC_SERVER
-    virtual std::string handle(Session *session)
-    {
+    virtual std::string handle(std::shared_ptr<server::session> session) {
         // Return a pong packet to the client
-        return ResponsePacket(PONG_PACKET).encode();
+        return response_packet(packet_type::pong_packet).encode();
     }
 #endif
 };
+};  // namespace packets
+};  // namespace quesync

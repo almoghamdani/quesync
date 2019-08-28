@@ -80,8 +80,8 @@ export default function reducer(
 		case "SET_VOICE_STATE_FULFILLED":
 			return {
 				...state,
-				muted: action.payload.muted,
-				deafen: action.payload.deafen
+				muted: action.payload.voiceState.muted,
+				deafen: action.payload.voiceState.deafen
 			};
 
 		case "SET_ACTIVE_CALL":

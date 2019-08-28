@@ -1,22 +1,31 @@
 #pragma once
-#include "serialized_object.h"
 
 #include <ctime>
+#include <nlohmann/json.hpp>
 
-class Channel : public SerializedObject
-{
-public:
-    Channel() : Channel("", false, (std::time_t)0){};
+namespace quesync {
+struct channel {
+   public:
+    channel() : channel("", false, (std::time_t)0, false){};
 
-    Channel(std::string id, bool is_private, std::time_t created_at)
-    {
-        // Save all fields in the json type
-        _json["id"] = id;
-        _json["isPrivate"] = is_private;
-        _json["createdAt"] = created_at;
+    channel(std::string id, bool is_private, std::time_t created_at, bool call_active) {
+        this->id = id;
+        this->is_private = is_private;
+        this->created_at = created_at;
+        this->call_active = call_active;
     };
 
-    GET_FUNCTION(id, std::string)
-    GET_FUNCTION(isPrivate, bool)
-    GET_FUNCTION(createdAt, std::time_t)
+    std::string id;
+    bool is_private;
+    std::time_t created_at;
+    bool call_active;
 };
+
+inline void to_json(nlohmann::json &j, const channel &c) {
+    j = {{"id", c.id}, {"isPrivate", c.is_private}, {"createdAt", c.created_at}, {"callActive", c.call_active}};
+}
+
+inline void from_json(const nlohmann::json &j, channel &c) {
+    c = channel(j["id"], j["isPrivate"], j["createdAt"], j["callActive"]);
+};
+};  // namespace quesync

@@ -29,6 +29,7 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/vendor/opus/include",
                 "${workspaceFolder}/vendor/rtaudio",
+                "/usr/local/include/node",
                 "${env:HOME}/.node-gyp/**",
                 "/usr/local/mysql-connector-c++/include",
                 "/usr/local/opt/openssl/include"

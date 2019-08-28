@@ -1,14 +1,14 @@
 export function sendMessage(client, content, channelId) {
 	return {
 		type: "SEND_MESSAGE",
-		payload: client.sendMessage(content, channelId)
+		payload: client.messages().sendMessage(content, channelId)
 	};
 }
 
 export function getChannelMessages(client, channelId, amount, offset) {
 	return {
 		type: "GET_CHANNEL_MESSAGES",
-		payload: client.getChannelMessages(channelId, amount, offset)
+		payload: client.messages().getChannelMessages(channelId, amount, offset)
 	};
 }
 

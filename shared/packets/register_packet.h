@@ -1,74 +1,68 @@
 #pragma once
-#include "serialized_packet.h"
+#include "../serialized_packet.h"
 
-#include "response_packet.h"
 #include "error_packet.h"
-#include "../quesync_exception.h"
+#include "../response_packet.h"
 
-class RegisterPacket : public SerializedPacket
-{
-public:
-    RegisterPacket() : RegisterPacket("", "", "", ""){};
+#include "../exception.h"
+#include "../user.h"
 
-    RegisterPacket(std::string username,
-                   std::string password,
-                   std::string email,
-                   std::string nickname) : SerializedPacket(REGISTER_PACKET)
-    {
+namespace quesync {
+namespace packets {
+class register_packet : public serialized_packet {
+   public:
+    register_packet() : register_packet("", "", "", ""){};
+
+    register_packet(std::string username, std::string password, std::string email,
+                    std::string nickname)
+        : serialized_packet(packet_type::register_packet) {
         _data["username"] = username;
         _data["password"] = password;
         _data["email"] = email;
         _data["nickname"] = nickname;
     };
 
-    virtual bool verify() const
-    {
-        return (exists("username") &&
-                exists("password") &&
-                exists("email") &&
-                exists("nickname"));
+    virtual bool verify() const {
+        return exists("username") && exists("password") && exists("email") && exists("nickname");
     };
 
 // A handle function for the server
 #ifdef QUESYNC_SERVER
-    virtual std::string handle(Session *session)
-    {
-        std::shared_ptr<User> user;
+    virtual std::string handle(std::shared_ptr<server::session> session) {
+        std::shared_ptr<user> user;
         std::string session_id;
 
         // If the user is already authenticated, return error
-        if (session->authenticated())
-        {
-            return ErrorPacket(ALREADY_AUTHENTICATED).encode();
+        if (session->authenticated()) {
+            return error_packet(error::already_authenticated).encode();
         }
 
-        try
-        {
+        try {
             // Register the new user, if failed an exception will be thrown
-            user = session->server()->userManager()->registerUser(session->getShared(),
-                                                                  _data["username"],
-                                                                  _data["password"],
-                                                                  _data["email"],
-                                                                  _data["nickname"]);
+            user = session->server()->user_manager()->register_user(
+                session->get_shared(), _data["username"], _data["password"], _data["email"],
+                _data["nickname"]);
 
             // Set the user in the client's session
-            session->setUser(user);
+            session->set_user(user);
 
             // Create a session for the user
-            session_id = session->server()->sessionManager()->createSession(session->getShared());
+            session_id =
+                session->server()->session_manager()->create_session(session->get_shared());
 
             // Return autheticated packet with the user's info
-            return ResponsePacket(AUTHENTICATED_PACKET, nlohmann::json{{"user", user->json()}, {"sessionId", session_id}}.dump()).encode();
-        }
-        catch (QuesyncException &ex)
-        {
+            return response_packet(
+                       packet_type::authenticated_packet,
+                       nlohmann::json{{"user", *user}, {"sessionId", session_id}}.dump())
+                .encode();
+        } catch (exception &ex) {
             // Return the error code
-            return ErrorPacket(ex.getErrorCode()).encode();
-        }
-        catch (...)
-        {
-            return ErrorPacket(UNKNOWN_ERROR).encode();
+            return error_packet(ex.error_code()).encode();
+        } catch (...) {
+            return error_packet(error::unknown_error).encode();
         }
     };
 #endif
 };
+};  // namespace packets
+};  // namespace quesync

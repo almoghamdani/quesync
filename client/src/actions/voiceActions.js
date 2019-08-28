@@ -1,21 +1,21 @@
 export function call(client, channelId) {
 	return {
 		type: "CALL",
-		payload: client.call(channelId)
+		payload: client.voice().call(channelId)
 	};
 }
 
 export function joinCall(client, channelId) {
 	return {
 		type: "JOIN_CALL",
-		payload: client.joinCall(channelId)
+		payload: client.voice().joinCall(channelId)
 	};
 }
 
 export function leaveCall(client) {
 	return {
 		type: "LEAVE_CALL",
-		payload: client.leaveCall()
+		payload: client.voice().leaveCall()
 	};
 }
 
@@ -42,7 +42,7 @@ export function updateVoiceActivationState(userId, activated) {
 export function setVoiceState(client, mute, deafen) {
 	return {
 		type: "SET_VOICE_STATE",
-		payload: client.setVoiceState(mute, deafen)
+		payload: client.voice().setVoiceState(mute, deafen)
 	};
 }
 

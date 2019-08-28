@@ -59,10 +59,10 @@ add_definitions(-D_CRT_SECURE_NO_WARNINGS) # Ignore unsafe warnings
 set (CMAKE_CXX_STANDARD 17)
 
 # Get all the cpp files for the server
-file(GLOB SOURCES "src/*.cpp" "src/*.h")
+file(GLOB_RECURSE SOURCES "backend.cpp" "src/*/**.cpp" "src/*/**.h")
 
 # Get all the cpp files for the shared source
-file(GLOB SHARED_SOURCES "../../shared/*.cpp" "../../shared/*.h")
+file(GLOB_RECURSE SHARED_SOURCES "../../shared/*/**.cpp" "../../shared/*/**.h")
 
 # Get all c++ files that are associated with the libraries used
 file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../../thirdparty/*.cpp" "../../thirdparty/*.h")
