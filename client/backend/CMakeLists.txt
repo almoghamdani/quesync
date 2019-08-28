@@ -17,6 +17,7 @@ IF (WIN32)
 ENDIF()
 
 # Compile Opus
+set(BUILD_SHARED_LIBS ON)
 add_subdirectory(../../vendor/opus opus)
 include_directories(../../vendor/opus/include)
 
