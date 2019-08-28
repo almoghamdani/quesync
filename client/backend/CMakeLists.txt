@@ -18,6 +18,7 @@ ENDIF()
 
 # Compile Opus
 set(BUILD_SHARED_LIBS ON)
+set(BUILD_TESTING OFF)
 add_subdirectory(../../vendor/opus opus)
 include_directories(../../vendor/opus/include)
 
