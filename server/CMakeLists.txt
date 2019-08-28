@@ -7,6 +7,9 @@ add_definitions (-DQUESYNC_SERVER)
 # Add the thirdparty as include folder
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../thirdparty)
 
+# Include ASIO
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/asio/asio/include)
+
 # Windows dependencies
 IF (WIN32)
     set (OPENSLL_DIR C:/OpenSSL-Win64)

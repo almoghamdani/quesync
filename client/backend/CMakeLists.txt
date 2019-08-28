@@ -16,6 +16,9 @@ IF (WIN32)
     set(CMAKE_CXX_FLAGS_DEBUG "/MDd")
 ENDIF()
 
+# Include ASIO
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/asio/asio/include)
+
 # Compile Opus
 set(BUILD_SHARED_LIBS ON)
 set(BUILD_TESTING OFF)

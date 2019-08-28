@@ -43,7 +43,9 @@ void quesync::server::server::start() {
     accept_client();
 }
 
-asio::io_context &quesync::server::server::get_io_context() { return _acceptor.get_io_context(); }
+asio::io_context &quesync::server::server::get_io_context() {
+    return (asio::io_context &)_acceptor.get_executor().context();
+}
 
 void quesync::server::server::accept_client() {
     // Start an async accept

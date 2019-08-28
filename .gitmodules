@@ -7,3 +7,6 @@
 [submodule "vendor/rtaudio"]
 	path = vendor/rtaudio
 	url = https://github.com/thestk/rtaudio
+[submodule "vendor/asio"]
+	path = vendor/asio
+	url = https://github.com/chriskohlhoff/asio
