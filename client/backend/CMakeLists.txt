@@ -22,7 +22,7 @@ add_subdirectory(../../vendor/opus opus)
 include_directories(../../vendor/opus/include)
 
 # Compile RNNoise
-set (RNNOISE_COMPILE_OPUS OFF)
+set(RNNOISE_COMPILE_OPUS ON)
 add_subdirectory(../../vendor/rnnoise-cmake rnnoise)
 include_directories(../../vendor/rnnoise-cmake/include)
 
