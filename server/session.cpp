@@ -95,18 +95,11 @@ void quesync::server::session::recv() {
                         // Send the header + server's response to the server
                         send(header_str + response);
                     } else {
-                        // If the client closed the connection, close the client
-                        if (ec == asio::error::misc_errors::eof) {
-                            std::cout
+                        std::cout
                                 << termcolor::magenta << "The client "
                                 << _socket.lowest_layer().remote_endpoint().address().to_string()
                                 << ":" << (int)_socket.lowest_layer().remote_endpoint().port()
                                 << " disconnected!" << termcolor::reset << std::endl;
-                        } else {
-                            // Print error
-                            std::cout << termcolor::red << "An error occurred: " << ec
-                                      << termcolor::reset << std::endl;
-                        }
                     }
                 });
         });
@@ -127,17 +120,11 @@ void quesync::server::session::send(std::string data) {
             if (!ec) {
                 recv();
             } else {
-                // If the client closed the connection, close the client
-                if (ec == asio::error::misc_errors::eof) {
-                    std::cout << termcolor::magenta << "The client "
-                              << _socket.lowest_layer().remote_endpoint().address().to_string()
-                              << ":" << (int)_socket.lowest_layer().remote_endpoint().port()
-                              << " disconnected!" << termcolor::reset << std::endl;
-                } else {
-                    // Print error
-                    std::cout << termcolor::red << "An error occurred: " << ec << termcolor::reset
-                              << std::endl;
-                }
+                std::cout
+                                << termcolor::magenta << "The client "
+                                << _socket.lowest_layer().remote_endpoint().address().to_string()
+                                << ":" << (int)_socket.lowest_layer().remote_endpoint().port()
+                                << " disconnected!" << termcolor::reset << std::endl;
             }
         });
 }
@@ -158,15 +145,7 @@ void quesync::server::session::send_only(std::string data) {
 
     // Send the data to the client
     asio::async_write(_socket, asio::buffer(buf.get(), data.length() + sizeof(header)),
-                      [this, self, buf](std::error_code ec, std::size_t) {
-                          // If an error occurred during sending the data, print the error(only if
-                          // not a disconnect error)
-                          if (ec && ec != asio::error::misc_errors::eof) {
-                              // Print error
-                              std::cout << termcolor::red << "An error occurred: " << ec
-                                        << termcolor::reset << std::endl;
-                          }
-                      });
+                      [this, self, buf](std::error_code, std::size_t) {});
 }
 
 std::shared_ptr<quesync::server::server> quesync::server::session::server() const {
