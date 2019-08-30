@@ -1,6 +1,9 @@
 #pragma once
 #include "manager.h"
 
+#include <mysqlx/xdevapi.h>
+namespace sql = mysqlx;
+
 #include <asio.hpp>
 #include <mutex>
 #include <string>
@@ -8,6 +11,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../shared/call_details.h"
 #include "../shared/event.h"
 #include "../shared/voice_state.h"
 
@@ -37,7 +41,8 @@ class voice_manager : manager {
 
     std::string generate_otp(std::string session_id);
 
-    void init_voice_channel(std::string channel_id, std::vector<std::string> users);
+    std::shared_ptr<call_details> init_voice_channel(std::string caller_id, std::string channel_id,
+                                                     std::vector<std::string> users);
     bool is_voice_channel_active(std::string channel_id);
 
     void join_voice_channel(std::string user_id, std::string channel_id, bool muted, bool deafen);
@@ -52,7 +57,7 @@ class voice_manager : manager {
     udp::endpoint _sender_endpoint;
     char _buf[MAX_DATA_LEN];
 
-    std::unordered_map<std::string, std::unordered_map<std::string, voice::state>> _voice_channels;
+    std::unordered_map<std::string, std::shared_ptr<call_details>> _voice_channels;
     std::unordered_map<std::string, std::string> _joined_voice_channels;
 
     std::unordered_map<std::string, udp::endpoint> _session_endpoints;
@@ -65,6 +70,9 @@ class voice_manager : manager {
 
     std::thread _voice_states_thread;
 
+    sql::Table calls_table;
+    sql::Table call_participants_table;
+
     void recv();
     void send(std::shared_ptr<char> buf, std::size_t length, udp::endpoint endpoint);
 
@@ -74,6 +82,10 @@ class voice_manager : manager {
 
     void trigger_voice_state_event(std::string channel_id, std::string user_id,
                                    voice::state voice_state);
+
+    call create_call(std::string caller_id, std::string channel_id);
+    void add_participant_to_call(std::string channel_id, std::string participant_id);
+    void close_call(std::string channel_id);
 };
 };  // namespace server
 };  // namespace quesync

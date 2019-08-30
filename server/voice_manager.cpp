@@ -18,7 +18,9 @@
 quesync::server::voice_manager::voice_manager(std::shared_ptr<quesync::server::server> server)
     : manager(server),
       _socket(server->get_io_context(), udp::endpoint(udp::v4(), VOICE_SERVER_PORT)),
-      _voice_states_thread(&voice_manager::handle_voice_states, this) {
+      _voice_states_thread(&voice_manager::handle_voice_states, this),
+      calls_table(server->db(), "calls"),
+      call_participants_table(server->db(), "call_participants") {
     // Detach voice states thread
     _voice_states_thread.detach();
 
@@ -58,7 +60,7 @@ void quesync::server::voice_manager::handle_packet(std::size_t length) {
     std::string participant_packet_encrypted;
     std::shared_ptr<char> buf;
 
-    std::unordered_map<std::string, voice::state> channel_participants;
+    std::unordered_map<std::string, voice::state> voice_states;
 
     std::unique_lock lk(_mutex);
 
@@ -102,13 +104,13 @@ void quesync::server::voice_manager::handle_packet(std::size_t length) {
 
     // Try to find the channel participants
     try {
-        channel_participants = _voice_channels.at(packet->channel_id());
+        voice_states = _voice_channels.at(packet->channel_id())->voice_states;
     } catch (...) {
         return;
     }
 
     // If the user isn't a part of the channel
-    if (!channel_participants.count(packet->user_id())) {
+    if (!voice_states.count(packet->user_id())) {
         return;
     }
 
@@ -118,7 +120,7 @@ void quesync::server::voice_manager::handle_packet(std::size_t length) {
             packet->user_id(), packet->voice_data(), packet->voice_data_len());
 
         // Send the participant voice packet to all other participants
-        for (auto& participant : channel_participants) {
+        for (auto& participant : voice_states) {
             // If the given participant isn't our user
             if (participant.first != packet->user_id()) {
                 try {
@@ -194,8 +196,8 @@ std::string quesync::server::voice_manager::generate_otp(std::string session_id)
     return otp;
 }
 
-void quesync::server::voice_manager::init_voice_channel(std::string channel_id,
-                                                        std::vector<std::string> users) {
+std::shared_ptr<quesync::call_details> quesync::server::voice_manager::init_voice_channel(
+    std::string caller_id, std::string channel_id, std::vector<std::string> users) {
     std::unordered_map<std::string, voice::state> user_states;
     std::unique_lock lk(_mutex);
 
@@ -208,8 +210,11 @@ void quesync::server::voice_manager::init_voice_channel(std::string channel_id,
     for (auto& user : users) {
         user_states[user] = voice::state(voice::state_type::pending, false, false);
     }
+    _voice_channels[channel_id] =
+        std::make_shared<call_details>(create_call(caller_id, channel_id), user_states);
 
-    _voice_channels[channel_id] = user_states;
+    // Create the call in the channel
+    return _voice_channels[channel_id];
 }
 
 bool quesync::server::voice_manager::is_voice_channel_active(std::string channel_id) {
@@ -227,16 +232,20 @@ void quesync::server::voice_manager::join_voice_channel(std::string user_id, std
         leave_voice_channel(user_id);
     }
 
-    // Check if the channel exists
+    // Check if the channel exists and check for active call
     if (!_voice_channels.count(channel_id)) {
         throw exception(error::channel_not_found);
     }
 
+    // Add the participant to the call
+    add_participant_to_call(channel_id, user_id);
+
     // Connect the user to the channel
     _joined_voice_channels[user_id] = channel_id;
-    _voice_channels[channel_id][user_id] =
+    _voice_channels[channel_id]->voice_states[user_id] =
         voice::state(voice::state_type::connected, muted, deafen);
-    trigger_voice_state_event(channel_id, user_id, _voice_channels[channel_id][user_id]);
+    trigger_voice_state_event(channel_id, user_id,
+                              _voice_channels[channel_id]->voice_states[user_id]);
 }
 
 void quesync::server::voice_manager::leave_voice_channel(std::string user_id) {
@@ -255,8 +264,9 @@ void quesync::server::voice_manager::leave_voice_channel(std::string user_id) {
 
     // Remove the user from the map of joined voice channels
     _joined_voice_channels.erase(user_id);
-    _voice_channels[channel_id][user_id] = voice::state_type::disconnected;
-    trigger_voice_state_event(channel_id, user_id, _voice_channels[channel_id][user_id]);
+    _voice_channels[channel_id]->voice_states[user_id] = voice::state_type::disconnected;
+    trigger_voice_state_event(channel_id, user_id,
+                              _voice_channels[channel_id]->voice_states[user_id]);
 
     // Check for others connected to the voice channel
     for (auto& join_pair : _joined_voice_channels) {
@@ -267,11 +277,14 @@ void quesync::server::voice_manager::leave_voice_channel(std::string user_id) {
 
     // Send call ended event for all participants of the call
     call_ended_event = std::make_shared<events::call_ended_event>(channel_id);
-    for (auto& user : _voice_channels[channel_id]) {
+    for (auto& user : _voice_channels[channel_id]->voice_states) {
         if (user.first != user_id)
             _server->event_manager()->trigger_event(
                 std::static_pointer_cast<quesync::event>(call_ended_event), user.first);
     }
+
+    // Close the call in the channel
+    close_call(channel_id);
 
     // If the channel has no one connected to it, remove it
     _voice_channels.erase(channel_id);
@@ -286,7 +299,7 @@ quesync::server::voice_manager::get_voice_states(std::string channel_id) {
         throw exception(error::channel_not_found);
     }
 
-    return _voice_channels[channel_id];
+    return _voice_channels[channel_id]->voice_states;
 }
 
 void quesync::server::voice_manager::handle_voice_states() {
@@ -301,13 +314,15 @@ void quesync::server::voice_manager::handle_voice_states() {
         // For each channel
         for (auto& channel : _voice_channels) {
             // For each user
-            for (auto& user : channel.second) {
+            for (auto& user : channel.second->voice_states) {
                 // If pending time exceeded, change the user's state
                 if (user.second == voice::state_type::pending &&
                     current_time - user.second.change_time() > MAX_PENDING_SECONDS) {
-                    _voice_channels[channel.first][user.first] = voice::state_type::disconnected;
-                    trigger_voice_state_event(channel.first, user.first,
-                                              _voice_channels[channel.first][user.first]);
+                    _voice_channels[channel.first]->voice_states[user.first] =
+                        voice::state_type::disconnected;
+                    trigger_voice_state_event(
+                        channel.first, user.first,
+                        _voice_channels[channel.first]->voice_states[user.first]);
                 }
             }
         }
@@ -327,35 +342,79 @@ void quesync::server::voice_manager::set_voice_state(std::string user_id, bool m
     channel_id = _joined_voice_channels[user_id];
 
     if (muted) {
-        _voice_channels[channel_id][user_id].mute();
+        _voice_channels[channel_id]->voice_states[user_id].mute();
     } else {
-        _voice_channels[channel_id][user_id].unmute();
+        _voice_channels[channel_id]->voice_states[user_id].unmute();
     }
 
     if (deafen) {
-        _voice_channels[channel_id][user_id].deaf();
+        _voice_channels[channel_id]->voice_states[user_id].deaf();
     } else {
-        _voice_channels[channel_id][user_id].undeaf();
+        _voice_channels[channel_id]->voice_states[user_id].undeaf();
     }
 
     // Send event to all participants
-    trigger_voice_state_event(channel_id, user_id, _voice_channels[channel_id][user_id]);
+    trigger_voice_state_event(channel_id, user_id,
+                              _voice_channels[channel_id]->voice_states[user_id]);
 }
 
 void quesync::server::voice_manager::trigger_voice_state_event(std::string channel_id,
                                                                std::string user_id,
                                                                quesync::voice::state voice_state) {
-    auto channel_participants = _voice_channels[channel_id];
+    auto voice_states = _voice_channels[channel_id]->voice_states;
 
     std::shared_ptr<events::voice_state_event> evt(
         std::make_shared<events::voice_state_event>(user_id, voice_state));
 
     // For each user in the channel
-    for (auto& user : channel_participants) {
+    for (auto& user : voice_states) {
         // Check if the user is connected to the channel
         if (user.first != user_id && user.second == voice::state_type::connected) {
             _server->event_manager()->trigger_event(std::static_pointer_cast<quesync::event>(evt),
                                                     user.first);
         }
+    }
+}
+
+quesync::call quesync::server::voice_manager::create_call(std::string caller_id,
+                                                          std::string channel_id) {
+    std::string call_id = sole::uuid4().str();
+
+    try {
+        // Insert to the calls table the new call
+        calls_table.insert("id", "caller_id", "channel_id")
+            .values(call_id, caller_id, channel_id)
+            .execute();
+    } catch (...) {
+        throw exception(error::unknown_error);
+    }
+
+    // Create the call object
+    return call(call_id, caller_id, channel_id, std::time(nullptr), std::vector<std::string>());
+}
+
+void quesync::server::voice_manager::add_participant_to_call(std::string channel_id,
+                                                             std::string participant_id) {
+    try {
+        // Try to insert the participant to the call participants table
+        call_participants_table.insert("call_id", "participant_id")
+            .values(_voice_channels[channel_id]->call.id, participant_id)
+            .execute();
+    } catch (...) {
+        throw exception(error::unknown_error);
+    }
+}
+
+void quesync::server::voice_manager::close_call(std::string channel_id) {
+    try {
+        // Set end date
+        _server->db()
+            .getSession()
+            .sql("UPDATE calls SET end_date = FROM_UNIXTIME(?) WHERE id = ?")
+            .bind(std::time(nullptr))
+            .bind(_voice_channels[channel_id]->call.id)
+            .execute();
+    } catch (...) {
+        throw exception(error::unknown_error);
     }
 }

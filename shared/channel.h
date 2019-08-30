@@ -5,7 +5,6 @@
 
 namespace quesync {
 struct channel {
-   public:
     channel() : channel("", false, (std::time_t)0, false){};
 
     channel(std::string id, bool is_private, std::time_t created_at, bool call_active) {

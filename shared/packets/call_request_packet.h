@@ -1,8 +1,8 @@
 #pragma once
 #include "../serialized_packet.h"
 
-#include "error_packet.h"
 #include "../response_packet.h"
+#include "error_packet.h"
 
 #include "../events/incoming_call_event.h"
 #include "../exception.h"
@@ -33,8 +33,8 @@ class call_request_packet : public serialized_packet {
     virtual std::string handle(std::shared_ptr<server::session> session) {
         std::shared_ptr<events::incoming_call_event> call_event;
 
+        std::shared_ptr<call_details> call_details;
         std::pair<std::string, voice::encryption_info> voice_session_details;
-        std::unordered_map<std::string, voice::state> voice_states;
         std::vector<std::string> users;
 
         nlohmann::json res;
@@ -65,33 +65,32 @@ class call_request_packet : public serialized_packet {
                 session->server()->voice_manager()->generate_otp(voice_session_details.first));
 
             // Create a voice channel for the users
-            session->server()->voice_manager()->init_voice_channel(_data["channelId"], users);
+            call_details = session->server()->voice_manager()->init_voice_channel(
+                session->user()->id, _data["channelId"], users);
 
             // Join the voice channel
             session->server()->voice_manager()->join_voice_channel(
                 session->user()->id, _data["channelId"], _data["muted"], _data["deafen"]);
 
-            // Get the voice states of the channel
-            voice_states = session->server()->voice_manager()->get_voice_states(_data["channelId"]);
-
-            // Remove the user from the voice states
-            voice_states.erase(session->user()->id);
-
-            // Set the voice session details and the voice states
+            // Set the call id, voice session details and the voice states
             res["voiceSessionAESKey"] = utils::crypto::base64::encode(
                 std::string((char *)voice_session_details.second.aes_key.get(), AES_KEY_SIZE));
             res["voiceSessionHMACKey"] = utils::crypto::base64::encode(
                 std::string((char *)voice_session_details.second.hmac_key.get(), HMAC_KEY_SIZE));
             res["voiceSessionId"] = voice_session_details.first;
-            res["voiceStates"] = voice_states;
+            res["callDetails"] = *call_details;
+
+            // Override call voice states to an empty object
+            res["callDetails"]["voiceStates"] = std::unordered_map<std::string, voice::state>();
 
             // Create the call event
-            call_event = std::make_shared<events::incoming_call_event>(_data["channelId"].get<std::string>());
+            call_event = std::make_shared<events::incoming_call_event>(call_details->call);
 
             // Send the call event to the other users
             for (auto &user : users) {
                 if (user != session->user()->id) {
-                    session->server()->event_manager()->trigger_event(std::static_pointer_cast<quesync::event>(call_event), user);
+                    session->server()->event_manager()->trigger_event(
+                        std::static_pointer_cast<quesync::event>(call_event), user);
                 }
             }
 

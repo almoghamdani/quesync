@@ -209,7 +209,8 @@ class EventHandler {
 		const privateChannels = state.channels.privateChannels;
 		const profiles = state.users.profiles;
 
-		const channelId = event.channelId;
+		const call = event.call;
+		const channelId = call.channelId
 		const channel = channels[channelId];
 
 		// Set the channel as an active call

@@ -23,12 +23,12 @@ class voice : public Napi::ObjectWrap<voice>, public module<voice> {
         std::string channel_id = info[0].As<Napi::String>();
 
         return executer::create_executer(info.Env(), [this, channel_id]() {
-            std::unordered_map<std::string, quesync::voice::state> voice_states;
+            std::shared_ptr<call_details> call_details;
 
             // Call the channel and get the voice states
-            voice_states = _client->core()->voice()->call(channel_id);
+            call_details = _client->core()->voice()->call(channel_id);
 
-            return nlohmann::json{{"voiceStates", voice_states}, {"channelId", channel_id}};
+            return nlohmann::json{{"callDetails", *call_details}, {"channelId", channel_id}};
         });
     }
 

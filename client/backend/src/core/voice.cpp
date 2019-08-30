@@ -12,7 +12,8 @@
 quesync::client::modules::voice::voice(std::shared_ptr<quesync::client::client> client)
     : module(client), _voice_manager(nullptr) {}
 
-std::unordered_map<std::string, quesync::voice::state> quesync::client::modules::voice::call(std::string channel_id) {
+std::shared_ptr<quesync::call_details> quesync::client::modules::voice::call(
+    std::string channel_id) {
     packets::call_request_packet call_request_packet;
 
     std::shared_ptr<response_packet> response_packet;
@@ -20,7 +21,7 @@ std::unordered_map<std::string, quesync::voice::state> quesync::client::modules:
     std::shared_ptr<unsigned char> aes_key, hmac_key;
     std::string otp;
 
-    std::unordered_map<std::string, quesync::voice::state> voice_states;
+    std::shared_ptr<call_details> call_details;
 
     // Check if voice initialized and connected
     if (!_voice_manager) {
@@ -46,10 +47,11 @@ std::unordered_map<std::string, quesync::voice::state> quesync::client::modules:
     _voice_manager->enable(response_packet->json()["voiceSessionId"], channel_id, aes_key, hmac_key,
                            otp);
 
-    // Parse voice states
-    voice_states = response_packet->json()["voiceStates"].get<std::unordered_map<std::string, quesync::voice::state>>();
+    // Parse the call details
+    call_details = std::make_shared<quesync::call_details>(
+        response_packet->json()["callDetails"].get<quesync::call_details>());
 
-    return voice_states;
+    return call_details;
 }
 
 std::unordered_map<std::string, quesync::voice::state> quesync::client::modules::voice::join_call(
@@ -88,7 +90,8 @@ std::unordered_map<std::string, quesync::voice::state> quesync::client::modules:
                            otp);
 
     // Parse voice states
-    voice_states = response_packet->json()["voiceStates"].get<std::unordered_map<std::string, quesync::voice::state>>();
+    voice_states = response_packet->json()["voiceStates"]
+                       .get<std::unordered_map<std::string, quesync::voice::state>>();
 
     return voice_states;
 }

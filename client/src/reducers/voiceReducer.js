@@ -24,10 +24,12 @@ export default function reducer(
 			return { ...state, error: action.payload.error };
 
 		case "CALL_FULFILLED":
+			const callDetails = action.payload.callDetails;
+
 			return {
 				...state,
 				activeCalls: [...state.activeCalls, action.payload.channelId],
-				voiceStates: action.payload.voiceStates,
+				voiceStates: callDetails.voiceStates,
 				channelId: action.payload.channelId
 			};
 
