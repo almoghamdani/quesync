@@ -72,6 +72,15 @@ class call_request_packet : public serialized_packet {
             session->server()->voice_manager()->join_voice_channel(
                 session->user()->id, _data["channelId"], _data["muted"], _data["deafen"]);
 
+            // Create the call event
+            call_event = std::make_shared<events::incoming_call_event>(call_details->call);
+
+            // Reset the voice states
+            call_details->voice_states = {};
+
+            // Set the user as joined to the call
+            call_details->call.joined = true;
+
             // Set the call id, voice session details and the voice states
             res["voiceSessionAESKey"] = utils::crypto::base64::encode(
                 std::string((char *)voice_session_details.second.aes_key.get(), AES_KEY_SIZE));
@@ -79,12 +88,6 @@ class call_request_packet : public serialized_packet {
                 std::string((char *)voice_session_details.second.hmac_key.get(), HMAC_KEY_SIZE));
             res["voiceSessionId"] = voice_session_details.first;
             res["callDetails"] = *call_details;
-
-            // Override call voice states to an empty object
-            res["callDetails"]["voiceStates"] = std::unordered_map<std::string, voice::state>();
-
-            // Create the call event
-            call_event = std::make_shared<events::incoming_call_event>(call_details->call);
 
             // Send the call event to the other users
             for (auto &user : users) {

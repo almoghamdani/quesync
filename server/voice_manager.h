@@ -90,7 +90,7 @@ class voice_manager : manager {
     call create_call(std::string caller_id, std::string channel_id);
     void add_participant_to_call(std::string channel_id, std::string participant_id);
     void close_call(std::string channel_id);
-    std::vector<std::string> get_call_participants(std::string call_id);
+    bool user_joined_call(std::string call_id, std::string user_id);
 };
 };  // namespace server
 };  // namespace quesync

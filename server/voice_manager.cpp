@@ -214,8 +214,8 @@ std::shared_ptr<quesync::call_details> quesync::server::voice_manager::init_voic
     _voice_channels[channel_id] =
         std::make_shared<call_details>(create_call(caller_id, channel_id), user_states);
 
-    // Create the call in the channel
-    return _voice_channels[channel_id];
+    // Duplicate the call details and return it
+    return std::make_shared<call_details>(*_voice_channels[channel_id]);
 }
 
 bool quesync::server::voice_manager::is_voice_channel_active(std::string channel_id) {
@@ -407,7 +407,7 @@ std::vector<quesync::call> quesync::server::voice_manager::get_channel_calls(
         // Get the call participants and create the call from the row
         calls.push_back(call((std::string)row[0], (std::string)row[1], (std::string)row[2],
                              (int)row[3], row[4].isNull() ? 0 : (int)row[4],
-                             get_call_participants((std::string)row[0])));
+                             user_joined_call((std::string)row[0], sess->user()->id)));
     }
 
     return calls;
@@ -445,7 +445,7 @@ quesync::call quesync::server::voice_manager::create_call(std::string caller_id,
     }
 
     // Create the call object
-    return call(call_id, caller_id, channel_id, std::time(nullptr), std::vector<std::string>());
+    return call(call_id, caller_id, channel_id, std::time(nullptr), false);
 }
 
 void quesync::server::voice_manager::add_participant_to_call(std::string channel_id,
@@ -474,28 +474,21 @@ void quesync::server::voice_manager::close_call(std::string channel_id) {
     }
 }
 
-std::vector<std::string> quesync::server::voice_manager::get_call_participants(
-    std::string call_id) {
+bool quesync::server::voice_manager::user_joined_call(std::string call_id, std::string user_id) {
     std::vector<std::string> call_participants;
 
     sql::RowResult res;
-    sql::Row row;
 
     try {
         // Try to get the call participants
-        res = call_participants_table.select("participant_id")
-                  .where("call_id = :call_id")
+        res = call_participants_table.select("1")
+                  .where("call_id = :call_id AND participant_id = :user_id")
                   .bind("call_id", call_id)
+                  .bind("user_id", user_id)
                   .execute();
     } catch (...) {
         throw exception(error::unknown_error);
     }
 
-    // For each row in the result, add a participants
-    while ((row = res.fetchOne())) {
-        // Add the participant to the list of participants
-        call_participants.push_back((std::string)row[0]);
-    }
-
-    return call_participants;
+    return res.count() != 0;
 }
