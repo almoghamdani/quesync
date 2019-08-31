@@ -3,6 +3,7 @@
 #include "client.h"
 
 #include "../../../../shared/packets/call_request_packet.h"
+#include "../../../../shared/packets/get_channel_calls_packet.h"
 #include "../../../../shared/packets/join_call_request_packet.h"
 #include "../../../../shared/packets/leave_call_packet.h"
 #include "../../../../shared/packets/set_voice_state_packet.h"
@@ -144,6 +145,20 @@ std::shared_ptr<quesync::voice::state> quesync::client::modules::voice::set_voic
     }
 
     return voice_state;
+}
+
+std::vector<quesync::call> quesync::client::modules::voice::get_channel_calls(
+    std::string channel_id, unsigned int amount, unsigned int offset) {
+    packets::get_channel_calls_packet get_channel_calls_packet(channel_id, amount, offset);
+
+    // Send to the server the get calls packet
+    std::shared_ptr<response_packet> response_packet = _client->communicator()->send_and_verify(
+        &get_channel_calls_packet, packet_type::channel_calls_packet);
+
+    // Parse the calls
+    std::vector<quesync::call> calls = response_packet->json().get<std::vector<quesync::call>>();
+
+    return calls;
 }
 
 void quesync::client::modules::voice::clean() {

@@ -19,6 +19,7 @@ enum class packet_type {
     join_call_request_packet,
     leave_call_packet,
     set_voice_state_packet,
+    get_channel_calls_packet,
 
     // Respones
     authenticated_packet = 200,
@@ -33,6 +34,7 @@ enum class packet_type {
     join_call_approved_packet,
     call_left_packet,
     voice_state_set_packet,
+    channel_calls_packet,
 
     // On error
     error_packet = 400,

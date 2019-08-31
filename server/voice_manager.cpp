@@ -4,6 +4,7 @@
 #include <sole.hpp>
 
 #include "server.h"
+#include "session.h"
 
 #include "../shared/events/call_ended_event.h"
 #include "../shared/events/voice_state_event.h"
@@ -358,6 +359,60 @@ void quesync::server::voice_manager::set_voice_state(std::string user_id, bool m
                               _voice_channels[channel_id]->voice_states[user_id]);
 }
 
+std::vector<quesync::call> quesync::server::voice_manager::get_channel_calls(
+    std::shared_ptr<quesync::server::session> sess, std::string channel_id, int amount,
+    int offset) {
+    std::vector<call> calls;
+
+    sql::RowResult res;
+    sql::Row row;
+
+    // Check if the session is authenticated
+    if (!sess->authenticated()) {
+        throw exception(error::not_authenticated);
+    }
+
+    // Check if the channel exists
+    if (!_server->channel_manager()->does_channel_exists(channel_id)) {
+        throw exception(error::channel_not_found);
+    }
+
+    // Check if the user is a member of the wanted channel
+    if (!_server->channel_manager()->is_user_member_of_channel(sess->user()->id, channel_id)) {
+        throw exception(error::not_member_of_channel);
+    }
+
+    // Check if amount surpasses the limit
+    if (amount > MAX_CALLS_AMOUNT) {
+        throw exception(error::amount_exceeded_max);
+    }
+
+    try {
+        // Try to get the calls from the table using the amount and offset
+        res = calls_table
+                  .select("id", "caller_id", "channel_id", "unix_timestamp(start_date)",
+                          "unix_timestamp(end_date)")
+                  .where("channel_id = :channel_id")
+                  .orderBy("start_date DESC")
+                  .limit(amount)
+                  .offset(offset)
+                  .bind("channel_id", channel_id)
+                  .execute();
+    } catch (...) {
+        throw exception(error::unknown_error);
+    }
+
+    // For each row in the result, create a call
+    while ((row = res.fetchOne())) {
+        // Get the call participants and create the call from the row
+        calls.push_back(call((std::string)row[0], (std::string)row[1], (std::string)row[2],
+                             (int)row[3], row[4].isNull() ? 0 : (int)row[4],
+                             get_call_participants((std::string)row[0])));
+    }
+
+    return calls;
+}
+
 void quesync::server::voice_manager::trigger_voice_state_event(std::string channel_id,
                                                                std::string user_id,
                                                                quesync::voice::state voice_state) {
@@ -417,4 +472,30 @@ void quesync::server::voice_manager::close_call(std::string channel_id) {
     } catch (...) {
         throw exception(error::unknown_error);
     }
+}
+
+std::vector<std::string> quesync::server::voice_manager::get_call_participants(
+    std::string call_id) {
+    std::vector<std::string> call_participants;
+
+    sql::RowResult res;
+    sql::Row row;
+
+    try {
+        // Try to get the call participants
+        res = call_participants_table.select("participant_id")
+                  .where("call_id = :call_id")
+                  .bind("call_id", call_id)
+                  .execute();
+    } catch (...) {
+        throw exception(error::unknown_error);
+    }
+
+    // For each row in the result, add a participants
+    while ((row = res.fetchOne())) {
+        // Add the participant to the list of participants
+        call_participants.push_back((std::string)row[0]);
+    }
+
+    return call_participants;
 }

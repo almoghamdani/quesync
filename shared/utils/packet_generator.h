@@ -10,6 +10,7 @@
 #include "../packets/event_packet.h"
 #include "../packets/friend_request_packet.h"
 #include "../packets/friendship_status_packet.h"
+#include "../packets/get_channel_calls_packet.h"
 #include "../packets/get_channel_messages_packet.h"
 #include "../packets/get_private_channel_packet.h"
 #include "../packets/join_call_request_packet.h"
@@ -70,6 +71,7 @@ class packet_generator {
                               PACKET_ENTRY(join_call_request_packet),
                               PACKET_ENTRY(leave_call_packet),
                               PACKET_ENTRY(set_voice_state_packet),
+                              PACKET_ENTRY(get_channel_calls_packet),
                               PACKET_ENTRY(event_packet),
                               PACKET_ENTRY(error_packet),
                               RESPONSE_PACKET_ENTRY(authenticated_packet),
@@ -84,6 +86,7 @@ class packet_generator {
                               RESPONSE_PACKET_ENTRY(join_call_approved_packet),
                               RESPONSE_PACKET_ENTRY(call_left_packet),
                               RESPONSE_PACKET_ENTRY(voice_state_set_packet),
+                              RESPONSE_PACKET_ENTRY(channel_calls_packet),
                               RESPONSE_PACKET_ENTRY(pong_packet)};
 };
 };  // namespace utils

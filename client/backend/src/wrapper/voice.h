@@ -14,7 +14,8 @@ class voice : public Napi::ObjectWrap<voice>, public module<voice> {
             env, "Voice",
             {InstanceMethod("call", &voice::call), InstanceMethod("joinCall", &voice::join_call),
              InstanceMethod("leaveCall", &voice::leave_call),
-             InstanceMethod("setVoiceState", &voice::set_voice_state)});
+             InstanceMethod("setVoiceState", &voice::set_voice_state),
+             InstanceMethod("getChannelCalls", &voice::get_channel_calls)});
     }
 
     voice(const Napi::CallbackInfo &info) : Napi::ObjectWrap<voice>(info), module(info) {}
@@ -64,6 +65,21 @@ class voice : public Napi::ObjectWrap<voice>, public module<voice> {
             voice_state = _client->core()->voice()->set_voice_state(mute, deafen);
 
             return nlohmann::json{{"voiceState", *voice_state}};
+        });
+    }
+
+    Napi::Value get_channel_calls(const Napi::CallbackInfo &info) {
+        std::string channel_id = info[0].As<Napi::String>();
+        unsigned int amount = info[1].As<Napi::Number>(), offset = info[2].As<Napi::Number>();
+
+        return executer::create_executer(info.Env(), [this, channel_id, amount, offset]() {
+            std::vector<quesync::call> calls;
+
+            // Get the calls of the channel
+            calls =
+                _client->core()->voice()->get_channel_calls(channel_id, amount, offset);
+
+            return nlohmann::json{{"calls", calls}, {"channelId", channel_id}};
         });
     }
 
