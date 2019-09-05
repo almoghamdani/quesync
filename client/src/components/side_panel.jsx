@@ -9,20 +9,12 @@ import { IconButton } from "@rmwc/icon-button";
 import anime from "animejs";
 import { Transition } from "react-transition-group";
 
-import FriendDetails from "./friend_details";
 import CurrentCallDetails from "./current_call_details";
 import Seperator from "./seperator";
 
-import {
-	call,
-	joinCall,
-	leaveCall,
-	setVoiceState
-} from "../actions/voiceActions";
+import { leaveCall, setVoiceState } from "../actions/voiceActions";
 
 import "./side_panel.scss";
-
-const { ipcRenderer } = window.require("electron");
 
 class SidePanel extends Component {
 	parseVoiceStates() {
@@ -82,26 +74,7 @@ class SidePanel extends Component {
 		return (
 			<Elevation z={10} className="quesync-side-panel">
 				<div className="quesync-side-panel-details">
-					<FriendDetails
-						avatarUrl={this.props.friend.avatarUrl}
-						nickname={this.props.friend.nickname}
-						tag={this.props.friend.tag}
-						style={{ height: "100%" }}
-						startCall={() =>
-							this.props.dispatch(call(this.props.client, this.props.channelId))
-						}
-						joinCall={() => {
-							// Close the call window is case it's open
-							ipcRenderer.send("close-call-window", this.props.channelId);
-
-							// Join the call
-							this.props.dispatch(
-								joinCall(this.props.client, this.props.channelId)
-							);
-						}}
-						inCall={this.props.voiceChannelId === this.props.channelId}
-						activeCall={this.props.activeCalls.includes(this.props.channelId)}
-					/>
+					{this.props.element}
 					<Seperator style={{ opacity: this.props.inCall ? 1 : 0 }} />
 					<Transition
 						appear
@@ -188,10 +161,8 @@ export default connect(state => ({
 	user: state.user.user,
 	inCall: !!state.voice.channelId,
 	callJoinDate: state.voice.callJoinDate,
-	voiceChannelId: state.voice.channelId,
 	voiceStates: state.voice.voiceStates,
 	voiceActivations: state.voice.voiceActivations,
-	activeCalls: state.voice.activeCalls,
 	muted: state.voice.muted,
 	deafen: state.voice.deafen,
 	profiles: state.users.profiles
