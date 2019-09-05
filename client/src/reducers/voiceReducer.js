@@ -10,8 +10,9 @@ const callsSort = (a, b) => {
 
 export default function reducer(
 	state = {
-		calls: {},
 		channelId: null,
+		callJoinDate: null,
+		calls: {},
 		activeCalls: [],
 		voiceStates: {},
 		voiceActivations: {},
@@ -60,7 +61,8 @@ export default function reducer(
 					calls: { ...state.calls, [channelId]: channelCalls },
 					activeCalls: [...state.activeCalls, action.payload.channelId],
 					voiceStates: callDetails.voiceStates,
-					channelId: action.payload.channelId
+					channelId: action.payload.channelId,
+					callJoinDate: Math.floor(Date.now() / 1000) - 1
 				};
 			}
 
@@ -79,7 +81,8 @@ export default function reducer(
 					...state,
 					calls: { ...state.calls, [channelId]: channelCalls },
 					voiceStates: action.payload.voiceStates,
-					channelId
+					channelId,
+					callJoinDate: Math.floor(Date.now() / 1000) - 1
 				};
 			}
 

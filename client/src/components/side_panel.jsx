@@ -90,17 +90,15 @@ class SidePanel extends Component {
 						startCall={() =>
 							this.props.dispatch(call(this.props.client, this.props.channelId))
 						}
-						joinCall={() =>
-							{
-								// Close the call window is case it's open
-								ipcRenderer.send("close-call-window", this.props.channelId);
+						joinCall={() => {
+							// Close the call window is case it's open
+							ipcRenderer.send("close-call-window", this.props.channelId);
 
-								// Join the call
-								this.props.dispatch(
-									joinCall(this.props.client, this.props.channelId)
-								)
-							}
-						}
+							// Join the call
+							this.props.dispatch(
+								joinCall(this.props.client, this.props.channelId)
+							);
+						}}
 						inCall={this.props.voiceChannelId === this.props.channelId}
 						activeCall={this.props.activeCalls.includes(this.props.channelId)}
 					/>
@@ -111,7 +109,8 @@ class SidePanel extends Component {
 						in={this.props.inCall}
 						timeout={800}
 						onEnter={enterTransition}
-						onExit={exitTransition}>
+						onExit={exitTransition}
+					>
 						<CurrentCallDetails
 							style={{
 								minHeight: 0,
@@ -119,6 +118,7 @@ class SidePanel extends Component {
 								opacity: 0,
 								pointerEvents: this.props.inCall ? "" : "none"
 							}}
+							joinDate={this.props.callJoinDate}
 							userVoiceStates={this.props.inCall ? this.parseVoiceStates() : []}
 							userVoiceActivations={this.props.voiceActivations}
 							leaveCall={() =>
@@ -187,6 +187,7 @@ export default connect(state => ({
 	client: state.client.client,
 	user: state.user.user,
 	inCall: !!state.voice.channelId,
+	callJoinDate: state.voice.callJoinDate,
 	voiceChannelId: state.voice.channelId,
 	voiceStates: state.voice.voiceStates,
 	voiceActivations: state.voice.voiceActivations,

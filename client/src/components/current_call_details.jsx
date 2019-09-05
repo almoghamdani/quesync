@@ -3,6 +3,8 @@ import React, { Component } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
 import { TransitionGroup } from "react-transition-group";
 
+import Moment from "react-moment";
+
 import { Typography } from "@rmwc/typography";
 import { List } from "@rmwc/list";
 import { Button } from "@rmwc/button";
@@ -20,7 +22,8 @@ class CurrentCallDetails extends Component {
 				<div className="quesync-call-participants-wrapper">
 					<Typography
 						use="subtitle1"
-						style={{ color: "var(--mdc-theme-primary)", marginBottom: "5px" }}>
+						style={{ color: "var(--mdc-theme-primary)", marginBottom: "5px" }}
+					>
 						Currently in Call:
 					</Typography>
 					<Scrollbars autoHide>
@@ -30,7 +33,9 @@ class CurrentCallDetails extends Component {
 									<FadeTransition timeout={200} key={userVoiceState.id}>
 										<UserVoiceDetails
 											key={userVoiceState.id}
-											talking={this.props.userVoiceActivations[userVoiceState.id]}
+											talking={
+												this.props.userVoiceActivations[userVoiceState.id]
+											}
 											{...userVoiceState}
 										/>
 									</FadeTransition>
@@ -39,6 +44,9 @@ class CurrentCallDetails extends Component {
 						</List>
 					</Scrollbars>
 				</div>
+				<Typography className="quesync-call-duration" use="subtitle1">
+					<Moment durationFromNow unix date={this.props.joinDate} interval={500} />
+				</Typography>
 				<div className="quesync-call-actions">
 					<Button
 						className="quesync-leave-call-button"
