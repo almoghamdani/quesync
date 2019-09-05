@@ -35,10 +35,10 @@ class Channel extends Component {
 	};
 
 	componentDidUpdate = () => {
-		// If the channel has changed, scroll to bottom and reset the prev channel id
-		if (this.state.prevChannelId !== this.props.channelId) {
-			this.scrollToBottom(false);
+		this.scrollToBottom(this.state.prevChannelId === this.props.channelId);
 
+		// If the channel has changed, reset the prev channel id
+		if (this.state.prevChannelId !== this.props.channelId) {
 			this.setState({
 				prevChannelId: this.props.channelId
 			});
