@@ -11,9 +11,9 @@ import FadeTransition from "./fade_transition";
 
 import UserVoiceDetails from "./user_voice_details";
 
-import "./call_details.scss";
+import "./current_call_details.scss";
 
-class CallDetails extends Component {
+class CurrentCallDetails extends Component {
 	render() {
 		return (
 			<div className="quesync-call-details-wrapper" style={this.props.style}>
@@ -54,4 +54,4 @@ class CallDetails extends Component {
 	}
 }
 
-export default CallDetails;
+export default CurrentCallDetails;

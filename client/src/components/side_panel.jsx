@@ -10,7 +10,7 @@ import anime from "animejs";
 import { Transition } from "react-transition-group";
 
 import FriendDetails from "./friend_details";
-import CallDetails from "./call_details";
+import CurrentCallDetails from "./current_call_details";
 import Seperator from "./seperator";
 
 import {
@@ -112,7 +112,7 @@ class SidePanel extends Component {
 						timeout={800}
 						onEnter={enterTransition}
 						onExit={exitTransition}>
-						<CallDetails
+						<CurrentCallDetails
 							style={{
 								minHeight: 0,
 								height: 0,
