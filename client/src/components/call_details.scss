@@ -1,0 +1,44 @@
+.quesync-call-details {
+	display: flex;
+	align-items: center;
+	justify-content: left;
+
+	padding-top: 0.8rem;
+	padding-bottom: 0.2rem;
+	padding-right: 0.2rem;
+}
+
+.quesync-call-details-text-wrapper {
+	display: flex;
+	flex-direction: column;
+
+	padding-left: 10px;
+
+	color: white;
+}
+
+.quesync-call-details-date {
+	color: #909090;
+
+	line-height: 12px;
+}
+
+.quesync-call-details-icon {
+	min-width: 34px;
+	width: 34px;
+
+	min-height: 34px;
+	height: 34px;
+
+	background: rgba(0, 0, 0, 0.15);
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	border-radius: 17px;
+}
+
+.quesync-call-details-caller-name {
+	color: var(--mdc-theme-primary);
+}

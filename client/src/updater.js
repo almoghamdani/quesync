@@ -4,7 +4,7 @@ import { sendFriendRequest } from "./actions/userActions";
 import { getChannelMessages } from "./actions/messagesActions";
 import { getPrivateChannel } from "./actions/channelsActions";
 import { fetchUserProfile } from "./actions/usersActions";
-import { setActiveCall } from "./actions/voiceActions";
+import { setActiveCall, getChannelCalls } from "./actions/voiceActions";
 import { resetUI } from "./actions/uiActions";
 
 import Logger from "./logger";
@@ -33,7 +33,7 @@ class Updater {
 		// Get the user's profile
 		await store
 			.dispatch(fetchUserProfile(client, user.id))
-			.then(() => {})
+			.then(() => { })
 			.catch(ex => {
 				this.logger.error(
 					`An error occurred fetching the user's profile. Error: ${ex}`
@@ -113,7 +113,10 @@ class Updater {
 			.dispatch(
 				getChannelMessages(client, channelId, AMOUNT_OF_INITIAL_MESSAGES, 0)
 			)
-			.then(() => {})
+			.then(() => store
+				.dispatch(
+					getChannelCalls(client, channelId, AMOUNT_OF_INITIAL_MESSAGES, 0) // Get channel calls
+				))
 			.catch(ex => {
 				this.logger.error(
 					`An error occurred getting the messages of the channel ${channelId}. Error: ${ex}`

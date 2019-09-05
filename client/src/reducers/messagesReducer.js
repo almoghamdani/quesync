@@ -1,4 +1,4 @@
-const messagesSortFunction = (a, b) => {
+const messagesSort = (a, b) => {
 	if (a.sentAt < b.sentAt)
 		return -1;
 	else if (a.sentAt > b.sentAt)
@@ -38,7 +38,7 @@ export default function reducer(
 			channelMessages.push(message);
 
 			// Sort the channel messages array
-			channelMessages.sort(messagesSortFunction);
+			channelMessages.sort(messagesSort);
 
 			return { ...state, messages: { ...state.messages, [channelId]: channelMessages }, newMessages: { ...state.newMessages, [channelId]: null } };
 
@@ -61,7 +61,7 @@ export default function reducer(
 				})
 
 				// Sort the channel messages array
-				channelMessages.sort(messagesSortFunction);
+				channelMessages.sort(messagesSort);
 
 				return { ...state, messages: { ...state.messages, [action.payload.channelId]: channelMessages } };
 			}
@@ -74,7 +74,7 @@ export default function reducer(
 				channelMessages.push(action.payload.message);
 
 				// Sort the channel messages array
-				channelMessages.sort(messagesSortFunction);
+				channelMessages.sort(messagesSort);
 
 				return { ...state, messages: { ...state.messages, [action.payload.channelId]: channelMessages } };
 			}

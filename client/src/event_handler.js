@@ -214,7 +214,7 @@ class EventHandler {
 		const channel = channels[channelId];
 
 		// Set the channel as an active call
-		store.dispatch(setActiveCall(channelId));
+		store.dispatch(setActiveCall(call));
 
 		// If the channel exists
 		if (channel) {

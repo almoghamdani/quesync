@@ -1,4 +1,4 @@
-.quesync-text-channel {
+.quesync-channel {
 	// Fill parent
 	flex-grow: 1;
 
@@ -8,7 +8,7 @@
 	flex-direction: column;
 }
 
-.quesync-text-messages-wrapper {
+.quesync-channel-content-wrapper {
 	flex-grow: 1;
 
 	margin-top: 0.2rem;
@@ -19,7 +19,7 @@
 	display: flex;
 }
 
-.quesync-text-messages {
+.quesync-channel-content {
 	// Fix an issue where the text messages div not filling parent
 	height: inherit !important;
 }

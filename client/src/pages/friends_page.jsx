@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import DrawerPage from "../components/page_layouts/drawer_page";
 import DrawerItem from "../components/drawer_item";
 import FriendRequestItem from "../components/friend_request_item";
-import TextChannel from "../components/text_channel";
+import Channel from "../components/channel";
 import SidePanel from "../components/side_panel";
 
 import {
@@ -136,7 +136,7 @@ class FriendsPage extends Component {
 				]}>
 				{currentSelectedFriendId ? (
 					<div className="quesync-friend-page">
-						<TextChannel
+						<Channel
 							channelId={this.getPrivateChannelId(currentSelectedFriendId)}
 						/>
 						<SidePanel

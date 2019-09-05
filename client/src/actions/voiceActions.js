@@ -46,10 +46,10 @@ export function setVoiceState(client, mute, deafen) {
 	};
 }
 
-export function setActiveCall(channelId) {
+export function setActiveCall(call) {
 	return {
 		type: "SET_ACTIVE_CALL",
-		payload: channelId
+		payload: call
 	};
 }
 
@@ -57,5 +57,12 @@ export function removeActiveCall(channelId) {
 	return {
 		type: "REMOVE_ACTIVE_CALL",
 		payload: channelId
+	};
+}
+
+export function getChannelCalls(client, channelId, amount, offset) {
+	return {
+		type: "GET_CHANNEL_CALLS",
+		payload: client.voice().getChannelCalls(channelId, amount, offset)
 	};
 }
