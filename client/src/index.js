@@ -38,6 +38,9 @@ if (callingWindow) {
 				// Get the client from the global vars
 				var client = electron.remote.getGlobal("client");
 
+				// Clear old event handlers if exist
+				client.clearAllEventHandlers();
+
 				// Save the errors object in the window to be accessible for all
 				window.errors = client.errors();
 

@@ -19,6 +19,7 @@ Napi::Object quesync::client::wrapper::client::init(Napi::Env env, Napi::Object 
         DefineClass(env, "Client",
                     {InstanceMethod("connect", &client::connect),
                      InstanceMethod("registerEventHandler", &client::register_event_handler),
+                     InstanceMethod("clearAllEventHandlers", &client::clear_all_event_handlers),
                      InstanceMethod("auth", &client::module_get<auth, &client::_auth>),
                      InstanceMethod("users", &client::module_get<users, &client::_users>),
                      InstanceMethod("channels", &client::module_get<channels, &client::_channels>),
@@ -73,10 +74,8 @@ Napi::Value quesync::client::wrapper::client::register_event_handler(
     }
 
     // Create the thread safe function object
-    tsfn = Napi::ThreadSafeFunction::New(
-        info.Env(), event_handle_function, event_name, 0, 1, [this, type](Napi::Env) {
-            _client->communicator()->event_handler().remove_event_handler(type);
-        });
+    tsfn = Napi::ThreadSafeFunction::New(info.Env(), event_handle_function, event_name, 0, 1,
+                                         [](Napi::Env) {});
 
     // Register the event handler
     _client->communicator()->event_handler().register_event_handler(
@@ -95,6 +94,14 @@ Napi::Value quesync::client::wrapper::client::register_event_handler(
                     delete j;
                 });
         });
+
+    return info.Env().Undefined();
+}
+
+Napi::Value quesync::client::wrapper::client::clear_all_event_handlers(
+    const Napi::CallbackInfo &info) {
+    // Clear all event handlers
+    _client->communicator()->event_handler().clear_all_event_handlers();
 
     return info.Env().Undefined();
 }
