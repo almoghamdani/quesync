@@ -42,9 +42,9 @@ class communicator : public module {
     std::vector<std::shared_ptr<response_packet>> _response_packets;
 
     // Locks
-    std::mutex _socket_get_lock;
-    std::mutex _socket_send_lock;
-    std::mutex _events_lock;
+    std::mutex _socket_get_mutex;
+    std::mutex _socket_send_mutex;
+    std::mutex _events_mutex;
 
     // Condition Variables
     std::condition_variable _response_cv;

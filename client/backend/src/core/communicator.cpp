@@ -162,7 +162,7 @@ void quesync::client::modules::communicator::recv() {
 
         // If the resposne is an event, push it to the vector of events
         if (response_packet->type() == packet_type::event_packet) {
-            std::unique_lock<std::mutex> lk(_events_lock);
+            std::unique_lock<std::mutex> lk(_events_mutex);
 
             // Push the packet as an EventPacket to the vector of events packets
             _event_packets.push_back(
@@ -171,7 +171,7 @@ void quesync::client::modules::communicator::recv() {
             // Notify the events handler thread that there is new events waiting to be handled
             _events_cv.notify_one();
         } else {
-            std::unique_lock<std::mutex> lk(_socket_get_lock);
+            std::unique_lock<std::mutex> lk(_socket_get_mutex);
 
             // Push the response packet to the vector
             _response_packets.push_back(response_packet);
@@ -195,8 +195,8 @@ void quesync::client::modules::communicator::keep_alive() {
         // Sleep for a second and a half
         std::this_thread::sleep_for(std::chrono::milliseconds(750));
 
-        std::unique_lock<std::mutex> get_lk(_socket_get_lock, std::defer_lock);
-        std::unique_lock<std::mutex> send_lk(_socket_send_lock, std::defer_lock);
+        std::unique_lock<std::mutex> get_lk(_socket_get_mutex, std::defer_lock);
+        std::unique_lock<std::mutex> send_lk(_socket_send_mutex, std::defer_lock);
 
         // If the socket isn't connected, skip the iteration
         if (!_socket) {
@@ -265,7 +265,7 @@ void quesync::client::modules::communicator::keep_alive() {
 
 void quesync::client::modules::communicator::events_handler() {
     while (true) {
-        std::unique_lock<std::mutex> events_lk(_events_lock);
+        std::unique_lock<std::mutex> events_lk(_events_mutex);
 
         // While no event packets are waiting to be handled, wait
         while (_event_packets.empty()) {
@@ -297,8 +297,8 @@ void quesync::client::modules::communicator::events_handler() {
 
 std::shared_ptr<quesync::response_packet> quesync::client::modules::communicator::send(
     quesync::serialized_packet *packet) {
-    std::unique_lock<std::mutex> get_lk(_socket_get_lock, std::defer_lock);
-    std::unique_lock<std::mutex> send_lk(_socket_send_lock, std::defer_lock);
+    std::unique_lock<std::mutex> get_lk(_socket_get_mutex, std::defer_lock);
+    std::unique_lock<std::mutex> send_lk(_socket_send_mutex, std::defer_lock);
 
     std::shared_ptr<response_packet> response_packet;
 
