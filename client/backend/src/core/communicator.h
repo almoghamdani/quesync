@@ -67,9 +67,6 @@ class communicator : public module {
 
     // Helper functions
     double ms_diff(clock_t end_clock, clock_t start_clock);
-
-    header get_header();
-    void send_with_header(std::string data);
 };
 };  // namespace modules
 };  // namespace client

@@ -9,7 +9,6 @@
 
 #include "../../../../shared/events/ping_event.h"
 #include "../../../../shared/exception.h"
-#include "../../../../shared/header.h"
 #include "../../../../shared/packets/error_packet.h"
 #include "../../../../shared/packets/ping_packet.h"
 #include "../../../../shared/utils/parser.h"
@@ -37,44 +36,13 @@ void quesync::client::modules::communicator::clean_connection() {
     _client->clean();
 }
 
-void quesync::client::modules::communicator::send_with_header(std::string data) {
-    header header = {1, 0};
-    std::string full_packet;
-    error error;
-
-    // Set data size
-    header.size = data.size();
-
-    // Combine the header and the packet
-    full_packet = utils::parser::encode_header(header) + data;
-
-    // Send to the server the data
-    socket_manager::send(*_socket, full_packet.data(), full_packet.length());
-}
-
-quesync::header quesync::client::modules::communicator::get_header() {
-    header header;
-
-    char *header_buf = new char[sizeof(quesync::header)];
-
-    // Get from the server the header
-    socket_manager::recv(*_socket, header_buf, sizeof(quesync::header));
-
-    // Decode the header
-    header = utils::parser::decode_header(header_buf);
-
-    return header;
-}
-
 void quesync::client::modules::communicator::connect(std::string server_ip) {
     std::shared_ptr<response_packet> response_packet;
 
     tcp::endpoint server_endpoint;
 
     packets::ping_packet ping_packet;
-    header header;
-
-    std::shared_ptr<char> buf;
+    std::string res;
 
     // Check if already connected to the wanted server
     if (_socket && _server_ip == server_ip) {
@@ -106,30 +74,18 @@ void quesync::client::modules::communicator::connect(std::string server_ip) {
         throw exception(socket_manager::error_for_system_error(ex));
     }
 
-    // Send to the server the ping packet
     try {
-        send_with_header(ping_packet.encode());
+        // Send to the server the ping packet
+        socket_manager::send(*_socket, ping_packet.encode());
     } catch (exception &ex) {
         clean_connection();
 
         throw exception(ex);
     }
 
-    // Get from the server the header
     try {
-        header = get_header();
-    } catch (exception &ex) {
-        clean_connection();
-
-        throw exception(ex);
-    }
-
-    // Allocate the buffer
-    buf = std::shared_ptr<char>(new char[header.size]);
-
-    // Get from the server the response
-    try {
-        socket_manager::recv(*_socket, buf.get(), header.size);
+        // Get from the server the response
+        res = socket_manager::recv(*_socket);
     } catch (exception &ex) {
         clean_connection();
 
@@ -137,8 +93,8 @@ void quesync::client::modules::communicator::connect(std::string server_ip) {
     }
 
     // Parse the response packet
-    response_packet = std::static_pointer_cast<quesync::response_packet>(
-        utils::parser::parse_packet(std::string(buf.get(), header.size)));
+    response_packet =
+        std::static_pointer_cast<quesync::response_packet>(utils::parser::parse_packet(res));
 
     // If the response is not a pong packet, return unknown error
     if ((response_packet && response_packet->type() != packet_type::pong_packet) ||
@@ -174,34 +130,23 @@ void quesync::client::modules::communicator::recv() {
     while (true) {
         std::shared_ptr<response_packet> response_packet;
 
-        header header;
-        std::shared_ptr<char> buf;
+        std::string buf;
 
         // If the socket isn't connected, skip the iteration
         if (!_socket) {
             continue;
         }
 
-        // Get the header from the server
         try {
-            header = get_header();
-        } catch (...) {
-            continue;
-        }
-
-        // Allocate the buffer
-        buf = std::shared_ptr<char>(new char[header.size]);
-
-        // Get a response from the server
-        try {
-            socket_manager::recv(*_socket, buf.get(), header.size);
+            // Get a response from the server
+            buf = socket_manager::recv(*_socket);
         } catch (...) {
             continue;
         }
 
         // Parse the response packet
-        response_packet = std::static_pointer_cast<quesync::response_packet>(
-            utils::parser::parse_packet(std::string(buf.get(), header.size)));
+        response_packet =
+            std::static_pointer_cast<quesync::response_packet>(utils::parser::parse_packet(buf));
 
         // If the resposne is an event, push it to the vector of events
         if (response_packet->type() == packet_type::event_packet) {
@@ -252,9 +197,9 @@ void quesync::client::modules::communicator::keep_alive() {
         // Get the current system clock
         send_clock = std::clock();
 
-        // Send to the server the ping packet
         try {
-            send_with_header(ping_packet.encode());
+            // Send to the server the ping packet
+            socket_manager::send(*_socket, ping_packet.encode());
         } catch (...) {
             // Increase the ping retires count and check if reached the max
             _ping_retries += 1;
@@ -354,7 +299,7 @@ std::shared_ptr<quesync::response_packet> quesync::client::modules::communicator
     std::lock(get_lk, send_lk);
 
     // Send to the server the packet
-    send_with_header(packet->encode());
+    socket_manager::send(*_socket, packet->encode());
 
     // Wait for response to enter
     while (_response_packets.empty()) {

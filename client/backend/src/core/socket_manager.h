@@ -9,8 +9,10 @@
 
 #include <iostream>
 #include <thread>
+#include <string>
 
 #include "../../../../shared/error.h"
+#include "../../../../shared/header.h"
 
 using asio::ip::tcp;
 using asio::ip::udp;
@@ -27,8 +29,8 @@ class socket_manager {
     template <typename T>
     static void get_endpoint(const char *ip_address, int port, T &endpoint);
 
-    static void send(asio::ssl::stream<tcp::socket> &socket, const char *data, size_t size);
-    static void recv(asio::ssl::stream<tcp::socket> &socket, char *data, const int len);
+    static void send(asio::ssl::stream<tcp::socket> &socket, std::string data);
+    static std::string recv(asio::ssl::stream<tcp::socket> &socket);
 
     static error error_for_system_error(std::system_error &ex);
 };
