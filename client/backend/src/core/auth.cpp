@@ -27,12 +27,15 @@ std::string quesync::client::modules::auth::login(std::string username, std::str
     // Init the user from the response
     _user = std::make_shared<user>(res_packet->json()["user"]);
 
+    // Save session id
+    _session_id = res_packet->json()["sessionId"];
+
     // Return the session id
     return res_packet->json()["sessionId"];
 }
 
 std::string quesync::client::modules::auth::signup(std::string username, std::string password,
-                                          std::string email) {
+                                                   std::string email) {
     packets::register_packet register_packet(username, password, email, username);
 
     std::shared_ptr<response_packet> res_packet;
@@ -48,6 +51,9 @@ std::string quesync::client::modules::auth::signup(std::string username, std::st
 
     // Init the user from the response
     _user = std::make_shared<user>(res_packet->json()["user"]);
+
+    // Save session id
+    _session_id = res_packet->json()["sessionId"];
 
     // Return the session id
     return res_packet->json()["sessionId"];
@@ -69,8 +75,16 @@ void quesync::client::modules::auth::session_auth(std::string session_id) {
 
     // Init the user from the response
     _user = std::make_shared<user>(res_packet->json()["user"]);
+
+    // Save session id
+    _session_id = session_id;
 }
 
 std::shared_ptr<quesync::user> quesync::client::modules::auth::get_user() { return _user; }
 
-void quesync::client::modules::auth::clean() { _user = nullptr; }
+std::string quesync::client::modules::auth::get_session_id() { return _session_id; }
+
+void quesync::client::modules::auth::clean() {
+    _user = nullptr;
+    _session_id = nullptr;
+}

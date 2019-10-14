@@ -17,11 +17,13 @@ class auth : public module {
     void session_auth(std::string session_id);
 
     std::shared_ptr<user> get_user();
+    std::string get_session_id();
 
     virtual void clean();
 
    private:
     std::shared_ptr<user> _user;
+    std::string _session_id;
 };
 };  // namespace modules
 };  // namespace client
