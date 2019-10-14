@@ -53,7 +53,6 @@ class communicator : public module {
     bool _connected;
     unsigned int _ping_retries;
     asio::ssl::stream<tcp::socket> *_socket;
-    asio::ssl::context _context;
 
     // Threads
     std::thread _keep_alive_thread;

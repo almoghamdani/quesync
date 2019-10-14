@@ -4,6 +4,12 @@
 
 // Declare the io context of the socket mananger since it's a static member of the class
 asio::io_context quesync::client::socket_manager::io_context;
+asio::ssl::context quesync::client::socket_manager::ssl_context(asio::ssl::context::sslv23);
+
+void quesync::client::socket_manager::init()
+{
+    ssl_context.load_verify_file("cert.pem");
+}
 
 template <typename T>
 void quesync::client::socket_manager::get_endpoint(const char *ip_address, int port, T &endpoint) {

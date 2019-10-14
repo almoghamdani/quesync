@@ -15,9 +15,7 @@
 #include "../../../../shared/utils/parser.h"
 
 quesync::client::modules::communicator::communicator(std::shared_ptr<client> client)
-    : module(client), _socket(nullptr), _context(asio::ssl::context::sslv23) {
-    _context.load_verify_file("cert.pem");
-}
+    : module(client), _socket(nullptr) {}
 
 void quesync::client::modules::communicator::clean_connection() {
     // If we currently have a socket with the server, close it and delete it
@@ -93,7 +91,8 @@ void quesync::client::modules::communicator::connect(std::string server_ip) {
 
     try {
         // Allocate a new socket
-        _socket = new asio::ssl::stream<tcp::socket>(socket_manager::io_context, _context);
+        _socket = new asio::ssl::stream<tcp::socket>(socket_manager::io_context,
+                                                     socket_manager::ssl_context);
         _socket->set_verify_mode(asio::ssl::verify_peer);
 
         // Try to connect to the server

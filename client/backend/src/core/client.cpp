@@ -6,7 +6,9 @@ quesync::client::client::client()
       _users(nullptr),
       _channels(nullptr),
       _messages(nullptr),
-      _voice(nullptr) {}
+      _voice(nullptr) {
+          socket_manager::init();
+      }
 
 void quesync::client::client::init() {
     // Init modules

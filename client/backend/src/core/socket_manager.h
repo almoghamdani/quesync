@@ -20,6 +20,9 @@ namespace client {
 class socket_manager {
    public:
     static asio::io_context io_context;
+    static asio::ssl::context ssl_context;
+
+    static void init();
 
     template <typename T>
     static void get_endpoint(const char *ip_address, int port, T &endpoint);
