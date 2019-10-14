@@ -32,6 +32,9 @@ void quesync::client::modules::communicator::clean_connection() {
     // Reset ping retries
     _ping_retries = 0;
 
+    // Reset IP
+    _server_ip = nullptr;
+
     // Call the clean callback
     _client->clean();
 }
@@ -124,6 +127,15 @@ void quesync::client::modules::communicator::connect(std::string server_ip) {
         _keep_alive_thread = std::thread(&communicator::keep_alive, this);
         _keep_alive_thread.detach();
     }
+}
+
+std::string quesync::client::modules::communicator::server_ip()
+{
+    if (_server_ip.empty()) {
+        throw exception(error::no_connection);
+    }
+
+    return _server_ip;
 }
 
 void quesync::client::modules::communicator::recv() {

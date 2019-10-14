@@ -27,6 +27,8 @@ class communicator : public module {
 
     void connect(std::string server_ip);
 
+    std::string server_ip();
+
     std::shared_ptr<response_packet> send(serialized_packet *packet);
     std::shared_ptr<response_packet> send_and_verify(serialized_packet *packet,
                                                      packet_type response_type);
