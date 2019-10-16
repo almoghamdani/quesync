@@ -20,7 +20,7 @@ class message_manager : manager {
     message_manager(std::shared_ptr<server> server);
 
     std::shared_ptr<message> send_message(std::shared_ptr<session> sess, std::string content,
-                                          std::string channel_id);
+                                          std::string attachment_id, std::string channel_id);
 
     std::vector<message> get_messages(std::shared_ptr<session> sess, std::string channel_id,
                                       unsigned int amount, unsigned int offset);

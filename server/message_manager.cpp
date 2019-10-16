@@ -14,7 +14,8 @@ quesync::server::message_manager::message_manager(std::shared_ptr<quesync::serve
     : manager(server), messages_table(server->db(), "messages") {}
 
 std::shared_ptr<quesync::message> quesync::server::message_manager::send_message(
-    std::shared_ptr<quesync::server::session> sess, std::string content, std::string channel_id) {
+    std::shared_ptr<quesync::server::session> sess, std::string content, std::string attachment_id,
+    std::string channel_id) {
     std::shared_ptr<message> message;
     std::string message_id = sole::uuid4().str();
     std::vector<std::string> channel_members;
@@ -36,18 +37,31 @@ std::shared_ptr<quesync::message> quesync::server::message_manager::send_message
         throw exception(error::not_member_of_channel);
     }
 
+    // Check if the attachment exists
+    if (!attachment_id.empty() && !_server->file_manager()->does_file_exists(attachment_id)) {
+        throw exception(error::file_not_found);
+    }
+
     try {
-        // Try to insert the new message to the database
-        messages_table.insert("id", "sender_id", "channel_id", "content")
-            .values(message_id, sess->user()->id, channel_id, content)
-            .execute();
+        // If the message has no attachment
+        if (attachment_id.empty()) {
+            // Try to insert the new message to the database
+            messages_table.insert("id", "sender_id", "channel_id", "content")
+                .values(message_id, sess->user()->id, channel_id, content)
+                .execute();
+        } else {
+            // Try to insert the new message with attachment to the database
+            messages_table.insert("id", "sender_id", "channel_id", "content", "attachment_id")
+                .values(message_id, sess->user()->id, channel_id, content, attachment_id)
+                .execute();
+        }
     } catch (...) {
         throw exception(error::unknown_error);
     }
 
     // Create the message object
     message = std::make_shared<quesync::message>(message_id, sess->user()->id, channel_id, content,
-                                                 std::time(nullptr));
+                                                 attachment_id, std::time(nullptr));
 
     // Create the event to be sent to the other online users
     message_evt = std::make_shared<events::message_event>(*message);
@@ -96,7 +110,8 @@ std::vector<quesync::message> quesync::server::message_manager::get_messages(
     try {
         // Try to get the messages from the table using the amount and offset
         res = messages_table
-                  .select("id", "sender_id", "channel_id", "content", "unix_timestamp(sent_at)")
+                  .select("id", "sender_id", "channel_id", "content", "attachment_id",
+                          "unix_timestamp(sent_at)")
                   .where("channel_id = :channel_id")
                   .orderBy("sent_at DESC")
                   .limit(amount)
@@ -111,7 +126,8 @@ std::vector<quesync::message> quesync::server::message_manager::get_messages(
     while ((row = res.fetchOne())) {
         // Create the message from the row
         messages.push_back(message((std::string)row[0], (std::string)row[1], (std::string)row[2],
-                                   (std::string)row[3], (int)row[4]));
+                                   (std::string)row[3], row[4].isNull() ? "" : (std::string)row[4],
+                                   (int)row[5]));
     }
 
     return messages;

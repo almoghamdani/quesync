@@ -109,6 +109,15 @@ void quesync::server::file_manager::init_download_file(
     _users_file_sessions[sess->user()->id]->add_download_file(file);
 }
 
+bool quesync::server::file_manager::does_file_exists(std::string file_id) {
+    try {
+        // Check if the file exists
+        return files_table.select("1").where("id = :id").bind("id", file_id).execute().count();
+    } catch (...) {
+        return false;
+    }
+}
+
 std::shared_ptr<quesync::file> quesync::server::file_manager::get_file_info(std::string file_id) {
     std::shared_ptr<file> file;
 

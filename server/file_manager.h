@@ -37,6 +37,7 @@ class file_manager : manager {
                                            std::string name, unsigned long long size);
     void init_download_file(std::shared_ptr<quesync::server::session> sess, std::string file_id);
 
+    bool does_file_exists(std::string file_id);
     std::shared_ptr<file> get_file_info(std::string file_id);
 
     std::unordered_map<unsigned long long, file_chunk> get_file_chunks(std::string file_id);

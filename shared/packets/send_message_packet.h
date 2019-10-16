@@ -11,15 +11,18 @@ namespace quesync {
 namespace packets {
 class send_message_packet : public serialized_packet {
    public:
-    send_message_packet() : send_message_packet("", ""){};
+    send_message_packet() : send_message_packet("", "", ""){};
 
-    send_message_packet(std::string content, std::string channel_id)
+    send_message_packet(std::string content, std::string attachment_id, std::string channel_id)
         : serialized_packet(packet_type::send_message_packet) {
         _data["content"] = content;
+        _data["attachmentId"] = attachment_id;
         _data["channelId"] = channel_id;
     };
 
-    virtual bool verify() const { return exists("content") && exists("channelId"); };
+    virtual bool verify() const {
+        return exists("content") && exists("attachmentId") && exists("channelId");
+    };
 
 // A handle function for the server
 #ifdef QUESYNC_SERVER
@@ -34,7 +37,7 @@ class send_message_packet : public serialized_packet {
         try {
             // Try to send the message to the channel
             message = session->server()->message_manager()->send_message(
-                session->get_shared(), _data["content"], _data["channelId"]);
+                session->get_shared(), _data["content"], _data["attachmentId"], _data["channelId"]);
 
             // Return response packet with the message id
             return response_packet(packet_type::message_id_packet,
