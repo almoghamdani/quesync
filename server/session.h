@@ -31,6 +31,7 @@ class session : public std::enable_shared_from_this<session> {
     std::shared_ptr<quesync::server::server> _server;
 
     asio::ssl::stream<tcp::socket> _socket;
+    tcp::endpoint _endpoint;
 
     void handshake();
     void recv();

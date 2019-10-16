@@ -10,8 +10,9 @@
 
 quesync::server::session::session(tcp::socket socket, asio::ssl::context &context,
                                   std::shared_ptr<quesync::server::server> server)
-    : _socket(std::move(socket), context),  // Copy the client's socket
-      _server(server),                      // Save the server for data transfer,
+    : _socket(std::move(socket), context),                  // Copy the client's socket
+      _endpoint(_socket.lowest_layer().remote_endpoint()),  // Save the client's endpoint for errors
+      _server(server),                                      // Save the server for data transfer,
       _user(nullptr) {}
 
 quesync::server::session::~session() {
@@ -99,8 +100,7 @@ void quesync::server::session::recv() {
                         send(header_str + response);
                     } else {
                         std::cout << termcolor::magenta << "The client "
-                                  << _socket.lowest_layer().remote_endpoint().address().to_string()
-                                  << ":" << (int)_socket.lowest_layer().remote_endpoint().port()
+                                  << _endpoint.address().to_string() << ":" << (int)_endpoint.port()
                                   << " disconnected!" << termcolor::reset << std::endl;
                     }
                 });
@@ -121,11 +121,10 @@ void quesync::server::session::send(std::string data) {
                           if (!ec) {
                               recv();
                           } else {
-                              std::cout
-                                  << termcolor::magenta << "The client "
-                                  << _socket.lowest_layer().remote_endpoint().address().to_string()
-                                  << ":" << (int)_socket.lowest_layer().remote_endpoint().port()
-                                  << " disconnected!" << termcolor::reset << std::endl;
+                              std::cout << termcolor::magenta << "The client "
+                                        << _endpoint.address().to_string() << ":"
+                                        << (int)_endpoint.port() << " disconnected!"
+                                        << termcolor::reset << std::endl;
                           }
                       });
 }
