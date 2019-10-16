@@ -20,6 +20,9 @@ enum class packet_type {
     leave_call_packet,
     set_voice_state_packet,
     get_channel_calls_packet,
+    upload_file_packet,
+    download_file_packet,
+    get_file_info_packet,
 
     // Respones
     authenticated_packet = 200,
@@ -35,6 +38,9 @@ enum class packet_type {
     call_left_packet,
     voice_state_set_packet,
     channel_calls_packet,
+    file_upload_initiated_packet,
+    file_download_initiated_packet,
+    file_info_packet,
 
     // On error
     error_packet = 400,

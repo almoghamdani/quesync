@@ -10,6 +10,7 @@ namespace sql = mysqlx;
 
 #include "channel_manager.h"
 #include "event_manager.h"
+#include "file_manager.h"
 #include "message_manager.h"
 #include "session_manager.h"
 #include "user_manager.h"
@@ -29,6 +30,7 @@ class server : public std::enable_shared_from_this<server> {
     void start();
 
     asio::io_context &get_io_context();
+    asio::ssl::context &get_ssl_context();
 
     std::shared_ptr<user_manager> user_manager();
     std::shared_ptr<event_manager> event_manager();
@@ -36,6 +38,7 @@ class server : public std::enable_shared_from_this<server> {
     std::shared_ptr<message_manager> message_manager();
     std::shared_ptr<session_manager> session_manager();
     std::shared_ptr<voice_manager> voice_manager();
+    std::shared_ptr<file_manager> file_manager();
 
     sql::Schema &db();
 
@@ -52,6 +55,7 @@ class server : public std::enable_shared_from_this<server> {
     std::shared_ptr<quesync::server::message_manager> _message_manager;
     std::shared_ptr<quesync::server::session_manager> _session_manager;
     std::shared_ptr<quesync::server::voice_manager> _voice_manager;
+    std::shared_ptr<quesync::server::file_manager> _file_manager;
 
     void accept_client();
 };

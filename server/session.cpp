@@ -20,6 +20,9 @@ quesync::server::session::~session() {
         // Unauthenticate session and free the user object
         _server->user_manager()->unauthenticate_session(_user->id);
 
+        // Remove any memory files created by the user
+        _server->file_manager()->clear_all_user_memory_files(_user->id);
+
         try {
             // Leave any voice channel that the user is in
             _server->voice_manager()->leave_voice_channel(_user->id);
@@ -95,11 +98,10 @@ void quesync::server::session::recv() {
                         // Send the header + server's response to the server
                         send(header_str + response);
                     } else {
-                        std::cout
-                                << termcolor::magenta << "The client "
-                                << _socket.lowest_layer().remote_endpoint().address().to_string()
-                                << ":" << (int)_socket.lowest_layer().remote_endpoint().port()
-                                << " disconnected!" << termcolor::reset << std::endl;
+                        std::cout << termcolor::magenta << "The client "
+                                  << _socket.lowest_layer().remote_endpoint().address().to_string()
+                                  << ":" << (int)_socket.lowest_layer().remote_endpoint().port()
+                                  << " disconnected!" << termcolor::reset << std::endl;
                     }
                 });
         });
@@ -113,20 +115,19 @@ void quesync::server::session::send(std::string data) {
     memcpy(buf.get(), data.data(), data.length());
 
     // Send the data to the client
-    asio::async_write(
-        _socket, asio::buffer(buf.get(), data.length()),
-        [this, self, buf](std::error_code ec, std::size_t) {
-            // If no error occurred, return to the receiving function
-            if (!ec) {
-                recv();
-            } else {
-                std::cout
-                                << termcolor::magenta << "The client "
-                                << _socket.lowest_layer().remote_endpoint().address().to_string()
-                                << ":" << (int)_socket.lowest_layer().remote_endpoint().port()
-                                << " disconnected!" << termcolor::reset << std::endl;
-            }
-        });
+    asio::async_write(_socket, asio::buffer(buf.get(), data.length()),
+                      [this, self, buf](std::error_code ec, std::size_t) {
+                          // If no error occurred, return to the receiving function
+                          if (!ec) {
+                              recv();
+                          } else {
+                              std::cout
+                                  << termcolor::magenta << "The client "
+                                  << _socket.lowest_layer().remote_endpoint().address().to_string()
+                                  << ":" << (int)_socket.lowest_layer().remote_endpoint().port()
+                                  << " disconnected!" << termcolor::reset << std::endl;
+                          }
+                      });
 }
 
 void quesync::server::session::send_only(std::string data) {

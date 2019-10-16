@@ -35,6 +35,7 @@ void quesync::server::server::start() {
     _message_manager = std::make_shared<quesync::server::message_manager>(shared_from_this());
     _session_manager = std::make_shared<quesync::server::session_manager>(shared_from_this());
     _voice_manager = std::make_shared<quesync::server::voice_manager>(shared_from_this());
+    _file_manager = std::make_shared<quesync::server::file_manager>(shared_from_this());
 
     std::cout << termcolor::cyan << "Listening for TCP connections.." << termcolor::reset
               << std::endl;
@@ -45,6 +46,11 @@ void quesync::server::server::start() {
 
 asio::io_context &quesync::server::server::get_io_context() {
     return (asio::io_context &)_acceptor.get_executor().context();
+}
+
+asio::ssl::context &quesync::server::server::get_ssl_context()
+{
+    return _context;
 }
 
 void quesync::server::server::accept_client() {
@@ -92,6 +98,10 @@ std::shared_ptr<quesync::server::session_manager> quesync::server::server::sessi
 
 std::shared_ptr<quesync::server::voice_manager> quesync::server::server::voice_manager() {
     return _voice_manager;
+}
+
+std::shared_ptr<quesync::server::file_manager> quesync::server::server::file_manager() {
+    return _file_manager;
 }
 
 sql::Schema &quesync::server::server::db() { return _db; }

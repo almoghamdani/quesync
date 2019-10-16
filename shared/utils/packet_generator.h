@@ -23,6 +23,9 @@
 #include "../packets/send_message_packet.h"
 #include "../packets/session_auth_packet.h"
 #include "../packets/set_voice_state_packet.h"
+#include "../packets/upload_file_packet.h"
+#include "../packets/download_file_packet.h"
+#include "../packets/get_file_info_packet.h"
 
 #define PACKET_ENTRY(packet_name) \
     { packet_type::packet_name, &packet_generator::init_packet<packets::packet_name> }
@@ -72,6 +75,9 @@ class packet_generator {
                               PACKET_ENTRY(leave_call_packet),
                               PACKET_ENTRY(set_voice_state_packet),
                               PACKET_ENTRY(get_channel_calls_packet),
+                              PACKET_ENTRY(upload_file_packet),
+                              PACKET_ENTRY(download_file_packet),
+                              PACKET_ENTRY(get_file_info_packet),
                               PACKET_ENTRY(event_packet),
                               PACKET_ENTRY(error_packet),
                               RESPONSE_PACKET_ENTRY(authenticated_packet),
@@ -87,6 +93,9 @@ class packet_generator {
                               RESPONSE_PACKET_ENTRY(call_left_packet),
                               RESPONSE_PACKET_ENTRY(voice_state_set_packet),
                               RESPONSE_PACKET_ENTRY(channel_calls_packet),
+                              RESPONSE_PACKET_ENTRY(file_upload_initiated_packet),
+                              RESPONSE_PACKET_ENTRY(file_download_initiated_packet),
+                              RESPONSE_PACKET_ENTRY(file_info_packet),
                               RESPONSE_PACKET_ENTRY(pong_packet)};
 };
 };  // namespace utils

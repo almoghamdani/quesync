@@ -29,6 +29,13 @@ enum class error {
     invalid_session,
     voice_not_connected,
     call_already_started,
-    invalid_event
+    invalid_event,
+    file_size_exceeded_max,
+    empty_file,
+    file_not_found,
+    not_file_owner,
+    file_session_not_connected,
+    file_already_downloading,
+    invalid_download_file_path
 };
 };

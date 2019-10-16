@@ -16,6 +16,19 @@ class memory {
 
         return buf;
     }
+
+    template <typename T>
+    static std::string merge_buffers(std::vector<std::shared_ptr<T>> vec, int buf_size) {
+        std::shared_ptr<unsigned char> buf(new unsigned char[vec.size() * buf_size]);
+
+        // Copy the buffers to the buffer
+        for (int i = 0; i < vec.size(); i++) 
+        {
+            memcpy(buf.get() + i * buf_size, vec[i].get(), buf_size);
+        }
+
+        return std::string((char *)buf.get(), vec.size() * buf_size);
+    }
 };
 };  // namespace utils
 };  // namespace quesync
