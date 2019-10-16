@@ -15,7 +15,8 @@ const std::unordered_map<event_type, std::string> event_names{
     {event_type::incoming_call_event, "incoming-call"},
     {event_type::voice_state_event, "voice-state"},
     {event_type::voice_activity_event, "voice-activity"},
-    {event_type::call_ended_event, "call-ended"}};
+    {event_type::call_ended_event, "call-ended"},
+    {event_type::file_transmission_progress_event, "file-transmission-progress"}};
 };
 };  // namespace client
 };  // namespace quesync
