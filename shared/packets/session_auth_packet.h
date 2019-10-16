@@ -18,6 +18,10 @@ class session_auth_packet : public serialized_packet {
         _data["sessionId"] = session_id;
     };
 
+    std::string session_id() {
+        return _data["sessionId"];
+    }
+
     virtual bool verify() const { return exists("sessionId"); };
 
 // A handle function for the server
