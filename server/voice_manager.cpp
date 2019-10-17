@@ -451,9 +451,14 @@ quesync::call quesync::server::voice_manager::create_call(std::string caller_id,
 void quesync::server::voice_manager::add_participant_to_call(std::string channel_id,
                                                              std::string participant_id) {
     try {
-        // Try to insert the participant to the call participants table
-        call_participants_table.insert("call_id", "participant_id")
-            .values(_voice_channels[channel_id]->call.id, participant_id)
+        // Try to insert the participant to the call participants table (ignore if already exists)
+        _server->db()
+            .getSession()
+            .sql(
+                "INSERT IGNORE INTO quesync.call_participants(call_id, participant_id) VALUES(?, "
+                "?)")
+            .bind(_voice_channels[channel_id]->call.id)
+            .bind(participant_id)
             .execute();
     } catch (...) {
         throw exception(error::unknown_error);
