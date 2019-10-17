@@ -46,10 +46,17 @@ export function setVoiceState(client, mute, deafen) {
 	};
 }
 
-export function setActiveCall(call) {
+export function addIncomingCall(call) {
 	return {
-		type: "SET_ACTIVE_CALL",
+		type: "ADD_INCOMING_CALL",
 		payload: call
+	};
+}
+
+export function setActiveCallInChannel(channelId) {
+	return {
+		type: "SET_ACTIVE_CALL_IN_CHANNEL",
+		payload: channelId
 	};
 }
 

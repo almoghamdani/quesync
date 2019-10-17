@@ -10,7 +10,7 @@ import {
 	updateVoiceState,
 	updateVoiceActivationState,
 	removeActiveCall,
-	setActiveCall
+	addIncomingCall
 } from "./actions/voiceActions";
 
 import updater from "./updater";
@@ -214,7 +214,7 @@ class EventHandler {
 		const channel = channels[channelId];
 
 		// Set the channel as an active call
-		store.dispatch(setActiveCall(call));
+		store.dispatch(addIncomingCall(call));
 
 		// If the channel exists
 		if (channel) {

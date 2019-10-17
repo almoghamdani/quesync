@@ -51,10 +51,10 @@ export default function reducer(
 				delete call.channelId;
 
 				// Add the call to the array
-				channelCalls.push(call)
+				channelCalls.push(call);
 
 				// Sort the channel calls array
-				channelCalls.sort(callsSort)
+				channelCalls.sort(callsSort);
 
 				return {
 					...state,
@@ -143,7 +143,7 @@ export default function reducer(
 				deafen: action.payload.voiceState.deafen
 			};
 
-		case "SET_ACTIVE_CALL":
+		case "SET_ACTIVE_CALL_IN_CHANNEL":
 			{
 				const channelId = action.payload;
 
@@ -153,12 +153,36 @@ export default function reducer(
 				};
 			}
 
-		case "REMOVE_ACTIVE_CALL": {
-			const activeCalls = [...state.activeCalls].filter(
-				channel => channel !== action.payload
-			);
+		case "ADD_INCOMING_CALL":
+			{
+				const call = { ...action.payload };
+				const channelId = call.channelId;
 
+				const oldChannelCalls = state.calls[channelId] ? state.calls[channelId] : [];
+				let channelCalls = [...oldChannelCalls];
+
+				// Delete the channel id from the call
+				delete call.channelId;
+
+				// Add the call to the array
+				channelCalls.push(call)
+
+				// Sort the channel calls array
+				channelCalls.sort(callsSort)
+
+				return {
+					...state,
+					calls: { ...state.calls, [channelId]: channelCalls },
+					activeCalls: [...state.activeCalls, channelId]
+				};
+			}
+
+		case "REMOVE_ACTIVE_CALL": {
 			const channelId = action.payload;
+
+			const activeCalls = [...state.activeCalls].filter(
+				channel => channel !== channelId
+			);
 
 			const oldChannelCalls = state.calls[channelId] ? state.calls[channelId] : [];
 			let channelCalls = [...oldChannelCalls];
@@ -177,9 +201,14 @@ export default function reducer(
 			{
 				const channelId = action.payload.channelId;
 
+				let channelCalls = [...action.payload.calls];
+
+				// Sort the channel calls array
+				channelCalls.sort(callsSort);
+
 				return {
 					...state,
-					calls: { ...state.calls, [channelId]: action.payload.calls }
+					calls: { ...state.calls, [channelId]: channelCalls }
 				}
 			}
 

@@ -4,7 +4,7 @@ import { sendFriendRequest } from "./actions/userActions";
 import { getChannelMessages } from "./actions/messagesActions";
 import { getPrivateChannel } from "./actions/channelsActions";
 import { fetchUserProfile } from "./actions/usersActions";
-import { setActiveCall, getChannelCalls } from "./actions/voiceActions";
+import { setActiveCallInChannel, getChannelCalls } from "./actions/voiceActions";
 import { resetUI } from "./actions/uiActions";
 
 import Logger from "./logger";
@@ -88,7 +88,7 @@ class Updater {
 
 						// If a call is active in the channel
 						if (callActive) {
-							store.dispatch(setActiveCall(channelId));
+							store.dispatch(setActiveCallInChannel(channelId));
 						}
 
 						// Update the channel
