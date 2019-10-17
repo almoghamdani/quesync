@@ -86,5 +86,5 @@ std::string quesync::client::modules::auth::get_session_id() { return _session_i
 
 void quesync::client::modules::auth::clean() {
     _user = nullptr;
-    _session_id = nullptr;
+    _session_id = "";
 }

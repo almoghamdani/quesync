@@ -33,7 +33,7 @@ void quesync::client::modules::communicator::clean_connection() {
     _ping_retries = 0;
 
     // Reset IP
-    _server_ip = nullptr;
+    _server_ip = "";
 
     // Call the clean callback
     _client->clean();
