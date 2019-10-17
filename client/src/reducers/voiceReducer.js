@@ -145,24 +145,10 @@ export default function reducer(
 
 		case "SET_ACTIVE_CALL":
 			{
-				const call = { ...action.payload };
-				const channelId = call.channelId;
-
-				const oldChannelCalls = state.calls[channelId] ? state.calls[channelId] : [];
-				let channelCalls = [...oldChannelCalls];
-
-				// Delete the channel id from the call
-				delete call.channelId;
-
-				// Add the call to the array
-				channelCalls.push(call)
-
-				// Sort the channel calls array
-				channelCalls.sort(callsSort)
+				const channelId = action.payload;
 
 				return {
 					...state,
-					calls: { ...state.calls, [channelId]: channelCalls },
 					activeCalls: [...state.activeCalls, channelId]
 				};
 			}
