@@ -69,6 +69,9 @@ class RegisterForm extends Component {
 		// Prevent the default load of the form
 		event.preventDefault();
 
+		// Blur all elements to prevent further input
+		if (document && document.activeElement) document.activeElement.blur();
+
 		// Reset errors
 		this.setState({
 			usernameError: false,
@@ -169,13 +172,15 @@ class RegisterForm extends Component {
 				style={{
 					opacity: "0",
 					pointerEvents: this.props.interactable ? "" : "none"
-				}}>
+				}}
+			>
 				<Typography
 					use="headline2"
 					style={{
 						color: "var(--mdc-theme-primary)",
 						userSelect: "none"
-					}}>
+					}}
+				>
 					Register
 				</Typography>
 				<div className="quesync-error-holder">
@@ -187,7 +192,8 @@ class RegisterForm extends Component {
 							userSelect: "none",
 							whiteSpace: "pre-line",
 							lineHeight: "12px"
-						}}>
+						}}
+					>
 						{this.formatError(this.props.error)}
 					</Typography>
 				</div>
@@ -231,7 +237,8 @@ class RegisterForm extends Component {
 					type="submit"
 					raised
 					style={{ marginTop: "25px", width: "300px" }}
-					theme={["secondary"]}>
+					theme={["secondary"]}
+				>
 					Register
 				</Button>
 				<Button
@@ -242,7 +249,8 @@ class RegisterForm extends Component {
 						width: "300px",
 						background: "#00A8E8"
 					}}
-					onClick={this.haveAccountBtnClicked}>
+					onClick={this.haveAccountBtnClicked}
+				>
 					Already have an account?
 				</Button>
 			</form>

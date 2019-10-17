@@ -63,6 +63,9 @@ class LoginForm extends Component {
 		// Prevent the default load of the form
 		event.preventDefault();
 
+		// Blur all elements to prevent further input
+		if (document && document.activeElement) document.activeElement.blur();
+
 		// Reset errors
 		this.setState({
 			usernameError: false,
@@ -127,13 +130,15 @@ class LoginForm extends Component {
 				className={"quesync-form " + formClass}
 				ref="form"
 				style={{ pointerEvents: this.props.interactable ? "" : "none" }}
-				onSubmit={this.loginBtnClicked}>
+				onSubmit={this.loginBtnClicked}
+			>
 				<Typography
 					use="headline2"
 					style={{
 						color: "var(--mdc-theme-primary)",
 						userSelect: "none"
-					}}>
+					}}
+				>
 					Login
 				</Typography>
 				<div className="quesync-error-holder">
@@ -145,7 +150,8 @@ class LoginForm extends Component {
 							userSelect: "none",
 							whiteSpace: "pre-line",
 							lineHeight: "12px"
-						}}>
+						}}
+					>
 						{this.formatError(this.props.error)}
 					</Typography>
 				</div>
@@ -168,7 +174,8 @@ class LoginForm extends Component {
 					type="submit"
 					raised
 					style={{ marginTop: "35px", width: "300px" }}
-					theme={["secondary"]}>
+					theme={["secondary"]}
+				>
 					Login
 				</Button>
 				<Button
@@ -179,7 +186,8 @@ class LoginForm extends Component {
 						width: "300px",
 						background: "#00A8E8"
 					}}
-					onClick={this.registerBtnClicked}>
+					onClick={this.registerBtnClicked}
+				>
 					Don't have an account yet?
 				</Button>
 			</form>
