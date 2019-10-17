@@ -59,8 +59,8 @@ std::shared_ptr<quesync::file> quesync::server::file_manager::init_upload_file(
     }
 
     // Create the memory file object
-    file = std::make_shared<quesync::file>(file_id, sess->user()->id, name, size,
-                                           std::time_t(nullptr));
+    file =
+        std::make_shared<quesync::file>(file_id, sess->user()->id, name, size, std::time(nullptr));
 
     // Add the file to upload
     _users_file_sessions[sess->user()->id]->add_upload_file(file);

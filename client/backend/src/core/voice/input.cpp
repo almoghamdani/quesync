@@ -9,6 +9,8 @@
 #include "../../../shared/packets/voice_packet.h"
 #include "../../../shared/utils/encryption.h"
 
+#undef max // Fix a conflict with windows.h's max macro
+
 quesync::client::voice::input::input(std::shared_ptr<manager> manager)
     : _manager(manager), _enabled(false), _muted(false) {
     int opus_error = 0;

@@ -12,7 +12,6 @@ class client : public Napi::ObjectWrap<client> {
    public:
     static Napi::Object init(Napi::Env env, Napi::Object exports);
     client(const Napi::CallbackInfo &info);
-    ~client();
 
     Napi::Value connect(const Napi::CallbackInfo &info);
     Napi::Value register_event_handler(const Napi::CallbackInfo &info);

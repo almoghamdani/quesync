@@ -30,14 +30,12 @@ class event_generator {
 
     template <typename T>
     static std::shared_ptr<event> init_event() {
-		return std::shared_ptr<event>(new T);
+        return std::shared_ptr<event>(new T);
     }
 
    private:
-    inline static const std::unordered_map<event_type, std::function<std::shared_ptr<event>()>>
-        event_initalizers = {EVENT_ENTRY(call_ended_event),        EVENT_ENTRY(incoming_call_event),
-                             EVENT_ENTRY(friend_request_event),    EVENT_ENTRY(message_event),
-                             EVENT_ENTRY(friendship_status_event), EVENT_ENTRY(voice_state_event)};
+    static const std::unordered_map<event_type, std::function<std::shared_ptr<event>()>>
+        event_initalizers;
 };
 };  // namespace utils
 };  // namespace quesync
