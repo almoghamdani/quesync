@@ -1,9 +1,11 @@
+const INITIAL_STATE = {
+	channels: {},
+	privateChannels: {},
+	error: null
+};
+
 export default function reducer(
-	state = {
-		channels: {},
-		privateChannels: {},
-		error: null
-	},
+	state = INITIAL_STATE,
 	action
 ) {
 	switch (action.type) {
@@ -21,6 +23,10 @@ export default function reducer(
 			delete channel.id;
 
 			return { ...state, privateChannels: { ...state.privateChannels, [action.payload.userId]: id }, channels: { ...state.channels, [id]: channel } };
+
+		case "LOGOUT_FULFILLED":
+		case "LOGOUT_REJECTED":
+			return INITIAL_STATE;
 
 		default:
 			return state;

@@ -15,6 +15,8 @@ export default function reducer(
 			return { ...state, selectedFriendsPageDrawerItemId: action.payload };
 
 		case "RESET_UI":
+		case "LOGOUT_FULFILLED":
+		case "LOGOUT_REJECTED":
 			return INITIAL_STATE;
 
 		default:

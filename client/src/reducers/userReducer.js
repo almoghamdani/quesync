@@ -1,18 +1,22 @@
+const INITIAL_STATE = {
+	authenticating: false,
+	user: null,
+	authError: 0
+};
+
 export default function reducer(
-	state = {
-		authenticating: false,
-		user: null,
-		authError: 0
-	},
+	state = INITIAL_STATE,
 	action
 ) {
 	switch (action.type) {
 		case "USER_REGISTER_PENDING":
 		case "USER_LOGIN_PENDING":
+		case "SESSION_AUTH_PENDING":
 			return { ...state, authError: 0 };
 
 		case "USER_REGISTER_REJECTED":
 		case "USER_LOGIN_REJECTED":
+		case "SESSION_AUTH_REJECTED":
 			return { ...state, authError: action.payload.error };
 
 		case "USER_REGISTER_FULFILLED":
@@ -20,6 +24,9 @@ export default function reducer(
 		case "SESSION_AUTH_FULFILLED":
 		case "USER_SET":
 			return { ...state, user: action.payload.user };
+
+		case "LOGOUT_FULFILLED":
+			return { ...state, user: null };
 
 		case "AUTH_STARTED":
 			return { ...state, authenticating: true };
@@ -87,6 +94,10 @@ export default function reducer(
 				...state,
 				authError: 0
 			};
+
+		case "LOGOUT_FULFILLED":
+		case "LOGOUT_REJECTED":
+			return INITIAL_STATE;
 
 		default:
 			return state;

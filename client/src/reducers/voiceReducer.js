@@ -7,19 +7,20 @@ const callsSort = (a, b) => {
 		return 0;
 }
 
+const INITIAL_STATE = {
+	channelId: null,
+	callJoinDate: null,
+	calls: {},
+	activeCalls: [],
+	voiceStates: {},
+	voiceActivations: {},
+	muted: false,
+	deafen: false,
+	error: null
+};
 
 export default function reducer(
-	state = {
-		channelId: null,
-		callJoinDate: null,
-		calls: {},
-		activeCalls: [],
-		voiceStates: {},
-		voiceActivations: {},
-		muted: false,
-		deafen: false,
-		error: null
-	},
+	state = INITIAL_STATE,
 	action
 ) {
 	switch (action.type) {
@@ -66,7 +67,6 @@ export default function reducer(
 				};
 			}
 
-
 		case "JOIN_CALL_FULFILLED":
 			{
 				const channelId = action.payload.channelId;
@@ -85,7 +85,6 @@ export default function reducer(
 					callJoinDate: Math.floor(Date.now() / 1000) - 1
 				};
 			}
-
 
 		case "LEAVE_CALL_FULFILLED":
 			const channelId = state.channelId;
@@ -211,6 +210,10 @@ export default function reducer(
 					calls: { ...state.calls, [channelId]: channelCalls }
 				}
 			}
+
+		case "LOGOUT_FULFILLED":
+		case "LOGOUT_REJECTED":
+			return INITIAL_STATE;
 
 		default:
 			return state;

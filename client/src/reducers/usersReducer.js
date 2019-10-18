@@ -1,11 +1,13 @@
+const INITIAL_STATE = {
+	profiles: {},
+	searchResults: [],
+	searching: false,
+	error: null,
+	searchError: null
+};
+
 export default function reducer(
-	state = {
-		profiles: {},
-		searchResults: [],
-		searching: false,
-		error: null,
-		searchError: null
-	},
+	state = INITIAL_STATE,
 	action
 ) {
 	switch (action.type) {
@@ -32,6 +34,10 @@ export default function reducer(
 
 		case "SEARCH_USER_FULFILLED":
 			return { ...state, searchResults: action.payload.searchResults, searching: false }
+
+		case "LOGOUT_FULFILLED":
+		case "LOGOUT_REJECTED":
+			return INITIAL_STATE;
 
 		default:
 			return state;

@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import LoginForm from "./components/login_form";
 import RegisterForm from "./components/register_form";
 import BackgroundParticles from "./components/background_particles";
-import App from "./app";
 
 import { ThemeProvider } from "@rmwc/theme";
 import { Typography } from "@rmwc/typography";
@@ -12,7 +11,12 @@ import { Elevation } from "@rmwc/elevation";
 import { CircularProgress } from "@rmwc/circular-progress";
 import anime from "animejs/lib/anime.es.js";
 
-import { sessionAuth, setUser, resetAuthError } from "./actions/userActions";
+import {
+	sessionAuth,
+	setUser,
+	logout,
+	resetAuthError
+} from "./actions/userActions";
 
 import updater from "./updater";
 
@@ -25,52 +29,69 @@ class StartPage extends Component {
 		registerVisible: false
 	};
 
-	componentDidMount() {
+	async componentDidMount() {
 		// Set the app as loading
 		this.startLoadingAnimation(null, LoginForm, false);
 
-		// Try to conenct to the server
-		this.connectRepeat(this.props.client, "127.0.0.1", async () => {
-			var user = null;
-			var sessionId = localStorage.getItem("_qpsid");
+		// If the user wants to logout
+		if (this.props.logout) {
+			// Wait for the transition to finish and then logout
+			setTimeout(() => {
+				// Remove the session id
+				localStorage.removeItem("_qpsid");
 
-			// If the client is already authenticated, continue to the application
-			if ((user = this.props.client.auth().getUser())) {
-				// Set user
-				this.props.dispatch(setUser(user));
-
-				// Update user's data
-				await updater.update();
-
-				// Transition to app
-				this.transitionToApp();
-			} else if (sessionId && sessionId.length) {
-				// Try to connect via the session
-				await this.props
-					.dispatch(sessionAuth(this.props.client, sessionId))
-					.then(async () => {
-						console.log(1)
-
-						// Update user's data
-						await updater.update();
-
-						// Transition to app
-						this.transitionToApp();
-					})
-					.catch((ex) => {
-						console.log(ex)
-
-						// Remove the invalid session id
-						localStorage.removeItem("_qpsid");
-
+				// Logout
+				this.props
+					.dispatch(logout(this.props.client))
+					.then(() =>
 						// Stop the loading animation
-						this.stopLoadingAnimation(null, LoginForm);
-					});
-			} else {
-				// Stop the loading animation when connection is successful
-				this.stopLoadingAnimation(null, LoginForm);
-			}
-		});
+						this.stopLoadingAnimation(null, LoginForm)
+					)
+					.catch(() =>
+						// Stop the loading animation
+						this.stopLoadingAnimation(null, LoginForm)
+					);
+			}, 1000);
+		} else {
+			// Try to conenct to the server
+			this.connectRepeat(this.props.client, "127.0.0.1", async () => {
+				var user = null;
+				var sessionId = localStorage.getItem("_qpsid");
+
+				// If the client is already authenticated, continue to the application
+				if ((user = this.props.client.auth().getUser())) {
+					// Set user
+					this.props.dispatch(setUser(user));
+
+					// Update user's data
+					await updater.update();
+
+					// Transition to app
+					this.transitionToApp();
+				} else if (sessionId && sessionId.length) {
+					// Try to connect via the session
+					await this.props
+						.dispatch(sessionAuth(this.props.client, sessionId))
+						.then(async () => {
+							// Update user's data
+							await updater.update();
+
+							// Transition to app
+							this.transitionToApp();
+						})
+						.catch(() => {
+							// Remove the invalid session id
+							localStorage.removeItem("_qpsid");
+
+							// Stop the loading animation
+							this.stopLoadingAnimation(null, LoginForm);
+						});
+				} else {
+					// Stop the loading animation when connection is successful
+					this.stopLoadingAnimation(null, LoginForm);
+				}
+			});
+		}
 	}
 
 	connectRepeat = async (client, ip, callback) => {
@@ -201,7 +222,7 @@ class StartPage extends Component {
 			delay: 250,
 			complete: () => {
 				// Animate to the app
-				this.props.animateTo(<App />);
+				this.props.transitionToApp();
 			}
 		});
 
@@ -278,7 +299,8 @@ class StartPage extends Component {
 			<ThemeProvider
 				className="quesync-start-page"
 				options={{ primary: "#007EA7", secondary: "#e0e0e0" }}
-				style={{ position: "relative", top: 0, left: 0 }}>
+				style={{ position: "relative", top: 0, left: 0 }}
+			>
 				<BackgroundParticles
 					style={{
 						position: "absolute",
@@ -296,11 +318,13 @@ class StartPage extends Component {
 								? "quesync-login-form-transition"
 								: "quesync-register-form-transition")
 						}
-						ref="transition">
+						ref="transition"
+					>
 						<Typography
 							className="quesync-transition-title"
 							use="headline2"
-							style={{ color: "white", userSelect: "none", opacity: "1" }}>
+							style={{ color: "white", userSelect: "none", opacity: "1" }}
+						>
 							Quesync
 						</Typography>
 					</div>
@@ -308,13 +332,15 @@ class StartPage extends Component {
 				<Elevation
 					className="quesync-start-menu"
 					z="8"
-					style={{ pointerEvents: this.props.authenticating ? "none" : "" }}>
+					style={{ pointerEvents: this.props.authenticating ? "none" : "" }}
+				>
 					<div className="quesync-form-side quesync-title" />
 					<div className="quesync-form-side quesync-title quesync-title-moving">
 						<Typography
 							className="quesync-title-text"
 							use="headline2"
-							style={{ color: "white", userSelect: "none", marginTop: "55px" }}>
+							style={{ color: "white", userSelect: "none", marginTop: "55px" }}
+						>
 							Quesync
 						</Typography>
 						<CircularProgress
@@ -328,7 +354,8 @@ class StartPage extends Component {
 						style={{
 							width: LoginForm.width + "rem",
 							height: LoginForm.height + "rem"
-						}}>
+						}}
+					>
 						<LoginForm
 							startLoadingAnimation={this.startLoadingAnimation}
 							stopLoadingAnimation={this.stopLoadingAnimation}

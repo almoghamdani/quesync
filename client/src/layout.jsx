@@ -1,10 +1,13 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
 
-import "./layout.scss";
+import App from "./app";
+import StartPage from "./start_page";
 
 import { IconButton } from "@rmwc/icon-button";
-import anime from "animejs/lib/anime.es.js";
+
+import FadeTransition from "./components/fade_transition";
+
+import "./layout.scss";
 
 const os = window.require("os");
 const electron = window.require("electron");
@@ -12,22 +15,9 @@ const BrowserWindow = electron.remote.BrowserWindow;
 
 class Layout extends Component {
 	state = {
-		child: null,
-		newChild: null
+		inStartPage: true,
+		logout: false
 	};
-
-	constructor(props) {
-		super(props);
-
-		// Create ref to the current child
-		this.childRef = React.createRef();
-
-		// Add the animateTo prop to the child
-		this.state.child = React.cloneElement(props.child, {
-			animateTo: this.animateToNewChild,
-			ref: this.childRef
-		});
-	}
 
 	close() {
 		// Blur active element
@@ -58,60 +48,6 @@ class Layout extends Component {
 		currentWindow.minimize();
 	}
 
-	animateToNewChild = child => {
-		var newChildRef = React.createRef();
-
-		// Set opacity as 0
-		child = React.cloneElement(child, {
-			style: { opacity: 0 },
-			ref: newChildRef,
-			animateTo: this.animateToNewChild
-		});
-
-		// Render the new child
-		this.setState({
-			newChild: child
-		});
-
-		// Create timeline for the fade animation
-		var timeline = anime.timeline({
-			duration: 800,
-			easing: "easeInOutCirc",
-			delay: 250,
-			complete: () => {
-				// Re-clone the element with the new ref and opacity 1
-				child = React.cloneElement(child, {
-					style: { opacity: 1 },
-					ref: this.childRef
-				});
-
-				// Remove the current child and add the new child
-				this.setState({
-					child: child,
-					newChild: null
-				});
-			}
-		});
-
-		// Fade out the current child
-		timeline.add(
-			{
-				targets: ReactDOM.findDOMNode(this.childRef.current),
-				opacity: "0"
-			},
-			0
-		);
-
-		// Fade in the new element
-		timeline.add(
-			{
-				targets: ReactDOM.findDOMNode(newChildRef.current),
-				opacity: "1"
-			},
-			0
-		);
-	};
-
 	render() {
 		const isMacOS = os.type() === "Darwin";
 
@@ -141,8 +77,33 @@ class Layout extends Component {
 						style={{ opacity: isMacOS ? 0 : 1 }}
 					/>
 				</div>
-				{this.state.child}
-				{this.state.newChild}
+				<FadeTransition in={this.state.inStartPage} timeout={800} unmountOnExit>
+					<StartPage
+						logout={this.state.logout}
+						easing="easeInOutCirc"
+						transitionToApp={() =>
+							this.setState({
+								inStartPage: false,
+								logout: false
+							})
+						}
+					/>
+				</FadeTransition>
+				<FadeTransition
+					in={!this.state.inStartPage}
+					timeout={800}
+					easing="easeInOutCirc"
+					unmountOnExit
+				>
+					<App
+						logout={() =>
+							this.setState({
+								inStartPage: true,
+								logout: true
+							})
+						}
+					/>
+				</FadeTransition>
 			</div>
 		);
 	}

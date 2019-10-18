@@ -19,6 +19,13 @@ export function sessionAuth(client, sessionId) {
 	};
 }
 
+export function logout(client) {
+	return {
+		type: "LOGOUT",
+		payload: client.auth().logout
+	};
+}
+
 export function setUser(user) {
 	return {
 		type: "USER_SET",

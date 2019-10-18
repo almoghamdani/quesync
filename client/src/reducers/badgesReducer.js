@@ -21,6 +21,7 @@ export default function reducer(
 			return { ...state, pendingFriendsBadge: state.pendingFriendsBadge - 1 };
 
 		case "RESET_UI":
+		case "LOGOUT_FULFILLED":
 			return INITIAL_STATE;
 
 		default:

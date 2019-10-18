@@ -4,8 +4,8 @@ import { connect } from "react-redux";
 
 import ConnectionStatus from "./components/connection_status";
 import PageContainer from "./components/page_container";
-import FriendsPage from "./pages/friends_page";
 import SearchField from "./components/search_field";
+import FriendsPage from "./pages/friends_page";
 
 import {
 	TopAppBar,
@@ -13,6 +13,7 @@ import {
 	TopAppBarSection,
 	TopAppBarFixedAdjust
 } from "@rmwc/top-app-bar";
+import { IconButton } from "@rmwc/icon-button";
 import { ThemeProvider } from "@rmwc/theme";
 import { SnackbarQueue } from "@rmwc/snackbar";
 
@@ -37,7 +38,8 @@ class App extends Component {
 					secondary: "#212121",
 					error: "#ff1744",
 					onSurface: "rgba(255,255,255,.87)"
-				}}>
+				}}
+			>
 				<SnackbarQueue
 					className="quesync-notifications-queue"
 					messages={queue.messages}
@@ -45,13 +47,19 @@ class App extends Component {
 				<TopAppBar
 					className="quesync-top-app-bar mdc-top-app-bar--fixed-scrolled"
 					fixed
-					theme="secondaryBg">
+					theme="secondaryBg"
+				>
 					<TopAppBarRow>
 						<TopAppBarSection alignStart>
 							<SearchField />
 						</TopAppBarSection>
 						<TopAppBarSection alignEnd>
 							<ConnectionStatus />
+							<IconButton
+								className="quesync-logout-button"
+								icon="exit_to_app"
+								onClick={() => this.props.logout()}
+							/>
 						</TopAppBarSection>
 					</TopAppBarRow>
 				</TopAppBar>

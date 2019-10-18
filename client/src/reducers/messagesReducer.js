@@ -7,12 +7,14 @@ const messagesSort = (a, b) => {
 		return 0;
 }
 
+const INITIAL_STATE = {
+	messages: {},
+	newMessages: {},
+	error: null
+};
+
 export default function reducer(
-	state = {
-		messages: {},
-		newMessages: {},
-		error: null
-	},
+	state = INITIAL_STATE,
 	action
 ) {
 	switch (action.type) {
@@ -81,6 +83,10 @@ export default function reducer(
 
 		case "SET_NEW_MESSAGE_FOR_CHANNEL":
 			return { ...state, newMessages: { ...state.newMessages, [action.payload.channelId]: action.payload.messageContent } }
+
+		case "LOGOUT_FULFILLED":
+		case "LOGOUT_REJECTED":
+			return INITIAL_STATE;
 
 		default:
 			return state;
