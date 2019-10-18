@@ -174,7 +174,6 @@ class Channel extends Component {
 						this.props
 							.dispatch(
 								sendMessage(
-									this.props.client,
 									this.props.newMessages[this.props.channelId],
 									this.props.channelId
 								)
@@ -188,7 +187,6 @@ class Channel extends Component {
 }
 
 export default connect(state => ({
-	client: state.client.client,
 	user: state.user.user,
 	calls: state.voice.calls,
 	messages: state.messages.messages,

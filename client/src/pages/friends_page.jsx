@@ -46,8 +46,7 @@ class FriendsPage extends Component {
 		const currentSelectedFriendId = this.props.selectedDrawerItemId;
 
 		// If no friend selected
-		if (!currentSelectedFriendId)
-			return;
+		if (!currentSelectedFriendId) return;
 
 		const currentSelectedFriend = this.props.profiles[
 			this.props.selectedDrawerItemId
@@ -64,15 +63,13 @@ class FriendsPage extends Component {
 				nickname={currentSelectedFriend.nickname}
 				tag={currentSelectedFriend.tag}
 				style={{ height: "100%" }}
-				startCall={() =>
-					this.props.dispatch(call(this.props.client, channelId))
-				}
+				startCall={() => this.props.dispatch(call(channelId))}
 				joinCall={() => {
 					// Close the call window is case it's open
 					ipcRenderer.send("close-call-window", channelId);
 
 					// Join the call
-					this.props.dispatch(joinCall(this.props.client, channelId));
+					this.props.dispatch(joinCall(channelId));
 				}}
 				inCall={this.props.voiceChannelId === channelId}
 				activeCall={this.props.activeCalls.includes(channelId)}
@@ -93,16 +90,12 @@ class FriendsPage extends Component {
 
 	approveFriendRequest = friendId => {
 		// Try to approve the friend request
-		this.props
-			.dispatch(approveFriendRequest(this.props.client, friendId))
-			.catch(() => {});
+		this.props.dispatch(approveFriendRequest(friendId)).catch(() => {});
 	};
 
 	rejectFriendRequest = friendId => {
 		// Try to reject the friend request
-		this.props
-			.dispatch(rejectFriendRequest(this.props.client, friendId))
-			.catch(() => {});
+		this.props.dispatch(rejectFriendRequest(friendId)).catch(() => {});
 	};
 
 	render() {
@@ -206,7 +199,6 @@ class FriendsPage extends Component {
 
 export default connect(state => ({
 	user: state.user.user,
-	client: state.client.client,
 	profiles: state.users.profiles,
 	selectedTab: state.ui.items.selectedFriendsPageTab,
 	selectedDrawerItemId: state.ui.items.selectedFriendsPageDrawerItemId,

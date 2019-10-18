@@ -16,7 +16,6 @@ class Updater {
 
 	update = async () => {
 		const state = store.getState();
-		const client = state.client.client;
 		const user = state.user.user;
 
 		// If the connected user isn't the last connected user, reset the UI persist store
@@ -32,7 +31,7 @@ class Updater {
 
 		// Get the user's profile
 		await store
-			.dispatch(fetchUserProfile(client, user.id))
+			.dispatch(fetchUserProfile(user.id))
 			.then(() => { })
 			.catch(ex => {
 				this.logger.error(
@@ -46,7 +45,7 @@ class Updater {
 			const friendId = user.friends[idx];
 
 			// Update the user
-			await this.updateUser(client, friendId);
+			await this.updateUser(friendId);
 		}
 
 		// For each pending friend, fetch it's profile
@@ -55,7 +54,7 @@ class Updater {
 			const friendId = user.friendRequests[idx].friendId;
 
 			// Update the user
-			await this.updateUser(client, friendId);
+			await this.updateUser(friendId);
 		}
 
 		// Fetch the user that is currently selected in the UI if not already fetched
@@ -68,20 +67,20 @@ class Updater {
 				currentlySelectedUserId
 			)
 		) {
-			await this.updateUser(client, currentlySelectedUserId);
+			await this.updateUser(currentlySelectedUserId);
 		}
 
 		this.logger.info("Update finished!");
 	};
 
-	updateUser = async (client, userId) => {
+	updateUser = async (userId) => {
 		// Fetch the user's profile
 		await store
-			.dispatch(fetchUserProfile(client, userId))
+			.dispatch(fetchUserProfile(userId))
 			.then(async () => {
 				// Get the user's private channel
 				await store
-					.dispatch(getPrivateChannel(client, userId))
+					.dispatch(getPrivateChannel(userId))
 					.then(async res => {
 						const channelId = res.action.payload.channel.id;
 						const callActive = res.action.payload.channel.callActive;
@@ -92,7 +91,7 @@ class Updater {
 						}
 
 						// Update the channel
-						await this.updateChannel(client, channelId);
+						await this.updateChannel(channelId);
 					})
 					.catch(ex => {
 						this.logger.error(
@@ -107,15 +106,15 @@ class Updater {
 			});
 	};
 
-	updateChannel = async (client, channelId) => {
+	updateChannel = async (channelId) => {
 		// Get the channel's messages
 		await store
 			.dispatch(
-				getChannelMessages(client, channelId, AMOUNT_OF_INITIAL_MESSAGES, 0)
+				getChannelMessages(channelId, AMOUNT_OF_INITIAL_MESSAGES, 0)
 			)
 			.then(() => store
 				.dispatch(
-					getChannelCalls(client, channelId, AMOUNT_OF_INITIAL_MESSAGES, 0) // Get channel calls
+					getChannelCalls(channelId, AMOUNT_OF_INITIAL_MESSAGES, 0) // Get channel calls
 				))
 			.catch(ex => {
 				this.logger.error(
@@ -128,13 +127,13 @@ class Updater {
 	setLastLoggedUserId = userId =>
 		localStorage.setItem("lastLoggedUserId", userId);
 
-	sendFriendRequest = async (client, userId) => {
+	sendFriendRequest = async (userId) => {
 		// Fetch the user's profile
 		await store
-			.dispatch(fetchUserProfile(client, userId))
-			.then(() => store.dispatch(sendFriendRequest(client, userId))) // Send friend request
-			.then(() => store.dispatch(getPrivateChannel(client, userId))) // Get the private channel
-			.then(res => this.updateChannel(client, res.action.payload.channel.id)) // Update the channel
+			.dispatch(fetchUserProfile(userId))
+			.then(() => store.dispatch(sendFriendRequest(userId))) // Send friend request
+			.then(() => store.dispatch(getPrivateChannel(userId))) // Get the private channel
+			.then(res => this.updateChannel(res.action.payload.channel.id)) // Update the channel
 			.catch(ex =>
 				this.logger.error(
 					`An error occurred sending the friend request to the user ${userId}. Error: ${ex}`

@@ -122,9 +122,7 @@ class MessageField extends Component {
 			// If the nickname or the tag has changed, search again
 			if (nickname !== oldParse[0] || tag !== oldParse[1]) {
 				// Search the user
-				this.props
-					.dispatch(searchUser(this.props.client, nickname, tag))
-					.catch(() => {});
+				this.props.dispatch(searchUser(nickname, tag)).catch(() => {});
 			}
 		} else if (newValue === "") {
 			this.setState({
@@ -140,8 +138,7 @@ class MessageField extends Component {
 		this.props.friendRequests &&
 		this.props.friendRequests.map(req => req.friendId).includes(userId);
 
-	sendFriendRequest = userId =>
-		updater.sendFriendRequest(this.props.client, userId);
+	sendFriendRequest = userId => updater.sendFriendRequest(userId);
 
 	render() {
 		const results = this.props.results ? this.props.results : [];
@@ -223,7 +220,6 @@ class MessageField extends Component {
 }
 
 export default connect(state => ({
-	client: state.client.client,
 	searching: state.users.searching,
 	results: state.users.searchResults,
 	friends: state.user.user.friends,

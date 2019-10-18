@@ -1,12 +1,17 @@
-export function call(client, channelId) {
-	return {
-		type: "CALL",
-		payload: client.voice().call(channelId)
-	};
+export function call(channelId) {
+	return (dispatch, getState) => {
+		const client = getState().client.client;
+
+		return dispatch({
+			type: "CALL",
+			payload: client.voice().call(channelId)
+		});
+	}
 }
 
-export function joinCall(client, channelId) {
+export function joinCall(channelId) {
 	return (dispatch, getState) => {
+		const client = getState().client.client;
 		const currentChannelId = getState().voice.channelId;
 
 		// If the user is already in a call, clear it's current call
@@ -25,11 +30,15 @@ export function joinCall(client, channelId) {
 	};
 }
 
-export function leaveCall(client) {
-	return {
-		type: "LEAVE_CALL",
-		payload: client.voice().leaveCall()
-	};
+export function leaveCall() {
+	return (dispatch, getState) => {
+		const client = getState().client.client;
+
+		return dispatch({
+			type: "LEAVE_CALL",
+			payload: client.voice().leaveCall()
+		});
+	}
 }
 
 export function updateVoiceState(userId, voiceState) {
@@ -52,11 +61,15 @@ export function updateVoiceActivationState(userId, activated) {
 	};
 }
 
-export function setVoiceState(client, mute, deafen) {
-	return {
-		type: "SET_VOICE_STATE",
-		payload: client.voice().setVoiceState(mute, deafen)
-	};
+export function setVoiceState(mute, deafen) {
+	return (dispatch, getState) => {
+		const client = getState().client.client;
+
+		return dispatch({
+			type: "SET_VOICE_STATE",
+			payload: client.voice().setVoiceState(mute, deafen)
+		});
+	}
 }
 
 export function addIncomingCall(call) {
@@ -80,9 +93,13 @@ export function removeActiveCall(channelId) {
 	};
 }
 
-export function getChannelCalls(client, channelId, amount, offset) {
-	return {
-		type: "GET_CHANNEL_CALLS",
-		payload: client.voice().getChannelCalls(channelId, amount, offset)
-	};
+export function getChannelCalls(channelId, amount, offset) {
+	return (dispatch, getState) => {
+		const client = getState().client.client;
+
+		return dispatch({
+			type: "GET_CHANNEL_CALLS",
+			payload: client.voice().getChannelCalls(channelId, amount, offset)
+		});
+	}
 }

@@ -121,7 +121,7 @@ class RegisterForm extends Component {
 		// Start the loading animation
 		this.props.startLoadingAnimation(() => {
 			this.props
-				.dispatch(register(this.props.client, username, email, password))
+				.dispatch(register(username, email, password))
 				.then(async res => {
 					const sessionId = res.value.sessionId;
 
@@ -259,6 +259,5 @@ class RegisterForm extends Component {
 }
 
 export default connect(state => ({
-	client: state.client.client,
 	error: state.user.authError
 }))(RegisterForm);

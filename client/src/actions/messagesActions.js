@@ -1,15 +1,23 @@
-export function sendMessage(client, content, channelId) {
-	return {
-		type: "SEND_MESSAGE",
-		payload: client.messages().sendMessage(content, channelId)
-	};
+export function sendMessage(content, channelId) {
+	return (dispatch, getState) => {
+		const client = getState().client.client;
+
+		return dispatch({
+			type: "SEND_MESSAGE",
+			payload: client.messages().sendMessage(content, channelId)
+		});
+	}
 }
 
-export function getChannelMessages(client, channelId, amount, offset) {
-	return {
-		type: "GET_CHANNEL_MESSAGES",
-		payload: client.messages().getChannelMessages(channelId, amount, offset)
-	};
+export function getChannelMessages(channelId, amount, offset) {
+	return (dispatch, getState) => {
+		const client = getState().client.client;
+
+		return dispatch({
+			type: "GET_CHANNEL_MESSAGES",
+			payload: client.messages().getChannelMessages(channelId, amount, offset)
+		});
+	}
 }
 
 export function addMessageToChannel(message, channelId) {

@@ -42,7 +42,7 @@ class StartPage extends Component {
 
 				// Logout
 				this.props
-					.dispatch(logout(this.props.client))
+					.dispatch(logout())
 					.then(() =>
 						// Stop the loading animation
 						this.stopLoadingAnimation(null, LoginForm)
@@ -71,7 +71,7 @@ class StartPage extends Component {
 				} else if (sessionId && sessionId.length) {
 					// Try to connect via the session
 					await this.props
-						.dispatch(sessionAuth(this.props.client, sessionId))
+						.dispatch(sessionAuth(sessionId))
 						.then(async () => {
 							// Update user's data
 							await updater.update();

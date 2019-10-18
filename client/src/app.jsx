@@ -70,6 +70,4 @@ class App extends Component {
 	}
 }
 
-export default connect(state => ({
-	client: state.client.client
-}))(App);
+export default App;

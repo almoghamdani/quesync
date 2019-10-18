@@ -94,9 +94,7 @@ class SidePanel extends Component {
 							joinDate={this.props.callJoinDate}
 							userVoiceStates={this.props.inCall ? this.parseVoiceStates() : []}
 							userVoiceActivations={this.props.voiceActivations}
-							leaveCall={() =>
-								this.props.dispatch(leaveCall(this.props.client))
-							}
+							leaveCall={() => this.props.dispatch(leaveCall())}
 						/>
 					</Transition>
 				</div>
@@ -124,11 +122,7 @@ class SidePanel extends Component {
 							icon={this.props.muted ? "mic_off" : "mic"}
 							onClick={() =>
 								this.props.dispatch(
-									setVoiceState(
-										this.props.client,
-										!this.props.muted,
-										this.props.deafen
-									)
+									setVoiceState(!this.props.muted, this.props.deafen)
 								)
 							}
 						/>
@@ -141,11 +135,7 @@ class SidePanel extends Component {
 							icon={this.props.deafen ? "volume_off" : "volume_up"}
 							onClick={() =>
 								this.props.dispatch(
-									setVoiceState(
-										this.props.client,
-										this.props.muted,
-										!this.props.deafen
-									)
+									setVoiceState(this.props.muted, !this.props.deafen)
 								)
 							}
 						/>
@@ -157,7 +147,6 @@ class SidePanel extends Component {
 }
 
 export default connect(state => ({
-	client: state.client.client,
 	user: state.user.user,
 	inCall: !!state.voice.channelId,
 	callJoinDate: state.voice.callJoinDate,

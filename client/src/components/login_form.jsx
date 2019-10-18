@@ -94,7 +94,7 @@ class LoginForm extends Component {
 		// Start the loading animation
 		this.props.startLoadingAnimation(() => {
 			this.props
-				.dispatch(signIn(this.props.client, username, password))
+				.dispatch(signIn(username, password))
 				.then(async res => {
 					const sessionId = res.value.sessionId;
 
@@ -196,6 +196,5 @@ class LoginForm extends Component {
 }
 
 export default connect(state => ({
-	client: state.client.client,
 	error: state.user.authError
 }))(LoginForm);
