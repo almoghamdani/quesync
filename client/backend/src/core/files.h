@@ -29,7 +29,8 @@ class files : public module {
 
     std::shared_ptr<file> get_file_info(std::string file_id);
 
-    virtual void clean();
+    virtual void clean_connection();
+    virtual void disconnected();
 
    private:
     asio::ssl::stream<tcp::socket> *_socket;

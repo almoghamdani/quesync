@@ -73,7 +73,8 @@ void quesync::client::voice::manager::enable(std::string session_id, std::string
     // Flush socket buffer
     size_t available = _socket.available();
     if (available) {
-        _socket.receive_from(asio::buffer(std::shared_ptr<char>(new char[available]).get(), available), endpoint());
+        _socket.receive_from(
+            asio::buffer(std::shared_ptr<char>(new char[available]).get(), available), endpoint());
     }
 
     // If not enabled, send the OTP packet to the server to authenticate
@@ -94,15 +95,17 @@ void quesync::client::voice::manager::enable(std::string session_id, std::string
 }
 
 void quesync::client::voice::manager::disable() {
-    // Disable voice chat and input and output
-    _enabled = false;
-    _input->disable();
-    _output->disable();
+    if (_enabled) {
+        // Disable voice chat and input and output
+        _enabled = false;
+        _input->disable();
+        _output->disable();
 
-    // Stop the stream
-    try {
-        _rt_audio.stopStream();
-    } catch (...) {
+        // Stop the stream
+        try {
+            _rt_audio.stopStream();
+        } catch (...) {
+        }
     }
 }
 

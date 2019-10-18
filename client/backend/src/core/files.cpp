@@ -126,20 +126,6 @@ std::shared_ptr<quesync::file> quesync::client::modules::files::get_file_info(st
     return file;
 }
 
-void quesync::client::modules::files::clean() {
-    // If we currently have a socket with the server, close it and delete it
-    if (_socket) {
-        // Close the socket
-        _socket->lowest_layer().close();
-
-        // Free the socket
-        delete _socket;
-
-        // Reset socket ptr
-        _socket = nullptr;
-    }
-}
-
 void quesync::client::modules::files::com_thread() {
     bool first_iteration = true;
 
@@ -160,7 +146,7 @@ void quesync::client::modules::files::com_thread() {
                    _download_files.empty())  // If no uploads and downloads
         {
             // Clean the socket and quit the loop
-            clean();
+            clean_connection();
             break;
         }
 
@@ -383,4 +369,26 @@ void quesync::client::modules::files::save_file(std::shared_ptr<quesync::memory_
 
 std::string quesync::client::modules::files::get_file_name(std::string file_path) {
     return file_path.substr(file_path.find_last_of("/\\") + 1);
+}
+
+void quesync::client::modules::files::clean_connection() {
+    // If we currently have a socket with the server, close it and delete it
+    if (_socket) {
+        // Close the socket
+        _socket->lowest_layer().close();
+
+        // Free the socket
+        delete _socket;
+
+        // Reset socket ptr
+        _socket = nullptr;
+    }
+}
+
+void quesync::client::modules::files::disconnected() {
+    // Clear the files data
+    _files_progress_history.clear();
+    _upload_files.clear();
+    _download_files.clear();
+    _download_paths.clear();
 }

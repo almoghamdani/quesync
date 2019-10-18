@@ -11,7 +11,8 @@ class module {
    public:
     module(std::shared_ptr<client> client) : _client(client) {}
 
-    virtual void clean() {}
+    virtual void clean_connection() {}
+    virtual void disconnected() {}
     virtual void connected(std::string server_ip) {}
 
    protected:

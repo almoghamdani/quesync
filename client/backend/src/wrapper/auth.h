@@ -16,7 +16,7 @@ class auth : public Napi::ObjectWrap<auth>, public module<auth> {
             env, "Auth",
             {InstanceMethod("login", &auth::login), InstanceMethod("register", &auth::signup),
              InstanceMethod("sessionAuth", &auth::session_auth),
-             InstanceMethod("getUser", &auth::get_user)});
+             InstanceMethod("getUser", &auth::get_user), InstanceMethod("logout", &auth::logout)});
     }
 
     auth(const Napi::CallbackInfo &info) : Napi::ObjectWrap<auth>(info), module(info) {}
@@ -82,6 +82,15 @@ class auth : public Napi::ObjectWrap<auth>, public module<auth> {
 
         // Convert the user to object if not null
         return user ? utils::client::json_to_object(info.Env(), *user) : info.Env().Null();
+    }
+
+    Napi::Value logout(const Napi::CallbackInfo &info) {
+        return executer::create_executer(info.Env(), [this]() {
+            // Logout
+            _client->core()->auth()->logout();
+
+            return nullptr;
+        });
     }
 
     inline static Napi::FunctionReference constructor;

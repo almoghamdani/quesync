@@ -16,10 +16,12 @@ class auth : public module {
     std::string signup(std::string username, std::string password, std::string email);
     void session_auth(std::string session_id);
 
+    void logout();
+
     std::shared_ptr<user> get_user();
     std::string get_session_id();
 
-    virtual void clean();
+    virtual void disconnected();
 
    private:
     std::shared_ptr<user> _user;

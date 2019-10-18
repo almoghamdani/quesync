@@ -55,12 +55,27 @@ std::shared_ptr<quesync::client::modules::voice> quesync::client::client::voice(
 
 std::shared_ptr<quesync::client::modules::files> quesync::client::client::files() { return _files; }
 
-void quesync::client::client::clean() {
+void quesync::client::client::clean_connection() {
+    // If the user is authenticated, disconnect it
+    if (_auth->get_user()) {
+        disconnected();
+    }
+
     // Clean modules
-    _auth->clean();
-    _users->clean();
-    _messages->clean();
-    _channels->clean();
-    _voice->clean();
-    _files->clean();
+    _auth->clean_connection();
+    _users->clean_connection();
+    _messages->clean_connection();
+    _channels->clean_connection();
+    _voice->clean_connection();
+    _files->clean_connection();
+}
+
+void quesync::client::client::disconnected() {
+    // Send disconnected event to modules
+    _auth->disconnected();
+    _users->disconnected();
+    _messages->disconnected();
+    _channels->disconnected();
+    _voice->disconnected();
+    _files->disconnected();
 }

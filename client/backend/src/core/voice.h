@@ -24,7 +24,8 @@ class voice : public module {
                                         unsigned int offset);
     void leave_call();
 
-    virtual void clean();
+    virtual void clean_connection();
+    virtual void disconnected();
     virtual void connected(std::string server_ip);
 
    private:

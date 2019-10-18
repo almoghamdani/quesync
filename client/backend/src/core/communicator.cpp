@@ -36,7 +36,7 @@ void quesync::client::modules::communicator::clean_connection() {
     _server_ip = "";
 
     // Call the clean callback
-    _client->clean();
+    _client->clean_connection();
 }
 
 void quesync::client::modules::communicator::connect(std::string server_ip) {

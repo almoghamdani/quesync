@@ -161,9 +161,18 @@ std::vector<quesync::call> quesync::client::modules::voice::get_channel_calls(
     return calls;
 }
 
-void quesync::client::modules::voice::clean() {
-    // Disable the voice if enabled
-    if (_voice_manager) _voice_manager->disable();
+void quesync::client::modules::voice::clean_connection()
+{
+    // If the voice manager is initated, delete it
+    if (_voice_manager) _voice_manager = nullptr;
+}
+
+void quesync::client::modules::voice::disconnected() {
+    // Disable the voice and reset it's state if enabled
+    if (_voice_manager) {
+        _voice_manager->disable();
+        _voice_manager->set_state(false, false);
+    }
 }
 
 void quesync::client::modules::voice::connected(std::string server_ip) {

@@ -6,6 +6,7 @@
 #include "../../../../shared/packets/login_packet.h"
 #include "../../../../shared/packets/register_packet.h"
 #include "../../../../shared/packets/session_auth_packet.h"
+#include "../../../../shared/packets/logout_packet.h"
 
 quesync::client::modules::auth::auth(std::shared_ptr<quesync::client::client> client)
     : module(client), _user(nullptr) {}
@@ -80,11 +81,27 @@ void quesync::client::modules::auth::session_auth(std::string session_id) {
     _session_id = session_id;
 }
 
+void quesync::client::modules::auth::logout()
+{
+    packets::logout_packet logout_packet;
+
+    // If the user isn't authenticated
+    if (!_user) {
+        throw exception(error::not_authenticated);
+    }
+
+    // Send the logout packet to the server
+    _client->communicator()->send_and_verify(&logout_packet, packet_type::logged_out_packet);
+
+    // Send the disconnected event to the modules
+    _client->disconnected();
+}
+
 std::shared_ptr<quesync::user> quesync::client::modules::auth::get_user() { return _user; }
 
 std::string quesync::client::modules::auth::get_session_id() { return _session_id; }
 
-void quesync::client::modules::auth::clean() {
+void quesync::client::modules::auth::disconnected() {
     _user = nullptr;
     _session_id = "";
 }

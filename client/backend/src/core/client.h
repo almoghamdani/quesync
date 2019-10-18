@@ -29,7 +29,8 @@ class client : public std::enable_shared_from_this<client> {
     std::shared_ptr<modules::voice> voice();
     std::shared_ptr<modules::files> files();
 
-    void clean();
+    void clean_connection();
+    void disconnected();
 
    private:
     std::shared_ptr<modules::communicator> _communicator;
