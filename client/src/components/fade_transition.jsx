@@ -3,12 +3,16 @@ import React, { Component } from "react";
 import anime from "animejs";
 import Transition from "react-transition-group/Transition";
 
+const easing = "easeInSine";
+
 class FadeTransition extends Component {
+	
+
 	render() {
 		const animateIn = content =>
 			anime({
 				targets: content,
-				easing: "easeInSine",
+				easing: this.props.easing ? this.props.easing : easing,
 				duration: this.props.timeout,
 				opacity: [0, 1]
 			});
@@ -16,7 +20,7 @@ class FadeTransition extends Component {
 		const aminateOut = content =>
 			anime({
 				targets: content,
-				easing: "easeOutSine",
+				easing: this.props.easing ? this.props.easing : easing,
 				duration: this.props.timeout,
 				opacity: 0
 			});
