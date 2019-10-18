@@ -75,8 +75,12 @@ class call_request_packet : public serialized_packet {
             // Create the call event
             call_event = std::make_shared<events::incoming_call_event>(call_details->call);
 
-            // Reset the voice states
-            call_details->voice_states = {};
+            // Update the voice states
+            call_details->voice_states =
+                session->server()->voice_manager()->get_voice_states(_data["channelId"]);
+
+            // Remove the user from the voice states
+            call_details->voice_states.erase(session->user()->id);
 
             // Set the user as joined to the call
             call_details->call.joined = true;
