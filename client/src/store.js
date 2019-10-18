@@ -4,11 +4,12 @@ import storage from 'redux-persist/lib/storage' // localStorage
 
 import { createLogger } from "redux-logger";
 import promise from "redux-promise-middleware";
+import thunk from 'redux-thunk';
 
 import reducers from "./reducers";
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const middlewares = applyMiddleware(promise, createLogger());
+const middlewares = applyMiddleware(thunk, promise, createLogger());
 
 const persistConfig = {
 	key: 'root',

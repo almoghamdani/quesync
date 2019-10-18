@@ -6,9 +6,22 @@ export function call(client, channelId) {
 }
 
 export function joinCall(client, channelId) {
-	return {
-		type: "JOIN_CALL",
-		payload: client.voice().joinCall(channelId)
+	return (dispatch, getState) => {
+		const currentChannelId = getState().voice.channelId;
+
+		// If the user is already in a call, clear it's current call
+		if (currentChannelId) {
+			dispatch({
+				type: "CLEAR_CURRENT_CALL",
+				payload: null
+			});
+		}
+
+		// Join the new call
+		dispatch({
+			type: "JOIN_CALL",
+			payload: client.voice().joinCall(channelId)
+		});
 	};
 }
 

@@ -87,35 +87,38 @@ export default function reducer(
 			}
 
 		case "LEAVE_CALL_FULFILLED":
-			const channelId = state.channelId;
+		case "CLEAR_CURRENT_CALL":
+			{
+				const channelId = state.channelId;
 
-			const oldChannelCalls = state.calls[channelId] ? state.calls[channelId] : [];
-			let channelCalls = [...oldChannelCalls];
+				const oldChannelCalls = state.calls[channelId] ? state.calls[channelId] : [];
+				let channelCalls = [...oldChannelCalls];
 
-			let activeCalls = state.activeCalls;
-			const connectedUsers = Object.keys(state.voiceStates).filter(
-				user => state.voiceStates[user].state === 1
-			);
-
-			// If no one is connected to the channel, remove the channel as an active channel
-			if (!connectedUsers.length) {
-				// Set the end date for the call
-				channelCalls[channelCalls.length - 1].endDate = Math.floor(Date.now() / 1000);
-
-				// Remove the channel as an active call
-				activeCalls = [...state.activeCalls].filter(
-					channel => channel !== state.channelId
+				let activeCalls = state.activeCalls;
+				const connectedUsers = Object.keys(state.voiceStates).filter(
+					user => state.voiceStates[user].state === 1
 				);
-			}
 
-			return {
-				...state,
-				calls: { ...state.calls, [channelId]: channelCalls },
-				voiceStates: {},
-				voiceActivations: {},
-				activeCalls,
-				channelId: null
-			};
+				// If no one is connected to the channel, remove the channel as an active channel
+				if (!connectedUsers.length) {
+					// Set the end date for the call
+					channelCalls[channelCalls.length - 1].endDate = Math.floor(Date.now() / 1000);
+
+					// Remove the channel as an active call
+					activeCalls = [...state.activeCalls].filter(
+						channel => channel !== state.channelId
+					);
+				}
+
+				return {
+					...state,
+					calls: { ...state.calls, [channelId]: channelCalls },
+					voiceStates: {},
+					voiceActivations: {},
+					activeCalls,
+					channelId: null
+				};
+			}
 
 		case "UPDATE_VOICE_STATE":
 			return {
