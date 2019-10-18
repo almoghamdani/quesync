@@ -25,9 +25,6 @@ export default function reducer(
 		case "USER_SET":
 			return { ...state, user: action.payload.user };
 
-		case "LOGOUT_FULFILLED":
-			return { ...state, user: null };
-
 		case "AUTH_STARTED":
 			return { ...state, authenticating: true };
 
