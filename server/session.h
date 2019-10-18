@@ -33,6 +33,8 @@ class session : public std::enable_shared_from_this<session> {
     asio::ssl::stream<tcp::socket> _socket;
     tcp::endpoint _endpoint;
 
+    void clean_user_session();
+
     void handshake();
     void recv();
     void send(std::string data);

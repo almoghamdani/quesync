@@ -18,22 +18,27 @@ quesync::server::session::session(tcp::socket socket, asio::ssl::context &contex
 quesync::server::session::~session() {
     // If the user authenticated
     if (_user) {
-        // Unauthenticate session and free the user object
-        _server->user_manager()->unauthenticate_session(_user->id);
-
-        // Remove any memory files created by the user
-        _server->file_manager()->clear_all_user_memory_files(_user->id);
-
-        try {
-            // Leave any voice channel that the user is in
-            _server->voice_manager()->leave_voice_channel(_user->id);
-        } catch (...) {
-        }
+        // Clean the user's session
+        clean_user_session();
     }
 
     // Close the client's socket in case it's not closed
     try {
         _socket.lowest_layer().close();
+    } catch (...) {
+    }
+}
+
+void quesync::server::session::clean_user_session() {
+    // Unauthenticate session and free the user object
+    _server->user_manager()->unauthenticate_session(_user->id);
+
+    // Remove any memory files created by the user
+    _server->file_manager()->clear_all_user_memory_files(_user->id);
+
+    try {
+        // Leave any voice channel that the user is in
+        _server->voice_manager()->leave_voice_channel(_user->id);
     } catch (...) {
     }
 }
@@ -156,7 +161,14 @@ std::shared_ptr<quesync::server::session> quesync::server::session::get_shared()
     return shared_from_this();
 }
 
-void quesync::server::session::set_user(std::shared_ptr<quesync::user> user) { _user = user; }
+void quesync::server::session::set_user(std::shared_ptr<quesync::user> user) {
+    // If the user is currently signed in, clean it's session
+    if (_user) {
+        clean_user_session();
+    }
+
+    _user = user;
+}
 
 bool quesync::server::session::authenticated() const { return (_user != nullptr); }
 
