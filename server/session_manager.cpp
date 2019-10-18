@@ -56,12 +56,12 @@ std::string quesync::server::session_manager::get_user_id_for_session(std::strin
 }
 
 void quesync::server::session_manager::destroy_session(
-    std::shared_ptr<quesync::server::session> sess, std::string session_id) {
+    std::shared_ptr<quesync::server::session> sess) {
     try {
         // Try to remove the session from the sessions table
         sessions_table.remove()
-            .where("session_id = :session_id")
-            .bind("session_id", session_id)
+            .where("user_id = :user_id")
+            .bind("user_id", sess->user()->id)
             .execute();
     } catch (...) {
         throw exception(error::unknown_error);

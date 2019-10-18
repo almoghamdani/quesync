@@ -17,7 +17,7 @@ class session_manager : manager {
 
     std::string create_session(std::shared_ptr<session> sess);
     std::string get_user_id_for_session(std::string session_id);
-    void destroy_session(std::shared_ptr<session> sess, std::string session_id);
+    void destroy_session(std::shared_ptr<session> sess);
 
    private:
     sql::Table sessions_table;

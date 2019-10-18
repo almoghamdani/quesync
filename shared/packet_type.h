@@ -23,6 +23,7 @@ enum class packet_type {
     upload_file_packet,
     download_file_packet,
     get_file_info_packet,
+    logout_packet,
 
     // Respones
     authenticated_packet = 200,
@@ -41,6 +42,7 @@ enum class packet_type {
     file_upload_initiated_packet,
     file_download_initiated_packet,
     file_info_packet,
+    logged_out_packet,
 
     // On error
     error_packet = 400,

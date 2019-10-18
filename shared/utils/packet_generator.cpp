@@ -1,5 +1,27 @@
 #include "packet_generator.h"
 
+#include "../packets/call_request_packet.h"
+#include "../packets/download_file_packet.h"
+#include "../packets/event_packet.h"
+#include "../packets/friend_request_packet.h"
+#include "../packets/friendship_status_packet.h"
+#include "../packets/get_channel_calls_packet.h"
+#include "../packets/get_channel_messages_packet.h"
+#include "../packets/get_file_info_packet.h"
+#include "../packets/get_private_channel_packet.h"
+#include "../packets/join_call_request_packet.h"
+#include "../packets/leave_call_packet.h"
+#include "../packets/login_packet.h"
+#include "../packets/logout_packet.h"
+#include "../packets/ping_packet.h"
+#include "../packets/profile_request_packet.h"
+#include "../packets/register_packet.h"
+#include "../packets/search_packet.h"
+#include "../packets/send_message_packet.h"
+#include "../packets/session_auth_packet.h"
+#include "../packets/set_voice_state_packet.h"
+#include "../packets/upload_file_packet.h"
+
 const std::unordered_map<quesync::packet_type, std::function<std::shared_ptr<quesync::packet>()>>
     quesync::utils::packet_generator::packet_initalizers{
         PACKET_ENTRY(ping_packet),
@@ -21,6 +43,7 @@ const std::unordered_map<quesync::packet_type, std::function<std::shared_ptr<que
         PACKET_ENTRY(upload_file_packet),
         PACKET_ENTRY(download_file_packet),
         PACKET_ENTRY(get_file_info_packet),
+        PACKET_ENTRY(logout_packet),
         PACKET_ENTRY(event_packet),
         PACKET_ENTRY(error_packet),
         RESPONSE_PACKET_ENTRY(authenticated_packet),
@@ -39,4 +62,5 @@ const std::unordered_map<quesync::packet_type, std::function<std::shared_ptr<que
         RESPONSE_PACKET_ENTRY(file_upload_initiated_packet),
         RESPONSE_PACKET_ENTRY(file_download_initiated_packet),
         RESPONSE_PACKET_ENTRY(file_info_packet),
+        RESPONSE_PACKET_ENTRY(logged_out_packet),
         RESPONSE_PACKET_ENTRY(pong_packet)};
