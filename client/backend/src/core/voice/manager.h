@@ -6,6 +6,7 @@
 #include <string>
 #include <thread>
 #include <unordered_map>
+#include <atomic>
 
 #include "../socket_manager.h"
 #include "input.h"
@@ -35,6 +36,7 @@ class manager : public std::enable_shared_from_this<manager> {
     manager(std::shared_ptr<client> client, const char *server_ip);
 
     void init();
+    void destroy();
 
     void enable(std::string session_id, std::string channel_id,
                 std::shared_ptr<unsigned char> aes_key, std::shared_ptr<unsigned char> hmac_key,
@@ -61,6 +63,8 @@ class manager : public std::enable_shared_from_this<manager> {
 
     uint64_t get_ms();
 
+    std::atomic<bool>& stop_threads();
+
     friend int rt_callback(void *outputBuffer, void *inputBuffer, unsigned int nFrames,
                           double streamTime, RtAudioStreamStatus status, void *userData);
 
@@ -84,6 +88,8 @@ class manager : public std::enable_shared_from_this<manager> {
     std::unordered_map<std::string, bool> _changed_voice_activity;
 
     std::thread _activation_thread;
+
+    std::atomic<bool> _stop_threads;
 
     RtAudio _rt_audio;
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "module.h"
 
+#include <atomic>
 #include <condition_variable>
 #include <functional>
 #include <memory>
@@ -15,8 +16,6 @@
 #include "../../../../shared/serialized_packet.h"
 
 #define SERVER_PORT 61110
-
-#define MAX_PING_RETRIES 3
 
 namespace quesync {
 namespace client {
@@ -53,7 +52,6 @@ class communicator : public module {
     // Socket
     std::string _server_ip;
     bool _connected;
-    unsigned int _ping_retries;
     asio::ssl::stream<tcp::socket> *_socket;
 
     // Threads
@@ -64,8 +62,10 @@ class communicator : public module {
     void recv();
     void events_handler();
 
+    std::atomic<bool> _stop_threads;
+
     // Clean Connection
-    void clean_connection();
+    void clean_connection(bool join_recv_thread = true);
 
     // Helper functions
     double ms_diff(clock_t end_clock, clock_t start_clock);

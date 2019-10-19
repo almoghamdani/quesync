@@ -18,7 +18,7 @@
 #include "../../../../shared/utils/parser.h"
 
 quesync::client::modules::files::files(std::shared_ptr<quesync::client::client> client)
-    : module(client), _socket(nullptr) {}
+    : module(client), _socket(nullptr), _stop_thread(true) {}
 
 std::shared_ptr<quesync::file> quesync::client::modules::files::start_upload(
     std::string file_path) {
@@ -139,8 +139,8 @@ void quesync::client::modules::files::com_thread() {
 
         std::shared_ptr<events::file_transmission_progress_event> file_progress_event;
 
-        // If the socket isn't connected, quit the loop
-        if (!_socket) {
+        // If the socket isn't connected or the thread is signaled to exit, quit the loop
+        if (_stop_thread || !_socket || !_socket->lowest_layer().is_open()) {
             break;
         } else if (!first_iteration && _upload_files.empty() &&
                    _download_files.empty())  // If no uploads and downloads
@@ -150,8 +150,12 @@ void quesync::client::modules::files::com_thread() {
             break;
         }
 
-        // Recv a message from the server
-        buf = socket_manager::recv(*_socket);
+        try {
+            // Recv a message from the server
+            buf = socket_manager::recv(*_socket);
+        } catch (...) {
+            break;
+        }
 
         // If the packet is a file chunk packet
         if (file_chunk_packet.decode(buf)) {
@@ -263,9 +267,13 @@ void quesync::client::modules::files::com_thread() {
         }
 
         if (!res.empty()) {
-            // Lock the send mutex and send the response
-            std::lock_guard lk(_send_mutex);
-            socket_manager::send(*_socket, res);
+            try {
+                // Lock the send mutex and send the response
+                std::lock_guard lk(_send_mutex);
+                socket_manager::send(*_socket, res);
+            } catch (...) {
+                break;
+            }
         }
 
         // Clear first iteration flag
@@ -310,9 +318,11 @@ void quesync::client::modules::files::connect_to_file_server() {
         throw exception(error::unknown_error);
     }
 
+    // Allow the thread to run
+    _stop_thread = false;
+
     // Init COM thread
     _com_thread = std::thread(&files::com_thread, this);
-    _com_thread.detach();
 }
 
 void quesync::client::modules::files::init_upload(std::string file_id) {
@@ -372,11 +382,22 @@ std::string quesync::client::modules::files::get_file_name(std::string file_path
 }
 
 void quesync::client::modules::files::clean_connection() {
-    // If we currently have a socket with the server, close it and delete it
-    if (_socket) {
+    // Signal the thread to exit
+    _stop_thread = true;
+
+    // If the socket is connected to the server
+    if (_socket && _socket->lowest_layer().is_open()) {
         // Close the socket
         _socket->lowest_layer().close();
+    }
 
+    // If the COM thread is still alive, join it
+    if (_com_thread.joinable()) {
+        _com_thread.join();
+    }
+
+    // If the socket object exists
+    if (_socket) {
         // Free the socket
         delete _socket;
 

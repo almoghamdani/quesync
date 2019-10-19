@@ -161,10 +161,13 @@ std::vector<quesync::call> quesync::client::modules::voice::get_channel_calls(
     return calls;
 }
 
-void quesync::client::modules::voice::clean_connection()
-{
+void quesync::client::modules::voice::clean_connection() {
     // If the voice manager is initated, delete it
-    if (_voice_manager) _voice_manager = nullptr;
+    if (_voice_manager) {
+        // Destroy the voice manager
+        _voice_manager->destroy();
+        _voice_manager = nullptr;
+    }
 }
 
 void quesync::client::modules::voice::disconnected() {

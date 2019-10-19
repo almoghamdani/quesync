@@ -20,12 +20,16 @@ quesync::client::voice::output::output(std::shared_ptr<manager> manager)
         exit(EXIT_FAILURE);
     }
 
-    // Create the thread of the output and detach it
+    // Create the thread of the output
     _thread = std::thread(&output::output_thread, this);
-    _thread.detach();
 }
 
 quesync::client::voice::output::~output() {
+    // If the input thread is still alive, join it
+    if (_thread.joinable()) {
+        _thread.join();
+    }
+
     // Destory opus decoder
     opus_decoder_destroy(_opus_decoder);
 }
@@ -62,8 +66,6 @@ void quesync::client::voice::output::enable() {
     _enabled = true;
 }
 
-void quesync::client::voice::output::disable() { _enabled = false; }
-
 void quesync::client::voice::output::output_thread() {
     int decoded_size = 0, recv_bytes = 0;
     char recv_buffer[RECV_BUFFER_SIZE] = {0};
@@ -76,15 +78,24 @@ void quesync::client::voice::output::output_thread() {
     while (true) {
         std::shared_ptr<int16_t> buffer(new int16_t[FRAME_SIZE]);
 
+        // If all threads needs to be stopped
+        if (_manager->stop_threads()) {
+            break;
+        }
+
         // If disabled, skip
         if (!_enabled) {
             std::this_thread::sleep_for(std::chrono::microseconds(750));
             continue;
         }
 
-        // Receive from the server the encoded voice sample into the recv buffer
-        recv_bytes = (int)_manager->socket().receive_from(
-            asio::buffer(recv_buffer, RECV_BUFFER_SIZE), sender_endpoint);
+        try {
+            // Receive from the server the encoded voice sample into the recv buffer
+            recv_bytes = (int)_manager->socket().receive_from(
+                asio::buffer(recv_buffer, RECV_BUFFER_SIZE), sender_endpoint);
+        } catch (...) {
+            break;
+        }
 
         // If the sender is the server endpoint handle the voice sample
         if (sender_endpoint == _manager->endpoint()) {
@@ -119,6 +130,8 @@ void quesync::client::voice::output::output_thread() {
         }
     }
 }
+
+void quesync::client::voice::output::disable() { _enabled = false; }
 
 void quesync::client::voice::output::deaf() { _deafen = true; }
 

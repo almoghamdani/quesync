@@ -7,6 +7,7 @@
 #include <fstream>
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 #include "socket_manager.h"
 
@@ -43,8 +44,8 @@ class files : public module {
     std::unordered_map<std::string, std::string> _download_paths;
 
     std::thread _com_thread;
-
     std::mutex _send_mutex;
+    std::atomic<bool> _stop_thread;
 
     void com_thread();
 

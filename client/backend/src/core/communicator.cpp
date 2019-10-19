@@ -14,14 +14,39 @@
 #include "../../../../shared/utils/parser.h"
 
 quesync::client::modules::communicator::communicator(std::shared_ptr<client> client)
-    : module(client), _socket(nullptr) {}
+    : module(client), _socket(nullptr), _stop_threads(true) {}
 
-void quesync::client::modules::communicator::clean_connection() {
-    // If we currently have a socket with the server, close it and delete it
-    if (_socket) {
+void quesync::client::modules::communicator::clean_connection(bool join_recv_thread) {
+    // Signal the threads to stop
+    _stop_threads = true;
+
+    // Wake up the threads
+    _events_cv.notify_one();
+    _response_cv.notify_one();
+
+    // If the socket is connected, close the connection
+    if (_socket && _socket->lowest_layer().is_open()) {
         // Close the socket
         _socket->lowest_layer().close();
+    }
 
+    // If the events thread is still alive, join it
+    if (_events_thread.joinable()) {
+        _events_thread.join();
+    }
+
+    // If the r receiver is still alive, join it
+    if (_receiver_thread.joinable() && join_recv_thread) {
+        _receiver_thread.join();
+    }
+
+    // If the keep alive thread is still alive, join it
+    if (_keep_alive_thread.joinable()) {
+        _keep_alive_thread.join();
+    }
+
+    // If the socket object isn't null
+    if (_socket) {
         // Free the socket
         delete _socket;
 
@@ -29,14 +54,8 @@ void quesync::client::modules::communicator::clean_connection() {
         _socket = nullptr;
     }
 
-    // Reset ping retries
-    _ping_retries = 0;
-
     // Reset IP
     _server_ip = "";
-
-    // Call the clean callback
-    _client->clean_connection();
 }
 
 void quesync::client::modules::communicator::connect(std::string server_ip) {
@@ -110,27 +129,26 @@ void quesync::client::modules::communicator::connect(std::string server_ip) {
     // Save the server IP
     _server_ip = server_ip;
 
+    // Stop signaling threads to exit
+    _stop_threads = false;
+
     // Start the events thread
     if (!_events_thread.joinable()) {
         _events_thread = std::thread(&communicator::events_handler, this);
-        _events_thread.detach();
     }
 
     // Start the receiver thread
     if (!_receiver_thread.joinable()) {
         _receiver_thread = std::thread(&communicator::recv, this);
-        _receiver_thread.detach();
     }
 
     // Start the keep alive thread
     if (!_keep_alive_thread.joinable()) {
         _keep_alive_thread = std::thread(&communicator::keep_alive, this);
-        _keep_alive_thread.detach();
     }
 }
 
-std::string quesync::client::modules::communicator::server_ip()
-{
+std::string quesync::client::modules::communicator::server_ip() {
     if (_server_ip.empty()) {
         throw exception(error::no_connection);
     }
@@ -144,16 +162,22 @@ void quesync::client::modules::communicator::recv() {
 
         std::string buf;
 
-        // If the socket isn't connected, skip the iteration
-        if (!_socket) {
-            continue;
+        // If the socket isn't connected or all threads to be exited, quit the thread
+        if (_stop_threads || !_socket || !_socket->lowest_layer().is_open()) {
+            break;
         }
 
         try {
             // Get a response from the server
             buf = socket_manager::recv(*_socket);
         } catch (...) {
-            continue;
+            // Clean the connection if the server is disconnected
+            clean_connection(false);
+
+            // Call the clean callback
+            _client->clean_connection();
+
+            break;
         }
 
         // Parse the response packet
@@ -192,15 +216,15 @@ void quesync::client::modules::communicator::keep_alive() {
     while (true) {
         std::shared_ptr<response_packet> response_packet;
 
-        // Sleep for a second and a half
-        std::this_thread::sleep_for(std::chrono::milliseconds(750));
+        // Sleep for a 1.5 seconds
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
         std::unique_lock<std::mutex> get_lk(_socket_get_mutex, std::defer_lock);
         std::unique_lock<std::mutex> send_lk(_socket_send_mutex, std::defer_lock);
 
-        // If the socket isn't connected, skip the iteration
-        if (!_socket) {
-            continue;
+        // If the socket isn't connected or all threads to be exited, quit the thread
+        if (_stop_threads || !_socket || !_socket->lowest_layer().is_open()) {
+            break;
         }
 
         // Lock the socket's locks
@@ -213,20 +237,14 @@ void quesync::client::modules::communicator::keep_alive() {
             // Send to the server the ping packet
             socket_manager::send(*_socket, ping_packet.encode());
         } catch (...) {
-            // Increase the ping retires count and check if reached the max
-            _ping_retries += 1;
-            if (_ping_retries == MAX_PING_RETRIES) {
-                // If reached max ping retries, clean the connection
-                clean_connection();
-            }
-
-            std::cout << "Unable to send ping packet to server.." << std::endl;
             continue;
         }
 
         // Wait for response to enter
-        while (_response_packets.empty()) {
-            _response_cv.wait(get_lk);
+        _response_cv.wait(get_lk,
+                          [&, this] { return !!_stop_threads || !_response_packets.empty(); });
+        if (_stop_threads) {
+            break;
         }
 
         // Get the system clock after the recv of the pong packet
@@ -239,19 +257,8 @@ void quesync::client::modules::communicator::keep_alive() {
         // If the response is not a pong packet, return unknown error
         if ((response_packet && response_packet->type() != packet_type::pong_packet) ||
             !response_packet) {
-            // Increase the ping retires count and check if reached the max
-            _ping_retries += 1;
-            if (_ping_retries == MAX_PING_RETRIES) {
-                // If reached max ping retries, clean the connection
-                clean_connection();
-            }
-
-            std::cout << "Unable to get pong response from server.." << std::endl;
             continue;
         }
-
-        // Reset the ping retires
-        _ping_retries = 0;
 
         // Try to call the ping event
         try {
@@ -268,8 +275,10 @@ void quesync::client::modules::communicator::events_handler() {
         std::unique_lock<std::mutex> events_lk(_events_mutex);
 
         // While no event packets are waiting to be handled, wait
-        while (_event_packets.empty()) {
-            _events_cv.wait(events_lk);
+        _events_cv.wait(events_lk,
+                        [&, this] { return !!_stop_threads || !_event_packets.empty(); });
+        if (_stop_threads) {
+            break;
         }
 
         // While there are more event packets to handle
@@ -311,7 +320,18 @@ std::shared_ptr<quesync::response_packet> quesync::client::modules::communicator
     std::lock(get_lk, send_lk);
 
     // Send to the server the packet
-    socket_manager::send(*_socket, packet->encode());
+    try {
+        socket_manager::send(*_socket, packet->encode());
+    } catch (std::exception &ex) {
+        // Clean the connection
+        clean_connection();
+
+        // Call the clean callback
+        _client->clean_connection();
+
+        // Re-throw the exception
+        throw ex;
+    }
 
     // Wait for response to enter
     while (_response_packets.empty()) {

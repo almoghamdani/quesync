@@ -9,7 +9,7 @@
 #include "../../../shared/packets/voice_packet.h"
 #include "../../../shared/utils/encryption.h"
 
-#undef max // Fix a conflict with windows.h's max macro
+#undef max  // Fix a conflict with windows.h's max macro
 
 quesync::client::voice::input::input(std::shared_ptr<manager> manager)
     : _manager(manager), _enabled(false), _muted(false) {
@@ -26,12 +26,19 @@ quesync::client::voice::input::input(std::shared_ptr<manager> manager)
     // Init RNNoise
     _rnnoise_state = rnnoise_create(NULL);
 
-    // Create the thread of the input and detach it
+    // Create the thread of the input
     _thread = std::thread(&input::input_thread, this);
-    _thread.detach();
 }
 
 quesync::client::voice::input::~input() {
+    // Wake the thread up
+    _data_cv.notify_one();
+
+    // If the input thread is still alive, join it
+    if (_thread.joinable()) {
+        _thread.join();
+    }
+
     // Deallocate the RNNoise state
     rnnoise_destroy(_rnnoise_state);
 
@@ -82,6 +89,11 @@ void quesync::client::voice::input::input_thread() {
     while (true) {
         std::shared_ptr<int16_t> buffer;
 
+        // If all threads needs to be stopped
+        if (_manager->stop_threads()) {
+            break;
+        }
+
         // If disabled, skip
         if (!_enabled) {
             std::this_thread::sleep_for(std::chrono::microseconds(750));
@@ -90,7 +102,10 @@ void quesync::client::voice::input::input_thread() {
 
         // Wait for new input
         std::unique_lock lk(_data_mutex);
-        _data_cv.wait(lk);
+        _data_cv.wait(lk, [&, this] { return !!_manager->stop_threads() || !_input_data.empty(); });
+        if (_manager->stop_threads()) {
+            break;
+        }
 
         // Get input data
         buffer = _input_data.front();
@@ -145,22 +160,22 @@ void quesync::client::voice::input::input_thread() {
             voice_packet_encrypted = utils::encryption::encrypt_voice_packet(
                 &voice_packet, _manager->aes_key().get(), _manager->hmac_key().get());
 
-            // Send the encoded voice packet to the server
-            _manager->socket().send_to(
-                asio::buffer(voice_packet_encrypted.c_str(), voice_packet_encrypted.length()),
-                _manager->endpoint());
+            try {
+                // Send the encoded voice packet to the server
+                _manager->socket().send_to(
+                    asio::buffer(voice_packet_encrypted.c_str(), voice_packet_encrypted.length()),
+                    _manager->endpoint());
+            } catch (...) {
+                break;
+            }
 
             // If the current samples are over the minimum db, set the last played time
-            if (db > MINIMUM_DB) last_activated = _manager->get_ms();
+            if (db > MINIMUM_DB) {
+                last_activated = _manager->get_ms();
+            }
         }
     }
 }
-
-void quesync::client::voice::input::mute() { _muted = true; }
-
-void quesync::client::voice::input::unmute() { _muted = false; }
-
-bool quesync::client::voice::input::muted() { return _muted; }
 
 double quesync::client::voice::input::calc_rms(int16_t *data, uint32_t size) {
     double square_sum = 0, rms;
@@ -178,3 +193,9 @@ double quesync::client::voice::input::calc_rms(int16_t *data, uint32_t size) {
 }
 
 double quesync::client::voice::input::calc_db(double rms) { return 20 * log10(rms / AMP_REF); }
+
+void quesync::client::voice::input::mute() { _muted = true; }
+
+void quesync::client::voice::input::unmute() { _muted = false; }
+
+bool quesync::client::voice::input::muted() { return _muted; }

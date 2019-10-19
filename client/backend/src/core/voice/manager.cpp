@@ -1,7 +1,6 @@
 #include "manager.h"
 
 #include <chrono>
-#include <iostream>
 #include <sole.hpp>
 
 #include "../client.h"
@@ -32,13 +31,36 @@ quesync::client::voice::manager::manager(std::shared_ptr<quesync::client::client
               udp::endpoint(udp::v4(), 0)),  // Create an IPv4 UDP socket with a random port
       _aes_key(nullptr),
       _hmac_key(nullptr),
-      _enabled(false) {
+      _enabled(false),
+      _stop_threads(false) {
     // Get the endpoint of the server using the given server IP and default voice chat port
     socket_manager::get_endpoint(server_ip, VOICE_CHAT_PORT, _endpoint);
 
     // Create the thread of activating and deactivating voice
     _activation_thread = std::thread(&manager::voice_activation_thread, this);
-    _activation_thread.detach();
+}
+
+void quesync::client::voice::manager::destroy() {
+    // Signal all voice threads to stop
+    _stop_threads = true;
+
+    // If the activation thread is still alive, join it
+    if (_activation_thread.joinable()) {
+        _activation_thread.join();
+    }
+
+    // If the socket is open, close it
+    if (_socket.lowest_layer().is_open()) {
+        // Close the socket
+        _socket.lowest_layer().close();
+    }
+
+    // Destroy input and output
+    _input = nullptr;
+    _output = nullptr;
+
+    // Close the RtAudio stream
+    _rt_audio.closeStream();
 }
 
 void quesync::client::voice::manager::init() {
@@ -78,7 +100,9 @@ void quesync::client::voice::manager::enable(std::string session_id, std::string
     }
 
     // If not enabled, send the OTP packet to the server to authenticate
-    if (!_enabled) send_otp_packet(otp);
+    if (!_enabled) {
+        send_otp_packet(otp);
+    }
 
     _session_id = session_id;
     _channel_id = channel_id;
@@ -109,8 +133,6 @@ void quesync::client::voice::manager::disable() {
     }
 }
 
-bool quesync::client::voice::manager::enabled() { return _enabled; }
-
 void quesync::client::voice::manager::set_state(bool mute, bool deafen) {
     if (mute) {
         _input->mute();
@@ -125,25 +147,19 @@ void quesync::client::voice::manager::set_state(bool mute, bool deafen) {
     }
 }
 
-bool quesync::client::voice::manager::muted() { return _input->muted(); }
-
-bool quesync::client::voice::manager::deafen() { return _output->deafen(); }
-
-std::string quesync::client::voice::manager::user_id() { return _client->auth()->get_user()->id; }
-
-std::string quesync::client::voice::manager::session_id() { return _session_id; }
-
-std::string quesync::client::voice::manager::channel_id() { return _channel_id; }
-
-udp::socket &quesync::client::voice::manager::socket() { return _socket; }
-
-udp::endpoint &quesync::client::voice::manager::endpoint() { return _endpoint; }
-
 void quesync::client::voice::manager::voice_activation_thread() {
     while (true) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-        if (!_enabled) continue;
+        // If all threads needs to be stopped
+        if (_stop_threads) {
+            break;
+        }
+
+        // If the stream isn't running, skip this iteration
+        if (!_enabled) {
+            continue;
+        }
 
         std::unique_lock lk(_activation_mutex);
         uint64_t current = get_ms();
@@ -201,11 +217,29 @@ void quesync::client::voice::manager::send_otp_packet(std::string otp) {
                     _endpoint);
 }
 
-std::shared_ptr<unsigned char> quesync::client::voice::manager::aes_key() { return _aes_key; }
-
-std::shared_ptr<unsigned char> quesync::client::voice::manager::hmac_key() { return _hmac_key; }
-
 uint64_t quesync::client::voice::manager::get_ms() {
     using namespace std::chrono;
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
+
+std::atomic<bool> &quesync::client::voice::manager::stop_threads() { return _stop_threads; }
+
+bool quesync::client::voice::manager::enabled() { return _enabled; }
+
+std::shared_ptr<unsigned char> quesync::client::voice::manager::aes_key() { return _aes_key; }
+
+std::shared_ptr<unsigned char> quesync::client::voice::manager::hmac_key() { return _hmac_key; }
+
+bool quesync::client::voice::manager::muted() { return _input->muted(); }
+
+bool quesync::client::voice::manager::deafen() { return _output->deafen(); }
+
+std::string quesync::client::voice::manager::user_id() { return _client->auth()->get_user()->id; }
+
+std::string quesync::client::voice::manager::session_id() { return _session_id; }
+
+std::string quesync::client::voice::manager::channel_id() { return _channel_id; }
+
+udp::socket &quesync::client::voice::manager::socket() { return _socket; }
+
+udp::endpoint &quesync::client::voice::manager::endpoint() { return _endpoint; }
