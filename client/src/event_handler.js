@@ -15,7 +15,7 @@ import {
 } from "./actions/voiceActions";
 
 import updater from "./updater";
-import { queue } from "./messages_queue";
+import { queue } from "./notifications_queue";
 
 const { ipcRenderer } = window.require("electron");
 

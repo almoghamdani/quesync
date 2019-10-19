@@ -15,7 +15,7 @@ import { IconButton } from "@rmwc/icon-button";
 import { ThemeProvider } from "@rmwc/theme";
 import { SnackbarQueue } from "@rmwc/snackbar";
 
-import { queue } from "./messages_queue";
+import { queue } from "./notifications_queue";
 
 import "./app.scss";
 
