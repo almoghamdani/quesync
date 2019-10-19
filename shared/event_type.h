@@ -10,6 +10,7 @@ enum class event_type {
     voice_state_event,
     voice_activity_event,
     call_ended_event,
-    file_transmission_progress_event
+    file_transmission_progress_event,
+    server_disconnect_event
 };
 };

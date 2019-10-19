@@ -1,5 +1,9 @@
 #include "client.h"
 
+#include <iostream>
+
+#include "./../../../shared/events/server_disconnect_event.h"
+
 quesync::client::client::client()
     : _communicator(nullptr),
       _auth(nullptr),
@@ -35,6 +39,42 @@ void quesync::client::client::connect(std::string server_ip) {
     _files->connected(server_ip);
 }
 
+void quesync::client::client::clean_connection() {
+    std::shared_ptr<events::server_disconnect_event> server_disconnect_event =
+        std::make_shared<events::server_disconnect_event>();
+
+    // If the user is authenticated, disconnect it
+    if (_auth->get_user()) {
+        disconnected();
+    }
+
+    // Clean modules
+    _auth->clean_connection();
+    _users->clean_connection();
+    _messages->clean_connection();
+    _channels->clean_connection();
+    _voice->clean_connection();
+    _files->clean_connection();
+
+    try {
+        // Call the server disconnect event
+        _communicator->event_handler().call_event(
+            std::static_pointer_cast<event>(server_disconnect_event));
+    } catch (std::exception& ex) {
+        std::cout << ex.what() << std::endl;
+    }
+}
+
+void quesync::client::client::disconnected() {
+    // Send disconnected event to modules
+    _auth->disconnected();
+    _users->disconnected();
+    _messages->disconnected();
+    _channels->disconnected();
+    _voice->disconnected();
+    _files->disconnected();
+}
+
 std::shared_ptr<quesync::client::modules::communicator> quesync::client::client::communicator() {
     return _communicator;
 }
@@ -54,28 +94,3 @@ std::shared_ptr<quesync::client::modules::messages> quesync::client::client::mes
 std::shared_ptr<quesync::client::modules::voice> quesync::client::client::voice() { return _voice; }
 
 std::shared_ptr<quesync::client::modules::files> quesync::client::client::files() { return _files; }
-
-void quesync::client::client::clean_connection() {
-    // If the user is authenticated, disconnect it
-    if (_auth->get_user()) {
-        disconnected();
-    }
-
-    // Clean modules
-    _auth->clean_connection();
-    _users->clean_connection();
-    _messages->clean_connection();
-    _channels->clean_connection();
-    _voice->clean_connection();
-    _files->clean_connection();
-}
-
-void quesync::client::client::disconnected() {
-    // Send disconnected event to modules
-    _auth->disconnected();
-    _users->disconnected();
-    _messages->disconnected();
-    _channels->disconnected();
-    _voice->disconnected();
-    _files->disconnected();
-}
