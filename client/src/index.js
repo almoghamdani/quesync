@@ -6,7 +6,6 @@ import { Provider } from "react-redux";
 import "./index.scss";
 
 import Layout from "./layout";
-import StartPage from "./start_page";
 
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./store";
@@ -19,6 +18,7 @@ import eventHandler from "./event_handler";
 const electron = window.require("electron");
 
 const callingWindow = window.location.search.includes("calling");
+const serverIPWindow = window.location.search.includes("serverip")
 
 const app = document.getElementById("root");
 
@@ -28,6 +28,15 @@ if (callingWindow) {
 
 		ReactDOM.render(
 			<CallWindow {...queryString.parse(window.location.search)} />,
+			app
+		);
+	});
+} else if (serverIPWindow) {
+	import("./server_ip_window").then(module => {
+		const ServerIPWindow = module.default;
+
+		ReactDOM.render(
+			<ServerIPWindow />,
 			app
 		);
 	});
@@ -50,7 +59,7 @@ if (callingWindow) {
 				// Register the event handler
 				eventHandler.register(client);
 			}}>
-				<Layout child={<StartPage />} />
+				<Layout />
 			</PersistGate>
 		</Provider>,
 		app

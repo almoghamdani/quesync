@@ -23,6 +23,8 @@ import updater from "./updater";
 import "@rmwc/circular-progress/circular-progress.css";
 import "./start_page.scss";
 
+const electron = window.require("electron");
+
 class StartPage extends Component {
 	state = {
 		signInVisible: true,
@@ -53,8 +55,11 @@ class StartPage extends Component {
 					);
 			}, 1000);
 		} else {
+			// Get the Server's IP
+			const serverIP = electron.remote.getGlobal("serverIP");
+
 			// Try to conenct to the server
-			this.connectRepeat(this.props.client, "127.0.0.1", async () => {
+			this.connectRepeat(this.props.client, serverIP, async () => {
 				var user = null;
 				var sessionId = localStorage.getItem("_qpsid");
 

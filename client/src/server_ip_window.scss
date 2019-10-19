@@ -1,0 +1,41 @@
+.quesync-server-ip-window {
+	width: 100vw;
+	height: 100vh;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	background: var(--mdc-theme-primary);
+}
+
+.quesync-server-ip-form-wrapper {
+	height: 70%;
+	width: 80%;
+	border-radius: 20px;
+
+	background: white;
+
+	z-index: 1;
+}
+
+.quesync-server-ip-form {
+	height: 100%;
+	width: 100%;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-evenly;
+}
+
+.quesync-server-ip-field {
+	width: 80%;
+}
+
+.quesync-server-ip-form-actions {
+	width: 100%;
+
+	display: flex;
+	justify-content: space-evenly;
+}

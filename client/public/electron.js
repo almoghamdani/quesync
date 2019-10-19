@@ -13,13 +13,13 @@ const quesync = require(isDev
 	? `../backend/build/${backendName}`
 	: app.getAppPath() + `/../../backend.node`);
 
-// Set the main window as a global var
-let mainWindow;
+let mainWindow, serverIPWindow;
+let callWindows = {};
 
 // Create a new backend client
 let client = new quesync.Client();
 
-let callWindows = {};
+let serverIP = null;
 
 electron.ipcMain.on("create-call-window", (_, callDetails) => {
 	const query = queryString.stringify(callDetails);
@@ -70,7 +70,7 @@ electron.ipcMain.on("close-call-window", (_, channelId) => {
 
 		// Remove the window from the call windows
 		delete callWindows[channelId];
-		
+
 		// Close the window
 		window.close();
 	}
@@ -94,7 +94,48 @@ electron.ipcMain.on("call-main-window-event", (_, { name, arg }) =>
 	mainWindow.webContents.send(name, arg)
 );
 
-function createWindow() {
+electron.ipcMain.on("save-server-ip", (_, ip) => {
+	// If the Server IP Window is open
+	if (serverIPWindow) {
+		// Save the Server's IP
+		serverIP = ip;
+
+		// Close the Server's IP Window
+		serverIPWindow.close();
+
+		// Create the main window
+		createMainWindow();
+	}
+}
+);
+
+function createServerIPWindow() {
+	// Create the Server IP window
+	serverIPWindow = new BrowserWindow({
+		width: 450,
+		height: 300,
+		webPreferences: { nodeIntegration: true },
+		fullscreenable: false,
+		resizable: false,
+		center: true,
+		show: false
+	});
+
+	// Load the dev url if electron ran on dev or load the static html file when electron is running in production
+	serverIPWindow.loadURL(
+		isDev
+			? "http://localhost:3000?serverip"
+			: `file://${path.join(__dirname, "../build/index.html?serverip")}`
+	);
+
+	// On the close event release the window from the memory
+	serverIPWindow.on("closed", () => (serverIPWindow = null));
+
+	// Only show the window when it's ready
+	serverIPWindow.on("ready-to-show", serverIPWindow.show);
+}
+
+function createMainWindow() {
 	// Create a new browser window with a fixed initial size
 	mainWindow = new BrowserWindow({
 		width: 900,
@@ -138,21 +179,28 @@ function createWindow() {
 
 	// Set the client as a global var
 	global.client = client;
+
+	// Set the Server's IP as a global var
+	global.serverIP = serverIP;
 }
 
 // When the electron app is ready, create the browser window
-app.on("ready", createWindow);
+app.on("ready", () => {
+	// If in dev mode, connect to local IP
+	if (isDev) {
+		// Set Server's IP as localhost
+		serverIP = "127.0.0.1";
+
+		// Create the Main Window
+		createMainWindow();
+	} else {
+		// Create the Server IP Window to get the IP from the user
+		createServerIPWindow();
+	}
+});
 
 // If all the windows are closed, on windows, quit app
 app.on("window-all-closed", () => {
 	// Close apps when all windows are closed
 	app.quit();
-});
-
-// If the app activated and the main window isn't created, create the window
-app.on("activate", () => {
-	// If the main window is null, create it
-	if (mainWindow === null) {
-		createWindow();
-	}
 });
