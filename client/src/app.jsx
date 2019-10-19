@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 
-import { connect } from "react-redux";
-
 import ConnectionStatus from "./components/connection_status";
 import PageContainer from "./components/page_container";
 import SearchField from "./components/search_field";
