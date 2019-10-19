@@ -2,7 +2,7 @@ import React from "react";
 
 import { store } from "./store";
 
-import { addPingValue } from "./actions/clientActions";
+import { addPingValue, disconnected } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";
 import { addMessageToChannel } from "./actions/messagesActions";
 import {
@@ -31,13 +31,14 @@ class EventHandler {
 		client.registerEventHandler("voice-state", this.voiceStateEvent);
 		client.registerEventHandler("voice-activity", this.voiceActivationEvent);
 		client.registerEventHandler("call-ended", this.callEndedEvent);
+		client.registerEventHandler("server-disconnect", this.serverDisconnectEvent);
 
 		ipcRenderer.on("join-call", (_, channelId) => {
 			// Close the window
 			ipcRenderer.send("close-call-window", channelId);
 
 			// Join the call
-			store.dispatch(joinCall(client, channelId));
+			store.dispatch(joinCall(channelId));
 		});
 	};
 
@@ -256,6 +257,11 @@ class EventHandler {
 		// Close the call window in case there is one
 		ipcRenderer.send("close-call-window", event.channelId);
 	};
+
+	serverDisconnectEvent = _ => {
+		// Set the client as disconnected
+		store.dispatch(disconnected());
+	}
 }
 
 export default new EventHandler();

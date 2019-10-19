@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 
 import App from "./app";
 import StartPage from "./start_page";
@@ -15,9 +16,16 @@ const BrowserWindow = electron.remote.BrowserWindow;
 
 class Layout extends Component {
 	state = {
-		inStartPage: true,
-		logout: false
+		inStartPage: true
 	};
+
+	static getDerivedStateFromProps(props, state)
+	{
+		// If the client isn't connected, return to the start page
+		if (!props.connected) {
+			state.inStartPage = true;
+		}
+	}
 
 	close() {
 		// Blur active element
@@ -79,12 +87,10 @@ class Layout extends Component {
 				</div>
 				<FadeTransition in={this.state.inStartPage} timeout={800} unmountOnExit>
 					<StartPage
-						logout={this.state.logout}
 						easing="easeInOutCirc"
 						transitionToApp={() =>
 							this.setState({
-								inStartPage: false,
-								logout: false
+								inStartPage: false
 							})
 						}
 					/>
@@ -96,10 +102,9 @@ class Layout extends Component {
 					unmountOnExit
 				>
 					<App
-						logout={() =>
+						transitionToStartPage={() =>
 							this.setState({
-								inStartPage: true,
-								logout: true
+								inStartPage: true
 							})
 						}
 					/>
@@ -109,4 +114,6 @@ class Layout extends Component {
 	}
 }
 
-export default Layout;
+export default connect(state => ({
+	connected: state.client.connected
+}))(Layout);

@@ -3,6 +3,7 @@ const MAX_PINGS_IN_LIST = 10;
 export default function reducer(
 	state = {
 		client: null,
+		connected: false,
 		pings: []
 	},
 	action
@@ -15,18 +16,23 @@ export default function reducer(
 			var pingsCopy = [...state.pings, action.payload];
 
 			// If reached max pings, reset list
-			if (pingsCopy.length > MAX_PINGS_IN_LIST)
-			{
+			if (pingsCopy.length > MAX_PINGS_IN_LIST) {
 				return {
 					...state,
 					pings: [state.pings.slice(-1)[0], action.payload]
-				}; 
+				};
 			}
 
 			return {
 				...state,
 				pings: pingsCopy
 			};
+
+		case "CONNECTED":
+			return { ...state, connected: true };
+
+		case "DISCONNECTED":
+			return { ...state, connected: false };
 
 		default:
 			return state;

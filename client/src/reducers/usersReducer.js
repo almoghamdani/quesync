@@ -37,6 +37,7 @@ export default function reducer(
 
 		case "LOGOUT_FULFILLED":
 		case "LOGOUT_REJECTED":
+		case "CLEAN_CONNECTION":
 			return INITIAL_STATE;
 
 		default:

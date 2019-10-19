@@ -11,6 +11,7 @@ import { Elevation } from "@rmwc/elevation";
 import { CircularProgress } from "@rmwc/circular-progress";
 import anime from "animejs/lib/anime.es.js";
 
+import { connected, cleanConnection } from "./actions/clientActions";
 import {
 	sessionAuth,
 	setUser,
@@ -28,15 +29,22 @@ const electron = window.require("electron");
 class StartPage extends Component {
 	state = {
 		signInVisible: true,
-		registerVisible: false
+		registerVisible: false,
+		connecting: true,
+		currentForm: LoginForm
 	};
 
-	async componentDidMount() {
+	componentDidMount() {
 		// Set the app as loading
-		this.startLoadingAnimation(null, LoginForm, false);
+		this.startLoadingAnimation(null, false);
 
-		// If the user wants to logout
-		if (this.props.logout) {
+		// If the client is connected, logout the user
+		if (this.props.connected) {
+			// Set the state as connected
+			this.setState({
+				connecting: false
+			});
+
 			// Wait for the transition to finish and then logout
 			setTimeout(() => {
 				// Remove the session id
@@ -55,49 +63,86 @@ class StartPage extends Component {
 					);
 			}, 1000);
 		} else {
-			// Get the Server's IP
-			const serverIP = electron.remote.getGlobal("serverIP");
-
-			// Try to conenct to the server
-			this.connectRepeat(this.props.client, serverIP, async () => {
-				var user = null;
-				var sessionId = localStorage.getItem("_qpsid");
-
-				// If the client is already authenticated, continue to the application
-				if ((user = this.props.client.auth().getUser())) {
-					// Set user
-					this.props.dispatch(setUser(user));
-
-					// Update user's data
-					await updater.update();
-
-					// Transition to app
-					this.transitionToApp();
-				} else if (sessionId && sessionId.length) {
-					// Try to connect via the session
-					await this.props
-						.dispatch(sessionAuth(sessionId))
-						.then(async () => {
-							// Update user's data
-							await updater.update();
-
-							// Transition to app
-							this.transitionToApp();
-						})
-						.catch(() => {
-							// Remove the invalid session id
-							localStorage.removeItem("_qpsid");
-
-							// Stop the loading animation
-							this.stopLoadingAnimation(null, LoginForm);
-						});
-				} else {
-					// Stop the loading animation when connection is successful
-					this.stopLoadingAnimation(null, LoginForm);
-				}
-			});
+			// Connect to the server
+			this.connect();
 		}
 	}
+
+	componentDidUpdate() {
+		// If the client isn't connect to the server
+		// and it's currently connecting to it, start the connection process
+		if (!this.props.connected && !this.state.connecting) {
+			this.setState({
+				connecting: true
+			});
+
+			// Set the app as loading
+			this.startLoadingAnimation(null, true);
+
+			// Connect to the server
+			this.connect();
+		}
+	}
+
+	connect = () => {
+		// Get the Server's IP
+		const serverIP = electron.remote.getGlobal("serverIP");
+
+		setTimeout(
+			() => {
+				// Clean any old connection
+				this.props.dispatch(cleanConnection());
+
+				// Try to conenct to the server
+				this.connectRepeat(this.props.client, serverIP, async () => {
+					var user = null;
+					var sessionId = localStorage.getItem("_qpsid");
+
+					// Set the client as connected
+					this.props.dispatch(connected());
+
+					// Set the state as connected
+					this.setState({
+						connecting: false
+					});
+
+					// If the client is already authenticated, continue to the application
+					if ((user = this.props.client.auth().getUser())) {
+						// Set user
+						this.props.dispatch(setUser(user));
+
+						// Update user's data
+						await updater.update();
+
+						// Transition to app
+						this.transitionToApp();
+					} else if (sessionId && sessionId.length) {
+						// Try to connect via the session
+						await this.props
+							.dispatch(sessionAuth(sessionId))
+							.then(async () => {
+								// Update user's data
+								await updater.update();
+
+								// Transition to app
+								this.transitionToApp();
+							})
+							.catch(() => {
+								// Remove the invalid session id
+								localStorage.removeItem("_qpsid");
+
+								// Stop the loading animation
+								this.stopLoadingAnimation(null, LoginForm);
+							});
+					} else {
+						// Stop the loading animation when connection is successful
+						this.stopLoadingAnimation(null, LoginForm);
+					}
+				});
+			},
+			this.props.user ? 1000 : 0
+		);
+	};
 
 	connectRepeat = async (client, ip, callback) => {
 		try {
@@ -112,7 +157,7 @@ class StartPage extends Component {
 		}
 	};
 
-	startLoadingAnimation = (completeCallback, form, animated = true) => {
+	startLoadingAnimation = (completeCallback, animated = true) => {
 		// Create an animation timeline for the title transition + loading animation
 		var timeline = anime.timeline({
 			duration: animated ? 1300 : 0,
@@ -124,7 +169,7 @@ class StartPage extends Component {
 		// Add animation for the title to fill the menu
 		timeline.add({
 			targets: ".quesync-title-moving",
-			width: form.width * 2 + "rem"
+			width: this.state.currentForm.width * 2 + "rem"
 		});
 
 		// Reset the title position to make space for the loading indicator
@@ -146,7 +191,7 @@ class StartPage extends Component {
 		);
 	};
 
-	stopLoadingAnimation = (completeCallback, form) => {
+	stopLoadingAnimation = completeCallback => {
 		// Create a timeline for the return of the title animation
 		var timeline = anime.timeline({
 			duration: 800,
@@ -158,7 +203,7 @@ class StartPage extends Component {
 		// Animate the quesync title moving part to return to it's place
 		timeline.add({
 			targets: ".quesync-title-moving",
-			width: form.width + "rem"
+			width: this.state.currentForm.width + "rem"
 		});
 
 		// Fade out the loading indicator
@@ -183,6 +228,11 @@ class StartPage extends Component {
 	startTransition = (currentForm, targetForm) => {
 		// Reset the authentication error
 		this.props.dispatch(resetAuthError());
+
+		// Set the new form
+		this.setState({
+			currentForm: targetForm
+		});
 
 		// Create a timeline animation for the transition for the register form
 		var timeline = anime.timeline({
@@ -384,5 +434,7 @@ class StartPage extends Component {
 
 export default connect(state => ({
 	client: state.client.client,
-	authenticating: state.user.authenticating
+	connected: state.client.connected,
+	authenticating: state.user.authenticating,
+	user: state.user.user
 }))(StartPage);

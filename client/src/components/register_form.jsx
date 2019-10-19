@@ -142,9 +142,9 @@ class RegisterForm extends Component {
 					this.props.stopLoadingAnimation(() => {
 						// Stop authenticating
 						this.props.dispatch(finishAuth());
-					}, RegisterForm);
+					});
 				});
-		}, RegisterForm);
+		});
 	};
 
 	static get height() {

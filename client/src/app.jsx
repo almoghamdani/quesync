@@ -56,7 +56,7 @@ class App extends Component {
 							<IconButton
 								className="quesync-logout-button"
 								icon="exit_to_app"
-								onClick={() => this.props.logout()}
+								onClick={() => this.props.transitionToStartPage()}
 							/>
 						</TopAppBarSection>
 					</TopAppBarRow>
