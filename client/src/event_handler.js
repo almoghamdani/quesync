@@ -4,6 +4,7 @@ import { store } from "./store";
 
 import { addPingValue, disconnected } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";
+import { setFriendsPageSelectedDrawerItemId } from "./actions/itemsActions";
 import { addMessageToChannel } from "./actions/messagesActions";
 import {
 	joinCall,
@@ -196,12 +197,35 @@ class EventHandler {
 	messageEvent = event => {
 		var message = { ...event.message };
 		const channelId = message.channelId;
+		const senderId = message.senderId;
 
 		// Remove channel id field from message
 		delete message.channelId;
 
 		// Add message to channel
 		store.dispatch(addMessageToChannel(message, channelId));
+
+		// Show a notification with the the new message
+		queue.notify({
+			title: <b>New Message</b>,
+			body: (
+				<span>
+					<b>{store.getState().users.profiles[senderId].nickname}</b> had sent you a new message
+				</span>
+			),
+			icon: "message",
+			actions: [
+				{
+					title: "Dismiss"
+				},
+				{
+					title: "Show",
+					onClick: () =>
+						// Set the selected drawer item id as the user's id
+						store.dispatch(setFriendsPageSelectedDrawerItemId(senderId))
+				}
+			]
+		});
 	};
 
 	incomingCallEvent = event => {
