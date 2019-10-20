@@ -8,7 +8,7 @@
 	justify-items: center;
 	align-items: stretch;
 
-	max-width: 75%;
+	max-width: 85%;
 	display: inline-flex;
 }
 
@@ -53,6 +53,9 @@
 
 	// Show line breaks
 	white-space: pre-line;
+
+	// Break words if overflowing
+	word-break: break-word;
 }
 
 .quesync-text-message-date {
