@@ -121,6 +121,9 @@ function createServerIPWindow() {
 		show: false
 	});
 
+	// Remove the menu of the Server IP Window
+	serverIPWindow.removeMenu();
+
 	// Load the dev url if electron ran on dev or load the static html file when electron is running in production
 	serverIPWindow.loadURL(
 		isDev
