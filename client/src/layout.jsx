@@ -19,12 +19,13 @@ class Layout extends Component {
 		inStartPage: true
 	};
 
-	static getDerivedStateFromProps(props, state)
-	{
+	static getDerivedStateFromProps(props, state) {
 		// If the client isn't connected, return to the start page
 		if (!props.connected) {
-			state.inStartPage = true;
+			return { ...state, inStartPage: true };
 		}
+
+		return state;
 	}
 
 	close() {
