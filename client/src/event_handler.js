@@ -41,7 +41,7 @@ class EventHandler {
 			// Join the call
 			store.dispatch(joinCall(channelId));
 		});
-	};
+	}
 
 	pingEvent = async event => {
 		const pingValue = event.ms;
@@ -71,22 +71,30 @@ class EventHandler {
 			})
 		);
 
-		// Show a notification with the new friend request
-		queue.notify({
-			title: <b>New Friend Request</b>,
-			body: (
-				<span>
-					You have a new friend request from{" "}
-					<b>{store.getState().users.profiles[friendId].nickname}</b>
-				</span>
-			),
-			icon: "person_add",
-			actions: [
-				{
-					title: "Dismiss"
-				}
-			]
-		});
+		// If the window is focused
+		if (document && document.hasFocus()) {
+			// Show a notification with the new friend request
+			queue.notify({
+				title: <b>New Friend Request</b>,
+				body: (
+					<span>
+						You have a new friend request from{" "}
+						<b>{store.getState().users.profiles[friendId].nickname}</b>
+					</span>
+				),
+				icon: "person_add",
+				actions: [
+					{
+						title: "Dismiss"
+					}
+				]
+			});
+		} else {
+			// Display a system-wide notification
+			new Notification("New Friend Request", {
+				body: `You have a new friend request from ${store.getState().users.profiles[friendId].nickname}`
+			});
+		}
 	};
 
 	friendshipStatusEvent = async event => {
@@ -114,22 +122,30 @@ class EventHandler {
 					})
 				);
 
-				// Show a notification with the new friend
-				queue.notify({
-					title: <b>Friend Request Approved</b>,
-					body: (
-						<span>
-							<b>{store.getState().users.profiles[friendId].nickname}</b> has
-							approved your friend request
+				// If the window is focused
+				if (document && document.hasFocus()) {
+					// Show a notification with the new friend
+					queue.notify({
+						title: <b>Friend Request Approved</b>,
+						body: (
+							<span>
+								<b>{store.getState().users.profiles[friendId].nickname}</b> has
+								approved your friend request
 						</span>
-					),
-					icon: "person_add",
-					actions: [
-						{
-							title: "Dismiss"
-						}
-					]
-				});
+						),
+						icon: "person_add",
+						actions: [
+							{
+								title: "Dismiss"
+							}
+						]
+					});
+				} else {
+					// Display a system-wide notification
+					new Notification("Friend Request Approved", {
+						body: `${store.getState().users.profiles[friendId].nickname} has approved your friend request`
+					});
+				}
 			} else {
 				// Remove the friend from the friend requests
 				await store.dispatch(
@@ -141,30 +157,40 @@ class EventHandler {
 					})
 				);
 
-				// Show a notification with the rejected friend request
-				queue.notify({
-					title: (
-						<b>
-							{friendRequest.friendType === "requester"
-								? "Friend Request Removed"
-								: "Friend Request Rejected"}
-						</b>
-					),
-					body: (
-						<span>
-							<b>{store.getState().users.profiles[friendId].nickname}</b> has{" "}
-							{friendRequest.friendType === "requester"
-								? "removed his friend request to you"
-								: "rejected your friend request"}
-						</span>
-					),
-					icon: "person_add",
-					actions: [
-						{
-							title: "Dismiss"
-						}
-					]
-				});
+				// If the window is focused
+				if (document && document.hasFocus()) {
+					// Show a notification with the rejected friend request
+					queue.notify({
+						title: (
+							<b>
+								{friendRequest.friendType === "requester"
+									? "Friend Request Removed"
+									: "Friend Request Rejected"}
+							</b>
+						),
+						body: (
+							<span>
+								<b>{store.getState().users.profiles[friendId].nickname}</b> has{" "}
+								{friendRequest.friendType === "requester"
+									? "removed his friend request to you"
+									: "rejected your friend request"}
+							</span>
+						),
+						icon: "person_add",
+						actions: [
+							{
+								title: "Dismiss"
+							}
+						]
+					});
+				} else {
+					// Display a system-wide notification
+					new Notification(friendRequest.friendType === "requester"
+						? "Friend Request Removed"
+						: "Friend Request Rejected", {
+						body: `${store.getState().users.profiles[friendId].nickname} has ${friendRequest.friendType === "requester" ? "removed his friend request to you" : "rejected your friend request"}`
+					});
+				}
 			}
 		} else if (status === false && user.friends.indexOf(friendId) !== -1) {
 			// Remove the friend from the friends list
@@ -175,22 +201,30 @@ class EventHandler {
 				})
 			);
 
-			// Show a notification with the rejected friend request
-			queue.notify({
-				title: <b>Friend Removed</b>,
-				body: (
-					<span>
-						<b>{store.getState().users.profiles[friendId].nickname}</b> has
-						removed you from his friends list
+			// If the window is focused
+			if (document && document.hasFocus()) {
+				// Show a notification with the rejected friend request
+				queue.notify({
+					title: <b>Friend Removed</b>,
+					body: (
+						<span>
+							<b>{store.getState().users.profiles[friendId].nickname}</b> has
+							removed you from his friends list
 					</span>
-				),
-				icon: "person",
-				actions: [
-					{
-						title: "Dismiss"
-					}
-				]
-			});
+					),
+					icon: "person",
+					actions: [
+						{
+							title: "Dismiss"
+						}
+					]
+				});
+			} else {
+				// Display a system-wide notification
+				new Notification("Friend Removed", {
+					body: `${store.getState().users.profiles[friendId].nickname} has removed you from his friends list`
+				});
+			}
 		}
 	};
 
@@ -205,27 +239,36 @@ class EventHandler {
 		// Add message to channel
 		store.dispatch(addMessageToChannel(message, channelId));
 
-		// Show a notification with the the new message
-		queue.notify({
-			title: <b>New Message</b>,
-			body: (
-				<span>
-					<b>{store.getState().users.profiles[senderId].nickname}</b> had sent you a new message
-				</span>
-			),
-			icon: "message",
-			actions: [
-				{
-					title: "Dismiss"
-				},
-				{
-					title: "Show",
-					onClick: () =>
-						// Set the selected drawer item id as the user's id
-						store.dispatch(setFriendsPageSelectedDrawerItemId(senderId))
-				}
-			]
-		});
+		// If the window is focused
+		if (document && document.hasFocus()) {
+			// Show a notification with the the new message
+			queue.notify({
+				title: <>New Message from <b>{store.getState().users.profiles[senderId].nickname}</b></>,
+				body: (
+					<span>{message.content}</span>
+				),
+				icon: "message",
+				actions: [
+					{
+						title: "Show",
+						onClick: () =>
+							// Set the selected drawer item id as the user's id
+							store.dispatch(setFriendsPageSelectedDrawerItemId(senderId))
+					},
+					{
+						title: "Dismiss"
+					}
+				]
+			});
+		} else {
+			// Send a system-wide notification
+			let notification = new Notification(store.getState().users.profiles[senderId].nickname, {
+				body: message.content
+			});
+			notification.onclick = () =>
+				// Set the selected drawer item id as the user's id
+				store.dispatch(setFriendsPageSelectedDrawerItemId(senderId))
+		}
 	};
 
 	incomingCallEvent = event => {
