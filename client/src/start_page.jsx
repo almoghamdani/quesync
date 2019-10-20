@@ -190,7 +190,7 @@ class StartPage extends Component {
 				targets: ".quesync-title-text",
 				marginTop: "0px"
 			},
-			900
+			animated ? 900 : 0
 		);
 
 		// Fade in the loading indicator
@@ -199,7 +199,7 @@ class StartPage extends Component {
 				targets: ".quesync-loading",
 				opacity: "1"
 			},
-			900
+			animated ? 900 : 0
 		);
 
 		// Fade in the loading description
@@ -208,7 +208,7 @@ class StartPage extends Component {
 				targets: ".quesync-loading-description",
 				opacity: "1"
 			},
-			900
+			animated ? 900 : 0
 		);
 	};
 
