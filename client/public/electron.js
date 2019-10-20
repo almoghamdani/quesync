@@ -21,8 +21,9 @@ let client = new quesync.Client();
 
 let serverIP = null;
 
-// Remove menu on all windows
-electron.Menu.setApplicationMenu(null);
+// Remove menu on all windows on production
+if (!isDev)
+	electron.Menu.setApplicationMenu(null);
 
 electron.ipcMain.on("create-call-window", (_, callDetails) => {
 	const query = queryString.stringify(callDetails);
