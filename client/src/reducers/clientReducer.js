@@ -3,6 +3,7 @@ const MAX_PINGS_IN_LIST = 10;
 export default function reducer(
 	state = {
 		client: null,
+		wasConnected: false,
 		connected: false,
 		pings: []
 	},
@@ -29,7 +30,7 @@ export default function reducer(
 			};
 
 		case "CONNECTED":
-			return { ...state, connected: true };
+			return { ...state, connected: true, wasConnected: true };
 
 		case "DISCONNECTED":
 			return { ...state, connected: false };

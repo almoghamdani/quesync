@@ -31,6 +31,7 @@ class StartPage extends Component {
 		signInVisible: true,
 		registerVisible: false,
 		connecting: true,
+		loggingOut: false,
 		currentForm: LoginForm
 	};
 
@@ -40,9 +41,10 @@ class StartPage extends Component {
 
 		// If the client is connected, logout the user
 		if (this.props.connected) {
-			// Set the state as connected
+			// Set the state as connected and logging out
 			this.setState({
-				connecting: false
+				connecting: false,
+				loggingOut: true
 			});
 
 			// Wait for the transition to finish and then logout
@@ -55,11 +57,21 @@ class StartPage extends Component {
 					.dispatch(logout())
 					.then(() =>
 						// Stop the loading animation
-						this.stopLoadingAnimation(null, LoginForm)
+						this.stopLoadingAnimation(() =>
+							// Remove the logging out state
+							this.setState({
+								loggingOut: false
+							})
+						)
 					)
 					.catch(() =>
 						// Stop the loading animation
-						this.stopLoadingAnimation(null, LoginForm)
+						this.stopLoadingAnimation(() =>
+							// Remove the logging out state
+							this.setState({
+								loggingOut: false
+							})
+						)
 					);
 			}, 1000);
 		} else {
@@ -132,11 +144,11 @@ class StartPage extends Component {
 								localStorage.removeItem("_qpsid");
 
 								// Stop the loading animation
-								this.stopLoadingAnimation(null, LoginForm);
+								this.stopLoadingAnimation(null);
 							});
 					} else {
 						// Stop the loading animation when connection is successful
-						this.stopLoadingAnimation(null, LoginForm);
+						this.stopLoadingAnimation(null);
 					}
 				});
 			},
@@ -189,6 +201,15 @@ class StartPage extends Component {
 			},
 			900
 		);
+
+		// Fade in the loading description
+		timeline.add(
+			{
+				targets: ".quesync-loading-description",
+				opacity: "1"
+			},
+			900
+		);
 	};
 
 	stopLoadingAnimation = completeCallback => {
@@ -215,11 +236,21 @@ class StartPage extends Component {
 			0
 		);
 
+		// Fade out the loading description
+		timeline.add(
+			{
+				targets: ".quesync-loading-description",
+				opacity: "0",
+				duration: 400
+			},
+			0
+		);
+
 		// Return the title text to the center
 		timeline.add(
 			{
 				targets: ".quesync-title-text",
-				marginTop: "62px"
+				marginTop: "124px"
 			},
 			0
 		);
@@ -312,11 +343,21 @@ class StartPage extends Component {
 			0
 		);
 
+		// Fade out the loading description
+		timeline.add(
+			{
+				targets: ".quesync-loading-description",
+				opacity: "0",
+				duration: 400
+			},
+			0
+		);
+
 		// Return the title text to the center
 		timeline.add(
 			{
 				targets: ".quesync-title-text",
-				marginTop: "62px",
+				marginTop: "124px",
 				duration: 400,
 				complete: () => {
 					// Set transition opacity
@@ -347,6 +388,25 @@ class StartPage extends Component {
 
 		// Transition to the login form
 		this.startTransition(RegisterForm, LoginForm);
+	};
+
+	getCurrentDescription = () => {
+		// If reconnecting
+		if (this.props.wasConnected && !this.props.connected) {
+			return "Connection Lost!\nReconnecting...";
+		} else if (!this.props.wasConnected && !this.props.connected) {
+			// First connection
+			return "Connecting...";
+		} else if (this.props.authenticating) {
+			// Authentication
+			return "Authenticaing...";
+		} else if (this.state.loggingOut) {
+			return "Logging Out...";
+		} else if (this.props.user) {
+			return "Loading Data...";
+		} else {
+			return "Loading...";
+		}
 	};
 
 	render() {
@@ -394,7 +454,7 @@ class StartPage extends Component {
 						<Typography
 							className="quesync-title-text"
 							use="headline2"
-							style={{ color: "white", userSelect: "none", marginTop: "55px" }}
+							style={{ color: "white", userSelect: "none" }}
 						>
 							Quesync
 						</Typography>
@@ -403,6 +463,18 @@ class StartPage extends Component {
 							theme="secondary"
 							style={{ marginTop: "38px", opacity: "0" }}
 						/>
+						<Typography
+							className="quesync-loading-description"
+							use="headline6"
+							style={{
+								color: "white",
+								marginTop: "30px",
+								userSelect: "none",
+								height: "32px"
+							}}
+						>
+							{this.getCurrentDescription()}
+						</Typography>
 					</div>
 					<div
 						className="quesync-form-side quesync-form-holder"
@@ -434,6 +506,7 @@ class StartPage extends Component {
 
 export default connect(state => ({
 	client: state.client.client,
+	wasConnected: state.client.wasConnected,
 	connected: state.client.connected,
 	authenticating: state.user.authenticating,
 	user: state.user.user
