@@ -14,6 +14,7 @@ import {
 import { IconButton } from "@rmwc/icon-button";
 import { ThemeProvider } from "@rmwc/theme";
 import { SnackbarQueue } from "@rmwc/snackbar";
+import { Typography } from "@rmwc/typography";
 
 import { queue } from "./notifications_queue";
 
@@ -49,6 +50,9 @@ class App extends Component {
 				>
 					<TopAppBarRow>
 						<TopAppBarSection alignStart>
+							<Typography className="quesync-app-title" use="headline5">
+								Quesync
+							</Typography>
 							<SearchField />
 						</TopAppBarSection>
 						<TopAppBarSection alignEnd>
