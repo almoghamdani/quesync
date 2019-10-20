@@ -69,8 +69,15 @@
 				"to": "backend/cert.pem"
 			}
 		],
+		"nsis": {
+			"oneClick": false,
+			"allowToChangeInstallationDirectory": true
+		},
 		"win": {
-			"target": "zip",
+			"target": [
+				"nsis",
+				"zip"
+			],
 			"publisherName": "Almog Hamdani"
 		},
 		"mac": {
