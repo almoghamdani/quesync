@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-
 import { connect } from "react-redux";
 
 import { Scrollbars } from "react-custom-scrollbars";
@@ -10,11 +9,6 @@ import FadeTransition from "./fade_transition";
 import MessageBubble from "./message_bubble";
 import MessageField from "./message_field";
 import Seperator from "./seperator";
-
-import {
-	sendMessage,
-	setNewMessageForChannel
-} from "../actions/messagesActions";
 
 import "./channel.scss";
 import CallDetails from "./call_details";
@@ -159,28 +153,12 @@ class Channel extends Component {
 					</Scrollbars>
 				</div>
 				<Seperator />
-				<MessageField
-					value={
-						this.props.newMessages[this.props.channelId]
-							? this.props.newMessages[this.props.channelId]
-							: ""
-					}
-					setNewValue={value =>
-						this.props.dispatch(
-							setNewMessageForChannel(value, this.props.channelId)
-						)
-					}
-					send={() =>
-						this.props
-							.dispatch(
-								sendMessage(
-									this.props.newMessages[this.props.channelId],
-									this.props.channelId
-								)
-							)
-							.then(() => this.scrollToBottom(true))
-					}
-				/>
+					<MessageField
+						channelId={this.props.channelId}
+						sendCallback={() =>
+							this.scrollToBottom(true)
+						}
+					/>
 			</div>
 		);
 	}
@@ -190,6 +168,5 @@ export default connect(state => ({
 	user: state.user.user,
 	calls: state.voice.calls,
 	messages: state.messages.messages,
-	newMessages: state.messages.newMessages,
 	profiles: state.users.profiles
 }))(Channel);

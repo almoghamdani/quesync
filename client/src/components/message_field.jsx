@@ -1,7 +1,13 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 
 import { NotchedOutline } from "@rmwc/notched-outline";
 import { FloatingLabel } from "@rmwc/floating-label";
+
+import {
+	sendMessage,
+	setNewMessageForChannel
+} from "../actions/messagesActions";
 
 import "./message_field.scss";
 
@@ -23,7 +29,9 @@ class MessageField extends Component {
 
 	updateNotch = () => {
 		const notch =
-			this.state.isFocused || (this.props.value && this.props.value.length)
+			this.state.isFocused ||
+			(this.props.newMessages[this.props.channelId] &&
+				this.props.newMessages[this.props.channelId].length)
 				? this.labelRef.current.getWidth() * 0.75
 				: 0;
 
@@ -49,16 +57,36 @@ class MessageField extends Component {
 							className="quesync-message-field-input mdc-text-field__input"
 							onFocus={() => this.setState({ isFocused: true })}
 							onBlur={() => this.setState({ isFocused: false })}
-							value={this.props.value}
-							onChange={event => this.props.setNewValue(event.target.value)}
+							value={
+								this.props.newMessages[this.props.channelId]
+									? this.props.newMessages[this.props.channelId]
+									: ""
+							}
+							onChange={event =>
+								this.props.dispatch(
+									setNewMessageForChannel(
+										event.target.value,
+										this.props.channelId
+									)
+								)
+							}
 							onKeyPress={event => {
 								if (event.key === "Enter" && !event.shiftKey) {
 									// Don't insert a new line
 									event.preventDefault();
 
 									// If the message isn't blank, send the message
-									if (!/^\s*$/.test(this.props.value)) {
-										this.props.send();
+									if (
+										!/^\s*$/.test(this.props.newMessages[this.props.channelId])
+									) {
+										this.props
+											.dispatch(
+												sendMessage(
+													this.props.newMessages[this.props.channelId],
+													this.props.channelId
+												)
+											)
+											.then(() => this.props.sendCallback());
 									}
 								}
 							}}
@@ -68,7 +96,8 @@ class MessageField extends Component {
 						<FloatingLabel
 							float={
 								this.state.isFocused ||
-								(this.props.value && this.props.value.length)
+								(this.props.newMessages[this.props.channelId] &&
+									this.props.newMessages[this.props.channelId].length)
 							}
 							ref={this.labelRef}
 						>
@@ -81,4 +110,6 @@ class MessageField extends Component {
 	}
 }
 
-export default MessageField;
+export default connect(state => ({
+	newMessages: state.messages.newMessages
+}))(MessageField);
