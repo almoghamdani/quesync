@@ -11,7 +11,7 @@ const queryString = require("query-string");
 const backendName = "Release/backend.node";
 const quesync = require(isDev
 	? `../backend/build/${backendName}`
-	: app.getAppPath() + `/../../backend.node`);
+	: app.getAppPath() + `/../../backend/backend.node`);
 
 let mainWindow, serverIPWindow;
 let callWindows = {};
@@ -100,11 +100,11 @@ electron.ipcMain.on("save-server-ip", (_, ip) => {
 		// Save the Server's IP
 		serverIP = ip;
 
-		// Close the Server's IP Window
-		serverIPWindow.close();
-
 		// Create the main window
 		createMainWindow();
+
+		// Close the Server's IP Window
+		serverIPWindow.close();
 	}
 }
 );

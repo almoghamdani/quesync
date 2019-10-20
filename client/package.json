@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"author": "Almog Hamdani",
 	"main": "public/electron.js",
+	"description": "VoIP Application",
 	"homepage": "./",
 	"devDependencies": {
 		"concurrently": "^5.0.0",
@@ -43,7 +44,7 @@
 		"react-build": "cross-env SASS_PATH=./node_modules react-scripts build",
 		"dev": "concurrently \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && electron .\"",
 		"electron": "electron .",
-		"electron-pack": "build",
+		"electron-pack": "electron-builder",
 		"backend": "cd backend && npm run build && cd ..",
 		"prebuild": "npm run backend",
 		"build": "npm run react-build && npm run electron-pack"
@@ -55,26 +56,25 @@
 			"node_modules/**/*"
 		],
 		"directories": {
-			"buildResources": "assets"
+			"buildResources": "../resources"
 		},
+		"extraFiles": [
+			{
+				"from": "backend/build/Release",
+				"to": "backend"
+			},
+			{
+				"from": "cert.pem",
+				"to": "backend/cert.pem"
+			}
+		],
 		"win": {
 			"target": "zip",
-			"publisherName": "Almog Hamdani",
-			"extraFiles": [
-				{
-					"from": "backend/build/Release/backend.node",
-					"to": "backend.node"
-				}
-			]
+			"publisherName": "Almog Hamdani"
 		},
 		"mac": {
 			"target": "dmg",
-			"extraFiles": [
-				{
-					"from": "backend/build/backend.node",
-					"to": "backend.node"
-				}
-			]
+			"category": "public.app-category.social-networking"
 		}
 	},
 	"eslintConfig": {
