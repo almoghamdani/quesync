@@ -17,10 +17,10 @@ void quesync::client::socket_manager::init() {
     // Try to load the cert file from the current dir, binary's path and the previous dir of the
     // binary's path
     try {
-        ssl_context.load_verify_file(get_binary_path() + "/cert.pem");
+        ssl_context.load_verify_file(get_binary_path() + "/backend/cert.pem");
     } catch (...) {
         try {
-            ssl_context.load_verify_file(get_binary_path() + "/../cert.pem");
+            ssl_context.load_verify_file(get_binary_path() + "/../backend/cert.pem");
         } catch (...) {
             ssl_context.load_verify_file("cert.pem");
         }
