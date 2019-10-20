@@ -14,6 +14,8 @@
 #include "../../../../shared/error.h"
 #include "../../../../shared/header.h"
 
+#define MAX_PATH_LEN 1024
+
 using asio::ip::tcp;
 using asio::ip::udp;
 
@@ -33,7 +35,9 @@ class socket_manager {
     static std::string recv(asio::ssl::stream<tcp::socket> &socket);
 
     static error error_for_system_error(std::system_error &ex);
-};
 
+private:
+    static std::string get_binary_path();
+};
 };  // namespace client
 };  // namespace quesync

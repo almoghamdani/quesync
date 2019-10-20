@@ -1,5 +1,11 @@
 #include "socket_manager.h"
 
+#if defined(_WIN32)
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#endif
+
 #include "../../../../shared/exception.h"
 #include "../../../../shared/utils/parser.h"
 
@@ -7,7 +13,38 @@
 asio::io_context quesync::client::socket_manager::io_context;
 asio::ssl::context quesync::client::socket_manager::ssl_context(asio::ssl::context::sslv23);
 
-void quesync::client::socket_manager::init() { ssl_context.load_verify_file("cert.pem"); }
+void quesync::client::socket_manager::init() {
+    // Try to load the cert file from the current dir, binary's path and the previous dir of the
+    // binary's path
+    try {
+        ssl_context.load_verify_file(get_binary_path() + "/cert.pem");
+    } catch (...) {
+        try {
+            ssl_context.load_verify_file(get_binary_path() + "/../cert.pem");
+        } catch (...) {
+            ssl_context.load_verify_file("cert.pem");
+        }
+    }
+}
+
+std::string quesync::client::socket_manager::get_binary_path() {
+    std::string path;
+    char path_buf[MAX_PATH_LEN] = {0};
+
+    uint32_t path_size = MAX_PATH_LEN;
+
+#if defined(_WIN32)
+    path_size = ::GetModuleFileName(NULL, path_buf, MAX_PATH_LEN);
+#elif defined(__APPLE__)
+    _NSGetExecutablePath(path_buf, &path_size);
+#endif
+
+    // Construct the path string
+    path = std::string(path_buf, path_size);
+
+    // Remove the filename from the path
+    return path.substr(0, path.find_last_of("\\/"));
+}
 
 template <typename T>
 void quesync::client::socket_manager::get_endpoint(const char *ip_address, int port, T &endpoint) {
@@ -45,8 +82,7 @@ void quesync::client::socket_manager::send(asio::ssl::stream<tcp::socket> &socke
     }
 }
 
-std::string quesync::client::socket_manager::recv(
-    asio::ssl::stream<tcp::socket> &socket) {
+std::string quesync::client::socket_manager::recv(asio::ssl::stream<tcp::socket> &socket) {
     header header;
     char *header_buf = new char[sizeof(quesync::header)];
 
