@@ -51,6 +51,7 @@
 	},
 	"build": {
 		"appId": "com.almoghamdani.quesync",
+		"productName": "Quesync",
 		"files": [
 			"build/**/*",
 			"node_modules/**/*"
