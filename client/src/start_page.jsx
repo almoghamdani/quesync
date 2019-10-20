@@ -393,7 +393,7 @@ class StartPage extends Component {
 	getCurrentDescription = () => {
 		// If reconnecting
 		if (this.props.wasConnected && !this.props.connected) {
-			return "Connection Lost!\nReconnecting...";
+			return "Connection Lost! Reconnecting...";
 		} else if (!this.props.wasConnected && !this.props.connected) {
 			// First connection
 			return "Connecting...";
