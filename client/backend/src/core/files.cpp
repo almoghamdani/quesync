@@ -206,8 +206,13 @@ void quesync::client::modules::files::com_thread() {
 
                     // If the download is done
                     if (done) {
-                        // Save the file
-                        save_file(_download_files[file_chunk_packet.file_id()]);
+                        // Save the file in a different thread
+                        std::thread([this, file_chunk_packet] {
+                            std::lock_guard data_lk(_data_mutex);
+                            
+                            save_file(_download_files[file_chunk_packet.file_id()]);
+                        })
+                            .detach();
 
                         // Create the file progress event
                         file_progress_event =
