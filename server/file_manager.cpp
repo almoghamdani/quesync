@@ -182,12 +182,6 @@ quesync::server::file_manager::get_file_chunks(std::string file_id) {
 }
 
 void quesync::server::file_manager::save_file(std::shared_ptr<quesync::memory_file> file) {
-    std::ofstream fd;
-    std::string file_content;
-
-    std::vector<file_chunk> chunks;
-    std::vector<std::shared_ptr<unsigned char>> chunks_buffers;
-
     try {
         // Try to insert the new file entry to the database
         files_table.insert("id", "uploader_id", "name", "size")
@@ -197,37 +191,47 @@ void quesync::server::file_manager::save_file(std::shared_ptr<quesync::memory_fi
         throw exception(error::unknown_error);
     }
 
-    // Reserve memory for the all the file chunks and the chunk buffers
-    chunks.resize(file->chunks.size());
-    chunks_buffers.resize(file->chunks.size());
+    // Preform the saving on a different thread to not block the main thread
+    std::thread([this, file] {
+        std::ofstream fd;
+        std::string file_content;
 
-    // Get all the chunks from the chunks map
-    std::transform(file->chunks.begin(), file->chunks.end(), chunks.begin(),
-                   [](const decltype(file->chunks)::value_type& p) { return p.second; });
+        std::vector<file_chunk> chunks;
+        std::vector<std::shared_ptr<unsigned char>> chunks_buffers;
 
-    // Sort the chunks
-    std::sort(chunks.begin(), chunks.end(),
-              [](const file_chunk& a, const file_chunk& b) { return a.index < b.index; });
+        // Reserve memory for the all the file chunks and the chunk buffers
+        chunks.resize(file->chunks.size());
+        chunks_buffers.resize(file->chunks.size());
 
-    // Get all the buffers of the chunks
-    std::transform(chunks.begin(), chunks.end(), chunks_buffers.begin(),
-                   [](const file_chunk& p) { return p.data; });
+        // Get all the chunks from the chunks map
+        std::transform(file->chunks.begin(), file->chunks.end(), chunks.begin(),
+                       [](const decltype(file->chunks)::value_type& p) { return p.second; });
 
-    // Merge the buffers to get the full file content
-    file_content = utils::memory::merge_buffers(chunks_buffers, FILE_CHUNK_SIZE);
+        // Sort the chunks
+        std::sort(chunks.begin(), chunks.end(),
+                  [](const file_chunk& a, const file_chunk& b) { return a.index < b.index; });
 
-    // Get only the file content without padding
-    file_content = file_content.substr(0, file->file.size);
+        // Get all the buffers of the chunks
+        std::transform(chunks.begin(), chunks.end(), chunks_buffers.begin(),
+                       [](const file_chunk& p) { return p.data; });
 
-    // Open the dest file
-    fd.open(FILES_DIR + "/" + file->file.id, std::ios::out | std::ios::binary);
-    if (fd.fail()) {
-        throw exception(error::unknown_error);
-    }
+        // Merge the buffers to get the full file content
+        file_content = utils::memory::merge_buffers(chunks_buffers, FILE_CHUNK_SIZE);
 
-    // Write the file
-    fd << file_content;
-    fd.close();
+        // Get only the file content without padding
+        file_content = file_content.substr(0, file->file.size);
+
+        // Open the dest file
+        fd.open(FILES_DIR + "/" + file->file.id, std::ios::out | std::ios::binary);
+        if (fd.fail()) {
+            throw exception(error::unknown_error);
+        }
+
+        // Write the file
+        fd << file_content;
+        fd.close();
+    })
+        .detach();
 }
 
 void quesync::server::file_manager::register_user_file_session(
