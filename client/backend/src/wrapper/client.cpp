@@ -9,6 +9,7 @@
 #include "messages.h"
 #include "users.h"
 #include "voice.h"
+#include "files.h"
 
 #include "../../../../shared/exception.h"
 #include "../../../../shared/utils/client.h"
@@ -25,6 +26,7 @@ Napi::Object quesync::client::wrapper::client::init(Napi::Env env, Napi::Object 
                      InstanceMethod("channels", &client::module_get<channels, &client::_channels>),
                      InstanceMethod("messages", &client::module_get<messages, &client::_messages>),
                      InstanceMethod("voice", &client::module_get<voice, &client::_voice>),
+                     InstanceMethod("files", &client::module_get<files, &client::_files>),
                      InstanceMethod("errors", &client::generate_errors_object)});
 
     // Set the class's ctor function as a persistent object to keep it in memory

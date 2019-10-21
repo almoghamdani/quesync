@@ -45,6 +45,7 @@ class client : public Napi::ObjectWrap<client> {
     Napi::Reference<Napi::Value> _channels;
     Napi::Reference<Napi::Value> _messages;
     Napi::Reference<Napi::Value> _voice;
+    Napi::Reference<Napi::Value> _files;
 };
 };  // namespace wrapper
 };  // namespace client
