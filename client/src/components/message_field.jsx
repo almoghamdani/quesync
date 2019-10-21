@@ -1,12 +1,16 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
+import AttachmentZone from "./attachment_zone";
+
 import { NotchedOutline } from "@rmwc/notched-outline";
 import { FloatingLabel } from "@rmwc/floating-label";
+import { IconButton } from "@rmwc/icon-button";
+import { MenuSurface, MenuSurfaceAnchor } from "@rmwc/menu";
 
 import {
 	sendMessage,
-	setNewMessageForChannel
+	setNewMessageContentForChannel
 } from "../actions/messagesActions";
 
 import "./message_field.scss";
@@ -14,7 +18,8 @@ import "./message_field.scss";
 class MessageField extends Component {
 	state = {
 		isFocused: false,
-		notch: 0
+		notch: 0,
+		attachmentMenuOpen: false
 	};
 
 	labelRef = React.createRef();
@@ -31,7 +36,8 @@ class MessageField extends Component {
 		const notch =
 			this.state.isFocused ||
 			(this.props.newMessages[this.props.channelId] &&
-				this.props.newMessages[this.props.channelId].length)
+				this.props.newMessages[this.props.channelId].content &&
+				this.props.newMessages[this.props.channelId].content.length)
 				? this.labelRef.current.getWidth() * 0.75
 				: 0;
 
@@ -39,6 +45,36 @@ class MessageField extends Component {
 			this.setState({
 				notch: notch
 			});
+		}
+	};
+
+	onKeyPress = event => {
+		if (event.key === "Enter" && !event.shiftKey) {
+			// Don't insert a new line
+			event.preventDefault();
+
+			// If the message isn't blank and the attachment is finished to upload, send the message
+			if (
+				this.props.newMessages[this.props.channelId] &&
+				!/^\s*$/.test(this.props.newMessages[this.props.channelId].content) &&
+				(!this.props.newMessages[this.props.channelId].attachmentId ||
+					this.props.filesProgress[
+						this.props.newMessages[this.props.channelId].attachmentId
+					] ===
+						this.props.files[
+							this.props.newMessages[this.props.channelId].attachmentId
+						].size)
+			) {
+				this.props
+					.dispatch(
+						sendMessage(
+							this.props.newMessages[this.props.channelId].content,
+							this.props.channelId,
+							this.props.newMessages[this.props.channelId].attachmentId
+						)
+					)
+					.then(() => this.props.sendCallback());
+			}
 		}
 	};
 
@@ -58,46 +94,62 @@ class MessageField extends Component {
 							onFocus={() => this.setState({ isFocused: true })}
 							onBlur={() => this.setState({ isFocused: false })}
 							value={
-								this.props.newMessages[this.props.channelId]
-									? this.props.newMessages[this.props.channelId]
+								this.props.newMessages[this.props.channelId] &&
+								this.props.newMessages[this.props.channelId].content
+									? this.props.newMessages[this.props.channelId].content
 									: ""
 							}
 							onChange={event =>
 								this.props.dispatch(
-									setNewMessageForChannel(
+									setNewMessageContentForChannel(
 										event.target.value,
 										this.props.channelId
 									)
 								)
 							}
-							onKeyPress={event => {
-								if (event.key === "Enter" && !event.shiftKey) {
-									// Don't insert a new line
-									event.preventDefault();
-
-									// If the message isn't blank, send the message
-									if (
-										!/^\s*$/.test(this.props.newMessages[this.props.channelId])
-									) {
-										this.props
-											.dispatch(
-												sendMessage(
-													this.props.newMessages[this.props.channelId],
-													this.props.channelId
-												)
-											)
-											.then(() => this.props.sendCallback());
-									}
-								}
-							}}
+							onKeyPress={this.onKeyPress}
 						/>
 					</div>
+					<MenuSurfaceAnchor>
+						<MenuSurface
+							className="quesync-attachment-menu-surface"
+							hoistToBody
+							open={this.state.attachmentMenuOpen}
+							onClose={_ => this.setState({ attachmentMenuOpen: false })}
+						>
+							<div className="quesync-attachment-menu-content">
+								<AttachmentZone channelId={this.props.channelId} />
+							</div>
+						</MenuSurface>
+						<IconButton
+							className={
+								this.props.newMessages[this.props.channelId] &&
+								this.props.newMessages[this.props.channelId].attachmentId
+									? this.props.filesProgress[
+											this.props.newMessages[this.props.channelId].attachmentId
+									  ] ===
+									  this.props.files[
+											this.props.newMessages[this.props.channelId].attachmentId
+									  ].size
+										? "quesync-attach-button quesync-attach-button-attached"
+										: "quesync-attach-button quesync-attach-button-uploading"
+									: "quesync-attach-button"
+							}
+							icon="attach_file"
+							onClick={_ =>
+								this.setState({
+									attachmentMenuOpen: !this.state.attachmentMenuOpen
+								})
+							}
+						/>
+					</MenuSurfaceAnchor>
 					<NotchedOutline notch={this.state.notch}>
 						<FloatingLabel
 							float={
 								this.state.isFocused ||
 								(this.props.newMessages[this.props.channelId] &&
-									this.props.newMessages[this.props.channelId].length)
+									this.props.newMessages[this.props.channelId].content &&
+									this.props.newMessages[this.props.channelId].content.length)
 							}
 							ref={this.labelRef}
 						>
@@ -111,5 +163,7 @@ class MessageField extends Component {
 }
 
 export default connect(state => ({
-	newMessages: state.messages.newMessages
+	newMessages: state.messages.newMessages,
+	files: state.files.files,
+	filesProgress: state.files.filesProgress
 }))(MessageField);

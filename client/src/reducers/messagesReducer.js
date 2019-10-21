@@ -81,8 +81,47 @@ export default function reducer(
 				return { ...state, messages: { ...state.messages, [action.payload.channelId]: channelMessages } };
 			}
 
-		case "SET_NEW_MESSAGE_FOR_CHANNEL":
-			return { ...state, newMessages: { ...state.newMessages, [action.payload.channelId]: action.payload.messageContent } }
+		case "SET_NEW_MESSAGE_CONTENT_FOR_CHANNEL":
+			{
+				const { channelId, content } = action.payload;
+
+				return {
+					...state, newMessages: {
+						...state.newMessages,
+						[channelId]:
+							state.newMessages[channelId]
+								? {
+									...state.newMessages[channelId],
+									content
+								}
+								: {
+									content,
+									attachmentId: null
+								}
+					}
+				}
+			}
+
+		case "SET_NEW_MESSAGE_ATTACHMENT_FOR_CHANNEL":
+			{
+				const { channelId, attachmentId } = action.payload;
+
+				return {
+					...state, newMessages: {
+						...state.newMessages,
+						[channelId]:
+							state.newMessages[channelId]
+								? {
+									...state.newMessages[channelId],
+									attachmentId
+								}
+								: {
+									content: null,
+									attachmentId
+								}
+					}
+				}
+			}
 
 		case "LOGOUT_FULFILLED":
 		case "LOGOUT_REJECTED":

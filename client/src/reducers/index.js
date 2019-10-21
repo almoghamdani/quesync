@@ -8,6 +8,7 @@ import badges from "./badgesReducer";
 import channels from "./channelsReducer";
 import messages from "./messagesReducer";
 import voice from "./voiceReducer";
+import files from "./filesReducer";
 
 export default combineReducers({
 	user,
@@ -16,6 +17,7 @@ export default combineReducers({
 	channels,
 	messages,
 	voice,
+	files,
 	ui: combineReducers({
 		items,
 		badges

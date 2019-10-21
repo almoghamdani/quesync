@@ -1,10 +1,10 @@
-export function sendMessage(content, channelId) {
+export function sendMessage(content, channelId, attachmentId=null) {
 	return (dispatch, getState) => {
 		const client = getState().client.client;
 
 		return dispatch({
 			type: "SEND_MESSAGE",
-			payload: client.messages().sendMessage(content, channelId)
+			payload: client.messages().sendMessage(content, channelId, attachmentId)
 		});
 	}
 }
@@ -30,11 +30,21 @@ export function addMessageToChannel(message, channelId) {
 	};
 }
 
-export function setNewMessageForChannel(messageContent, channelId) {
+export function setNewMessageContentForChannel(content, channelId) {
 	return {
-		type: "SET_NEW_MESSAGE_FOR_CHANNEL",
+		type: "SET_NEW_MESSAGE_CONTENT_FOR_CHANNEL",
 		payload: {
-			messageContent,
+			content,
+			channelId
+		}
+	}
+}
+
+export function setNewMessageAttachmentForChannel(attachmentId, channelId) {
+	return {
+		type: "SET_NEW_MESSAGE_ATTACHMENT_FOR_CHANNEL",
+		payload: {
+			attachmentId,
 			channelId
 		}
 	}

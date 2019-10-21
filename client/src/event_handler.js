@@ -6,6 +6,7 @@ import { addPingValue, disconnected } from "./actions/clientActions";
 import { setUser } from "./actions/userActions";
 import { setFriendsPageSelectedDrawerItemId } from "./actions/itemsActions";
 import { addMessageToChannel } from "./actions/messagesActions";
+import { updateFileTransmissionProgress } from "./actions/filesActions";
 import {
 	joinCall,
 	updateVoiceState,
@@ -32,6 +33,7 @@ class EventHandler {
 		client.registerEventHandler("voice-state", this.voiceStateEvent);
 		client.registerEventHandler("voice-activity", this.voiceActivationEvent);
 		client.registerEventHandler("call-ended", this.callEndedEvent);
+		client.registerEventHandler("file-transmission-progress", this.fileTransmissionProgress);
 		client.registerEventHandler("server-disconnect", this.serverDisconnectEvent);
 
 		ipcRenderer.on("join-call", (_, channelId) => {
@@ -324,6 +326,11 @@ class EventHandler {
 		// Close the call window in case there is one
 		ipcRenderer.send("close-call-window", event.channelId);
 	};
+
+	fileTransmissionProgress = event => {
+		// Update the file transmission progress
+		store.dispatch(updateFileTransmissionProgress(event.fileId, event.bytes))
+	}
 
 	serverDisconnectEvent = _ => {
 		// Set the client as disconnected

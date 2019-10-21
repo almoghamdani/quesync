@@ -1,6 +1,9 @@
 .quesync-message-field {
 	height: 54px;
 	width: 100%;
+
+	display: flex;
+	align-items: center;
 }
 
 .quesync-message-field-input {
@@ -29,6 +32,7 @@
 .quesync-message-field-content {
 	// Fill parent
 	width: 100%;
+	height: 100%;
 
 	// Make the scrollbar a bit away from the side of the outline
 	margin-right: 7px;
@@ -48,4 +52,41 @@
 
 .quesync-message-field .quesync-message-field-input {
 	color: white !important;
+}
+
+.quesync-attach-button {
+	width: 36px;
+	height: 36px;
+	font-size: 24px;
+
+	padding: 6px;
+	margin-right: 8px;
+
+	transition: color 400ms ease-in-out;
+
+	color: white;
+}
+
+.quesync-attach-button-attached {
+	color: var(--mdc-theme-primary);
+}
+
+.quesync-attach-button-uploading {
+	color: #ff1744;
+}
+
+.quesync-attachment-menu-surface {
+	background: #303030;
+}
+
+.quesync-attachment-menu-content {
+	width: 16rem;
+    height: 12rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    // Hide scrollbar
+    overflow: hidden;
 }

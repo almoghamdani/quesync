@@ -1,0 +1,58 @@
+.quesync-attachment-dropzone-wrapper {
+	height: 100%;
+	width: 100%;
+
+	color: white;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	user-select: none;
+}
+
+.quesync-attachment-details {
+	width: 95%;
+	min-height: 50%;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.quesync-attachment-name {
+	width: 100%;
+
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+
+	padding-top: 3px;
+	padding-bottom: 6px;
+}
+
+.quesync-attachment-upload-progress {
+	border-radius: 20px;
+}
+
+.quesync-attachment-upload-progress-text {
+	padding-top: 6px;
+}
+
+.quesync-attachment-dropzone {
+	height: 100%;
+	width: 100%;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.quesync-attachment-description {
+	color: var(--mdc-theme-primary);
+
+	font-size: 1.12rem;
+}
