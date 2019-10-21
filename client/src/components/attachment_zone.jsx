@@ -45,10 +45,16 @@ class AttachmentZone extends Component {
 
 		const attachmentFile = attachmentId ? this.props.files[attachmentId] : null;
 
-		if (attachmentFile) {
+		const uploading = this.props.uploading.includes(attachmentId);
+
+		if (attachmentFile && uploading) {
 			this.setState({
 				bps: this.props.filesProgress[attachmentId] - this.state.oldBytes, // Calc BPS
 				oldBytes: this.props.filesProgress[attachmentId] // Save the current bytes
+			});
+		} else if (this.state.bps) {
+			this.setState({
+				bps: 0 // Reset BPS
 			});
 		}
 	};
@@ -62,12 +68,6 @@ class AttachmentZone extends Component {
 
 		// If there is a file for upload
 		if (files[0]) {
-			// Reset state
-			this.setState({
-				oldBytes: 0,
-				bps: 0
-			});
-
 			// If a file is currently uploaded, stop it's transmission
 			if (
 				attachmentId &&
@@ -75,6 +75,12 @@ class AttachmentZone extends Component {
 			) {
 				this.props.dispatch(stopFileTransmission(attachmentId));
 			}
+
+			// Reset state
+			this.setState({
+				oldBytes: 0,
+				bps: 0
+			});
 
 			// Upload the file
 			this.props.dispatch(startUpload(files[0].path)).then(({ action }) => {
@@ -173,5 +179,6 @@ class AttachmentZone extends Component {
 export default connect(state => ({
 	newMessages: state.messages.newMessages,
 	files: state.files.files,
-	filesProgress: state.files.filesProgress
+	filesProgress: state.files.filesProgress,
+	uploading: state.files.uploading
 }))(AttachmentZone);
