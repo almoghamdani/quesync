@@ -245,10 +245,9 @@ void quesync::client::modules::files::com_thread() {
                     // If the download is done
                     if (done) {
                         // Save the file in a different thread
-                        std::thread([this, file_chunk_packet] {
-                            std::lock_guard data_lk(_data_mutex);
-
-                            save_file(_download_files[file_chunk_packet.file_id()]);
+                        std::thread([this, file = _download_files[file_chunk_packet.file_id()],
+                                     download_path = _download_paths[file_chunk_packet.file_id()]] {
+                            save_file(file, download_path);
                         })
                             .detach();
 
@@ -434,7 +433,8 @@ void quesync::client::modules::files::init_upload(std::string file_id) {
     socket_manager::send(*_socket, file_chunk_packet.encode());
 }
 
-void quesync::client::modules::files::save_file(std::shared_ptr<quesync::memory_file> file) {
+void quesync::client::modules::files::save_file(std::shared_ptr<quesync::memory_file> file,
+                                                std::string download_path) {
     std::ofstream fd;
     std::string file_content;
 
@@ -464,7 +464,7 @@ void quesync::client::modules::files::save_file(std::shared_ptr<quesync::memory_
     file_content = file_content.substr(0, file->file.size);
 
     // Open the dest file
-    fd.open(_download_paths[file->file.id], std::ios::out | std::ios::binary);
+    fd.open(download_path, std::ios::out | std::ios::binary);
     if (fd.fail()) {
         return;
     }

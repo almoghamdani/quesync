@@ -60,7 +60,7 @@ class files : public module {
 
     void init_upload(std::string file_id);
 
-    void save_file(std::shared_ptr<memory_file> file);
+    void save_file(std::shared_ptr<memory_file> file, std::string download_path);
     std::string get_file_name(std::string file_path);
 };
 };  // namespace modules
