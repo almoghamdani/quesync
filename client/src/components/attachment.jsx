@@ -44,10 +44,7 @@ class Attachment extends Component {
 
 		if (attachmentFile && this.props.filesProgress[this.props.id]) {
 			this.setState({
-				bps:
-					this.props.filesProgress[this.props.id] - this.state.oldBytes < 0
-						? 0
-						: this.props.filesProgress[this.props.id] - this.state.oldBytes, // Calc BPS
+				bps: this.props.filesProgress[this.props.id] - this.state.oldBytes, // Calc BPS
 				oldBytes: this.props.filesProgress[this.props.id] // Save the current bytes
 			});
 		}
