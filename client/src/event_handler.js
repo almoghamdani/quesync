@@ -54,13 +54,12 @@ class EventHandler {
 
 	friendRequestEvent = async event => {
 		const state = store.getState();
-		const client = state.client.client;
 		const user = state.user.user;
 		const friendId = event.requesterId;
 		const sentAt = event.sentAt;
 
 		// Update the user
-		await updater.updateUser(client, friendId);
+		await updater.updateUser(friendId);
 
 		// Add the friend request
 		await store.dispatch(
