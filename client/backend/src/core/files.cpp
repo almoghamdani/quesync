@@ -5,7 +5,6 @@
 
 #include "client.h"
 
-#include "../../../../shared/events/file_transmission_progress_event.h"
 #include "../../../../shared/exception.h"
 #include "../../../../shared/packets/download_file_packet.h"
 #include "../../../../shared/packets/error_packet.h"
@@ -18,7 +17,7 @@
 #include "../../../../shared/utils/parser.h"
 
 quesync::client::modules::files::files(std::shared_ptr<quesync::client::client> client)
-    : module(client), _socket(nullptr), _stop_thread(true) {}
+    : module(client), _socket(nullptr), _stop_threads(true) {}
 
 std::shared_ptr<quesync::file> quesync::client::modules::files::start_upload(
     std::string file_path) {
@@ -67,7 +66,6 @@ std::shared_ptr<quesync::file> quesync::client::modules::files::start_upload(
 
     // Create the memory file object
     _upload_files[file->id] = std::make_shared<memory_file>(*file);
-    _files_progress_history[file->id] = 0;
 
     // Get the file's chunks
     _upload_files[file->id]->chunks = utils::files::get_file_chunks(file_stream, file_size);
@@ -108,7 +106,6 @@ void quesync::client::modules::files::start_download(std::string file_id,
 
     // Create the memory file object
     _download_files[file->id] = std::make_shared<memory_file>(*file);
-    _files_progress_history[file->id] = 0;
 
     // Save the download path
     _download_paths[file->id] = download_path;
@@ -158,7 +155,7 @@ void quesync::client::modules::files::com_thread() {
         std::unique_lock data_lk(_data_mutex, std::defer_lock);
 
         // If the socket isn't connected or the thread is signaled to exit, quit the loop
-        if (_stop_thread || !_socket || !_socket->lowest_layer().is_open()) {
+        if (_stop_threads || !_socket || !_socket->lowest_layer().is_open()) {
             break;
         } else if (!first_iteration && _upload_files.empty() &&
                    _download_files.empty())  // If no uploads and downloads
@@ -270,24 +267,15 @@ void quesync::client::modules::files::com_thread() {
             }
         }
 
-        // If the file progress event isn't null and the bytes diff between the last event is bigger
-        // then the threshold
-        if (file_progress_event &&
-            (file_progress_event->bytes - _files_progress_history[file_progress_event->file_id] >=
-                 FILE_PROGRESS_THRESHOLD ||
-             _files_progress_history[file_progress_event->file_id] == 0)) {
-            _files_progress_history[file_progress_event->file_id] = file_progress_event->bytes;
-
-            try {
-                // Call the file progress event
-                _client->communicator()->event_handler().call_event(
-                    std::static_pointer_cast<event>(file_progress_event));
-            } catch (...) {
-            }
-        }
-
         // Unlock the data mutex
         data_lk.unlock();
+
+        // If the file progress event isn't null
+        if (file_progress_event) {
+            // Set the event for the file
+            std::lock_guard events_lk(_events_mutex);
+            _events[file_progress_event->file_id] = file_progress_event;
+        }
 
         if (!res.empty()) {
             try {
@@ -305,6 +293,33 @@ void quesync::client::modules::files::com_thread() {
 
     // Clean the socket
     clean_connection(false);
+}
+
+void quesync::client::modules::files::events_thread() {
+    while (true) {
+        std::unique_lock events_lk(_events_mutex, std::defer_lock);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(EVENTS_THREAD_SLEEP));
+
+        // Lock the events mutex
+        events_lk.lock();
+
+        // If signaled to exit and the events vector is empty, break
+        if (_stop_threads && _events.empty()) {
+            break;
+        }
+
+        // For each event, trigger it for the client
+        for (auto& file_event : _events) {
+            try {
+                _client->communicator()->event_handler().call_event(file_event.second);
+            } catch (...) {
+            }
+        }
+
+        // Clear the events map
+        _events.clear();
+    }
 }
 
 void quesync::client::modules::files::connect_to_file_server() {
@@ -349,8 +364,16 @@ void quesync::client::modules::files::connect_to_file_server() {
         _com_thread.join();
     }
 
-    // Allow the thread to run
-    _stop_thread = false;
+    // If the events thread is still alive, join it
+    if (_events_thread.joinable()) {
+        _events_thread.join();
+    }
+
+    // Allow the threads to run
+    _stop_threads = false;
+
+    // Init events thread
+    _events_thread = std::thread(&files::events_thread, this);
 
     // Init COM thread
     _com_thread = std::thread(&files::com_thread, this);
@@ -413,8 +436,8 @@ std::string quesync::client::modules::files::get_file_name(std::string file_path
 }
 
 void quesync::client::modules::files::clean_connection(bool join_com_thread) {
-    // Signal the thread to exit
-    _stop_thread = true;
+    // Signal the threads to exit
+    _stop_threads = true;
 
     // If the socket is connected to the server
     if (_socket && _socket->lowest_layer().is_open()) {
@@ -427,6 +450,11 @@ void quesync::client::modules::files::clean_connection(bool join_com_thread) {
         _com_thread.join();
     }
 
+    // If the events thread is still alive, join it
+    if (_events_thread.joinable()) {
+        _events_thread.join();
+    }
+
     // If the socket object exists
     if (_socket) {
         // Free the socket
@@ -437,10 +465,10 @@ void quesync::client::modules::files::clean_connection(bool join_com_thread) {
     }
 
     // Clear the files data
-    _files_progress_history.clear();
     _upload_files.clear();
     _download_files.clear();
     _download_paths.clear();
+    _events.clear();
 }
 
 void quesync::client::modules::files::disconnected() { clean_connection(); }
