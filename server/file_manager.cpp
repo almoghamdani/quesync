@@ -224,7 +224,7 @@ void quesync::server::file_manager::save_file(std::shared_ptr<quesync::memory_fi
         // Open the dest file
         fd.open(FILES_DIR + "/" + file->file.id, std::ios::out | std::ios::binary);
         if (fd.fail()) {
-            throw exception(error::unknown_error);
+            return;
         }
 
         // Write the file
