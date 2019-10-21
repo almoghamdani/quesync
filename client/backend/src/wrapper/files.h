@@ -40,7 +40,7 @@ class files : public Napi::ObjectWrap<files>, public module<files> {
             // Start download the file
             _client->core()->files()->start_download(file_id, download_path);
 
-            return nlohmann::json();
+            return nlohmann::json{{"fileId", file_id}};
         });
     }
 
@@ -51,7 +51,7 @@ class files : public Napi::ObjectWrap<files>, public module<files> {
             // Stop the file's transmission
             _client->core()->files()->stop_file_transmission(file_id);
 
-            return nlohmann::json();
+            return nlohmann::json{{"fileId", file_id}};
         });
     }
 
