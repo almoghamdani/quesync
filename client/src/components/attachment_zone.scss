@@ -12,7 +12,7 @@
 	user-select: none;
 }
 
-.quesync-attachment-details {
+.quesync-new-attachment-details {
 	width: 95%;
 	min-height: 50%;
 
@@ -22,7 +22,7 @@
 	justify-content: center;
 }
 
-.quesync-attachment-name {
+.quesync-new-attachment-name {
 	width: 100%;
 
 	white-space: nowrap;
@@ -30,15 +30,15 @@
 	text-overflow: ellipsis;
 
 	padding-top: 3px;
-	padding-bottom: 6px;
+	padding-bottom: 3px;
 }
 
-.quesync-attachment-upload-progress {
+.quesync-new-attachment-upload-progress {
 	border-radius: 20px;
 }
 
-.quesync-attachment-upload-progress-text {
-	padding-top: 6px;
+.quesync-new-attachment-upload-progress-text {
+	padding-top: 5px;
 }
 
 .quesync-attachment-dropzone {

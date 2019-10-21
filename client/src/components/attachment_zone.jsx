@@ -101,18 +101,18 @@ class AttachmentZone extends Component {
 						}}
 					>
 						{attachmentFile ? (
-							<div className="quesync-attachment-details">
-								<Typography className="quesync-attachment-name" use="subtitle2">
+							<div className="quesync-new-attachment-details">
+								<Typography className="quesync-new-attachment-name" use="subtitle2">
 									<b>File:</b> {attachmentFile.name}
 								</Typography>
 								<LinearProgress
-									className="quesync-attachment-upload-progress"
+									className="quesync-new-attachment-upload-progress"
 									progress={
 										this.props.filesProgress[attachmentId] / attachmentFile.size
 									}
 								/>
 								<Typography
-									className="quesync-attachment-upload-progress-text"
+									className="quesync-new-attachment-upload-progress-text"
 									use="subtitle2"
 								>
 									<b>
@@ -125,7 +125,7 @@ class AttachmentZone extends Component {
 									</b>
 								</Typography>
 								<Typography
-									className="quesync-attachment-upload-bps"
+									className="quesync-new-attachment-upload-bps"
 									use="subtitle2"
 								>
 									{prettyBytes(this.state.bps)}/s
