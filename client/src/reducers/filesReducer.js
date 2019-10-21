@@ -26,7 +26,6 @@ export default function reducer(
 				};
 			}
 
-
 		case "FILE_TRANSMISSION_PROGRESS_UPDATE":
 			{
 				const { fileId, progress } = action.payload;

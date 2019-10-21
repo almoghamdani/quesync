@@ -37,6 +37,9 @@ class file_manager : manager {
                                            std::string name, unsigned long long size);
     void init_download_file(std::shared_ptr<quesync::server::session> sess, std::string file_id);
 
+    void stop_file_transmission(std::shared_ptr<quesync::server::session> sess,
+                                std::string file_id);
+
     bool does_file_exists(std::string file_id);
     std::shared_ptr<file> get_file_info(std::string file_id);
 
@@ -44,7 +47,6 @@ class file_manager : manager {
     void save_file(std::shared_ptr<memory_file> file);
 
     void clear_all_user_memory_files(std::string user_id);
-
     void register_user_file_session(std::shared_ptr<file_session> sess, std::string user_id);
 
    private:

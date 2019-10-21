@@ -3,6 +3,7 @@
 #include "../packets/call_request_packet.h"
 #include "../packets/download_file_packet.h"
 #include "../packets/event_packet.h"
+#include "../packets/file_transmission_stop_packet.h"
 #include "../packets/friend_request_packet.h"
 #include "../packets/friendship_status_packet.h"
 #include "../packets/get_channel_calls_packet.h"
@@ -44,6 +45,7 @@ const std::unordered_map<quesync::packet_type, std::function<std::shared_ptr<que
         PACKET_ENTRY(download_file_packet),
         PACKET_ENTRY(get_file_info_packet),
         PACKET_ENTRY(logout_packet),
+        PACKET_ENTRY(file_transmission_stop_packet),
         PACKET_ENTRY(event_packet),
         PACKET_ENTRY(error_packet),
         RESPONSE_PACKET_ENTRY(authenticated_packet),
@@ -63,4 +65,5 @@ const std::unordered_map<quesync::packet_type, std::function<std::shared_ptr<que
         RESPONSE_PACKET_ENTRY(file_download_initiated_packet),
         RESPONSE_PACKET_ENTRY(file_info_packet),
         RESPONSE_PACKET_ENTRY(logged_out_packet),
+        RESPONSE_PACKET_ENTRY(file_transmission_stopped_packet),
         RESPONSE_PACKET_ENTRY(pong_packet)};

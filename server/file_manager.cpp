@@ -109,6 +109,22 @@ void quesync::server::file_manager::init_download_file(
     _users_file_sessions[sess->user()->id]->add_download_file(file);
 }
 
+void quesync::server::file_manager::stop_file_transmission(
+    std::shared_ptr<quesync::server::session> sess, std::string file_id) {
+    // Check if the session is authenticated
+    if (!sess->authenticated()) {
+        throw exception(error::not_authenticated);
+    }
+
+    // Check if the client is connected to the file server
+    if (!_users_file_sessions.count(sess->user()->id)) {
+        throw exception(error::file_session_not_connected);
+    }
+
+    // Remove the file from the file session
+    _users_file_sessions[sess->user()->id]->remove_file(file_id);
+}
+
 bool quesync::server::file_manager::does_file_exists(std::string file_id) {
     try {
         // Check if the file exists

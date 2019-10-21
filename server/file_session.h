@@ -25,6 +25,8 @@ class file_session : public std::enable_shared_from_this<file_session> {
     void add_upload_file(std::shared_ptr<file> file);
     void add_download_file(std::shared_ptr<file> file);
 
+    void remove_file(std::string file_id);
+
    private:
     std::shared_ptr<quesync::user> _user;
     std::shared_ptr<quesync::server::server> _server;

@@ -10,6 +10,7 @@
 #include "../../../../shared/packets/error_packet.h"
 #include "../../../../shared/packets/file_chunk_ack_packet.h"
 #include "../../../../shared/packets/file_chunk_packet.h"
+#include "../../../../shared/packets/file_transmission_stop_packet.h"
 #include "../../../../shared/packets/get_file_info_packet.h"
 #include "../../../../shared/packets/session_auth_packet.h"
 #include "../../../../shared/packets/upload_file_packet.h"
@@ -93,10 +94,16 @@ void quesync::client::modules::files::start_download(std::string file_id,
         throw exception(error::invalid_download_file_path);
     }
 
+    // Lock the data mutex
+    lk.lock();
+
     // Check if the file is already downloading
     if (_download_files.count(file_id)) {
         throw exception(error::file_not_found);
     }
+
+    // Unlock the data mutex
+    lk.unlock();
 
     // Get the file object
     file = get_file_info(file_id);
@@ -121,6 +128,37 @@ void quesync::client::modules::files::start_download(std::string file_id,
     // Send to the server the download file packet to start the download
     _client->communicator()->send_and_verify(&download_file_packet,
                                              packet_type::file_download_initiated_packet);
+}
+
+void quesync::client::modules::files::stop_file_transmission(std::string file_id) {
+    packets::file_transmission_stop_packet transmission_stop_packet(file_id);
+
+    std::unique_lock lk(_data_mutex, std::defer_lock);
+
+    // Lock the data mutex
+    lk.lock();
+
+    // If the file isn't downloaded or uploaded, throw error
+    if (!_download_files.count(file_id) && !_upload_files.count(file_id)) {
+        throw exception(error::file_not_found);
+    }
+
+    // Unlock the data mutex
+    lk.unlock();
+
+    // Send to the server the file transmission stop packet
+    _client->communicator()->send_and_verify(&transmission_stop_packet,
+                                             packet_type::file_transmission_stopped_packet);
+
+    // Lock the data mutex
+    lk.lock();
+
+    _download_files.erase(file_id);
+    _download_paths.erase(file_id);
+    _upload_files.erase(file_id);
+
+    // Unlock the data mutex
+    lk.unlock();
 }
 
 std::shared_ptr<quesync::file> quesync::client::modules::files::get_file_info(std::string file_id) {
@@ -209,7 +247,7 @@ void quesync::client::modules::files::com_thread() {
                         // Save the file in a different thread
                         std::thread([this, file_chunk_packet] {
                             std::lock_guard data_lk(_data_mutex);
-                            
+
                             save_file(_download_files[file_chunk_packet.file_id()]);
                         })
                             .detach();

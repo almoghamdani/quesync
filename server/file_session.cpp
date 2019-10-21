@@ -76,6 +76,14 @@ void quesync::server::file_session::add_download_file(std::shared_ptr<quesync::f
         [this, packet_buf](std::error_code, std::size_t) {});
 }
 
+void quesync::server::file_session::remove_file(std::string file_id) {
+    std::lock_guard lk(_files_mutex);
+
+    // Erase the file from the downloads and the
+    _download_files.erase(file_id);
+    _upload_files.erase(file_id);
+}
+
 void quesync::server::file_session::handshake() {
     auto self(shared_from_this());
 

@@ -29,6 +29,8 @@ class files : public module {
     std::shared_ptr<file> start_upload(std::string file_path);
     void start_download(std::string file_id, std::string download_path);
 
+    void stop_file_transmission(std::string file_id);
+
     std::shared_ptr<file> get_file_info(std::string file_id);
 
     virtual void clean_connection(bool join_com_thread=true);

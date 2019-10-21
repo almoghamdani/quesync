@@ -9,7 +9,7 @@ import Dropzone from "react-dropzone";
 
 import prettyBytes from "pretty-bytes";
 
-import { startUpload } from "../actions/filesActions";
+import { startUpload, stopFileTransmission } from "../actions/filesActions";
 import { setNewMessageAttachmentForChannel } from "../actions/messagesActions";
 
 import "./attachment_zone.scss";
@@ -41,6 +41,12 @@ class AttachmentZone extends Component {
 	};
 
 	onDrop = files => {
+		const attachmentId = this.props.newMessages[this.props.channelId]
+			? this.props.newMessages[this.props.channelId].attachmentId
+			: null;
+
+		const attachmentFile = attachmentId ? this.props.files[attachmentId] : null;
+
 		// If there is a file for upload
 		if (files[0]) {
 			// Reset state
@@ -48,6 +54,14 @@ class AttachmentZone extends Component {
 				oldBytes: 0,
 				bps: 0
 			});
+
+			// If a file is currently uploaded, stop it's transmission
+			if (
+				attachmentId &&
+				this.props.filesProgress[attachmentId] !== attachmentFile.size
+			) {
+				this.props.dispatch(stopFileTransmission(attachmentId));
+			}
 
 			// Upload the file
 			this.props.dispatch(startUpload(files[0].path)).then(({ action }) => {
