@@ -11,12 +11,10 @@ export default function reducer(
 	switch (action.type) {
 		case "USER_REGISTER_PENDING":
 		case "USER_LOGIN_PENDING":
-		case "SESSION_AUTH_PENDING":
 			return { ...state, authError: 0 };
 
 		case "USER_REGISTER_REJECTED":
 		case "USER_LOGIN_REJECTED":
-		case "SESSION_AUTH_REJECTED":
 			return { ...state, authError: action.payload.error };
 
 		case "USER_REGISTER_FULFILLED":
@@ -83,6 +81,25 @@ export default function reducer(
 			return {
 				...state,
 				user: { ...state.user, friendRequests: newFriendRequests }
+			};
+		}
+
+		case "REMOVE_FRIEND_FULFILLED": {
+			const friendId = action.payload.friendId;
+
+			let newFriends = [...state.user.friends];
+
+			// Remove from the friend from the friends list
+			newFriends = newFriends.filter(id => {
+				return id !== friendId;
+			});
+
+			return {
+				...state,
+				user: {
+					...state.user,
+					friends: newFriends
+				}
 			};
 		}
 

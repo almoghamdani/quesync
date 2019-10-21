@@ -51,6 +51,12 @@
 	transition: all 400ms ease-in-out;
 }
 
+.quesync-remove-friend-button {
+	margin-left: 10px;
+
+	@include mdc-button-filled-accessible(#ff1744);
+}
+
 .quesync-friend-join-button {
 	@include mdc-button-filled-accessible(#00e676);
 }

@@ -13,7 +13,8 @@ import {
 } from "../actions/itemsActions";
 import {
 	approveFriendRequest,
-	rejectFriendRequest
+	rejectFriendRequest,
+	removeFriend
 } from "../actions/userActions";
 import { call, joinCall } from "../actions/voiceActions";
 
@@ -43,10 +44,14 @@ class FriendsPage extends Component {
 	}
 
 	updateSidePanelElement = () => {
+		const friends = this.props.user.friends;
+
 		const currentSelectedFriendId = this.props.selectedDrawerItemId;
 
 		// If no friend selected
-		if (!currentSelectedFriendId) return;
+		if (!currentSelectedFriendId) {
+			return;
+		}
 
 		const currentSelectedFriend = this.props.profiles[
 			this.props.selectedDrawerItemId
@@ -62,6 +67,7 @@ class FriendsPage extends Component {
 				avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
 				nickname={currentSelectedFriend.nickname}
 				tag={currentSelectedFriend.tag}
+				pendingFriend={!friends.includes(currentSelectedFriendId)}
 				style={{ height: "100%" }}
 				startCall={() => this.props.dispatch(call(channelId))}
 				joinCall={() => {
@@ -73,6 +79,9 @@ class FriendsPage extends Component {
 				}}
 				inCall={this.props.voiceChannelId === channelId}
 				activeCall={this.props.activeCalls.includes(channelId)}
+				removeFriend={() =>
+					this.props.dispatch(removeFriend(currentSelectedFriendId))
+				}
 			/>
 		);
 	};

@@ -55,6 +55,15 @@ class FriendDetails extends Component {
 						}}
 						disabled={this.props.inCall}
 					/>
+					{!this.props.pendingFriend ? (
+						<Button
+							className="quesync-remove-friend-button"
+							raised
+							icon="remove"
+							label="Remove"
+							onClick={() => this.props.removeFriend()}
+						/>
+					) : null}
 				</div>
 			</div>
 		);

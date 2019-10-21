@@ -96,6 +96,17 @@ export function sendFriendRequest(userId) {
 	}
 }
 
+export function removeFriend(friendId) {
+	return (dispatch, getState) => {
+		const client = getState().client.client;
+
+		return dispatch({
+			type: "REMOVE_FRIEND",
+			payload: client.users().setFriendshipStatus(friendId, false)
+		});
+	}
+}
+
 export function resetAuthError() {
 	return {
 		type: "RESET_AUTH_ERROR",
