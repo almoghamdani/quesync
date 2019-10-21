@@ -25,21 +25,20 @@ class files : public module {
    public:
     files(std::shared_ptr<client> client);
 
-    std::shared_ptr<file> start_upload(std::string file_name);
+    std::shared_ptr<file> start_upload(std::string file_path);
     void start_download(std::string file_id, std::string download_path);
 
     std::shared_ptr<file> get_file_info(std::string file_id);
 
-    virtual void clean_connection();
+    virtual void clean_connection(bool join_com_thread=true);
     virtual void disconnected();
 
    private:
     asio::ssl::stream<tcp::socket> *_socket;
 
+    std::mutex _data_mutex;
     std::unordered_map<std::string, unsigned long long> _files_progress_history;
-
     std::unordered_map<std::string, std::shared_ptr<memory_file>> _upload_files;
-
     std::unordered_map<std::string, std::shared_ptr<memory_file>> _download_files;
     std::unordered_map<std::string, std::string> _download_paths;
 
