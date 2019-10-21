@@ -16,13 +16,26 @@ import "./attachment_zone.scss";
 
 class AttachmentZone extends Component {
 	state = {
+		intervalId: 0,
 		oldBytes: 0,
 		bps: 0
 	};
 
 	componentDidMount() {
 		// Start the timer for the calc upload speed
-		setInterval(this.calcUploadSpeed, 1000);
+		const intervalId = setInterval(this.calcUploadSpeed, 1000);
+
+		// Save the interval ID
+		this.setState({
+			intervalId
+		});
+	}
+
+	componentWillUnmount() {
+		// Stop the BPS interval
+		if (this.state.intervalId) {
+			clearInterval(this.state.intervalId);
+		}
 	}
 
 	calcUploadSpeed = () => {
@@ -102,7 +115,10 @@ class AttachmentZone extends Component {
 					>
 						{attachmentFile ? (
 							<div className="quesync-new-attachment-details">
-								<Typography className="quesync-new-attachment-name" use="subtitle2">
+								<Typography
+									className="quesync-new-attachment-name"
+									use="subtitle2"
+								>
 									<b>File:</b> {attachmentFile.name}
 								</Typography>
 								<LinearProgress
