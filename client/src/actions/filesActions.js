@@ -9,6 +9,17 @@ export function startUpload(filePath) {
 	}
 }
 
+export function startDownload(fileId, downloadPath) {
+	return (dispatch, getState) => {
+		const client = getState().client.client;
+
+		return dispatch({
+			type: "FILE_START_DOWNLOAD",
+			payload: client.files().startDownload(fileId, downloadPath)
+		});
+	}
+}
+
 export function stopFileTransmission(fileId) {
 	return (dispatch, getState) => {
 		const client = getState().client.client;
@@ -16,6 +27,17 @@ export function stopFileTransmission(fileId) {
 		return dispatch({
 			type: "STOP_FILE_TRANSMISSION",
 			payload: client.files().stopFileTransmission(fileId)
+		});
+	}
+}
+
+export function getFileInfo(fileId) {
+	return (dispatch, getState) => {
+		const client = getState().client.client;
+
+		return dispatch({
+			type: "GET_FILE_INFO",
+			payload: client.files().getFileInfo(fileId)
 		});
 	}
 }

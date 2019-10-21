@@ -6,8 +6,6 @@ import Transition from "react-transition-group/Transition";
 const easing = "easeInSine";
 
 class FadeTransition extends Component {
-	
-
 	render() {
 		const animateIn = content =>
 			anime({

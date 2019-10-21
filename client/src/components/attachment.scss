@@ -1,0 +1,69 @@
+.quesync-attachment {
+	width: 240px;
+}
+
+.quesync-attachment-content {
+	border-radius: 50px;
+
+	background: #393939;
+	color: white;
+
+	padding: 10px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-left: -8px;
+
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+.quesync-attachment-name {
+	width: 100%;
+
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.quesync-attachment-details {
+	width: 76%;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.quesync-attachment-download-progress {
+	border-radius: 20px;
+}
+
+.quesync-attachment-download-progress-wrapper {
+	display: flex;
+	flex-direction: column;
+
+	padding-top: 4px;
+}
+
+.quesync-attachment-download-progress-text {
+	padding-top: 1.5px;
+
+	font-size: 0.75rem;
+}
+
+.quesync-attachment-action {
+	width: 36px;
+	height: 36px;
+	font-size: 24px;
+
+	padding: 6px;
+
+	transition: color 400ms ease-in-out;
+}
+
+.quesync-attachment-stop-action {
+	color: #ff1744;
+}
+
+.quesync-attachment-download-action {
+	color: #00e676;
+}

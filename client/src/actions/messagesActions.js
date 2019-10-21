@@ -1,4 +1,6 @@
-export function sendMessage(content, channelId, attachmentId=null) {
+import { getFileInfo } from "./filesActions";
+
+export function sendMessage(content, channelId, attachmentId = null) {
 	return (dispatch, getState) => {
 		const client = getState().client.client;
 
@@ -16,6 +18,14 @@ export function getChannelMessages(channelId, amount, offset) {
 		return dispatch({
 			type: "GET_CHANNEL_MESSAGES",
 			payload: client.messages().getChannelMessages(channelId, amount, offset)
+		}).then(async ({ action }) => {
+			const messages = action.payload.messages;
+			const messagesWithAttachments = messages.filter(message => message.attachmentId);
+
+			// For each messages with attachments, get it's attachment's info
+			for (const messageIdx in messagesWithAttachments) {
+				await dispatch(getFileInfo(messagesWithAttachments[messageIdx].attachmentId));
+			}
 		});
 	}
 }

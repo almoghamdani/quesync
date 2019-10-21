@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 
 import TransitionGroup from "react-transition-group/TransitionGroup";
+
 import FadeTransition from "./fade_transition";
+import Attachment from "./attachment";
 
 import Moment from "react-moment";
 
@@ -42,16 +44,21 @@ class MessageBubble extends Component {
 						<TransitionGroup>
 							{this.props.messages.map(message => (
 								<FadeTransition timeout={200} key={message.id}>
-									<Twemoji
-										key={message.id}
-										options={{
-											className: this.stringIsEmoji(message.content)
-												? "quesync-message-bubble-only-emoji"
-												: "quesync-message-bubble-text-emoji"
-										}}
-									>
-										{message.content}
-									</Twemoji>
+									<div className="quesync-message-wrapper">
+										<Twemoji
+											key={message.id}
+											options={{
+												className: this.stringIsEmoji(message.content)
+													? "quesync-message-bubble-only-emoji"
+													: "quesync-message-bubble-text-emoji"
+											}}
+										>
+											{message.content}
+										</Twemoji>
+										{message.attachmentId ? (
+											<Attachment id={message.attachmentId} />
+										) : null}
+									</div>
 								</FadeTransition>
 							))}
 						</TransitionGroup>
