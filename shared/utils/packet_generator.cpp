@@ -20,6 +20,7 @@
 #include "../packets/search_packet.h"
 #include "../packets/send_message_packet.h"
 #include "../packets/session_auth_packet.h"
+#include "../packets/set_profile_photo_packet.h"
 #include "../packets/set_voice_state_packet.h"
 #include "../packets/upload_file_packet.h"
 
@@ -46,6 +47,7 @@ const std::unordered_map<quesync::packet_type, std::function<std::shared_ptr<que
         PACKET_ENTRY(get_file_info_packet),
         PACKET_ENTRY(logout_packet),
         PACKET_ENTRY(file_transmission_stop_packet),
+        PACKET_ENTRY(set_profile_photo_packet),
         PACKET_ENTRY(event_packet),
         PACKET_ENTRY(error_packet),
         RESPONSE_PACKET_ENTRY(authenticated_packet),
@@ -66,4 +68,5 @@ const std::unordered_map<quesync::packet_type, std::function<std::shared_ptr<que
         RESPONSE_PACKET_ENTRY(file_info_packet),
         RESPONSE_PACKET_ENTRY(logged_out_packet),
         RESPONSE_PACKET_ENTRY(file_transmission_stopped_packet),
+        RESPONSE_PACKET_ENTRY(profile_photo_set_packet),
         RESPONSE_PACKET_ENTRY(pong_packet)};

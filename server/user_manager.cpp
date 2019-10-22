@@ -9,6 +9,7 @@
 #include "../shared/events/friend_request_event.h"
 #include "../shared/events/friendship_status_event.h"
 #include "../shared/exception.h"
+#include "../shared/utils/crypto/base64.h"
 #include "../shared/utils/crypto/pbkdf2.h"
 #include "../shared/utils/rand.h"
 #include "../shared/utils/server.h"
@@ -176,9 +177,29 @@ std::shared_ptr<quesync::profile> quesync::server::user_manager::get_user_profil
 
     // Create the profile from the db response
     profile = std::make_shared<quesync::profile>(
-        (std::string)profile_res[0], ((std::string)profile_res[1]).c_str(), profile_res[2]);
+        (std::string)profile_res[0], (std::string)profile_res[1], profile_res[2],
+        get_profile_photo(profile_res[3].isNull() ? "" : (std::string)profile_res[3]));
 
     return profile;
+}
+
+std::string quesync::server::user_manager::get_profile_photo(std::string photo_id) {
+    std::string file_content, photo_base64;
+
+    // If the photo id isn't null
+    if (!photo_id.empty()) {
+        try {
+            // Get the content of the file
+            file_content = _server->file_manager()->get_file_content(photo_id);
+
+            // Encode the file's content in base64
+            photo_base64 = utils::crypto::base64::encode(file_content);
+        } catch (...) {
+            // Ignore errors to return null photo
+        }
+    }
+
+    return photo_base64;
 }
 
 std::vector<std::string> quesync::server::user_manager::get_friends(std::string user_id) {
@@ -373,6 +394,35 @@ void quesync::server::user_manager::unauthenticate_session(std::string user_id) 
     }
 }
 
+void quesync::server::user_manager::set_profile_photo(
+    std::shared_ptr<quesync::server::session> sess, std::string file_id) {
+    std::shared_ptr<file> photo_file;
+
+    // Check if the session is authenticated
+    if (!sess->authenticated()) {
+        throw exception(error::not_authenticated);
+    }
+
+    // Try to get the file of the photo
+    photo_file = _server->file_manager()->get_file_info(file_id);
+
+    // Check for valid size of the photo
+    if (photo_file->size > PHOTO_FILE_MAX_SIZE) {
+        throw exception(error::profile_photo_too_big);
+    }
+
+    try {
+        // Set the new profile photo for the user
+        users_table.update()
+            .set("photo_id", file_id)
+            .where("id = :user_id")
+            .bind("user_id", sess->user()->id)
+            .execute();
+    } catch (...) {
+        throw exception(error::unknown_error);
+    }
+}
+
 std::shared_ptr<quesync::server::session>
 quesync::server::user_manager::get_authenticated_session_of_user(std::string user_id) {
     try {
@@ -410,7 +460,7 @@ std::vector<quesync::profile> quesync::server::user_manager::search(
             res = _server->db()
                       .getSession()
                       .sql(
-                          "SELECT id, nickname, tag FROM quesync.users WHERE nickname LIKE ? AND "
+                          "SELECT * FROM quesync.profiles WHERE nickname LIKE ? AND "
                           "tag = ? AND id != ? ORDER BY CASE WHEN nickname LIKE ? THEN 0 WHEN "
                           "nickname LIKE ? THEN 1 ELSE 2 END")
                       .bind(nickname)
@@ -425,7 +475,7 @@ std::vector<quesync::profile> quesync::server::user_manager::search(
             res = _server->db()
                       .getSession()
                       .sql(
-                          "SELECT id, nickname, tag FROM quesync.users WHERE nickname LIKE ? AND "
+                          "SELECT * FROM quesync.profiles WHERE nickname LIKE ? AND "
                           "id != ? ORDER BY CASE WHEN nickname LIKE ? THEN 0 WHEN nickname LIKE ? "
                           "THEN 1 ELSE 2 END")
                       .bind(nickname)
@@ -442,7 +492,8 @@ std::vector<quesync::profile> quesync::server::user_manager::search(
     // Format the results in the json type
     for (int i = 0; i < res.size(); i++) {
         results.push_back(
-            profile((std::string)res[i][0], ((std::string)res[i][1]).c_str(), (int)res[i][2]));
+            profile((std::string)res[i][0], (std::string)res[i][1], res[i][2],
+                    get_profile_photo(res[i][3].isNull() ? "" : (std::string)res[i][3])));
     }
 
     return results;

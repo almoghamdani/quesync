@@ -46,6 +46,8 @@ class file_manager : manager {
     std::unordered_map<unsigned long long, file_chunk> get_file_chunks(std::string file_id);
     void save_file(std::shared_ptr<memory_file> file);
 
+    std::string get_file_content(std::string file_id);
+
     void clear_all_user_memory_files(std::string user_id);
     void register_user_file_session(std::shared_ptr<file_session> sess, std::string user_id);
 

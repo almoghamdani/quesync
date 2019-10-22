@@ -11,6 +11,7 @@ namespace sql = mysqlx;
 #include "../shared/profile.h"
 #include "../shared/user.h"
 
+#define PHOTO_FILE_MAX_SIZE 5 * 1000000
 namespace quesync {
 namespace server {
 // Prevent loop header include
@@ -33,6 +34,8 @@ class user_manager : manager {
         std::string user_id);
     void unauthenticate_session(std::string user_id);
 
+    void set_profile_photo(std::shared_ptr<quesync::server::session> sess, std::string file_id);
+
     std::shared_ptr<profile> get_user_profile(std::string id);
 
     void send_friend_request(std::string requester_id, std::string recipient_id);
@@ -47,6 +50,8 @@ class user_manager : manager {
     sql::Table profiles_table;
 
     std::unordered_map<std::string, std::weak_ptr<session>> _authenticated_sessions;
+
+    std::string get_profile_photo(std::string photo_id);
 
     std::vector<std::string> get_friends(std::string user_id);
     std::vector<friend_request> get_friend_requests(std::string user_id);

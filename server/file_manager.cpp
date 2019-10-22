@@ -250,6 +250,21 @@ void quesync::server::file_manager::save_file(std::shared_ptr<quesync::memory_fi
         .detach();
 }
 
+std::string quesync::server::file_manager::get_file_content(std::string file_id) {
+    std::ifstream fd(FILES_DIR + "/" + file_id);
+    std::stringstream buffer;
+
+    // Check if the file exists
+    if (!does_file_exists(file_id) || fd.fail()) {
+        throw exception(error::file_not_found);
+    }
+
+    // Read the entire file
+    buffer << fd.rdbuf();
+
+    return buffer.str();
+}
+
 void quesync::server::file_manager::register_user_file_session(
     std::shared_ptr<quesync::server::file_session> sess, std::string user_id) {
     _users_file_sessions[user_id] = sess;
