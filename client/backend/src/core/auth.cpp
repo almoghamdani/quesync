@@ -4,9 +4,9 @@
 
 #include "../../../../shared/exception.h"
 #include "../../../../shared/packets/login_packet.h"
+#include "../../../../shared/packets/logout_packet.h"
 #include "../../../../shared/packets/register_packet.h"
 #include "../../../../shared/packets/session_auth_packet.h"
-#include "../../../../shared/packets/logout_packet.h"
 
 quesync::client::modules::auth::auth(std::shared_ptr<quesync::client::client> client)
     : module(client), _user(nullptr) {}
@@ -26,7 +26,7 @@ std::string quesync::client::modules::auth::login(std::string username, std::str
         _client->communicator()->send_and_verify(&login_packet, packet_type::authenticated_packet);
 
     // Init the user from the response
-    _user = std::make_shared<user>(res_packet->json()["user"]);
+    _user = std::make_shared<quesync::user>(res_packet->json()["user"]);
 
     // Save session id
     _session_id = res_packet->json()["sessionId"];
@@ -51,7 +51,7 @@ std::string quesync::client::modules::auth::signup(std::string username, std::st
                                                           packet_type::authenticated_packet);
 
     // Init the user from the response
-    _user = std::make_shared<user>(res_packet->json()["user"]);
+    _user = std::make_shared<quesync::user>(res_packet->json()["user"]);
 
     // Save session id
     _session_id = res_packet->json()["sessionId"];
@@ -75,14 +75,13 @@ void quesync::client::modules::auth::session_auth(std::string session_id) {
                                                           packet_type::authenticated_packet);
 
     // Init the user from the response
-    _user = std::make_shared<user>(res_packet->json()["user"]);
+    _user = std::make_shared<quesync::user>(res_packet->json()["user"]);
 
     // Save session id
     _session_id = session_id;
 }
 
-void quesync::client::modules::auth::logout()
-{
+void quesync::client::modules::auth::logout() {
     packets::logout_packet logout_packet;
 
     // If the user isn't authenticated

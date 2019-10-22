@@ -18,13 +18,13 @@ class auth : public module {
 
     void logout();
 
-    std::shared_ptr<user> get_user();
+    std::shared_ptr<quesync::user> get_user();
     std::string get_session_id();
 
     virtual void disconnected();
 
    private:
-    std::shared_ptr<user> _user;
+    std::shared_ptr<quesync::user> _user;
     std::string _session_id;
 };
 };  // namespace modules

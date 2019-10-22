@@ -11,7 +11,8 @@ quesync::client::client::client()
       _channels(nullptr),
       _messages(nullptr),
       _voice(nullptr),
-      _files(nullptr) {
+      _files(nullptr),
+      _user(nullptr) {
     socket_manager::init();
 }
 
@@ -24,6 +25,7 @@ void quesync::client::client::init() {
     _channels = std::make_shared<modules::channels>(shared_from_this());
     _voice = std::make_shared<modules::voice>(shared_from_this());
     _files = std::make_shared<modules::files>(shared_from_this());
+    _user = std::make_shared<modules::user>(shared_from_this());
 }
 
 void quesync::client::client::connect(std::string server_ip) {
@@ -37,6 +39,7 @@ void quesync::client::client::connect(std::string server_ip) {
     _channels->connected(server_ip);
     _voice->connected(server_ip);
     _files->connected(server_ip);
+    _user->connected(server_ip);
 }
 
 void quesync::client::client::clean_connection() {
@@ -55,6 +58,7 @@ void quesync::client::client::clean_connection() {
     _channels->clean_connection();
     _voice->clean_connection();
     _files->clean_connection();
+    _user->clean_connection();
 
     try {
         // Call the server disconnect event
@@ -73,6 +77,7 @@ void quesync::client::client::disconnected() {
     _channels->disconnected();
     _voice->disconnected();
     _files->disconnected();
+    _user->disconnected();
 }
 
 std::shared_ptr<quesync::client::modules::communicator> quesync::client::client::communicator() {
@@ -94,3 +99,5 @@ std::shared_ptr<quesync::client::modules::messages> quesync::client::client::mes
 std::shared_ptr<quesync::client::modules::voice> quesync::client::client::voice() { return _voice; }
 
 std::shared_ptr<quesync::client::modules::files> quesync::client::client::files() { return _files; }
+
+std::shared_ptr<quesync::client::modules::user> quesync::client::client::user() { return _user; }

@@ -10,6 +10,7 @@
 #include "messages.h"
 #include "voice.h"
 #include "files.h"
+#include "user.h"
 
 namespace quesync {
 namespace client {
@@ -28,6 +29,7 @@ class client : public std::enable_shared_from_this<client> {
     std::shared_ptr<modules::messages> messages();
     std::shared_ptr<modules::voice> voice();
     std::shared_ptr<modules::files> files();
+    std::shared_ptr<modules::user> user();
 
     void clean_connection();
     void disconnected();
@@ -40,6 +42,7 @@ class client : public std::enable_shared_from_this<client> {
     std::shared_ptr<modules::messages> _messages;
     std::shared_ptr<modules::voice> _voice;
     std::shared_ptr<modules::files> _files;
+    std::shared_ptr<modules::user> _user;
 };
 };  // namespace client
 };  // namespace quesync
