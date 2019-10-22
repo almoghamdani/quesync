@@ -3,10 +3,11 @@
 # Create the build folder
 mkdir -p build
 
-# Build the makefile
+# Build the ninja build
 cd build
-cmake -DUSE32bt=false ..
+cmake -G Ninja ..
 
-make
+# Compile the server
+cmake --build .
 
 cd ..

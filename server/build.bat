@@ -10,10 +10,10 @@ IF NOT DEFINED DevEnvDir (
 
 :: Create the cmake project
 cd build
-cmake -DCMAKE_GENERATOR_PLATFORM=x64 ..
+cmake -G Ninja ..
 
-:: Build the solution
-msbuild Quesync.sln
+:: Build the server
+cmake --build .
 
 :: Return to server folder
 cd ..
