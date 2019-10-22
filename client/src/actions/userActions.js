@@ -107,6 +107,26 @@ export function removeFriend(friendId) {
 	}
 }
 
+export function setProfilePhotoId(fileId) {
+	return (dispatch, getState) => {
+		const client = getState().client.client;
+
+		return dispatch({
+			type: "SET_PROFILE_PHOTO_ID",
+			payload: client.user().setProfilePhoto(fileId)
+		});
+	}
+}
+
+export function setProfilePhoto(photo) {
+	return {
+		type: "SET_PROFILE_PHOTO",
+		payload: {
+			photo
+		}
+	};
+}
+
 export function resetAuthError() {
 	return {
 		type: "RESET_AUTH_ERROR",

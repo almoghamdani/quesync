@@ -103,6 +103,17 @@ export default function reducer(
 			};
 		}
 
+		case "SET_PROFILE_PHOTO":
+			const photo = action.payload.photo;
+
+			return {
+				...state,
+				user: {
+					...state.user,
+					photo
+				}
+			}
+
 		case "RESET_AUTH_ERROR":
 			return {
 				...state,
