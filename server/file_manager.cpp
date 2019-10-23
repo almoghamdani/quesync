@@ -6,7 +6,7 @@
 #include <sole.hpp>
 
 #ifdef _WIN32
-#include <dirent.h>
+#include <direct.h>
 #else
 #include <sys/stat.h>
 #include <sys/types.h>
