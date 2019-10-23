@@ -24,13 +24,9 @@ class MessageField extends Component {
 
 	labelRef = React.createRef();
 
-	componentDidMount = () => {
-		this.updateNotch();
-	};
+	componentDidMount = () => this.updateNotch();
 
-	componentDidUpdate = () => {
-		this.updateNotch();
-	};
+	componentDidUpdate = () => this.updateNotch();
 
 	updateNotch = () => {
 		const notch =
@@ -125,14 +121,9 @@ class MessageField extends Component {
 							className={
 								this.props.newMessages[this.props.channelId] &&
 								this.props.newMessages[this.props.channelId].attachmentId
-									? this.props.filesProgress[
-											this.props.newMessages[this.props.channelId].attachmentId
-									  ] ===
-									  this.props.files[
-											this.props.newMessages[this.props.channelId].attachmentId
-									  ].size
-										? "quesync-attach-button quesync-attach-button-attached"
-										: "quesync-attach-button quesync-attach-button-uploading"
+									? this.props.uploading
+										? "quesync-attach-button quesync-attach-button-uploading"
+										: "quesync-attach-button quesync-attach-button-attached"
 									: "quesync-attach-button"
 							}
 							icon="attach_file"
@@ -162,8 +153,14 @@ class MessageField extends Component {
 	}
 }
 
-export default connect(state => ({
+export default connect((state, ownProps) => ({
 	newMessages: state.messages.newMessages,
 	files: state.files.files,
-	filesProgress: state.files.filesProgress
+	uploading:
+		state.messages.newMessages[ownProps.channelId] &&
+		state.messages.newMessages[ownProps.channelId].attachmentId
+			? state.files.uploading.includes(
+					state.messages.newMessages[ownProps.channelId].attachmentId
+			  )
+			: false
 }))(MessageField);
