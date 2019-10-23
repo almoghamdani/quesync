@@ -37,6 +37,7 @@ enum class error {
     file_session_not_connected,
     file_already_downloading,
     invalid_download_file_path,
-    profile_photo_too_big
+    profile_photo_too_big,
+    already_connected_in_other_location
 };
 };

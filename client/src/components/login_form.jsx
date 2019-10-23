@@ -51,6 +51,9 @@ class LoginForm extends Component {
 			case window.errors.incorrect_password:
 				return "Incorrect password!";
 
+			case window.errors.already_connected_in_other_location:
+				return "Already connected in another location!";
+
 			default:
 				return "Unknown error occurred!\nPlease try again later.";
 		}

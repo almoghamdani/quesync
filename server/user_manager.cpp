@@ -55,6 +55,10 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::authenticate_user(
     else if (!utils::crypto::pbkdf2::sha512_compare(password, std::string(user_res[2]))) {
         throw exception(error::incorrect_password);
     }
+    // If the user is already connected in another location
+    else if (_authenticated_sessions.count((std::string)user_res[0])) {
+        throw exception(error::already_connected_in_other_location);
+    }
 
     // Create the user from the db response
     user = std::make_shared<quesync::user>(
