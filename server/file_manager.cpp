@@ -5,6 +5,13 @@
 #include <fstream>
 #include <sole.hpp>
 
+#ifdef _WIN32
+#include <dirent.h>
+#else
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
+
 #include "event_manager.h"
 #include "file_session.h"
 #include "server.h"
@@ -19,6 +26,14 @@ quesync::server::file_manager::file_manager(std::shared_ptr<quesync::server::ser
     : manager(server),
       files_table(server->db(), "files"),
       _acceptor(server->get_io_context(), tcp::endpoint(tcp::v4(), FILE_SERVER_PORT)) {
+// Create the files dir
+#ifdef _WIN32
+    _mkdir(FILES_DIR.c_str());
+#else
+    mkdir(FILES_DIR.c_str(), 0777);
+#endif
+
+    // Start accepting clients
     accept_client();
 }
 
