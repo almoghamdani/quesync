@@ -20,7 +20,8 @@ class messages : public Napi::ObjectWrap<messages>, public module<messages> {
     Napi::Value send_message(const Napi::CallbackInfo &info) {
         std::string content = info[0].As<Napi::String>(), channel_id = info[1].As<Napi::String>();
 
-        std::string attachment_id = info.Length() != 3 ? "" : (std::string)info[2].As<Napi::String>();
+        std::string attachment_id =
+            info.Length() != 3 || info[2].IsNull() ? "" : (std::string)info[2].As<Napi::String>();
 
         return executer::create_executer(info.Env(), [this, content, channel_id, attachment_id]() {
             std::shared_ptr<quesync::message> message;
