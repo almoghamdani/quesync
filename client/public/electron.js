@@ -21,6 +21,9 @@ let client = new quesync.Client();
 
 let serverIP = null;
 
+// Set app user model id to app id to fix desktop notifications on windows
+app.setAppUserModelId("com.almoghamdani.quesync");
+
 // Remove menu on all windows on production
 if (!isDev)
 	electron.Menu.setApplicationMenu(null);
