@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 import FadeTransition from "./fade_transition";
+import UpdateBlocker from "./update_blocker";
 
 import { Typography } from "@rmwc/typography";
 import { LinearProgress } from "@rmwc/linear-progress";
@@ -92,35 +93,39 @@ class Attachment extends Component {
 							mountOnEnter
 							unmountOnExit
 							timeout={1000}
-							in={downloading && this.props.filesProgress[this.props.id]}
+							in={downloading && !!this.props.filesProgress[this.props.id]}
 						>
-							<div className="quesync-attachment-download-progress-wrapper">
-								<LinearProgress
-									className="quesync-attachment-download-progress"
-									progress={
-										this.props.filesProgress[this.props.id] /
-										attachmentFile.size
-									}
-								/>
-								<Typography
-									className="quesync-attachment-download-progress-text"
-									use="subtitle2"
-								>
-									<b>
+							<UpdateBlocker
+								listenObject={this.props.filesProgress[this.props.id]}
+							>
+								<div className="quesync-attachment-download-progress-wrapper">
+									<LinearProgress
+										className="quesync-attachment-download-progress"
+										progress={
+											this.props.filesProgress[this.props.id] /
+											attachmentFile.size
+										}
+									/>
+									<Typography
+										className="quesync-attachment-download-progress-text"
+										use="subtitle2"
+									>
+										<b>
+											{this.props.filesProgress[this.props.id] ===
+												attachmentFile.size ||
+											!this.props.filesProgress[this.props.id]
+												? "Download completed!"
+												: `${prettyBytes(
+														this.props.filesProgress[this.props.id]
+												  )} of ${prettyBytes(attachmentFile.size)}`}
+										</b>
 										{this.props.filesProgress[this.props.id] ===
-											attachmentFile.size ||
-										!this.props.filesProgress[this.props.id]
-											? "Download completed!"
-											: `${prettyBytes(
-													this.props.filesProgress[this.props.id]
-											  )} of ${prettyBytes(attachmentFile.size)}`}
-									</b>
-									{this.props.filesProgress[this.props.id] ===
-									attachmentFile.size
-										? ""
-										: `, ${prettyBytes(this.state.bps)}/s`}
-								</Typography>
-							</div>
+										attachmentFile.size
+											? ""
+											: `, ${prettyBytes(this.state.bps)}/s`}
+									</Typography>
+								</div>
+							</UpdateBlocker>
 						</FadeTransition>
 					</div>
 					<IconButton
