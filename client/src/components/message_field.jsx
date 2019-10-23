@@ -53,13 +53,7 @@ class MessageField extends Component {
 			if (
 				this.props.newMessages[this.props.channelId] &&
 				!/^\s*$/.test(this.props.newMessages[this.props.channelId].content) &&
-				(!this.props.newMessages[this.props.channelId].attachmentId ||
-					this.props.filesProgress[
-						this.props.newMessages[this.props.channelId].attachmentId
-					] ===
-						this.props.files[
-							this.props.newMessages[this.props.channelId].attachmentId
-						].size)
+				!this.props.uploading
 			) {
 				this.props
 					.dispatch(
