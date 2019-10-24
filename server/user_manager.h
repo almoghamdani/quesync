@@ -6,6 +6,7 @@ namespace sql = mysqlx;
 
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 
 #include "../shared/friend_request.h"
 #include "../shared/profile.h"
@@ -49,6 +50,7 @@ class user_manager : manager {
     sql::Table friendships_table;
     sql::Table profiles_table;
 
+    std::mutex _sessions_mutex;
     std::unordered_map<std::string, std::weak_ptr<session>> _authenticated_sessions;
 
     std::string get_profile_photo(std::string photo_id);

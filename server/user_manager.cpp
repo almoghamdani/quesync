@@ -36,6 +36,8 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::authenticate_user(
 
     sql::Row user_res;
 
+    std::unique_lock lk(_sessions_mutex, std::defer_lock);
+
     // Search for the user row in the database
     try {
         user_res = users_table.select("*")
@@ -55,8 +57,12 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::authenticate_user(
     else if (!utils::crypto::pbkdf2::sha512_compare(password, std::string(user_res[2]))) {
         throw exception(error::incorrect_password);
     }
+
+    // Lock the mutex
+    lk.lock();
+
     // If the user is already connected in another location
-    else if (_authenticated_sessions.count((std::string)user_res[0])) {
+    if (_authenticated_sessions.count((std::string)user_res[0])) {
         throw exception(error::already_connected_in_other_location);
     }
 
@@ -81,6 +87,8 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::register_user(
     int tag;
 
     sql::Row user_res;
+
+    std::unique_lock lk(_sessions_mutex, std::defer_lock);
 
     // Check if the entered username is a valid username
     if (!utils::validation::is_valid_username(username)) {
@@ -137,8 +145,14 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::register_user(
                                                std::vector<std::string>(),
                                                std::vector<friend_request>());
 
+        // Lock the mutex
+        lk.lock();
+
         // Add the user to the authenticated sessions
         _authenticated_sessions[id] = sess;
+
+        // Unlock the mutex
+        lk.unlock();
     } else {
         // If the username is already taken
         if (std::string(user_res[1]) == username) {
@@ -391,6 +405,8 @@ void quesync::server::user_manager::set_friendship_status(std::string user_id,
 }
 
 void quesync::server::user_manager::unauthenticate_session(std::string user_id) {
+    std::lock_guard lk(_sessions_mutex);
+
     // Try to erase the session from the authenticated sessions and silence errors
     try {
         _authenticated_sessions.erase(user_id);
@@ -429,6 +445,8 @@ void quesync::server::user_manager::set_profile_photo(
 
 std::shared_ptr<quesync::server::session>
 quesync::server::user_manager::get_authenticated_session_of_user(std::string user_id) {
+    std::lock_guard lk(_sessions_mutex);
+
     try {
         // Try to get the authenticated session for the user id
         return _authenticated_sessions[user_id].lock();
@@ -510,6 +528,8 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::authenticate_user_
 
     sql::Row user_res;
 
+    std::unique_lock lk(_sessions_mutex, std::defer_lock);
+
     // Try to get the user id for the session
     user_id = _server->session_manager()->get_user_id_for_session(session_id);
 
@@ -534,6 +554,9 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::authenticate_user_
         (std::string)user_res[0], (std::string)user_res[1], (std::string)user_res[3],
         ((std::string)user_res[4]).c_str(), user_res[5], get_friends((std::string)user_res[0]),
         get_friend_requests((std::string)user_res[0]));
+
+    // Lock the mutex
+    lk.lock();
 
     // Add the user to the authenticated sessions
     _authenticated_sessions.insert_or_assign((std::string)user_res[0], sess);

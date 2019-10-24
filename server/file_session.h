@@ -3,8 +3,8 @@
 #include <asio.hpp>
 #include <asio/ssl.hpp>
 #include <memory>
-#include <unordered_map>
 #include <mutex>
+#include <unordered_map>
 
 #include "server.h"
 
@@ -31,10 +31,9 @@ class file_session : public std::enable_shared_from_this<file_session> {
     std::shared_ptr<quesync::user> _user;
     std::shared_ptr<quesync::server::server> _server;
 
+    std::mutex _files_mutex;
     std::unordered_map<std::string, std::shared_ptr<memory_file>> _upload_files;
     std::unordered_map<std::string, std::shared_ptr<memory_file>> _download_files;
-
-    std::mutex _files_mutex;
 
     asio::ssl::stream<tcp::socket> _socket;
 

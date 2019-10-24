@@ -1,7 +1,9 @@
 #pragma once
+
 #include <asio.hpp>
 #include <asio/ssl.hpp>
 #include <memory>
+#include <mutex>
 
 #include "server.h"
 
@@ -27,7 +29,9 @@ class session : public std::enable_shared_from_this<session> {
     std::shared_ptr<user> user() const;
 
    private:
+    mutable std::mutex _user_mutex;
     std::shared_ptr<quesync::user> _user;
+
     std::shared_ptr<quesync::server::server> _server;
 
     asio::ssl::stream<tcp::socket> _socket;

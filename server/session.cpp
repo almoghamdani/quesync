@@ -16,6 +16,8 @@ quesync::server::session::session(tcp::socket socket, asio::ssl::context &contex
       _user(nullptr) {}
 
 quesync::server::session::~session() {
+    std::lock_guard lk(_user_mutex);
+
     // If the user authenticated
     if (_user) {
         // Clean the user's session
@@ -162,6 +164,8 @@ std::shared_ptr<quesync::server::session> quesync::server::session::get_shared()
 }
 
 void quesync::server::session::set_user(std::shared_ptr<quesync::user> user) {
+    std::lock_guard lk(_user_mutex);
+
     // If the user is currently signed in, clean it's session
     if (_user) {
         clean_user_session();
@@ -170,6 +174,14 @@ void quesync::server::session::set_user(std::shared_ptr<quesync::user> user) {
     _user = user;
 }
 
-bool quesync::server::session::authenticated() const { return (_user != nullptr); }
+bool quesync::server::session::authenticated() const {
+    std::lock_guard lk(_user_mutex);
 
-std::shared_ptr<quesync::user> quesync::server::session::user() const { return _user; }
+    return (_user != nullptr);
+}
+
+std::shared_ptr<quesync::user> quesync::server::session::user() const {
+    std::lock_guard lk(_user_mutex);
+
+    return _user;
+}

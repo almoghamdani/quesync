@@ -58,6 +58,8 @@ std::shared_ptr<quesync::file> quesync::server::file_manager::init_upload_file(
     std::shared_ptr<file> file;
     std::string file_id = sole::uuid4().str();
 
+    std::lock_guard lk(_sessions_mutex);
+
     // Check if the session is authenticated
     if (!sess->authenticated()) {
         throw exception(error::not_authenticated);
@@ -89,6 +91,8 @@ void quesync::server::file_manager::init_download_file(
 
     sql::Row res;
 
+    std::unique_lock lk(_sessions_mutex);
+
     // Check if the session is authenticated
     if (!sess->authenticated()) {
         throw exception(error::not_authenticated);
@@ -98,6 +102,9 @@ void quesync::server::file_manager::init_download_file(
     if (!_users_file_sessions.count(sess->user()->id)) {
         throw exception(error::file_session_not_connected);
     }
+
+    // Unlock the mutex
+    lk.unlock();
 
     try {
         // Try to get the file info
@@ -120,12 +127,17 @@ void quesync::server::file_manager::init_download_file(
                                            (std::string)res[2], (unsigned long long)res[3],
                                            (int)res[4]);
 
+    // Lock the mutex
+    lk.lock();
+
     // Add the file to the download files of the user
     _users_file_sessions[sess->user()->id]->add_download_file(file);
 }
 
 void quesync::server::file_manager::stop_file_transmission(
     std::shared_ptr<quesync::server::session> sess, std::string file_id) {
+    std::lock_guard lk(_sessions_mutex);
+
     // Check if the session is authenticated
     if (!sess->authenticated()) {
         throw exception(error::not_authenticated);
@@ -179,6 +191,8 @@ std::shared_ptr<quesync::file> quesync::server::file_manager::get_file_info(std:
 }
 
 void quesync::server::file_manager::clear_all_user_memory_files(std::string user_id) {
+    std::lock_guard lk(_sessions_mutex);
+
     _users_file_sessions.erase(user_id);
 }
 
@@ -282,5 +296,7 @@ std::string quesync::server::file_manager::get_file_content(std::string file_id)
 
 void quesync::server::file_manager::register_user_file_session(
     std::shared_ptr<quesync::server::file_session> sess, std::string user_id) {
+    std::lock_guard lk(_sessions_mutex);
+
     _users_file_sessions[user_id] = sess;
 }

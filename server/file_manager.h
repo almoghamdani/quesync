@@ -1,11 +1,11 @@
 #pragma once
 #include "manager.h"
 
-#include <asio.hpp>
-
 #include <mysqlx/xdevapi.h>
 namespace sql = mysqlx;
 
+#include <asio.hpp>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 
@@ -56,6 +56,7 @@ class file_manager : manager {
 
     tcp::acceptor _acceptor;
 
+    std::mutex _sessions_mutex;
     std::unordered_map<std::string, std::shared_ptr<file_session>> _users_file_sessions;
 
     void accept_client();

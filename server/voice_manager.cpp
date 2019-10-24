@@ -63,7 +63,7 @@ void quesync::server::voice_manager::handle_packet(std::size_t length) {
 
     std::unordered_map<std::string, voice::state> voice_states;
 
-    std::unique_lock lk(_mutex);
+    std::lock_guard lk(_mutex);
 
     // If the packet is an OTP packet
     if (otp_packet.decode(std::string(_buf, length))) {
@@ -150,7 +150,7 @@ void quesync::server::voice_manager::handle_packet(std::size_t length) {
 
 std::pair<std::string, quesync::voice::encryption_info>
 quesync::server::voice_manager::create_voice_session(std::string user_id) {
-    std::unique_lock lk(_mutex);
+    std::lock_guard lk(_mutex);
 
     // If a session doesn't exists for the user
     if (!_sessions.count(user_id)) {
@@ -165,7 +165,7 @@ quesync::server::voice_manager::create_voice_session(std::string user_id) {
 }
 
 void quesync::server::voice_manager::delete_voice_session(std::string user_id) {
-    std::unique_lock lk(_mutex);
+    std::lock_guard lk(_mutex);
 
     try {
         // Remove OTP if exists
@@ -183,9 +183,9 @@ void quesync::server::voice_manager::delete_voice_session(std::string user_id) {
 }
 
 std::string quesync::server::voice_manager::generate_otp(std::string session_id) {
-    std::unique_lock lk(_mutex);
-
     std::string otp;
+
+    std::lock_guard lk(_mutex);
 
     // Generate random bytes for the OTP
     std::shared_ptr<unsigned char> bytes = utils::rand::bytes(OTP_SIZE);
@@ -200,7 +200,8 @@ std::string quesync::server::voice_manager::generate_otp(std::string session_id)
 std::shared_ptr<quesync::call_details> quesync::server::voice_manager::init_voice_channel(
     std::string caller_id, std::string channel_id, std::vector<std::string> users) {
     std::unordered_map<std::string, voice::state> user_states;
-    std::unique_lock lk(_mutex);
+
+    std::lock_guard lk(_mutex);
 
     // If the voice channel already started
     if (_voice_channels.count(channel_id)) {
@@ -219,14 +220,14 @@ std::shared_ptr<quesync::call_details> quesync::server::voice_manager::init_voic
 }
 
 bool quesync::server::voice_manager::is_voice_channel_active(std::string channel_id) {
-    std::unique_lock lk(_mutex);
+    std::lock_guard lk(_mutex);
 
     return _voice_channels.count(channel_id);
 }
 
 void quesync::server::voice_manager::join_voice_channel(std::string user_id, std::string channel_id,
                                                         bool muted, bool deafen) {
-    std::unique_lock lk(_mutex);
+    std::lock_guard lk(_mutex);
 
     // If the user is already in a channel, leave the channel
     if (_joined_voice_channels.count(user_id)) {
@@ -251,9 +252,10 @@ void quesync::server::voice_manager::join_voice_channel(std::string user_id, std
 
 void quesync::server::voice_manager::leave_voice_channel(std::string user_id) {
     std::string channel_id;
-    std::unique_lock lk(_mutex);
 
     std::shared_ptr<events::call_ended_event> call_ended_event;
+
+    std::lock_guard lk(_mutex);
 
     // Check if in voice channel
     if (!_joined_voice_channels.count(user_id)) {
@@ -293,7 +295,7 @@ void quesync::server::voice_manager::leave_voice_channel(std::string user_id) {
 
 std::unordered_map<std::string, quesync::voice::state>
 quesync::server::voice_manager::get_voice_states(std::string channel_id) {
-    std::unique_lock lk(_mutex);
+    std::lock_guard lk(_mutex);
 
     // Check if the channel exists
     if (!_voice_channels.count(channel_id)) {
@@ -308,7 +310,7 @@ void quesync::server::voice_manager::handle_voice_states() {
         // Sleep for half a second
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-        std::unique_lock lk(_mutex);
+        std::lock_guard lk(_mutex);
 
         std::time_t current_time = std::time(nullptr);
 
@@ -332,7 +334,8 @@ void quesync::server::voice_manager::handle_voice_states() {
 
 void quesync::server::voice_manager::set_voice_state(std::string user_id, bool muted, bool deafen) {
     std::string channel_id;
-    std::unique_lock lk(_mutex);
+    
+    std::lock_guard lk(_mutex);
 
     // Check if in voice channel
     if (!_joined_voice_channels.count(user_id)) {
