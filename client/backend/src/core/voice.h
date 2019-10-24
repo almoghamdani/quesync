@@ -25,7 +25,7 @@ class voice : public module {
     void leave_call();
 
     virtual void clean_connection();
-    virtual void disconnected();
+    virtual void logged_out();
     virtual void connected(std::string server_ip);
 
    private:

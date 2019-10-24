@@ -34,7 +34,7 @@ class files : public module {
     std::shared_ptr<file> get_file_info(std::string file_id);
 
     virtual void clean_connection(bool join_com_thread=true);
-    virtual void disconnected();
+    virtual void logged_out();
 
    private:
     std::mutex _send_mutex;

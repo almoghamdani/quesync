@@ -170,7 +170,7 @@ void quesync::client::modules::voice::clean_connection() {
     }
 }
 
-void quesync::client::modules::voice::disconnected() {
+void quesync::client::modules::voice::logged_out() {
     // Disable the voice and reset it's state if enabled
     if (_voice_manager) {
         _voice_manager->disable();

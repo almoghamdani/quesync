@@ -21,7 +21,7 @@ class auth : public module {
     std::shared_ptr<quesync::user> get_user();
     std::string get_session_id();
 
-    virtual void disconnected();
+    virtual void logged_out();
 
    private:
     std::shared_ptr<quesync::user> _user;

@@ -32,7 +32,7 @@ class client : public std::enable_shared_from_this<client> {
     std::shared_ptr<modules::user> user();
 
     void clean_connection();
-    void disconnected();
+    void logged_out();
 
    private:
     std::shared_ptr<modules::communicator> _communicator;

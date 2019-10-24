@@ -514,4 +514,4 @@ void quesync::client::modules::files::clean_connection(bool join_com_thread) {
     _events.clear();
 }
 
-void quesync::client::modules::files::disconnected() { clean_connection(); }
+void quesync::client::modules::files::logged_out() { clean_connection(); }

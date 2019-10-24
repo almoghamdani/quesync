@@ -12,7 +12,7 @@ class module {
     module(std::shared_ptr<client> client) : _client(client) {}
 
     virtual void clean_connection() {}
-    virtual void disconnected() {}
+    virtual void logged_out() {}
     virtual void connected(std::string server_ip) {}
 
    protected:

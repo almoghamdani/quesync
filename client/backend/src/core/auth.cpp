@@ -92,15 +92,15 @@ void quesync::client::modules::auth::logout() {
     // Send the logout packet to the server
     _client->communicator()->send_and_verify(&logout_packet, packet_type::logged_out_packet);
 
-    // Send the disconnected event to the modules
-    _client->disconnected();
+    // Send the logged out event to the modules
+    _client->logged_out();
 }
 
 std::shared_ptr<quesync::user> quesync::client::modules::auth::get_user() { return _user; }
 
 std::string quesync::client::modules::auth::get_session_id() { return _session_id; }
 
-void quesync::client::modules::auth::disconnected() {
+void quesync::client::modules::auth::logged_out() {
     _user = nullptr;
     _session_id = "";
 }

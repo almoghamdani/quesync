@@ -48,7 +48,7 @@ void quesync::client::client::clean_connection() {
 
     // If the user is authenticated, disconnect it
     if (_auth->get_user()) {
-        disconnected();
+        logged_out();
     }
 
     // Clean modules
@@ -69,15 +69,15 @@ void quesync::client::client::clean_connection() {
     }
 }
 
-void quesync::client::client::disconnected() {
-    // Send disconnected event to modules
-    _auth->disconnected();
-    _users->disconnected();
-    _messages->disconnected();
-    _channels->disconnected();
-    _voice->disconnected();
-    _files->disconnected();
-    _user->disconnected();
+void quesync::client::client::logged_out() {
+    // Send logged out event to modules
+    _auth->logged_out();
+    _users->logged_out();
+    _messages->logged_out();
+    _channels->logged_out();
+    _voice->logged_out();
+    _files->logged_out();
+    _user->logged_out();
 }
 
 std::shared_ptr<quesync::client::modules::communicator> quesync::client::client::communicator() {
