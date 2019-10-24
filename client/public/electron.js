@@ -145,8 +145,8 @@ function createServerIPWindow() {
 function createMainWindow() {
 	// Create a new browser window with a fixed initial size
 	mainWindow = new BrowserWindow({
-		width: 900,
-		height: 680,
+		width: 1000,
+		height: 700,
 		titleBarStyle: "hidden",
 		frame: false,
 		webPreferences: { nodeIntegration: true },
