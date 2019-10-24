@@ -31,13 +31,27 @@ export function getChannelMessages(channelId, amount, offset) {
 }
 
 export function addMessageToChannel(message, channelId) {
-	return {
-		type: "ADD_MESSAGE_TO_CHANNEL",
-		payload: {
-			message,
-			channelId
+	return (dispatch, _) => {
+		// If the message has an attachment
+		if (message.attachmentId) {
+			return dispatch(getFileInfo(message.attachmentId))
+				.then(() => dispatch({
+					type: "ADD_MESSAGE_TO_CHANNEL",
+					payload: {
+						message,
+						channelId
+					}
+				}));
+		} else {
+			return dispatch({
+				type: "ADD_MESSAGE_TO_CHANNEL",
+				payload: {
+					message,
+					channelId
+				}
+			});
 		}
-	};
+	}
 }
 
 export function setNewMessageContentForChannel(content, channelId) {
