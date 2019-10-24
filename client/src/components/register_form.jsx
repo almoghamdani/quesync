@@ -247,7 +247,7 @@ class RegisterForm extends Component {
 					style={{
 						marginTop: "15px",
 						width: "300px",
-						background: "#00A8E8"
+						background: "#ff6d00"
 					}}
 					onClick={this.haveAccountBtnClicked}
 				>
