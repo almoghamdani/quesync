@@ -1,5 +1,6 @@
 #include "hmac.h"
 
+#include <memory>
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 

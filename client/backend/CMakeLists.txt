@@ -37,20 +37,29 @@ include_directories(../../vendor/rtaudio)
 
 # Windows dependencies
 IF (WIN32)
-    set (OPENSLL_DIR C:/OpenSSL-Win64)
+    set (OPENSLL_INCLUDE_DIR C:/OpenSSL-Win64/include)
+    set (OPENSLL_LIBS_DIR C:/OpenSSL-Win64/lib)
 	set (OPENSSL_LIBS VC/libeay32MT VC/ssleay32MT)
 ENDIF()
 
-# Macos dependencies
-IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set (OPENSLL_DIR /usr/local/opt/openssl)
+# macOS dependencies
+IF (APPLE)
+    set (OPENSLL_INCLUDE_DIR /usr/local/opt/openssl/include)
+    set (OPENSLL_LIBS_DIR /usr/local/opt/openssl/lib)
+	set (OPENSSL_LIBS ssl crypto)
+ENDIF()
+
+# Linux dependencies
+IF (UNIX AND NOT APPLE)
+    set (OPENSLL_INCLUDE_DIR /usr/include/openssl)
+    set (OPENSLL_LIBS_DIR /usr/lib)
 	set (OPENSSL_LIBS ssl crypto)
 ENDIF()
 
 # If there is an openssl dir, set the include and lib directory
-IF (OPENSLL_DIR)
-    include_directories(${OPENSLL_DIR}/include)
-    link_directories(${OPENSLL_DIR}/lib)
+IF (OPENSLL_INCLUDE_DIR AND OPENSLL_LIBS_DIR)
+    include_directories(${OPENSLL_INCLUDE_DIR})
+    link_directories(${OPENSLL_LIBS_DIR})
 ENDIF()
 
 # If there is an openal dir, set the include and lib directory

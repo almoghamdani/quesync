@@ -14,9 +14,11 @@ class serialized_packet : public packet {
 
     virtual std::string encode() {
         // Format the serialized packet by it's data
-        return (std::stringstream() << PACKET_IDENTIFIER << PACKET_DELIMETER
-                                    << std::setw(PACKET_TYPE_LEN) << std::setfill('0') << (int)_type
-                                    << PACKET_DELIMETER << _data.dump() << PACKET_DELIMETER)
+        return (static_cast<std::stringstream&>(std::stringstream()
+                                                << PACKET_IDENTIFIER << PACKET_DELIMETER
+                                                << std::setw(PACKET_TYPE_LEN) << std::setfill('0')
+                                                << (int)_type << PACKET_DELIMETER << _data.dump()
+                                                << PACKET_DELIMETER))
             .str();
     };
 

@@ -14,9 +14,10 @@ class ping_packet : public packet {
 
     virtual std::string encode() {
         // Format the ping packet
-        return (std::stringstream()
-                << PACKET_IDENTIFIER << PACKET_DELIMETER << std::setw(PACKET_TYPE_LEN)
-                << std::setfill('0') << (int)_type << PACKET_DELIMETER)
+        return (static_cast<std::stringstream&>(std::stringstream()
+                                                << PACKET_IDENTIFIER << PACKET_DELIMETER
+                                                << std::setw(PACKET_TYPE_LEN) << std::setfill('0')
+                                                << (int)_type << PACKET_DELIMETER))
             .str();
     };
 
