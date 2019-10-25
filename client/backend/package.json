@@ -6,7 +6,8 @@
 	"scripts": {
 		"build": "run-script-os",
 		"build:win32": "cmake-js build -G \"Visual Studio 15 2017 Win64\" /MP",
-		"build:darwin": "cmake-js build -G Ninja"
+		"build:darwin": "cmake-js build -G Ninja",
+		"build:linux": "CC=clang CXX=clang++ cmake-js build -G Ninja"
 	},
 	"repository": {
 		"type": "git",
