@@ -46,6 +46,30 @@
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/vendor/opus/include",
+                "${workspaceFolder}/vendor/rtaudio",
+                "/usr/include/node",
+                "${env:HOME}/.node-gyp/**",
+                "/usr/include",
+                "/usr/include/openssl"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "ASIO_STANDALONE",
+                "QUESYNC_CLIENT",
+                "QUESYNC_SERVER"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
         }
     ],
     "version": 4
