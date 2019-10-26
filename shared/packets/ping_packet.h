@@ -13,12 +13,20 @@ class ping_packet : public packet {
     ping_packet() : packet(packet_type::ping_packet) {}
 
     virtual std::string encode() {
+#ifdef __APPLE__
+        // Format the ping packet
+        return (std::stringstream()
+                << PACKET_IDENTIFIER << PACKET_DELIMETER << std::setw(PACKET_TYPE_LEN)
+                << std::setfill('0') << (int)_type << PACKET_DELIMETER)
+            .str();
+#else
         // Format the ping packet
         return (static_cast<std::stringstream&>(std::stringstream()
                                                 << PACKET_IDENTIFIER << PACKET_DELIMETER
                                                 << std::setw(PACKET_TYPE_LEN) << std::setfill('0')
                                                 << (int)_type << PACKET_DELIMETER))
             .str();
+#endif
     };
 
     virtual bool decode(std::string packet) { return true; }
