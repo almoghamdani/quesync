@@ -1,9 +1,11 @@
 #include <chrono>
 #include <iostream>
-#include <termcolor/termcolor.hpp>
 #include <thread>
 
 #include "server.h"
+
+// Include this after the server to avoid duplicate includes of WinSock on windows
+#include <termcolor/termcolor.hpp>
 
 #define NUM_OF_THREADS 6
 
