@@ -58,6 +58,10 @@
 	word-break: break-word;
 }
 
+.quesync-text-content * {
+	user-select: text;
+}
+
 .quesync-text-message-date {
 	padding-top: 4px;
 	padding-left: 4px;

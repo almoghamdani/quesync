@@ -2,6 +2,10 @@
 	width: 240px;
 }
 
+.quesync-attachment * {
+	user-select: none !important;
+}
+
 .quesync-attachment-content {
 	border-radius: 50px;
 
@@ -24,6 +28,8 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+
+	user-select: text !important;
 }
 
 .quesync-attachment-details {

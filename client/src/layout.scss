@@ -59,3 +59,7 @@
 .quesync-drag-zone-button .material-icons {
 	font-size: 15px !important;
 }
+
+body * {
+	user-select: none;
+}
