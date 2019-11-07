@@ -6,7 +6,6 @@ import { MenuSurfaceAnchor, MenuSurface } from "@rmwc/menu";
 import { Button } from "@rmwc/button";
 import { List, ListItem } from "@rmwc/list";
 import { CircularProgress } from "@rmwc/circular-progress";
-import { Avatar } from "@rmwc/avatar";
 import { Typography } from "@rmwc/typography";
 
 import { searchUser } from "../actions/usersActions";
@@ -19,14 +18,14 @@ function MessageFieldItem({
 	id,
 	nickname,
 	tag,
-	avatarUrl,
+	avatar,
 	friendsAlready,
 	sendFriendRequest,
 	requestSent
 }) {
 	return (
 		<ListItem key={id} className="quesync-search-field-item">
-			<Avatar className="quesync-search-field-item-avatar" src={avatarUrl} />
+			<img className="quesync-search-field-item-avatar" src={avatar} />
 			<Typography className="quesync-search-field-item-name" use="subtitle1">
 				{nickname}#{tag}
 			</Typography>
@@ -200,7 +199,7 @@ class MessageField extends Component {
 									id={user.id}
 									nickname={user.nickname}
 									tag={user.tag}
-									avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+									avatar={user.photo}
 									friendsAlready={this.checkIfFriends(user.id)}
 									sendFriendRequest={this.sendFriendRequest}
 									requestSent={this.friendRequestSent(user.id)}

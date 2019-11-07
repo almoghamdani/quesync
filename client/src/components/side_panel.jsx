@@ -24,8 +24,7 @@ class SidePanel extends Component {
 		userVoiceStates.push({
 			id: this.props.user.id,
 			nickname: this.props.user.nickname,
-			avatar:
-				"https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png",
+			avatar: this.props.profiles[this.props.user.id].photo,
 			calling: false,
 			muted: this.props.muted,
 			deafen: this.props.deafen
@@ -38,8 +37,7 @@ class SidePanel extends Component {
 				userVoiceStates.push({
 					id: userId,
 					nickname: this.props.profiles[userId].nickname,
-					avatar:
-						"https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png",
+					avatar: this.props.profiles[userId].photo,
 					calling: this.props.voiceStates[userId].state === 2,
 					muted: this.props.voiceStates[userId].muted,
 					deafen: this.props.voiceStates[userId].deafen
@@ -101,7 +99,7 @@ class SidePanel extends Component {
 				<Elevation z={5} className="quesync-user">
 					<img
 						className="quesync-user-avatar"
-						src="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+						src={this.props.profiles[this.props.user.id].photo}
 						alt={this.props.user.nickname}
 					/>
 					<div className="quesync-user-name">

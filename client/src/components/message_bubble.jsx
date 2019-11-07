@@ -7,7 +7,6 @@ import Attachment from "./attachment";
 
 import Moment from "react-moment";
 
-import { Avatar } from "@rmwc/avatar";
 import { Typography } from "@rmwc/typography";
 import { Elevation } from "@rmwc/elevation";
 
@@ -30,9 +29,9 @@ class MessageBubble extends Component {
 			<div className="quesync-message-bubble" style={this.props.style}>
 				<Elevation z={7} className="quesync-text-bubble">
 					<div className="quesync-text-sender-info">
-						<Avatar
+						<img
 							className="quesync-text-avatar"
-							src={this.props.avatarUrl}
+							src={this.props.avatar}
 						/>
 						<div>
 							<Typography use="subtitle1" style={{ fontSize: "0.86rem" }}>

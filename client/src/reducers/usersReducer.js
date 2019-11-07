@@ -1,3 +1,5 @@
+import imageType from "image-type";
+
 const INITIAL_STATE = {
 	profiles: {},
 	searchResults: [],
@@ -5,6 +7,8 @@ const INITIAL_STATE = {
 	error: null,
 	searchError: null
 };
+
+const DEFAULT_PROFILE_PHOTO = "https://cdn.iconscout.com/icon/free/png-256/user-avatar-contact-portfolio-personal-portrait-profile-6-5623.png";
 
 export default function reducer(
 	state = INITIAL_STATE,
@@ -24,6 +28,22 @@ export default function reducer(
 			// Delete the id from the profile
 			delete profile.id;
 
+			// If the user has no profile pic
+			if (!profile.photo) {
+				profile.photo = DEFAULT_PROFILE_PHOTO;
+			} else {
+				// Get the type of the photo
+				const photoBuffer = Buffer.from(profile.photo, "base64");
+				const photoType = imageType(photoBuffer);
+
+				// If the photo is a valid img, format it as base64
+				if (photoType) {
+					profile.photo = `data:${photoType.mime};base64, ${profile.photo}`;
+				} else {
+					profile.photo = DEFAULT_PROFILE_PHOTO;
+				}
+			}
+
 			return { ...state, profiles: { ...state.profiles, [id]: profile } };
 
 		case "SEARCH_USER_PENDING":
@@ -33,7 +53,28 @@ export default function reducer(
 			return { ...state, searchError: action.payload.error, searching: false };
 
 		case "SEARCH_USER_FULFILLED":
-			return { ...state, searchResults: action.payload.searchResults, searching: false }
+			var searchResults = [...action.payload.searchResults];
+
+			// Parse profile photo for each result
+			searchResults.forEach(profile => {
+				// If the user has no profile pic
+				if (!profile.photo) {
+					profile.photo = DEFAULT_PROFILE_PHOTO;
+				} else {
+					// Get the type of the photo
+					const photoBuffer = Buffer.from(profile.photo, "base64");
+					const photoType = imageType(photoBuffer);
+
+					// If the photo is a valid img, format it as base64
+					if (photoType) {
+						profile.photo = `data:${photoType.mime};base64, ${profile.photo}`;
+					} else {
+						profile.photo = DEFAULT_PROFILE_PHOTO;
+					}
+				}
+			})
+
+			return { ...state, searchResults, searching: false }
 
 		case "LOGOUT_FULFILLED":
 		case "LOGOUT_REJECTED":

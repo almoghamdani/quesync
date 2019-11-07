@@ -64,7 +64,7 @@ class FriendsPage extends Component {
 
 		this.props.setSidePanelElement(
 			<FriendDetails
-				avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+				avatar={currentSelectedFriend.photo}
 				nickname={currentSelectedFriend.nickname}
 				tag={currentSelectedFriend.tag}
 				pendingFriend={!friends.includes(currentSelectedFriendId)}
@@ -111,7 +111,8 @@ class FriendsPage extends Component {
 		const friends = this.props.user.friends
 			? this.props.user.friends.map(friendId => ({
 					id: friendId,
-					nickname: this.props.profiles[friendId].nickname
+					nickname: this.props.profiles[friendId].nickname,
+					photo: this.props.profiles[friendId].photo
 			  }))
 			: [];
 
@@ -121,6 +122,7 @@ class FriendsPage extends Component {
 						id: friendId,
 						type: friendType,
 						nickname: this.props.profiles[friendId].nickname,
+						photo: this.props.profiles[friendId].photo,
 						sentAt
 					}))
 					.sort((a, b) => b.sentAt - a.sentAt)
@@ -151,7 +153,7 @@ class FriendsPage extends Component {
 					friends.map(friend => (
 						<DrawerItem
 							key={friend.id}
-							avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+							avatar={friend.photo}
 							itemName={friend.nickname}
 						/>
 					)),
@@ -159,7 +161,7 @@ class FriendsPage extends Component {
 						.map(friend => (
 							<FriendRequestItem
 								key={friend.id}
-								friendAvatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+								friendAvatar={friend.photo}
 								friendName={friend.nickname}
 								sentAt={friend.sentAt}
 								approveRequest={() => this.approveFriendRequest(friend.id)}
@@ -170,7 +172,7 @@ class FriendsPage extends Component {
 							pendingApproval.map(friend => (
 								<FriendRequestItem
 									key={friend.id}
-									friendAvatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+									friendAvatar={friend.photo}
 									friendName={friend.nickname}
 									sentAt={friend.sentAt}
 									approveRequest={() => this.approveFriendRequest(friend.id)}

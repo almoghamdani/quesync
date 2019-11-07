@@ -41,6 +41,7 @@ class client : public Napi::ObjectWrap<client> {
     std::shared_ptr<quesync::client::client> _client;
 
     Napi::Reference<Napi::Value> _auth;
+    Napi::Reference<Napi::Value> _user;
     Napi::Reference<Napi::Value> _users;
     Napi::Reference<Napi::Value> _channels;
     Napi::Reference<Napi::Value> _messages;

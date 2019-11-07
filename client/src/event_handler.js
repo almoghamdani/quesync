@@ -300,7 +300,7 @@ class EventHandler {
 					id: channelId,
 					nickname: callerProfile.nickname,
 					avatar:
-						"https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+						callerProfile.photo
 				});
 			}
 		}

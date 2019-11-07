@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 
 import { Typography } from "@rmwc/typography";
-import { Avatar } from "@rmwc/avatar";
 import { Button } from "@rmwc/button";
 
 import "./friend_details.scss";
@@ -13,9 +12,9 @@ class FriendDetails extends Component {
 		return (
 			<div className="quesync-friend-details-wrapper" style={this.props.style}>
 				<div className="quesync-friend-details">
-					<Avatar
+					<img
 						className="quesync-friend-avatar"
-						src={this.props.avatarUrl}
+						src={this.props.avatar}
 					/>
 					<Typography className="quesync-friend-nickname-tag" use="headline6">
 						<span className="quesync-friend-nickname">

@@ -6,10 +6,11 @@
 #include "channels.h"
 #include "event_names.h"
 #include "executer.h"
+#include "files.h"
 #include "messages.h"
+#include "user.h"
 #include "users.h"
 #include "voice.h"
-#include "files.h"
 
 #include "../../../../shared/exception.h"
 #include "../../../../shared/utils/client.h"
@@ -22,6 +23,8 @@ Napi::Object quesync::client::wrapper::client::init(Napi::Env env, Napi::Object 
                      InstanceMethod("registerEventHandler", &client::register_event_handler),
                      InstanceMethod("clearAllEventHandlers", &client::clear_all_event_handlers),
                      InstanceMethod("auth", &client::module_get<auth, &client::_auth>),
+                     InstanceMethod("user", &client::module_get<user, &client::_user>),
+                     InstanceMethod("users", &client::module_get<users, &client::_users>),
                      InstanceMethod("users", &client::module_get<users, &client::_users>),
                      InstanceMethod("channels", &client::module_get<channels, &client::_channels>),
                      InstanceMethod("messages", &client::module_get<messages, &client::_messages>),

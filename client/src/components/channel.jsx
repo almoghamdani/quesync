@@ -95,6 +95,9 @@ class Channel extends Component {
 	};
 
 	getNickname = id => this.props.profiles[id].nickname;
+	getProfilePhoto = id => {
+		return this.props.profiles[id].photo;
+	};
 
 	scrollToBottom = smooth =>
 		this.endDummy.current.scrollIntoView({
@@ -119,7 +122,7 @@ class Channel extends Component {
 										<MessageBubble
 											key={e[0].id}
 											sender={this.getNickname(e[0].senderId)}
-											avatarUrl="https://jamesmfriedman.github.io/rmwc/images/avatars/captainamerica.png"
+											avatar={this.getProfilePhoto(e[0].senderId)}
 											messages={e}
 											style={{
 												paddingTop: "0.8rem"
