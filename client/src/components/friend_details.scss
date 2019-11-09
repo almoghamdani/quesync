@@ -42,12 +42,18 @@
 	color: #00b0ff;
 }
 
+.quesync-friend-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
 .quesync-friend-call-button {
 	transition: all 400ms ease-in-out;
 }
 
 .quesync-remove-friend-button {
-	margin-left: 10px;
+	margin-top: 10px;
 
 	@include mdc-button-filled-accessible(#ff1744);
 }
