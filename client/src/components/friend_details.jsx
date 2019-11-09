@@ -15,6 +15,7 @@ class FriendDetails extends Component {
 					<img
 						className="quesync-friend-avatar"
 						src={this.props.avatar}
+						alt={this.props.nickname}
 					/>
 					<Typography className="quesync-friend-nickname-tag" use="headline6">
 						<span className="quesync-friend-nickname">

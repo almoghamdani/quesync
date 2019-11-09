@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { ListItem, ListItemGraphic, ListItemText } from "@rmwc/list";
+import { ListItem, ListItemText } from "@rmwc/list";
 
 import "./drawer_item.scss";
 
@@ -12,7 +12,11 @@ class DrawerItem extends Component {
 				key={this.props.key}
 				onClick={this.props.onClick}
 			>
-				<img className="quesync-drawer-avatar" src={this.props.avatar} />
+				<img
+					className="quesync-drawer-avatar"
+					src={this.props.avatar}
+					alt={this.props.itemName}
+				/>
 				<ListItemText>
 					<div
 						className="quesync-drawer-name"

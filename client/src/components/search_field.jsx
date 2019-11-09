@@ -25,7 +25,11 @@ function MessageFieldItem({
 }) {
 	return (
 		<ListItem key={id} className="quesync-search-field-item">
-			<img className="quesync-search-field-item-avatar" src={avatar} />
+			<img
+				className="quesync-search-field-item-avatar"
+				src={avatar}
+				alt={nickname}
+			/>
 			<Typography className="quesync-search-field-item-name" use="subtitle1">
 				{nickname}#{tag}
 			</Typography>

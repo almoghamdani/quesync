@@ -32,6 +32,7 @@ class MessageBubble extends Component {
 						<img
 							className="quesync-text-avatar"
 							src={this.props.avatar}
+							alt={this.props.sender}
 						/>
 						<div>
 							<Typography use="subtitle1" style={{ fontSize: "0.86rem" }}>
