@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
+import Moment from "react-moment";
+
 import DrawerPage from "../components/page_layouts/drawer_page";
 import DrawerItem from "../components/drawer_item";
 import FriendRequestItem from "../components/friend_request_item";
@@ -107,6 +109,23 @@ class FriendsPage extends Component {
 		this.props.dispatch(rejectFriendRequest(friendId)).catch(() => {});
 	};
 
+	getLastActivityInChannel = channelId => {
+		const channelMessages = this.props.messages[channelId];
+		const channelCalls = this.props.calls[channelId];
+
+		const lastMessageDate =
+			channelMessages && channelMessages[channelMessages.length - 1]
+				? channelMessages[channelMessages.length - 1].sentAt
+				: null;
+		const lastCallDate =
+			channelCalls && channelCalls[channelCalls.length - 1]
+				? channelCalls[channelCalls.length - 1].startDate
+				: null;
+
+		// Get the most recent activity from the 2
+		return Math.max(lastMessageDate, lastCallDate);
+	};
+
 	render() {
 		const friends = this.props.user.friends
 			? this.props.user.friends.map(friendId => ({
@@ -155,6 +174,20 @@ class FriendsPage extends Component {
 							key={friend.id}
 							avatar={friend.photo}
 							itemName={friend.nickname}
+							itemInfo={
+								this.getLastActivityInChannel(
+									this.getPrivateChannelId(friend.id)
+								) ? (
+									<Moment
+										unix
+										fromNow
+										interval={10000}
+										date={this.getLastActivityInChannel(
+											this.getPrivateChannelId(friend.id)
+										)}
+									/>
+								) : null
+							}
 						/>
 					)),
 					pendingRequests
@@ -211,6 +244,8 @@ class FriendsPage extends Component {
 export default connect(state => ({
 	user: state.user.user,
 	profiles: state.users.profiles,
+	messages: state.messages.messages,
+	calls: state.voice.calls,
 	selectedTab: state.ui.items.selectedFriendsPageTab,
 	selectedDrawerItemId: state.ui.items.selectedFriendsPageDrawerItemId,
 	allFriendsBadge: state.ui.badges.allFriendsBadge,
