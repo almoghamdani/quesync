@@ -449,7 +449,7 @@ quesync::server::user_manager::get_authenticated_session_of_user(std::string use
 
     try {
         // Try to get the authenticated session for the user id
-        return _authenticated_sessions[user_id].lock();
+        return _authenticated_sessions.at(user_id).lock();
     } catch (...) {
         // If not found return null
         return nullptr;
