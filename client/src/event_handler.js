@@ -198,7 +198,7 @@ class EventHandler {
 			await store.dispatch(
 				setUser({
 					...user,
-					friendRequests: user.friends.splice(user.friends.indexOf(friendId), 1)
+					friends: user.friends.filter(id => id !== friendId)
 				})
 			);
 
