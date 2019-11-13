@@ -125,7 +125,7 @@ class MessageField extends Component {
 			// If the nickname or the tag has changed, search again
 			if (nickname !== oldParse[0] || tag !== oldParse[1]) {
 				// Search the user
-				this.props.dispatch(searchUser(nickname, tag)).catch(() => {});
+				this.props.dispatch(searchUser(nickname, tag));
 			}
 		} else if (newValue === "") {
 			this.setState({

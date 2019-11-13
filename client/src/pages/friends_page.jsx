@@ -101,12 +101,12 @@ class FriendsPage extends Component {
 
 	approveFriendRequest = friendId => {
 		// Try to approve the friend request
-		this.props.dispatch(approveFriendRequest(friendId)).catch(() => {});
+		this.props.dispatch(approveFriendRequest(friendId));
 	};
 
 	rejectFriendRequest = friendId => {
 		// Try to reject the friend request
-		this.props.dispatch(rejectFriendRequest(friendId)).catch(() => {});
+		this.props.dispatch(rejectFriendRequest(friendId));
 	};
 
 	getLastActivityInChannel = channelId => {
