@@ -5,6 +5,7 @@ import storage from "redux-persist/lib/storage"; // localStorage
 import logger from "redux-logger";
 import promise from "redux-promise-middleware";
 import thunk from "redux-thunk";
+import errorMiddleware from "./error_middleware";
 
 import reducers from "./reducers";
 
@@ -12,8 +13,8 @@ const isDev = window.require("electron-is-dev");
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const middlewares = isDev
-	? applyMiddleware(thunk, promise, logger)
-	: applyMiddleware(thunk, promise);
+	? applyMiddleware(thunk, errorMiddleware, promise, logger)
+	: applyMiddleware(thunk, errorMiddleware, promise);
 
 const persistConfig = {
 	key: "root",
