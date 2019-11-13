@@ -1,9 +1,6 @@
 #pragma once
 #include "manager.h"
 
-#include <mysqlx/xdevapi.h>
-namespace sql = mysqlx;
-
 #include <asio.hpp>
 #include <mutex>
 #include <string>
@@ -74,9 +71,6 @@ class voice_manager : manager {
     std::mutex _mutex;
 
     std::thread _voice_states_thread;
-
-    sql::Table calls_table;
-    sql::Table call_participants_table;
 
     void recv();
     void send(std::shared_ptr<char> buf, std::size_t length, udp::endpoint endpoint);

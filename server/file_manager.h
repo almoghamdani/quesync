@@ -1,9 +1,6 @@
 #pragma once
 #include "manager.h"
 
-#include <mysqlx/xdevapi.h>
-namespace sql = mysqlx;
-
 #include <asio.hpp>
 #include <mutex>
 #include <string>
@@ -52,8 +49,6 @@ class file_manager : manager {
     void register_user_file_session(std::shared_ptr<file_session> sess, std::string user_id);
 
    private:
-    sql::Table files_table;
-
     tcp::acceptor _acceptor;
 
     std::mutex _sessions_mutex;

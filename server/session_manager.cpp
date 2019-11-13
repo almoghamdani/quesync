@@ -10,11 +10,14 @@
 #include "../shared/exception.h"
 
 quesync::server::session_manager::session_manager(std::shared_ptr<quesync::server::server> server)
-    : manager(server), sessions_table(server->db(), "sessions") {}
+    : manager(server) {}
 
 std::string quesync::server::session_manager::create_session(
     std::shared_ptr<quesync::server::session> sess) {
     std::string session_id = sole::uuid4().str();
+
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table sessions_table(_server->get_sql_schema(sql_sess), "sessions");
 
     // Check if the session is authenticated
     if (!sess->authenticated()) {
@@ -35,6 +38,9 @@ std::string quesync::server::session_manager::create_session(
 
 std::string quesync::server::session_manager::get_user_id_for_session(std::string session_id) {
     sql::Row res;
+
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table sessions_table(_server->get_sql_schema(sql_sess), "sessions");
 
     try {
         // Try to get the user id from the sessions table using the session id
@@ -57,6 +63,9 @@ std::string quesync::server::session_manager::get_user_id_for_session(std::strin
 
 void quesync::server::session_manager::destroy_session(
     std::shared_ptr<quesync::server::session> sess) {
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table sessions_table(_server->get_sql_schema(sql_sess), "sessions");
+
     try {
         // Try to remove the session from the sessions table
         sessions_table.remove()

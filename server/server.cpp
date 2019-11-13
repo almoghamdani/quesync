@@ -8,23 +8,18 @@
 quesync::server::server::server(asio::io_context &io_context)
     : _acceptor(io_context, tcp::endpoint(tcp::v4(), MAIN_SERVER_PORT)),
       _context(asio::ssl::context::sslv23),
-      _sess("localhost", 33060, "server", "123456789"),
-      _db(_sess, "quesync") {
+      _sql_cli("server:123456789@localhost/quesync") {
     _context.set_options(asio::ssl::context::default_workarounds | asio::ssl::context::no_sslv2);
     _context.use_certificate_chain_file("server.pem");
     _context.use_private_key_file("server.pem", asio::ssl::context::pem);
-
-    // Use the quesync database
-    _sess.sql("USE quesync").execute();
 }
 
 quesync::server::server::~server() {
     // Close all socket handlers
     _acceptor.cancel();
 
-    // Free the database and close it
-    //_db->close();
-    // delete _db;
+    // Close all SQL sessions
+    _sql_cli.close();
 }
 
 void quesync::server::server::start() {
@@ -48,10 +43,7 @@ asio::io_context &quesync::server::server::get_io_context() {
     return (asio::io_context &)_acceptor.get_executor().context();
 }
 
-asio::ssl::context &quesync::server::server::get_ssl_context()
-{
-    return _context;
-}
+asio::ssl::context &quesync::server::server::get_ssl_context() { return _context; }
 
 void quesync::server::server::accept_client() {
     // Start an async accept
@@ -104,4 +96,8 @@ std::shared_ptr<quesync::server::file_manager> quesync::server::server::file_man
     return _file_manager;
 }
 
-sql::Schema &quesync::server::server::db() { return _db; }
+sql::Session quesync::server::server::get_sql_session() { return _sql_cli.getSession(); }
+
+sql::Schema quesync::server::server::get_sql_schema(sql::Session &session) {
+    return sql::Schema(session, "quesync");
+}

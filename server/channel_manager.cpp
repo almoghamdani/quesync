@@ -9,11 +9,12 @@
 #include "../shared/exception.h"
 
 quesync::server::channel_manager::channel_manager(std::shared_ptr<quesync::server::server> server)
-    : manager(server),
-      channels_table(server->db(), "channels"),
-      channel_members_table(server->db(), "channel_members") {}
+    : manager(server) {}
 
 bool quesync::server::channel_manager::does_channel_exists(std::string channel_id) {
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table channels_table(_server->get_sql_schema(sql_sess), "channels");
+
     try {
         return channels_table.select("1")
             .where("id = :channel_id")
@@ -28,6 +29,8 @@ bool quesync::server::channel_manager::does_channel_exists(std::string channel_i
 std::shared_ptr<quesync::channel> quesync::server::channel_manager::get_private_channel(
     std::shared_ptr<quesync::server::session> sess, std::string user_id) {
     std::shared_ptr<channel> channel;
+
+    sql::Session sql_sess = _server->get_sql_session();
     sql::Row channel_res;
 
     // Check if the session is authenticated
@@ -47,9 +50,7 @@ std::shared_ptr<quesync::channel> quesync::server::channel_manager::get_private_
 
     // Try to get the private channel of the 2 users
     try {
-        channel_res = _server->db()
-                          .getSession()
-                          .sql("CALL get_private_channel(?, ?);")
+        channel_res = sql_sess.sql("CALL get_private_channel(?, ?);")
                           .bind(sess->user()->id)
                           .bind(user_id)
                           .execute()
@@ -61,7 +62,7 @@ std::shared_ptr<quesync::channel> quesync::server::channel_manager::get_private_
     // If the channel is null create the channel
     if (channel_res.isNull()) {
         // Create a channel for the users
-        channel = create_channel(true);
+        channel = create_channel(sql_sess, true);
 
         // Add the users as a members in the channel
         add_member_to_channel(channel->id, sess->user()->id);
@@ -76,6 +77,9 @@ std::shared_ptr<quesync::channel> quesync::server::channel_manager::get_private_
 
 bool quesync::server::channel_manager::is_user_member_of_channel(std::string user_id,
                                                                  std::string channel_id) {
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table channel_members_table(_server->get_sql_schema(sql_sess), "channel_members");
+
     try {
         return channel_members_table.select("1")
             .where("channel_id = :channel_id AND member_id = :user_id")
@@ -90,6 +94,9 @@ bool quesync::server::channel_manager::is_user_member_of_channel(std::string use
 
 void quesync::server::channel_manager::add_member_to_channel(std::string channel_id,
                                                              std::string member_id) {
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table channel_members_table(_server->get_sql_schema(sql_sess), "channel_members");
+
     // If the channel is not found, throw error
     if (!does_channel_exists(channel_id)) {
         throw exception(error::channel_not_found);
@@ -113,6 +120,9 @@ void quesync::server::channel_manager::add_member_to_channel(std::string channel
 std::shared_ptr<quesync::channel> quesync::server::channel_manager::get_channel(
     std::string channel_id) {
     std::shared_ptr<channel> channel;
+
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table channels_table(_server->get_sql_schema(sql_sess), "channels");
     sql::Row channel_res;
 
     // Try to get the private channel of the 2 users
@@ -139,9 +149,11 @@ std::shared_ptr<quesync::channel> quesync::server::channel_manager::get_channel(
 }
 
 std::shared_ptr<quesync::channel> quesync::server::channel_manager::create_channel(
-    bool is_private) {
+    sql::Session &sql_sess, bool is_private) {
     std::shared_ptr<channel> channel;
     std::string channel_id = sole::uuid4().str();
+
+    sql::Table channels_table(_server->get_sql_schema(sql_sess), "channels");
 
     try {
         // Try to add the new channel
@@ -160,6 +172,8 @@ std::vector<std::string> quesync::server::channel_manager::get_channel_members(
     std::shared_ptr<quesync::server::session> sess, std::string channel_id) {
     std::vector<std::string> members;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table channel_members_table(_server->get_sql_schema(sql_sess), "channel_members");
     sql::RowResult res;
     sql::Row row;
 

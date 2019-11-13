@@ -11,7 +11,7 @@
 #include "../shared/exception.h"
 
 quesync::server::message_manager::message_manager(std::shared_ptr<quesync::server::server> server)
-    : manager(server), messages_table(server->db(), "messages") {}
+    : manager(server) {}
 
 std::shared_ptr<quesync::message> quesync::server::message_manager::send_message(
     std::shared_ptr<quesync::server::session> sess, std::string content, std::string attachment_id,
@@ -21,6 +21,9 @@ std::shared_ptr<quesync::message> quesync::server::message_manager::send_message
     std::vector<std::string> channel_members;
 
     std::shared_ptr<events::message_event> message_evt;
+
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table messages_table(_server->get_sql_schema(sql_sess), "messages");
 
     // Check if the session is authenticated
     if (!sess->authenticated()) {
@@ -84,6 +87,8 @@ std::vector<quesync::message> quesync::server::message_manager::get_messages(
     unsigned int offset) {
     std::vector<message> messages;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table messages_table(_server->get_sql_schema(sql_sess), "messages");
     sql::RowResult res;
     sql::Row row;
 

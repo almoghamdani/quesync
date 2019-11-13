@@ -7,7 +7,7 @@
 // Include this after the server to avoid duplicate includes of WinSock on windows
 #include <termcolor/termcolor.hpp>
 
-#define NUM_OF_THREADS 6
+#define NUM_OF_THREADS 10
 
 int main() {
     asio::io_context io_context;

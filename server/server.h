@@ -40,14 +40,14 @@ class server : public std::enable_shared_from_this<server> {
     std::shared_ptr<voice_manager> voice_manager();
     std::shared_ptr<file_manager> file_manager();
 
-    sql::Schema &db();
+    sql::Session get_sql_session();
+    sql::Schema get_sql_schema(sql::Session &session);
 
    private:
     tcp::acceptor _acceptor;
     asio::ssl::context _context;
 
-    sql::Session _sess;
-    sql::Schema _db;
+    sql::Client _sql_cli;
 
     std::shared_ptr<quesync::server::user_manager> _user_manager;
     std::shared_ptr<quesync::server::event_manager> _event_manager;

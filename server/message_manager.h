@@ -1,9 +1,6 @@
 #pragma once
 #include "manager.h"
 
-#include <mysqlx/xdevapi.h>
-namespace sql = mysqlx;
-
 #include <vector>
 
 #include "../shared/message.h"
@@ -24,9 +21,6 @@ class message_manager : manager {
 
     std::vector<message> get_messages(std::shared_ptr<session> sess, std::string channel_id,
                                       unsigned int amount, unsigned int offset);
-
-   private:
-    sql::Table messages_table;
 };
 };  // namespace server
 };  // namespace quesync

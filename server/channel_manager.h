@@ -1,10 +1,10 @@
 #pragma once
 #include "manager.h"
 
+#include <vector>
+
 #include <mysqlx/xdevapi.h>
 namespace sql = mysqlx;
-
-#include <vector>
 
 #include "../shared/channel.h"
 
@@ -29,10 +29,7 @@ class channel_manager : manager {
                                                  std::string channel_id);
 
    private:
-    sql::Table channel_members_table;
-    sql::Table channels_table;
-
-    std::shared_ptr<channel> create_channel(bool is_private);
+    std::shared_ptr<channel> create_channel(sql::Session &sql_sess, bool is_private);
 };
 };  // namespace server
 };  // namespace quesync

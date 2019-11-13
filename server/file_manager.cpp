@@ -24,7 +24,6 @@
 
 quesync::server::file_manager::file_manager(std::shared_ptr<quesync::server::server> server)
     : manager(server),
-      files_table(server->db(), "files"),
       _acceptor(server->get_io_context(), tcp::endpoint(tcp::v4(), FILE_SERVER_PORT)) {
 // Create the files dir
 #ifdef _WIN32
@@ -89,6 +88,8 @@ void quesync::server::file_manager::init_download_file(
     std::shared_ptr<quesync::server::session> sess, std::string file_id) {
     std::shared_ptr<file> file;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table files_table(_server->get_sql_schema(sql_sess), "files");
     sql::Row res;
 
     std::unique_lock lk(_sessions_mutex);
@@ -152,7 +153,10 @@ void quesync::server::file_manager::stop_file_transmission(
     _users_file_sessions[sess->user()->id]->remove_file(file_id);
 }
 
-bool quesync::server::file_manager::does_file_exists(std::string file_id) {
+bool quesync::server::file_manager::does_file_exists(std::string file_id) { 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table files_table(_server->get_sql_schema(sql_sess), "files");
+
     try {
         // Check if the file exists
         return files_table.select("1").where("id = :id").bind("id", file_id).execute().count();
@@ -164,6 +168,8 @@ bool quesync::server::file_manager::does_file_exists(std::string file_id) {
 std::shared_ptr<quesync::file> quesync::server::file_manager::get_file_info(std::string file_id) {
     std::shared_ptr<file> file;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table files_table(_server->get_sql_schema(sql_sess), "files");
     sql::Row res;
 
     try {
@@ -227,6 +233,9 @@ quesync::server::file_manager::get_file_chunks(std::string file_id) {
 }
 
 void quesync::server::file_manager::save_file(std::shared_ptr<quesync::memory_file> file) {
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table files_table(_server->get_sql_schema(sql_sess), "files");
+
     try {
         // Try to insert the new file entry to the database
         files_table.insert("id", "uploader_id", "name", "size")

@@ -19,9 +19,7 @@
 quesync::server::voice_manager::voice_manager(std::shared_ptr<quesync::server::server> server)
     : manager(server),
       _socket(server->get_io_context(), udp::endpoint(udp::v4(), VOICE_SERVER_PORT)),
-      _voice_states_thread(&voice_manager::handle_voice_states, this),
-      calls_table(server->db(), "calls"),
-      call_participants_table(server->db(), "call_participants") {
+      _voice_states_thread(&voice_manager::handle_voice_states, this) {
     // Detach voice states thread
     _voice_states_thread.detach();
 
@@ -334,7 +332,7 @@ void quesync::server::voice_manager::handle_voice_states() {
 
 void quesync::server::voice_manager::set_voice_state(std::string user_id, bool muted, bool deafen) {
     std::string channel_id;
-    
+
     std::lock_guard lk(_mutex);
 
     // Check if in voice channel
@@ -367,6 +365,8 @@ std::vector<quesync::call> quesync::server::voice_manager::get_channel_calls(
     int offset) {
     std::vector<call> calls;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table calls_table(_server->get_sql_schema(sql_sess), "calls");
     sql::RowResult res;
     sql::Row row;
 
@@ -438,6 +438,9 @@ quesync::call quesync::server::voice_manager::create_call(std::string caller_id,
                                                           std::string channel_id) {
     std::string call_id = sole::uuid4().str();
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table calls_table(_server->get_sql_schema(sql_sess), "calls");
+
     try {
         // Insert to the calls table the new call
         calls_table.insert("id", "caller_id", "channel_id")
@@ -455,8 +458,7 @@ void quesync::server::voice_manager::add_participant_to_call(std::string channel
                                                              std::string participant_id) {
     try {
         // Try to insert the participant to the call participants table (ignore if already exists)
-        _server->db()
-            .getSession()
+        _server->get_sql_session()
             .sql(
                 "INSERT IGNORE INTO quesync.call_participants(call_id, participant_id) VALUES(?, "
                 "?)")
@@ -471,8 +473,7 @@ void quesync::server::voice_manager::add_participant_to_call(std::string channel
 void quesync::server::voice_manager::close_call(std::string channel_id) {
     try {
         // Set end date
-        _server->db()
-            .getSession()
+        _server->get_sql_session()
             .sql("UPDATE calls SET end_date = FROM_UNIXTIME(?) WHERE id = ?")
             .bind(std::time(nullptr))
             .bind(_voice_channels[channel_id]->call.id)
@@ -485,6 +486,8 @@ void quesync::server::voice_manager::close_call(std::string channel_id) {
 bool quesync::server::voice_manager::user_joined_call(std::string call_id, std::string user_id) {
     std::vector<std::string> call_participants;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table call_participants_table(_server->get_sql_schema(sql_sess), "call_participants");
     sql::RowResult res;
 
     try {

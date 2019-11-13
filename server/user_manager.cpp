@@ -16,12 +16,12 @@
 #include "../shared/utils/validation.h"
 
 quesync::server::user_manager::user_manager(std::shared_ptr<quesync::server::server> server)
-    : manager(server),
-      users_table(server->db(), "users"),
-      friendships_table(server->db(), "friendships"),
-      profiles_table(server->db(), "profiles") {}
+    : manager(server) {}
 
 bool quesync::server::user_manager::does_user_exists(std::string user_id) {
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table users_table(_server->get_sql_schema(sql_sess), "users");
+
     try {
         // Check if the user exists
         return users_table.select("1").where("id = :id").bind("id", user_id).execute().count();
@@ -34,6 +34,8 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::authenticate_user(
     std::shared_ptr<quesync::server::session> sess, std::string username, std::string password) {
     std::shared_ptr<user> user = nullptr;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table users_table(_server->get_sql_schema(sql_sess), "users");
     sql::Row user_res;
 
     std::unique_lock lk(_sessions_mutex, std::defer_lock);
@@ -67,10 +69,11 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::authenticate_user(
     }
 
     // Create the user from the db response
-    user = std::make_shared<quesync::user>(
-        (std::string)user_res[0], (std::string)user_res[1], (std::string)user_res[3],
-        ((std::string)user_res[4]).c_str(), user_res[5], get_friends((std::string)user_res[0]),
-        get_friend_requests((std::string)user_res[0]));
+    user = std::make_shared<quesync::user>((std::string)user_res[0], (std::string)user_res[1],
+                                           (std::string)user_res[3],
+                                           ((std::string)user_res[4]).c_str(), user_res[5],
+                                           get_friends(sql_sess, (std::string)user_res[0]),
+                                           get_friend_requests(sql_sess, (std::string)user_res[0]));
 
     // Add the user to the authenticated sessions
     _authenticated_sessions.insert_or_assign((std::string)user_res[0], sess);
@@ -86,6 +89,8 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::register_user(
     std::string id, password_hashed;
     int tag;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table users_table(_server->get_sql_schema(sql_sess), "users");
     sql::Row user_res;
 
     std::unique_lock lk(_sessions_mutex, std::defer_lock);
@@ -175,6 +180,8 @@ std::shared_ptr<quesync::profile> quesync::server::user_manager::get_user_profil
     std::string user_id) {
     std::shared_ptr<profile> profile = nullptr;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table profiles_table(_server->get_sql_schema(sql_sess), "profiles");
     sql::Row profile_res;
 
     // Search for the profile row in the database
@@ -220,8 +227,11 @@ std::string quesync::server::user_manager::get_profile_photo(std::string photo_i
     return photo_base64;
 }
 
-std::vector<std::string> quesync::server::user_manager::get_friends(std::string user_id) {
+std::vector<std::string> quesync::server::user_manager::get_friends(sql::Session &sql_sess,
+                                                                    std::string user_id) {
     std::vector<std::string> friends;
+
+    sql::Table friendships_table(_server->get_sql_schema(sql_sess), "friendships");
     sql::RowResult res;
     sql::Row row;
 
@@ -250,8 +260,10 @@ std::vector<std::string> quesync::server::user_manager::get_friends(std::string 
 }
 
 std::vector<quesync::friend_request> quesync::server::user_manager::get_friend_requests(
-    std::string user_id) {
+    sql::Session &sql_sess, std::string user_id) {
     std::vector<friend_request> friend_requests;
+
+    sql::Table friendships_table(_server->get_sql_schema(sql_sess), "friendships");
     sql::RowResult res;
     sql::Row row;
 
@@ -284,6 +296,9 @@ void quesync::server::user_manager::send_friend_request(std::string requester_id
                                                         std::string recipient_id) {
     std::shared_ptr<events::friend_request_event> friend_request_event(
         std::make_shared<events::friend_request_event>(requester_id, std::time(nullptr)));
+
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table friendships_table(_server->get_sql_schema(sql_sess), "friendships");
 
     // Check if the recipient exists
     if (!does_user_exists(recipient_id)) {
@@ -328,6 +343,8 @@ void quesync::server::user_manager::set_friendship_status(std::string user_id,
     std::string requester, recipient;
     bool approved = false;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table friendships_table(_server->get_sql_schema(sql_sess), "friendships");
     sql::Row friendship_row;
 
     // Check if the friend exists
@@ -418,6 +435,9 @@ void quesync::server::user_manager::set_profile_photo(
     std::shared_ptr<quesync::server::session> sess, std::string file_id) {
     std::shared_ptr<file> photo_file;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table users_table(_server->get_sql_schema(sql_sess), "users");
+
     // Check if the session is authenticated
     if (!sess->authenticated()) {
         throw exception(error::not_authenticated);
@@ -463,6 +483,7 @@ std::vector<quesync::profile> quesync::server::user_manager::search(
     std::string nicknameInitial = nickname;
     std::string nicknameEnd = nickname;
 
+    sql::Session sql_sess = _server->get_sql_session();
     std::vector<sql::Row> res;
 
     // Insert % before and after the string to match any string containing the nickname
@@ -479,8 +500,7 @@ std::vector<quesync::profile> quesync::server::user_manager::search(
         // If a tag was entered, select with it as a requirement
         if (tag != -1) {
             // Get all users matching the searched nickname and tag
-            res = _server->db()
-                      .getSession()
+            res = sql_sess
                       .sql(
                           "SELECT * FROM quesync.profiles WHERE nickname LIKE ? AND "
                           "tag = ? AND id != ? ORDER BY CASE WHEN nickname LIKE ? THEN 0 WHEN "
@@ -494,8 +514,7 @@ std::vector<quesync::profile> quesync::server::user_manager::search(
                       .fetchAll();
         } else {
             // Get all users matching the searched nickname
-            res = _server->db()
-                      .getSession()
+            res = sql_sess
                       .sql(
                           "SELECT * FROM quesync.profiles WHERE nickname LIKE ? AND "
                           "id != ? ORDER BY CASE WHEN nickname LIKE ? THEN 0 WHEN nickname LIKE ? "
@@ -521,11 +540,15 @@ std::vector<quesync::profile> quesync::server::user_manager::search(
     return results;
 }
 
+#include <iostream>
+
 std::shared_ptr<quesync::user> quesync::server::user_manager::authenticate_user_by_session(
     std::shared_ptr<quesync::server::session> sess, std::string session_id) {
     std::shared_ptr<user> user = nullptr;
     std::string user_id;
 
+    sql::Session sql_sess = _server->get_sql_session();
+    sql::Table users_table(_server->get_sql_schema(sql_sess), "users");
     sql::Row user_res;
 
     std::unique_lock lk(_sessions_mutex, std::defer_lock);
@@ -550,10 +573,11 @@ std::shared_ptr<quesync::user> quesync::server::user_manager::authenticate_user_
     }
 
     // Create the user from the db response
-    user = std::make_shared<quesync::user>(
-        (std::string)user_res[0], (std::string)user_res[1], (std::string)user_res[3],
-        ((std::string)user_res[4]).c_str(), user_res[5], get_friends((std::string)user_res[0]),
-        get_friend_requests((std::string)user_res[0]));
+    user = std::make_shared<quesync::user>((std::string)user_res[0], (std::string)user_res[1],
+                                           (std::string)user_res[3],
+                                           ((std::string)user_res[4]).c_str(), user_res[5],
+                                           get_friends(sql_sess, (std::string)user_res[0]),
+                                           get_friend_requests(sql_sess, (std::string)user_res[0]));
 
     // Lock the mutex
     lk.lock();

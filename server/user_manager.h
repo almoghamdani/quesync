@@ -1,12 +1,12 @@
 #pragma once
 #include "manager.h"
 
+#include <mutex>
+#include <unordered_map>
+#include <vector>
+
 #include <mysqlx/xdevapi.h>
 namespace sql = mysqlx;
-
-#include <vector>
-#include <unordered_map>
-#include <mutex>
 
 #include "../shared/friend_request.h"
 #include "../shared/profile.h"
@@ -42,21 +42,17 @@ class user_manager : manager {
     void send_friend_request(std::string requester_id, std::string recipient_id);
     void set_friendship_status(std::string requester_id, std::string friend_id, bool status);
 
-    std::vector<profile> search(std::shared_ptr<quesync::server::session> sess, std::string nickname,
-                          int tag);
+    std::vector<profile> search(std::shared_ptr<quesync::server::session> sess,
+                                std::string nickname, int tag);
 
    private:
-    sql::Table users_table;
-    sql::Table friendships_table;
-    sql::Table profiles_table;
-
     std::mutex _sessions_mutex;
     std::unordered_map<std::string, std::weak_ptr<session>> _authenticated_sessions;
 
     std::string get_profile_photo(std::string photo_id);
 
-    std::vector<std::string> get_friends(std::string user_id);
-    std::vector<friend_request> get_friend_requests(std::string user_id);
+    std::vector<std::string> get_friends(sql::Session &sql_sess, std::string user_id);
+    std::vector<friend_request> get_friend_requests(sql::Session &sql_sess, std::string user_id);
 };
 };  // namespace server
 };  // namespace quesync
