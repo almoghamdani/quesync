@@ -1,7 +1,6 @@
 const INITIAL_STATE = {
 	channels: {},
-	privateChannels: {},
-	error: null
+	privateChannels: {}
 };
 
 export default function reducer(
@@ -9,12 +8,6 @@ export default function reducer(
 	action
 ) {
 	switch (action.type) {
-		case "GET_PRIVATE_CHANNEL_PENDING":
-			return { ...state, error: null };
-
-		case "GET_PRIVATE_CHANNEL_REJECTED":
-			return { ...state, error: action.payload.error };
-
 		case "GET_PRIVATE_CHANNEL_FULFILLED":
 			var channel = { ...action.payload.channel };
 			var id = channel.id;

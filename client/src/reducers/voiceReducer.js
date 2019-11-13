@@ -15,8 +15,7 @@ const INITIAL_STATE = {
 	voiceStates: {},
 	voiceActivations: {},
 	muted: false,
-	deafen: false,
-	error: null
+	deafen: false
 };
 
 export default function reducer(
@@ -24,20 +23,6 @@ export default function reducer(
 	action
 ) {
 	switch (action.type) {
-		case "CALL_PENDING":
-		case "JOIN_CALL_PENDING":
-		case "LEAVE_CALL_PENDING":
-		case "SET_VOICE_STATE_PENDING":
-		case "GET_CHANNEL_CALLS_PENDING":
-			return { ...state, error: 0 };
-
-		case "CALL_REJECTED":
-		case "JOIN_CALL_REJECTED":
-		case "LEAVE_CALL_REJECTED":
-		case "SET_VOICE_STATE_REJECTED":
-		case "GET_CHANNEL_CALLS_REJECTED":
-			return { ...state, error: action.payload.error };
-
 		case "CALL_FULFILLED":
 			{
 				const callDetails = action.payload.callDetails;

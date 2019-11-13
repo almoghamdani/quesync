@@ -9,8 +9,7 @@ const messagesSort = (a, b) => {
 
 const INITIAL_STATE = {
 	messages: {},
-	newMessages: {},
-	error: null
+	newMessages: {}
 };
 
 export default function reducer(
@@ -18,14 +17,6 @@ export default function reducer(
 	action
 ) {
 	switch (action.type) {
-		case "SEND_MESSAGE_PENDING":
-		case "GET_CHANNEL_MESSAGES_PENDING":
-			return { ...state, error: null };
-
-		case "SEND_MESSAGE_REJECTED":
-		case "GET_CHANNEL_MESSAGES_REJECTED":
-			return { ...state, error: action.payload.error };
-
 		case "SEND_MESSAGE_FULFILLED":
 			var message = { ...action.payload.message };
 			const channelId = message.channelId;

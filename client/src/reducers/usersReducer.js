@@ -3,9 +3,7 @@ import imageType from "image-type";
 const INITIAL_STATE = {
 	profiles: {},
 	searchResults: [],
-	searching: false,
-	error: null,
-	searchError: null
+	searching: false
 };
 
 const DEFAULT_PROFILE_PHOTO = "https://cdn.iconscout.com/icon/free/png-256/user-avatar-contact-portfolio-personal-portrait-profile-6-5623.png";
@@ -47,10 +45,10 @@ export default function reducer(
 			return { ...state, profiles: { ...state.profiles, [id]: profile } };
 
 		case "SEARCH_USER_PENDING":
-			return { ...state, searchError: null, searching: true };
+			return { ...state, searching: true };
 
 		case "SEARCH_USER_REJECTED":
-			return { ...state, searchError: action.payload.error, searching: false };
+			return { ...state, searching: false };
 
 		case "SEARCH_USER_FULFILLED":
 			var searchResults = [...action.payload.searchResults];
