@@ -26,7 +26,7 @@
 	},
 	"cmake-js": {
 		"runtime": "electron",
-		"runtimeVersion": "6.0.12",
+		"runtimeVersion": "7.1.1",
 		"arch": "x64"
 	},
 	"devDependencies": {

@@ -24,6 +24,11 @@
 	height: inherit !important;
 }
 
+.quesync-channel-content * {
+	// Disable X-Axis scroll
+	overflow-x: hidden !important;
+}
+
 .quesync-message-field-wrapper {
 	padding: 0.7rem 1rem 0.7rem 1rem;
 }
