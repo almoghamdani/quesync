@@ -16,7 +16,8 @@ import {
 import {
 	approveFriendRequest,
 	rejectFriendRequest,
-	removeFriend
+	removeFriend,
+	sendFriendRequest
 } from "../actions/userActions";
 import { call, joinCall } from "../actions/voiceActions";
 
@@ -47,6 +48,7 @@ class FriendsPage extends Component {
 
 	updateSidePanelElement = () => {
 		const friends = this.props.user.friends;
+		const friendRequests = this.props.user.friendRequests;
 
 		const currentSelectedFriendId = this.props.selectedDrawerItemId;
 
@@ -61,6 +63,11 @@ class FriendsPage extends Component {
 
 		const channelId = this.getPrivateChannelId(currentSelectedFriendId);
 
+		const friend = friends.includes(currentSelectedFriendId);
+		const friendRequest = friendRequests.filter(
+			request => request.friendId === currentSelectedFriendId
+		);
+
 		// Disable the next update due to the update of the side panel element
 		this.update = false;
 
@@ -69,7 +76,11 @@ class FriendsPage extends Component {
 				avatar={currentSelectedFriend.photo}
 				nickname={currentSelectedFriend.nickname}
 				tag={currentSelectedFriend.tag}
-				pendingFriend={!friends.includes(currentSelectedFriendId)}
+				friend={friend}
+				pendingFriend={friendRequest.length}
+				pendingFriendType={
+					friendRequest && friendRequest[0] && friendRequest[0].friendType
+				}
 				style={{ height: "100%" }}
 				startCall={() => this.props.dispatch(call(channelId))}
 				joinCall={() => {
@@ -83,6 +94,15 @@ class FriendsPage extends Component {
 				activeCall={this.props.activeCalls.includes(channelId)}
 				removeFriend={() =>
 					this.props.dispatch(removeFriend(currentSelectedFriendId))
+				}
+				sendFriendRequest={() =>
+					this.props.dispatch(sendFriendRequest(currentSelectedFriendId))
+				}
+				rejectFriendRequest={() =>
+					this.props.dispatch(rejectFriendRequest(currentSelectedFriendId))
+				}
+				approveFriendRequest={() =>
+					this.props.dispatch(approveFriendRequest(currentSelectedFriendId))
 				}
 			/>
 		);

@@ -55,15 +55,52 @@ class FriendDetails extends Component {
 						}}
 						disabled={this.props.inCall}
 					/>
-					{!this.props.pendingFriend ? (
+					{this.props.friend ? (
 						<Button
 							className="quesync-remove-friend-button"
 							raised
 							icon="remove"
-							label="Remove"
+							label="Remove Friend"
 							onClick={() => this.props.removeFriend()}
 						/>
-					) : null}
+					) : this.props.pendingFriend ? (
+						<div className="quesync-friend-request-actions">
+							{this.props.pendingFriendType === "recipient" ? (
+								<Button
+									className="quesync-remove-friend-button"
+									raised
+									icon="remove"
+									label="Cancel Request"
+									onClick={() => this.props.rejectFriendRequest()}
+								/>
+							) : (
+								<>
+									<Button
+										className="quesync-remove-friend-button"
+										raised
+										icon="remove"
+										label="Reject"
+										onClick={() => this.props.rejectFriendRequest()}
+									/>
+									<Button
+										className="quesync-add-friend-button"
+										raised
+										icon="add"
+										label="Accept"
+										onClick={() => this.props.approveFriendRequest()}
+									/>
+								</>
+							)}
+						</div>
+					) : (
+						<Button
+							className="quesync-add-friend-button"
+							raised
+							icon="add"
+							label="Add Friend"
+							onClick={() => this.props.sendFriendRequest()}
+						/>
+					)}
 				</div>
 			</div>
 		);
