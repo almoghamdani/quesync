@@ -2,7 +2,6 @@
 
 #include "../shared/header.h"
 #include "../shared/packets/error_packet.h"
-#include "../shared/packets/file_chunk_ack_packet.h"
 #include "../shared/packets/file_chunk_packet.h"
 #include "../shared/packets/session_auth_packet.h"
 #include "../shared/response_packet.h"
@@ -28,7 +27,7 @@ void quesync::server::file_session::start() {
 }
 
 void quesync::server::file_session::add_upload_file(std::shared_ptr<quesync::file> file) {
-    std::lock_guard lk(_files_mutex);
+    std::lock_guard lk(_uploads_mutex);
 
     // If there is a file pending for upload with the same id
     if (_upload_files.count(file->id)) {
@@ -40,7 +39,7 @@ void quesync::server::file_session::add_upload_file(std::shared_ptr<quesync::fil
 }
 
 void quesync::server::file_session::add_download_file(std::shared_ptr<quesync::file> file) {
-    std::lock_guard lk(_files_mutex);
+    std::shared_ptr<memory_file> file_info = std::make_shared<memory_file>(*file);
 
     packets::file_chunk_packet file_chunk_packet;
     std::string file_chunk_packet_encoded;
@@ -48,39 +47,52 @@ void quesync::server::file_session::add_download_file(std::shared_ptr<quesync::f
 
     std::shared_ptr<char> packet_buf;
 
-    // If the file is already been downloaded
-    if (_download_files.count(file->id)) {
+    std::unique_lock downloads_lk(_downloads_mutex);
+
+    // If the file is already being downloaded
+    if (_downloads_progress.count(file->id)) {
         throw exception(error::file_already_downloading);
     }
 
-    // Add the file to the downloads list
-    _download_files[file->id] = std::make_shared<memory_file>(*file);
+    // Init the download progress of the file
+    _downloads_progress[file->id] = 0;
+
+    // Unlock the downloads mutex
+    downloads_lk.unlock();
 
     // Get the chunks for the file
-    _download_files[file->id]->chunks = _server->file_manager()->get_file_chunks(file->id);
+    file_info->chunks = _server->file_manager()->get_file_chunks(file->id);
 
-    // Format the initial file chunk packet
-    file_chunk_packet = packets::file_chunk_packet(file->id, _download_files[file->id]->chunks[0]);
+    // Format the first file chunk packet
+    file_chunk_packet = packets::file_chunk_packet(file->id, file_info->chunks[0]);
 
     // Encode the packet
     file_chunk_packet_encoded = file_chunk_packet.encode();
 
     // Format the header and convert the packet to buffer
-    header.size = file_chunk_packet_encoded.size();
+    header.size = (uint32_t)file_chunk_packet_encoded.size();
     packet_buf = utils::memory::convert_to_buffer<char>(utils::parser::encode_header(header) +
                                                         file_chunk_packet_encoded);
 
-    // Send the initial download packet
+    // Send async the file chunk packet
     asio::async_write(
         _socket, asio::buffer(packet_buf.get(), file_chunk_packet_encoded.size() + sizeof(header)),
-        [this, packet_buf](std::error_code, std::size_t) {});
+        [this, file_info, packet_buf](std::error_code ec, std::size_t) {
+            if (!ec) {
+                handle_download_chunk_sent(file_info);
+            }
+        });
 }
 
 void quesync::server::file_session::remove_file(std::string file_id) {
-    std::lock_guard lk(_files_mutex);
+    std::unique_lock downloads_lk(_downloads_mutex, std::defer_lock);
+    std::unique_lock uplaods_lk(_uploads_mutex, std::defer_lock);
 
-    // Erase the file from the downloads and the
-    _download_files.erase(file_id);
+    // Lock the files mutexes
+    std::lock(downloads_lk, uplaods_lk);
+
+    // Erase the file from the uploads and downloads
+    _downloads_progress.erase(file_id);
     _upload_files.erase(file_id);
 }
 
@@ -98,13 +110,15 @@ void quesync::server::file_session::handshake() {
 void quesync::server::file_session::recv() {
     auto self(shared_from_this());
 
-    char *header_buf = new char[sizeof(header)];
+    std::shared_ptr<char> header_buf = std::shared_ptr<char>(new char[sizeof(header)]);
 
     // Get the header of the packet
     asio::async_read(
-        _socket, asio::buffer(header_buf, sizeof(header)),
+        _socket, asio::buffer(header_buf.get(), sizeof(header)),
         [this, self, header_buf](std::error_code ec, std::size_t length) {
-            header packet_header = utils::parser::decode_header(header_buf);
+            if (ec) return;
+
+            header packet_header = utils::parser::decode_header(header_buf.get());
             std::shared_ptr<char> buf = std::shared_ptr<char>(new char[packet_header.size]);
 
             // Get a packet from the user
@@ -164,13 +178,12 @@ void quesync::server::file_session::send(std::string data) {
 std::string quesync::server::file_session::handle_packet(std::string buf) {
     packets::session_auth_packet session_auth_packet;
     packets::file_chunk_packet file_chunk_packet;
-    packets::file_chunk_ack_packet file_chunk_ack_packet;
 
     std::string res;
 
     unsigned long long amount_of_chunks;
 
-    std::lock_guard lk(_files_mutex);
+    std::unique_lock uploads_lk(_uploads_mutex, std::defer_lock);
 
     // Check if the user is yet to be authenticated and the packet is a session
     // auth packet
@@ -197,6 +210,9 @@ std::string quesync::server::file_session::handle_packet(std::string buf) {
         res = packets::error_packet(error::not_authenticated).encode();
     } else if (file_chunk_packet.decode(buf))  // Check if the packet is a file chunk packet
     {
+        // Lock the uploads mutex
+        uploads_lk.lock();
+
         // If the file isn't a file that is currently being uploaded
         if (!_upload_files.count(file_chunk_packet.file_id())) {
             res = packets::error_packet(error::file_not_found).encode();
@@ -213,18 +229,9 @@ std::string quesync::server::file_session::handle_packet(std::string buf) {
                 _upload_files[file_chunk_packet.file_id()]
                     ->chunks[file_chunk_packet.chunk().index] = file_chunk_packet.chunk();
 
-                // Update the next chunk index of the file
-                utils::files::update_next_index(_upload_files[file_chunk_packet.file_id()]);
-
                 // Check if the upload is done
                 done =
                     _upload_files[file_chunk_packet.file_id()]->chunks.size() == amount_of_chunks;
-
-                // Return to the client an ack packet
-                file_chunk_ack_packet = packets::file_chunk_ack_packet(
-                    file_chunk_packet.file_id(),
-                    _upload_files[file_chunk_packet.file_id()]->current_index, done);
-                res = file_chunk_ack_packet.encode();
 
                 // If the uplaod is done
                 if (done) {
@@ -236,31 +243,66 @@ std::string quesync::server::file_session::handle_packet(std::string buf) {
                 }
             }
         }
-    } else if (file_chunk_ack_packet.decode(buf))  // Check if the packet is a file chunk ack packet
-    {
-        // If the file isn't a file that is currently being downloaded
-        if (!_download_files.count(file_chunk_ack_packet.file_id())) {
-            res = packets::error_packet(error::file_not_found).encode();
-        } else {
-            // Calculate the amount of chunks in the file
-            amount_of_chunks = utils::files::calc_amount_of_chunks(
-                _download_files[file_chunk_ack_packet.file_id()]->file.size);
-
-            // If the next chunk index is valid and the downlaod isn't done
-            if (file_chunk_ack_packet.next_index() < amount_of_chunks &&
-                !file_chunk_ack_packet.done()) {
-                // Create the file chunk packet with the next chunk
-                file_chunk_packet =
-                    packets::file_chunk_packet(file_chunk_ack_packet.file_id(),
-                                               _download_files[file_chunk_ack_packet.file_id()]
-                                                   ->chunks[file_chunk_ack_packet.next_index()]);
-                res = file_chunk_packet.encode();
-            } else if (file_chunk_ack_packet.done()) {
-                // Remove the file from the downloads list
-                _download_files.erase(file_chunk_ack_packet.file_id());
-            }
-        }
     }
 
     return res;
+}
+
+void quesync::server::file_session::handle_download_chunk_sent(
+    std::shared_ptr<quesync::memory_file> file_info) {
+    packets::file_chunk_packet file_chunk_packet;
+    std::string file_chunk_packet_encoded;
+    header header;
+
+    std::shared_ptr<char> packet_buf;
+
+    std::unique_lock downloads_lk(_downloads_mutex);
+
+    unsigned long long current_chunk = 0;
+
+    // If the file is currently being downloaded
+    if (_downloads_progress.count(file_info->file.id)) {
+        // Get the current chunk and increase to the next chunk
+        current_chunk = _downloads_progress[file_info->file.id]++;
+
+        // Unlock the downloads mutex
+        downloads_lk.unlock();
+
+        // Remove the current chunk
+        file_info->chunks.erase(current_chunk);
+
+        // If the file has more chunks to upload to client
+        if (file_info->chunks.count(current_chunk + 1)) {
+            // Format the file chunk packet
+            file_chunk_packet = packets::file_chunk_packet(file_info->file.id,
+                                                           file_info->chunks[current_chunk + 1]);
+
+            // Encode the packet
+            file_chunk_packet_encoded = file_chunk_packet.encode();
+
+            // Format the header and convert the packet to buffer
+            header.size = (uint32_t)file_chunk_packet_encoded.size();
+            packet_buf = utils::memory::convert_to_buffer<char>(
+                utils::parser::encode_header(header) + file_chunk_packet_encoded);
+
+            // Send async the file chunk packet
+            asio::async_write(
+                _socket,
+                asio::buffer(packet_buf.get(), file_chunk_packet_encoded.size() + sizeof(header)),
+                [this, file_info, packet_buf](std::error_code ec, std::size_t) {
+                    if (!ec) {
+                        handle_download_chunk_sent(file_info);
+                    }
+                });
+        } else {
+            // Lock the downloads mutex
+            downloads_lk.lock();
+
+            // Remove the file as being downloaded
+            _downloads_progress.erase(file_info->file.id);
+
+            // Unlock the downloads mutex
+            downloads_lk.unlock();
+        }
+    }
 }

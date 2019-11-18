@@ -33,32 +33,39 @@ class files : public module {
 
     std::shared_ptr<file> get_file_info(std::string file_id);
 
-    virtual void clean_connection(bool join_com_thread=true);
+    virtual void clean_connection();
     virtual void logged_out();
 
    private:
-    std::mutex _send_mutex;
+    std::shared_ptr<asio::io_context> _io_context;
+
     asio::ssl::stream<tcp::socket> *_socket;
 
-    std::mutex _data_mutex;
-    std::unordered_map<std::string, std::shared_ptr<memory_file>> _upload_files;
+    std::mutex _uploads_mutex;
+    std::unordered_map<std::string, unsigned long long> _uploads_progress;
+
+    std::mutex _downloads_mutex;
     std::unordered_map<std::string, std::shared_ptr<memory_file>> _download_files;
     std::unordered_map<std::string, std::string> _download_paths;
     
     std::mutex _events_mutex;
     std::unordered_map<std::string, std::shared_ptr<events::file_transmission_progress_event>> _events;
 
-    std::thread _com_thread;
     std::thread _events_thread;
+    std::thread _io_thread;
 
     std::atomic<bool> _stop_threads;
 
-    void com_thread();
+    void connect_to_file_server();
+    void recv();
+    void handle_packet(std::string buf);
+
     void events_thread();
 
-    void connect_to_file_server();
+    void upload(std::shared_ptr<memory_file> file_info);
+    void handle_upload_chunk_sent(std::shared_ptr<memory_file> file_info);
 
-    void init_upload(std::string file_id);
+    void check_if_idle();
 
     void save_file(std::shared_ptr<memory_file> file, std::string download_path);
     std::string get_file_name(std::string file_path);
