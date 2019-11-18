@@ -17,7 +17,7 @@
 
 #define FILES_SERVER_PORT 61112
 
-#define EVENTS_THREAD_SLEEP 15
+#define EVENTS_THREAD_SLEEP 35
 
 namespace quesync {
 namespace client {
