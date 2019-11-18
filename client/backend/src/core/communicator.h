@@ -34,6 +34,9 @@ class communicator : public module {
 
     event_handler &event_handler();
 
+    // Clean Connection
+    void clean_connection(bool join_recv_thread = true);
+
    private:
     quesync::client::event_handler _event_handler;
 
@@ -63,9 +66,6 @@ class communicator : public module {
     void events_handler();
 
     std::atomic<bool> _stop_threads;
-
-    // Clean Connection
-    void clean_connection(bool join_recv_thread = true);
 
     // Helper functions
     double ms_diff(clock_t end_clock, clock_t start_clock);

@@ -20,7 +20,8 @@ class Attachment extends Component {
 	state = {
 		intervalId: 0,
 		oldBytes: 0,
-		bps: 0
+		bps: 0,
+		downloaded: false
 	};
 
 	componentDidMount() {
@@ -54,6 +55,11 @@ class Attachment extends Component {
 	downloadFile = _ => {
 		const attachmentFile = this.props.files[this.props.id];
 
+		// Reset state
+		this.setState({
+			downloaded: false
+		});
+
 		// Get from the user the path to download the file to
 		const downloadPath = dialog.showSaveDialogSync({
 			title: `Choose where to save the file ${attachmentFile.name}`,
@@ -69,11 +75,21 @@ class Attachment extends Component {
 			});
 
 			// Start the download
-			this.props.dispatch(startDownload(this.props.id, downloadPath));
+			this.props.dispatch(startDownload(this.props.id, downloadPath)).then(() =>
+				// Set as downloaded
+				this.setState({
+					downloaded: true
+				})
+			);
 		}
 	};
 
 	stopDownload = _ => {
+		// Reset state
+		this.setState({
+			downloaded: false
+		});
+
 		// Stop the download
 		this.props.dispatch(stopFileTransmission(this.props.id));
 	};
@@ -87,13 +103,17 @@ class Attachment extends Component {
 				<div className="quesync-attachment-content">
 					<div className="quesync-attachment-details">
 						<Typography className="quesync-attachment-name" use="subtitle2">
-							<b>File:</b> {attachmentFile.name}
+							<b>File: </b>
+							{attachmentFile.name}
 						</Typography>
 						<FadeTransition
 							mountOnEnter
 							unmountOnExit
-							timeout={1000}
-							in={downloading && !!this.props.filesProgress[this.props.id]}
+							timeout={250}
+							in={
+								this.state.downloaded ||
+								(downloading && !!this.props.filesProgress[this.props.id])
+							}
 						>
 							<UpdateBlocker
 								listenObject={this.props.filesProgress[this.props.id]}

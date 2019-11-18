@@ -28,6 +28,12 @@ void quesync::client::client::init() {
     _user = std::make_shared<modules::user>(shared_from_this());
 }
 
+void quesync::client::client::destroy() {
+    // Clean the connection
+    _communicator->clean_connection();
+    clean_connection();
+}
+
 void quesync::client::client::connect(std::string server_ip) {
     // Try to connect to the server
     _communicator->connect(server_ip);

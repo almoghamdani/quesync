@@ -16,6 +16,7 @@ class client : public Napi::ObjectWrap<client> {
     Napi::Value connect(const Napi::CallbackInfo &info);
     Napi::Value register_event_handler(const Napi::CallbackInfo &info);
     Napi::Value clear_all_event_handlers(const Napi::CallbackInfo &info);
+    Napi::Value destroy(const Napi::CallbackInfo &info);
 
     Napi::Value generate_errors_object(const Napi::CallbackInfo &info);
 

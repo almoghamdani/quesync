@@ -19,6 +19,7 @@ class client : public std::enable_shared_from_this<client> {
     client();
 
     void init();
+    void destroy();
 
     void connect(std::string server_ip);
 

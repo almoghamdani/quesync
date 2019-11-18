@@ -8,7 +8,6 @@
 #include "../../../../shared/exception.h"
 #include "../../../../shared/packets/download_file_packet.h"
 #include "../../../../shared/packets/error_packet.h"
-#include "../../../../shared/packets/file_chunk_ack_packet.h"
 #include "../../../../shared/packets/file_chunk_packet.h"
 #include "../../../../shared/packets/file_transmission_stop_packet.h"
 #include "../../../../shared/packets/get_file_info_packet.h"
@@ -18,7 +17,7 @@
 #include "../../../../shared/utils/parser.h"
 
 quesync::client::modules::files::files(std::shared_ptr<quesync::client::client> client)
-    : module(client), _socket(nullptr), _stop_threads(true) {}
+    : module(client), _socket(nullptr), _stop_threads(true), _io_context(nullptr) {}
 
 std::shared_ptr<quesync::file> quesync::client::modules::files::start_upload(
     std::string file_path) {
@@ -26,11 +25,12 @@ std::shared_ptr<quesync::file> quesync::client::modules::files::start_upload(
     std::shared_ptr<response_packet> response_packet;
 
     std::shared_ptr<file> file;
+    std::shared_ptr<memory_file> file_info;
 
     std::ifstream file_stream;
     unsigned long long file_size;
 
-    std::unique_lock lk(_data_mutex, std::defer_lock);
+    std::unique_lock lk(_uploads_mutex, std::defer_lock);
 
     // Try to open the file for reading
     file_stream.open(file_path, std::ios::binary | std::ios::in);
@@ -62,20 +62,23 @@ std::shared_ptr<quesync::file> quesync::client::modules::files::start_upload(
     // Create the file object
     file = std::make_shared<quesync::file>(response_packet->json()["file"].get<quesync::file>());
 
-    // Lock the data mutex
-    lk.lock();
-
     // Create the memory file object
-    _upload_files[file->id] = std::make_shared<memory_file>(*file);
+    file_info = std::make_shared<memory_file>(*file);
 
     // Get the file's chunks
-    _upload_files[file->id]->chunks = utils::files::get_file_chunks(file_stream, file_size);
+    file_info->chunks = utils::files::get_file_chunks(file_stream, file_size);
+
+    // Lock the uploads data mutex
+    _uploads_mutex.lock();
+
+    // Init the upload progress
+    _uploads_progress[file->id] = 0;
+
+    // Unlock the uploads data mutex
+    _uploads_mutex.unlock();
 
     // Init the upload
-    init_upload(file->id);
-
-    // Unlock the data mutex
-    lk.unlock();
+    upload(file_info);
 
     return file;
 }
@@ -87,7 +90,7 @@ void quesync::client::modules::files::start_download(std::string file_id,
     std::shared_ptr<file> file;
     std::ofstream dest_file(download_path);
 
-    std::unique_lock lk(_data_mutex, std::defer_lock);
+    std::unique_lock lk(_downloads_mutex, std::defer_lock);
 
     // Check if the dest file doesn't exists
     if (dest_file.fail()) {
@@ -133,32 +136,36 @@ void quesync::client::modules::files::start_download(std::string file_id,
 void quesync::client::modules::files::stop_file_transmission(std::string file_id) {
     packets::file_transmission_stop_packet transmission_stop_packet(file_id);
 
-    std::unique_lock lk(_data_mutex, std::defer_lock);
+    std::unique_lock downloads_lk(_downloads_mutex, std::defer_lock);
+    std::unique_lock uploads_lk(_uploads_mutex, std::defer_lock);
 
-    // Lock the data mutex
-    lk.lock();
+    // Lock the data mutexes
+    std::lock(downloads_lk, uploads_lk);
 
     // If the file isn't downloaded or uploaded, throw error
-    if (!_download_files.count(file_id) && !_upload_files.count(file_id)) {
+    if (!_download_files.count(file_id) && !_uploads_progress.count(file_id)) {
         throw exception(error::file_not_found);
     }
 
     // Unlock the data mutex
-    lk.unlock();
+    downloads_lk.unlock();
+    uploads_lk.unlock();
 
     // Send to the server the file transmission stop packet
     _client->communicator()->send_and_verify(&transmission_stop_packet,
                                              packet_type::file_transmission_stopped_packet);
 
     // Lock the data mutex
-    lk.lock();
+    std::lock(downloads_lk, uploads_lk);
 
+    // Remove it from the downloads if exists
+    _uploads_progress.erase(file_id);
     _download_files.erase(file_id);
     _download_paths.erase(file_id);
-    _upload_files.erase(file_id);
 
     // Unlock the data mutex
-    lk.unlock();
+    downloads_lk.unlock();
+    uploads_lk.unlock();
 }
 
 std::shared_ptr<quesync::file> quesync::client::modules::files::get_file_info(std::string file_id) {
@@ -177,164 +184,74 @@ std::shared_ptr<quesync::file> quesync::client::modules::files::get_file_info(st
     return file;
 }
 
-void quesync::client::modules::files::com_thread() {
-    bool first_iteration = true;
-
-    std::string buf, res;
-
+void quesync::client::modules::files::handle_packet(std::string buf) {
     unsigned long long amount_of_chunks;
 
-    while (true) {
-        packets::file_chunk_packet file_chunk_packet;
-        packets::file_chunk_ack_packet file_chunk_ack_packet;
+    packets::file_chunk_packet file_chunk_packet;
 
-        std::shared_ptr<events::file_transmission_progress_event> file_progress_event;
+    std::shared_ptr<events::file_transmission_progress_event> file_progress_event;
 
-        std::unique_lock data_lk(_data_mutex, std::defer_lock);
+    std::unique_lock downloads_lk(_downloads_mutex);
 
-        // If the socket isn't connected or the thread is signaled to exit, quit the loop
-        if (_stop_threads || !_socket || !_socket->lowest_layer().is_open()) {
-            break;
-        } else if (!first_iteration && _upload_files.empty() &&
-                   _download_files.empty())  // If no uploads and downloads
-        {
-            break;
-        }
+    // If the packet is a file chunk packet
+    if (file_chunk_packet.decode(buf)) {
+        // If the file is a file that is currently being downloaded
+        if (_download_files.count(file_chunk_packet.file_id())) {
+            // Calculate the amount of chunks in the file
+            amount_of_chunks = utils::files::calc_amount_of_chunks(
+                _download_files[file_chunk_packet.file_id()]->file.size);
 
-        try {
-            // Recv a message from the server
-            buf = socket_manager::recv(*_socket);
-        } catch (...) {
-            break;
-        }
+            // Check if the index of the chunk is valid
+            if (file_chunk_packet.chunk().index < amount_of_chunks) {
+                bool done = false;
 
-        // Lock the data mutex
-        data_lk.lock();
+                // Save the chunk
+                _download_files[file_chunk_packet.file_id()]
+                    ->chunks[file_chunk_packet.chunk().index] = file_chunk_packet.chunk();
 
-        // If the packet is a file chunk packet
-        if (file_chunk_packet.decode(buf)) {
-            // If the file isn't a file that is currently being downloaded
-            if (!_download_files.count(file_chunk_packet.file_id())) {
-                res = packets::error_packet(error::unknown_error).encode();
-            } else {
-                // Calculate the amount of chunks in the file
-                amount_of_chunks = utils::files::calc_amount_of_chunks(
-                    _download_files[file_chunk_packet.file_id()]->file.size);
+                // Check if the download is done
+                done =
+                    _download_files[file_chunk_packet.file_id()]->chunks.size() == amount_of_chunks;
 
-                // Check if the index of the chunk is valid
-                if (file_chunk_packet.chunk().index < amount_of_chunks) {
-                    bool done = false;
-
-                    // Save the chunk
-                    _download_files[file_chunk_packet.file_id()]
-                        ->chunks[file_chunk_packet.chunk().index] = file_chunk_packet.chunk();
-
-                    // Update the next chunk index of the file
-                    utils::files::update_next_index(_download_files[file_chunk_packet.file_id()]);
-
-                    // Check if the download is done
-                    done = _download_files[file_chunk_packet.file_id()]->chunks.size() ==
-                           amount_of_chunks;
-
-                    // Return to the server an ack packet
-                    file_chunk_ack_packet = packets::file_chunk_ack_packet(
-                        file_chunk_packet.file_id(),
-                        _download_files[file_chunk_packet.file_id()]->current_index, done);
-                    res = file_chunk_ack_packet.encode();
-
-                    // If the download is done
-                    if (done) {
-                        // Save the file in a different thread
-                        std::thread([this, file = _download_files[file_chunk_packet.file_id()],
-                                     download_path = _download_paths[file_chunk_packet.file_id()]] {
-                            save_file(file, download_path);
-                        })
-                            .detach();
-
-                        // Create the file progress event
-                        file_progress_event =
-                            std::make_shared<events::file_transmission_progress_event>(
-                                file_chunk_packet.file_id(),
-                                _download_files[file_chunk_packet.file_id()]->file.size);
-
-                        // Remove the file from the downloads list
-                        _download_files.erase(file_chunk_packet.file_id());
-                        _download_paths.erase(file_chunk_packet.file_id());
-                    } else {
-                        // Create the file progress event
-                        file_progress_event =
-                            std::make_shared<events::file_transmission_progress_event>(
-                                file_chunk_packet.file_id(),
-                                _download_files[file_chunk_packet.file_id()]->chunks.size() *
-                                    FILE_CHUNK_SIZE);
-                    }
-                }
-            }
-        } else if (file_chunk_ack_packet.decode(buf))  // If the packet is an file chunk ack packet
-        {
-            // Check if the file exists as an upload file
-            if (!_upload_files.count(file_chunk_ack_packet.file_id())) {
-                res = packets::error_packet(error::file_not_found).encode();
-            } else {
-                // Calculate the amount of chunks the file
-                amount_of_chunks = utils::files::calc_amount_of_chunks(
-                    _upload_files[file_chunk_ack_packet.file_id()]->file.size);
-
-                // If the next chunk index is valid and the downlaod isn't done
-                if (file_chunk_ack_packet.next_index() < amount_of_chunks &&
-                    !file_chunk_ack_packet.done()) {
-                    // Create the file chunk packet with the next chunk
-                    file_chunk_packet = packets::file_chunk_packet(
-                        file_chunk_ack_packet.file_id(),
-                        _upload_files[file_chunk_ack_packet.file_id()]
-                            ->chunks[file_chunk_ack_packet.next_index()]);
-                    res = file_chunk_packet.encode();
+                // If the download is done
+                if (done) {
+                    // Save the file in a different thread
+                    std::thread([this, file = _download_files[file_chunk_packet.file_id()],
+                                 download_path = _download_paths[file_chunk_packet.file_id()]] {
+                        save_file(file, download_path);
+                    })
+                        .detach();
 
                     // Create the file progress event
                     file_progress_event =
                         std::make_shared<events::file_transmission_progress_event>(
-                            file_chunk_ack_packet.file_id(),
-                            std::min(file_chunk_ack_packet.next_index() * FILE_CHUNK_SIZE,
-                                     _upload_files[file_chunk_ack_packet.file_id()]->file.size));
-                } else if (file_chunk_ack_packet.done()) {
-                    // Create the file progress event
-                    file_progress_event =
-                        std::make_shared<events::file_transmission_progress_event>(
-                            file_chunk_ack_packet.file_id(),
-                            _upload_files[file_chunk_ack_packet.file_id()]->file.size);
+                            file_chunk_packet.file_id(),
+                            _download_files[file_chunk_packet.file_id()]->file.size);
 
                     // Remove the file from the downloads list
-                    _upload_files.erase(file_chunk_ack_packet.file_id());
+                    _download_files.erase(file_chunk_packet.file_id());
+                    _download_paths.erase(file_chunk_packet.file_id());
+                } else {
+                    // Create the file progress event
+                    file_progress_event =
+                        std::make_shared<events::file_transmission_progress_event>(
+                            file_chunk_packet.file_id(),
+                            _download_files[file_chunk_packet.file_id()]->chunks.size() *
+                                FILE_CHUNK_SIZE);
                 }
             }
         }
-
-        // Unlock the data mutex
-        data_lk.unlock();
-
-        // If the file progress event isn't null
-        if (file_progress_event) {
-            // Set the event for the file
-            std::lock_guard events_lk(_events_mutex);
-            _events[file_progress_event->file_id] = file_progress_event;
-        }
-
-        if (!res.empty()) {
-            try {
-                // Lock the send mutex and send the response
-                std::lock_guard lk(_send_mutex);
-                socket_manager::send(*_socket, res);
-            } catch (...) {
-                break;
-            }
-        }
-
-        // Clear first iteration flag
-        first_iteration = false;
     }
 
-    // Clean the socket
-    clean_connection(false);
+    // Unlock the downloads mutex
+    downloads_lk.unlock();
+
+    // If the file progress event isn't null
+    if (file_progress_event) {
+        // Set the event for the file
+        std::lock_guard events_lk(_events_mutex);
+        _events[file_progress_event->file_id] = file_progress_event;
+    }
 }
 
 void quesync::client::modules::files::events_thread() {
@@ -375,10 +292,12 @@ void quesync::client::modules::files::connect_to_file_server() {
     socket_manager::get_endpoint(_client->communicator()->server_ip().c_str(), FILES_SERVER_PORT,
                                  server_endpoint);
 
+    // Create the I/O Context object
+    _io_context = std::make_shared<asio::io_context>();
+
     try {
         // Create a TCP/SSL socket
-        _socket = new asio::ssl::stream<tcp::socket>(socket_manager::io_context,
-                                                     socket_manager::ssl_context);
+        _socket = new asio::ssl::stream<tcp::socket>(*_io_context, socket_manager::ssl_context);
         _socket->set_verify_mode(asio::ssl::verify_peer);
 
         // Connect to the server
@@ -401,36 +320,213 @@ void quesync::client::modules::files::connect_to_file_server() {
         throw exception(error::unknown_error);
     }
 
-    // If the COM thread is still alive, join it
-    if (_com_thread.joinable()) {
-        _com_thread.join();
-    }
-
     // If the events thread is still alive, join it
     if (_events_thread.joinable()) {
         _events_thread.join();
     }
+
+    // If the I/O thread is still alive, join it
+    if (_io_thread.joinable()) {
+        _io_thread.join();
+    }
+
+    // Start receiving
+    recv();
+
+    // Run a background thread that will handle I/O
+    _io_thread = std::thread([this]() { _io_context->run(); });
 
     // Allow the threads to run
     _stop_threads = false;
 
     // Init events thread
     _events_thread = std::thread(&files::events_thread, this);
-
-    // Init COM thread
-    _com_thread = std::thread(&files::com_thread, this);
 }
 
-void quesync::client::modules::files::init_upload(std::string file_id) {
+void quesync::client::modules::files::recv() {
+    std::shared_ptr<char> header_buf = std::shared_ptr<char>(new char[sizeof(header)]);
+
+    // Get the header of the packet
+    asio::async_read(
+        *_socket, asio::buffer(header_buf.get(), sizeof(header)),
+        [this, header_buf](std::error_code ec, std::size_t length) {
+            header packet_header = utils::parser::decode_header(header_buf.get());
+            std::shared_ptr<char> buf = std::shared_ptr<char>(new char[packet_header.size]);
+
+            // If got an error, clean the connection
+            if (ec) {
+                clean_connection();
+                return;
+            }
+
+            // Get a packet from the user
+            asio::async_read(*_socket, asio::buffer(buf.get(), packet_header.size),
+                             [this, buf, packet_header](std::error_code ec, std::size_t length) {
+                                 header header{1, 0};
+                                 std::string header_str;
+
+                                 std::string buf_str;
+                                 std::string res;
+
+                                 // If no error occurred, parse the packet
+                                 if (!ec) {
+                                     buf_str = std::string(buf.get(), packet_header.size);
+
+                                     // Handle the packet
+                                     handle_packet(buf_str);
+
+                                     // Check if the files COM is idle
+                                     check_if_idle();
+
+                                     // Recv again if the socket isn't closed
+                                     if (_socket) {
+                                         recv();
+                                     }
+                                 } else {
+                                     // Clean the connection on error
+                                     clean_connection();
+                                 }
+                             });
+        });
+}
+
+void quesync::client::modules::files::upload(std::shared_ptr<quesync::memory_file> file_info) {
     packets::file_chunk_packet file_chunk_packet;
+    std::string file_chunk_packet_encoded;
+    header header;
+
+    std::shared_ptr<char> packet_buf;
 
     // Format the first file chunk packet
-    file_chunk_packet = packets::file_chunk_packet(_upload_files[file_id]->file.id,
-                                                   _upload_files[file_id]->chunks[0]);
+    file_chunk_packet = packets::file_chunk_packet(file_info->file.id, file_info->chunks[0]);
 
-    // Send the first chunk to the file server
-    std::lock_guard lk(_send_mutex);
-    socket_manager::send(*_socket, file_chunk_packet.encode());
+    // Encode the packet
+    file_chunk_packet_encoded = file_chunk_packet.encode();
+
+    // Format the header and convert the packet to buffer
+    header.size = file_chunk_packet_encoded.size();
+    packet_buf = utils::memory::convert_to_buffer<char>(utils::parser::encode_header(header) +
+                                                        file_chunk_packet_encoded);
+
+    // Send async the file chunk packet
+    asio::async_write(
+        *_socket, asio::buffer(packet_buf.get(), file_chunk_packet_encoded.size() + sizeof(header)),
+        [this, file_info, packet_buf](std::error_code ec, std::size_t) {
+            // On error, clean connection
+            if (ec) {
+                clean_connection();
+                return;
+            }
+
+            // Handle the upload file chunk sent
+            handle_upload_chunk_sent(file_info);
+
+            // Check if the file COM is idle
+            check_if_idle();
+        });
+}
+
+void quesync::client::modules::files::handle_upload_chunk_sent(
+    std::shared_ptr<quesync::memory_file> file_info) {
+    packets::file_chunk_packet file_chunk_packet;
+    std::string file_chunk_packet_encoded;
+
+    header header;
+    std::shared_ptr<char> packet_buf;
+
+    std::shared_ptr<events::file_transmission_progress_event> file_progress_event;
+
+    std::unique_lock uploads_lk(_uploads_mutex), events_lk(_events_mutex, std::defer_lock);
+
+    unsigned long long current_chunk = 0;
+
+    // If the file is in the uploads list
+    if (_uploads_progress.count(file_info->file.id)) {
+        // Get the current chunk and increase to the next chunk
+        current_chunk = _uploads_progress[file_info->file.id]++;
+
+        // Unlock the uploads mutex
+        uploads_lk.unlock();
+
+        // Remove the current chunk
+        file_info->chunks.erase(current_chunk);
+
+        // Create the file progress event
+        file_progress_event = std::make_shared<events::file_transmission_progress_event>(
+            file_info->file.id,
+            std::min((current_chunk + 1) * FILE_CHUNK_SIZE, file_info->file.size));
+
+        // Lock the events lock
+        events_lk.lock();
+
+        // Set the event for the file
+        _events[file_info->file.id] = file_progress_event;
+
+        // Unlock the events lock
+        events_lk.unlock();
+
+        // If the file has more chunks to upload
+        if (file_info->chunks.count(current_chunk + 1)) {
+            // Format the file chunk packet
+            file_chunk_packet = packets::file_chunk_packet(file_info->file.id,
+                                                           file_info->chunks[current_chunk + 1]);
+
+            // Encode the packet
+            file_chunk_packet_encoded = file_chunk_packet.encode();
+
+            // Format the header and convert the packet to buffer
+            header.size = file_chunk_packet_encoded.size();
+            packet_buf = utils::memory::convert_to_buffer<char>(
+                utils::parser::encode_header(header) + file_chunk_packet_encoded);
+
+            // Send async the file chunk packet
+            asio::async_write(
+                *_socket,
+                asio::buffer(packet_buf.get(), file_chunk_packet_encoded.size() + sizeof(header)),
+                [this, file_info, packet_buf](std::error_code ec, std::size_t) {
+                    // On error, clean connection
+                    if (ec) {
+                        clean_connection();
+                        return;
+                    }
+
+                    // Handle the upload file chunk sent
+                    handle_upload_chunk_sent(file_info);
+
+                    // Check if the file COM is idle
+                    check_if_idle();
+                });
+        } else {
+            // Lock the uploads mutex
+            uploads_lk.lock();
+
+            // Remove the file as being uploaded
+            _uploads_progress.erase(file_info->file.id);
+
+            // Unlock the uploads mutex
+            uploads_lk.unlock();
+        }
+    }
+}
+
+void quesync::client::modules::files::check_if_idle() {
+    std::unique_lock downloads_lk(_downloads_mutex, std::defer_lock);
+    std::unique_lock uploads_lk(_uploads_mutex, std::defer_lock);
+
+    // Lock the data mutexes
+    std::lock(downloads_lk, uploads_lk);
+
+    // If the downloads list or the uploads list isn't empty
+    if (!_download_files.empty() || !_uploads_progress.empty()) {
+        return;
+    }
+
+    // Unlock the data mutex
+    downloads_lk.unlock();
+    uploads_lk.unlock();
+
+    // If reached here, it means both uploads and downloads are empty, so clean connection
+    clean_connection();
 }
 
 void quesync::client::modules::files::save_file(std::shared_ptr<quesync::memory_file> file,
@@ -478,7 +574,13 @@ std::string quesync::client::modules::files::get_file_name(std::string file_path
     return file_path.substr(file_path.find_last_of("/\\") + 1);
 }
 
-void quesync::client::modules::files::clean_connection(bool join_com_thread) {
+void quesync::client::modules::files::clean_connection() {
+    // Stop the I/O threads
+    if (_io_context) {
+        _io_context->stop();
+        _io_context = nullptr;
+    }
+
     // Signal the threads to exit
     _stop_threads = true;
 
@@ -488,14 +590,14 @@ void quesync::client::modules::files::clean_connection(bool join_com_thread) {
         _socket->lowest_layer().close();
     }
 
-    // If the COM thread is still alive, join it
-    if (_com_thread.joinable() && join_com_thread) {
-        _com_thread.join();
-    }
-
     // If the events thread is still alive, join it
     if (_events_thread.joinable()) {
         _events_thread.join();
+    }
+
+    // If the I/O thread is still alive, join it
+    if (_io_thread.joinable() && std::this_thread::get_id() != _io_thread.get_id()) {
+        _io_thread.join();
     }
 
     // If the socket object exists
@@ -508,7 +610,7 @@ void quesync::client::modules::files::clean_connection(bool join_com_thread) {
     }
 
     // Clear the files data
-    _upload_files.clear();
+    _uploads_progress.clear();
     _download_files.clear();
     _download_paths.clear();
     _events.clear();

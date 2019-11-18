@@ -32,17 +32,26 @@ void quesync::client::modules::communicator::clean_connection(bool join_recv_thr
 
     // If the events thread is still alive, join it
     if (_events_thread.joinable()) {
-        _events_thread.join();
+        try {
+            _events_thread.join();
+        } catch (...) {
+        }
     }
 
     // If the r receiver is still alive, join it
     if (_receiver_thread.joinable() && join_recv_thread) {
-        _receiver_thread.join();
+        try {
+            _receiver_thread.join();
+        } catch (...) {
+        }
     }
 
     // If the keep alive thread is still alive, join it
     if (_keep_alive_thread.joinable()) {
-        _keep_alive_thread.join();
+        try {
+            _keep_alive_thread.join();
+        } catch (...) {
+        }
     }
 
     // If the socket object isn't null
@@ -311,13 +320,13 @@ std::shared_ptr<quesync::response_packet> quesync::client::modules::communicator
 
     std::shared_ptr<response_packet> response_packet;
 
+    // Lock the socket's locks
+    std::lock(get_lk, send_lk);
+
     // If the socket isn't connected, throw error
     if (!_socket) {
         throw error(error::no_connection);
     }
-
-    // Lock the socket's locks
-    std::lock(get_lk, send_lk);
 
     // Send to the server the packet
     try {
@@ -334,8 +343,13 @@ std::shared_ptr<quesync::response_packet> quesync::client::modules::communicator
     }
 
     // Wait for response to enter
-    while (_response_packets.empty()) {
+    while (_response_packets.empty() && !_stop_threads) {
         _response_cv.wait(get_lk);
+    }
+
+    // If requested to stop all threads, throw error
+    if (_stop_threads) {
+        throw exception(error::no_connection);
     }
 
     // Get the response packet

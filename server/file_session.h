@@ -31,9 +31,11 @@ class file_session : public std::enable_shared_from_this<file_session> {
     std::shared_ptr<quesync::user> _user;
     std::shared_ptr<quesync::server::server> _server;
 
-    std::mutex _files_mutex;
+    std::mutex _downloads_mutex;
+    std::unordered_map<std::string, unsigned long long> _downloads_progress;
+
+    std::mutex _uploads_mutex;
     std::unordered_map<std::string, std::shared_ptr<memory_file>> _upload_files;
-    std::unordered_map<std::string, std::shared_ptr<memory_file>> _download_files;
 
     asio::ssl::stream<tcp::socket> _socket;
 
@@ -42,6 +44,7 @@ class file_session : public std::enable_shared_from_this<file_session> {
     void send(std::string data);
 
     std::string handle_packet(std::string buf);
+    void handle_download_chunk_sent(std::shared_ptr<memory_file> file_info);
 };
 };  // namespace server
 };  // namespace quesync
