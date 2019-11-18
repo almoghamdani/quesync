@@ -211,3 +211,9 @@ app.on("window-all-closed", () => {
 	// Close apps when all windows are closed
 	app.quit();
 });
+
+app.on("quit", () => {
+	// Destroy the client
+	client.destroy();
+	delete client;
+})

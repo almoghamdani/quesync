@@ -17,7 +17,7 @@
 #include "../../../../shared/utils/parser.h"
 
 quesync::client::modules::files::files(std::shared_ptr<quesync::client::client> client)
-    : module(client), _socket(nullptr), _stop_threads(true) {}
+    : module(client), _socket(nullptr), _stop_threads(true), _io_context(nullptr) {}
 
 std::shared_ptr<quesync::file> quesync::client::modules::files::start_upload(
     std::string file_path) {
@@ -576,7 +576,10 @@ std::string quesync::client::modules::files::get_file_name(std::string file_path
 
 void quesync::client::modules::files::clean_connection() {
     // Stop the I/O threads
-    _io_context->stop();
+    if (_io_context) {
+        _io_context->stop();
+        _io_context = nullptr;
+    }
 
     // Signal the threads to exit
     _stop_threads = true;

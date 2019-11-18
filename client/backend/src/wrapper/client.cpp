@@ -22,6 +22,7 @@ Napi::Object quesync::client::wrapper::client::init(Napi::Env env, Napi::Object 
                     {InstanceMethod("connect", &client::connect),
                      InstanceMethod("registerEventHandler", &client::register_event_handler),
                      InstanceMethod("clearAllEventHandlers", &client::clear_all_event_handlers),
+                     InstanceMethod("destroy", &client::destroy),
                      InstanceMethod("auth", &client::module_get<auth, &client::_auth>),
                      InstanceMethod("user", &client::module_get<user, &client::_user>),
                      InstanceMethod("users", &client::module_get<users, &client::_users>),
@@ -107,6 +108,14 @@ Napi::Value quesync::client::wrapper::client::clear_all_event_handlers(
     const Napi::CallbackInfo &info) {
     // Clear all event handlers
     _client->communicator()->event_handler().clear_all_event_handlers();
+
+    return info.Env().Undefined();
+}
+
+Napi::Value quesync::client::wrapper::client::destroy(const Napi::CallbackInfo &info)
+{
+    // Free the client object
+    _client->destroy();
 
     return info.Env().Undefined();
 }
