@@ -161,6 +161,30 @@ std::vector<quesync::call> quesync::client::modules::voice::get_channel_calls(
     return calls;
 }
 
+std::vector<quesync::client::voice::sound_device>
+quesync::client::modules::voice::get_input_devices() {
+    return _voice_manager ? _voice_manager->get_input_devices()
+                          : std::vector<quesync::client::voice::sound_device>();
+}
+
+std::vector<quesync::client::voice::sound_device>
+quesync::client::modules::voice::get_output_devices() {
+    return _voice_manager ? _voice_manager->get_output_devices()
+                          : std::vector<quesync::client::voice::sound_device>();
+}
+
+void quesync::client::modules::voice::set_input_device(unsigned int device_id) {
+    if (_voice_manager) {
+        _voice_manager->set_input_device(device_id);
+    }
+}
+
+void quesync::client::modules::voice::set_output_device(unsigned int device_id) {
+    if (_voice_manager) {
+        _voice_manager->set_output_device(device_id);
+    }
+}
+
 void quesync::client::modules::voice::clean_connection() {
     // If the voice manager is initated, delete it
     if (_voice_manager) {

@@ -6,6 +6,7 @@
 #include "../client.h"
 
 #include "../../../shared/events/voice_activity_event.h"
+#include "../../../shared/exception.h"
 #include "../../../shared/packets/voice_otp_packet.h"
 #include "../../../shared/packets/voice_packet.h"
 
@@ -32,7 +33,9 @@ quesync::client::voice::manager::manager(std::shared_ptr<quesync::client::client
       _aes_key(nullptr),
       _hmac_key(nullptr),
       _enabled(false),
-      _stop_threads(false) {
+      _stop_threads(false),
+      _input_device_id(_rt_audio.getDefaultInputDevice()),
+      _output_device_id(_rt_audio.getDefaultOutputDevice()) {
     // Get the endpoint of the server using the given server IP and default voice chat port
     socket_manager::get_endpoint(server_ip, VOICE_CHAT_PORT, _endpoint);
 
@@ -63,25 +66,122 @@ void quesync::client::voice::manager::destroy() {
     _rt_audio.closeStream();
 }
 
+std::vector<quesync::client::voice::sound_device>
+quesync::client::voice::manager::get_input_devices() {
+    std::vector<sound_device> devices;
+    sound_device dev;
+
+    // Determine the number of devices available
+    unsigned int device_count = _rt_audio.getDeviceCount();
+
+    // Scan through devices for various capabilities
+    RtAudio::DeviceInfo info;
+    for (unsigned int i = 0; i < device_count; i++) {
+        // Get the device's info
+        info = _rt_audio.getDeviceInfo(i);
+
+        // If the device is an input device
+        if (info.probed && info.inputChannels) {
+            dev.id = i;
+            dev.name = info.name;
+            dev.is_default = info.isDefaultInput;
+
+            // Add the device to the list of devices
+            devices.push_back(dev);
+        }
+    }
+
+    return devices;
+}
+
+std::vector<quesync::client::voice::sound_device>
+quesync::client::voice::manager::get_output_devices() {
+    std::vector<sound_device> devices;
+    sound_device dev;
+
+    // Determine the number of devices available
+    unsigned int device_count = _rt_audio.getDeviceCount();
+
+    // Scan through devices for various capabilities
+    RtAudio::DeviceInfo info;
+    for (unsigned int i = 0; i < device_count; i++) {
+        // Get the device's info
+        info = _rt_audio.getDeviceInfo(i);
+
+        // If the device is an output device
+        if (info.probed && info.outputChannels) {
+            dev.id = i;
+            dev.name = info.name;
+            dev.is_default = info.isDefaultOutput;
+
+            // Add the device to the list of devices
+            devices.push_back(dev);
+        }
+    }
+
+    return devices;
+}
+
+void quesync::client::voice::manager::set_input_device(unsigned int device_id) {
+    RtAudio::DeviceInfo info;
+
+    // If the device is already an input device
+    if (device_id == _input_device_id) {
+        return;
+    }
+
+    try {
+        // Get the device's info
+        info = _rt_audio.getDeviceInfo(device_id);
+    } catch (...) {
+        throw exception(error::sound_device_not_found);
+    }
+
+    // If the device isn't an input device
+    if (!info.probed || !info.inputChannels) {
+        throw exception(error::invalid_sound_device);
+    }
+
+    // Set the device
+    _input_device_id = device_id;
+
+    // If the stream is open, re-init it
+    if (_rt_audio.isStreamOpen()) {
+        init_stream();
+    }
+}
+
+void quesync::client::voice::manager::set_output_device(unsigned int device_id) {
+    RtAudio::DeviceInfo info;
+
+    // If the device is already an output device
+    if (device_id == _output_device_id) {
+        return;
+    }
+
+    try {
+        // Get the device's info
+        info = _rt_audio.getDeviceInfo(device_id);
+    } catch (...) {
+        throw exception(error::sound_device_not_found);
+    }
+
+    // If the device isn't an output device
+    if (!info.probed || !info.outputChannels) {
+        throw exception(error::invalid_sound_device);
+    }
+
+    // Set the device
+    _output_device_id = device_id;
+
+    // If the stream is open, re-init it
+    if (_rt_audio.isStreamOpen()) {
+        init_stream();
+    }
+}
+
 void quesync::client::voice::manager::init() {
-    unsigned int frame_size = FRAME_SIZE;
-
-    // Set the input stream parameters
-    RtAudio::StreamParameters input_stream_params;
-    input_stream_params.deviceId = _rt_audio.getDefaultInputDevice();
-    input_stream_params.nChannels = RECORD_CHANNELS;
-
-    // Set the output stream parameters
-    RtAudio::StreamParameters output_stream_params;
-    output_stream_params.deviceId = _rt_audio.getDefaultOutputDevice();
-    output_stream_params.nChannels = PLAYBACK_CHANNELS;
-
-    RtAudio::StreamOptions stream_options;
-    stream_options.streamName = "Quesync-" + sole::uuid4().str();
-
-    // Open the stream
-    _rt_audio.openStream(&output_stream_params, &input_stream_params, RTAUDIO_SINT16,
-                         RECORD_FREQUENCY, &frame_size, &rt_callback, this, &stream_options);
+    init_stream();
 
     // Init input and output
     _input = std::make_shared<input>(shared_from_this());
@@ -145,6 +245,32 @@ void quesync::client::voice::manager::set_state(bool mute, bool deafen) {
     } else {
         _output->undeaf();
     }
+}
+
+void quesync::client::voice::manager::init_stream() {
+    unsigned int frame_size = FRAME_SIZE;
+
+    // Close open stream
+    if (_rt_audio.isStreamOpen()) {
+        _rt_audio.closeStream();
+    }
+
+    // Set the input stream parameters
+    RtAudio::StreamParameters input_stream_params;
+    input_stream_params.deviceId = _input_device_id;
+    input_stream_params.nChannels = RECORD_CHANNELS;
+
+    // Set the output stream parameters
+    RtAudio::StreamParameters output_stream_params;
+    output_stream_params.deviceId = _output_device_id;
+    output_stream_params.nChannels = PLAYBACK_CHANNELS;
+
+    RtAudio::StreamOptions stream_options;
+    stream_options.streamName = "Quesync-" + sole::uuid4().str();
+
+    // Open the stream
+    _rt_audio.openStream(&output_stream_params, &input_stream_params, RTAUDIO_SINT16,
+                         RECORD_FREQUENCY, &frame_size, &rt_callback, this, &stream_options);
 }
 
 void quesync::client::voice::manager::voice_activation_thread() {

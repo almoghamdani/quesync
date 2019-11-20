@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../../../shared/utils/client.h"
 #include "client.h"
 #include "executer.h"
 #include "module.h"
@@ -15,7 +16,11 @@ class voice : public Napi::ObjectWrap<voice>, public module<voice> {
             {InstanceMethod("call", &voice::call), InstanceMethod("joinCall", &voice::join_call),
              InstanceMethod("leaveCall", &voice::leave_call),
              InstanceMethod("setVoiceState", &voice::set_voice_state),
-             InstanceMethod("getChannelCalls", &voice::get_channel_calls)});
+             InstanceMethod("getChannelCalls", &voice::get_channel_calls),
+             InstanceMethod("getInputDevices", &voice::get_input_devices),
+             InstanceMethod("getOutputDevices", &voice::get_output_devices),
+             InstanceMethod("setInputDevice", &voice::set_input_device),
+             InstanceMethod("setOutputDevice", &voice::set_output_device)});
     }
 
     voice(const Napi::CallbackInfo &info) : Napi::ObjectWrap<voice>(info), module(info) {}
@@ -76,10 +81,39 @@ class voice : public Napi::ObjectWrap<voice>, public module<voice> {
             std::vector<quesync::call> calls;
 
             // Get the calls of the channel
-            calls =
-                _client->core()->voice()->get_channel_calls(channel_id, amount, offset);
+            calls = _client->core()->voice()->get_channel_calls(channel_id, amount, offset);
 
             return nlohmann::json{{"calls", calls}, {"channelId", channel_id}};
+        });
+    }
+
+    Napi::Value get_input_devices(const Napi::CallbackInfo &info) {
+        return utils::client::json_to_object(info.Env(),
+                                             _client->core()->voice()->get_input_devices());
+    }
+
+    Napi::Value get_output_devices(const Napi::CallbackInfo &info) {
+        return utils::client::json_to_object(info.Env(),
+                                             _client->core()->voice()->get_output_devices());
+    }
+
+    Napi::Value set_input_device(const Napi::CallbackInfo &info) {
+        unsigned int device_id = info[0].As<Napi::Number>();
+
+        return executer::create_executer(info.Env(), [this, device_id]() {
+            // Set the input device
+            _client->core()->voice()->set_input_device(device_id);
+            return nlohmann::json();
+        });
+    }
+
+    Napi::Value set_output_device(const Napi::CallbackInfo &info) {
+        unsigned int device_id = info[0].As<Napi::Number>();
+
+        return executer::create_executer(info.Env(), [this, device_id]() {
+            // Set the output device
+            _client->core()->voice()->set_output_device(device_id);
+            return nlohmann::json();
         });
     }
 

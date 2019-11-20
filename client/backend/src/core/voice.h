@@ -21,8 +21,13 @@ class voice : public module {
     std::unordered_map<std::string, quesync::voice::state> join_call(std::string channel_id);
     std::shared_ptr<quesync::voice::state> set_voice_state(bool mute, bool deafen);
     std::vector<quesync::call> get_channel_calls(std::string channel_id, unsigned int amount,
-                                        unsigned int offset);
+                                                 unsigned int offset);
     void leave_call();
+
+    std::vector<quesync::client::voice::sound_device> get_input_devices();
+    std::vector<quesync::client::voice::sound_device> get_output_devices();
+    void set_input_device(unsigned int device_id);
+    void set_output_device(unsigned int device_id);
 
     virtual void clean_connection();
     virtual void logged_out();

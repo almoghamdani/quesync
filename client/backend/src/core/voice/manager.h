@@ -1,16 +1,17 @@
 #pragma once
 
 #include <RtAudio.h>
+#include <atomic>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
 #include <unordered_map>
-#include <atomic>
 
 #include "../socket_manager.h"
 #include "input.h"
 #include "output.h"
+#include "sound_device.h"
 
 #define VOICE_CHAT_PORT 61111
 
@@ -38,6 +39,12 @@ class manager : public std::enable_shared_from_this<manager> {
     void init();
     void destroy();
 
+    std::vector<sound_device> get_input_devices();
+    std::vector<sound_device> get_output_devices();
+
+    void set_input_device(unsigned int device_id);
+    void set_output_device(unsigned int device_id);
+
     void enable(std::string session_id, std::string channel_id,
                 std::shared_ptr<unsigned char> aes_key, std::shared_ptr<unsigned char> hmac_key,
                 std::string otp);
@@ -63,10 +70,10 @@ class manager : public std::enable_shared_from_this<manager> {
 
     uint64_t get_ms();
 
-    std::atomic<bool>& stop_threads();
+    std::atomic<bool> &stop_threads();
 
     friend int rt_callback(void *outputBuffer, void *inputBuffer, unsigned int nFrames,
-                          double streamTime, RtAudioStreamStatus status, void *userData);
+                           double streamTime, RtAudioStreamStatus status, void *userData);
 
    private:
     std::shared_ptr<client> _client;
@@ -93,7 +100,12 @@ class manager : public std::enable_shared_from_this<manager> {
 
     RtAudio _rt_audio;
 
+    unsigned int _input_device_id;
+    unsigned int _output_device_id;
+
     bool _enabled;
+
+    void init_stream();
 
     void voice_activation_thread();
 

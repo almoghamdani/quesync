@@ -38,6 +38,8 @@ enum class error {
     file_already_downloading,
     invalid_download_file_path,
     profile_photo_too_big,
-    already_connected_in_other_location
+    already_connected_in_other_location,
+    sound_device_not_found,
+    invalid_sound_device
 };
 };
