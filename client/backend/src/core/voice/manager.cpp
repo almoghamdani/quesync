@@ -85,6 +85,7 @@ quesync::client::voice::manager::get_input_devices() {
             dev.id = i;
             dev.name = info.name;
             dev.is_default = info.isDefaultInput;
+            dev.is_selected = i == _input_device_id;
 
             // Add the device to the list of devices
             devices.push_back(dev);
@@ -113,6 +114,7 @@ quesync::client::voice::manager::get_output_devices() {
             dev.id = i;
             dev.name = info.name;
             dev.is_default = info.isDefaultOutput;
+            dev.is_selected = i == _output_device_id;
 
             // Add the device to the list of devices
             devices.push_back(dev);
