@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cxxopts.hpp>
 #include <iostream>
 #include <thread>
 
@@ -9,11 +10,22 @@
 
 #define NUM_OF_THREADS 10
 
-int main() {
+int main(int argc, char *argv[]) {
     asio::io_context io_context;
     std::vector<std::thread> threads;
 
     std::shared_ptr<quesync::server::server> server;
+
+    cxxopts::Options options("Quesync Server",
+                             "Secured VoIP application server optimized for Low Latency");
+
+    // Add default options
+    options.add_options()("h,sql-host", "MySQL Server Host / IP",
+                          cxxopts::value<std::string>()->default_value("localhost"))(
+        "u,sql-username", "MySQL User Name",
+        cxxopts::value<std::string>()->default_value("server"))(
+        "p,sql-password", "MySQL User Password",
+        cxxopts::value<std::string>()->default_value("123456789"));
 
     std::cout << termcolor::green << termcolor::bold << "Quesync Server v0.1.0"
               << "\n";
@@ -22,10 +34,20 @@ int main() {
     std::cout << termcolor::reset << "\n";
 
     try {
+        // Parse options
+        auto opts_res = options.parse(argc, argv);
+
         std::cout << termcolor::blue << "Initializing Quesync server.." << termcolor::reset << "\n";
 
         // Create the Quesync server
-        server = std::make_shared<quesync::server::server>(io_context);
+        server = std::make_shared<quesync::server::server>(
+            io_context, opts_res["sql-host"].as<std::string>(),
+            opts_res["sql-username"].as<std::string>(), opts_res["sql-password"].as<std::string>());
+
+        std::cout << termcolor::blue << "Testing MySQL connection.." << termcolor::reset << "\n";
+
+        // Test connection to sql server
+        server->get_sql_session();
 
         std::cout << termcolor::blue << "Starting threads.." << termcolor::reset << "\n";
 
