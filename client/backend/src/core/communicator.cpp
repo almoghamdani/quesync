@@ -142,19 +142,22 @@ void quesync::client::modules::communicator::connect(std::string server_ip) {
     _stop_threads = false;
 
     // Start the events thread
-    if (!_events_thread.joinable()) {
-        _events_thread = std::thread(&communicator::events_handler, this);
+    if (_events_thread.joinable()) {
+        _events_thread.join();
     }
+    _events_thread = std::thread(&communicator::events_handler, this);
 
     // Start the receiver thread
-    if (!_receiver_thread.joinable()) {
-        _receiver_thread = std::thread(&communicator::recv, this);
+    if (_receiver_thread.joinable()) {
+        _receiver_thread.join();
     }
+    _receiver_thread = std::thread(&communicator::recv, this);
 
     // Start the keep alive thread
-    if (!_keep_alive_thread.joinable()) {
-        _keep_alive_thread = std::thread(&communicator::keep_alive, this);
+    if (_keep_alive_thread.joinable()) {
+        _keep_alive_thread.join();
     }
+    _keep_alive_thread = std::thread(&communicator::keep_alive, this);
 }
 
 std::string quesync::client::modules::communicator::server_ip() {
