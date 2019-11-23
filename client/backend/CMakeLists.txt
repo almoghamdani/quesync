@@ -16,11 +16,14 @@ IF (WIN32)
     set(CMAKE_CXX_FLAGS_DEBUG "/MDd")
 ENDIF()
 
-# Include ASIO
+# Include asio
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/asio/asio/include)
 
 # Include nlohmann::json
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/json/include)
+
+# Include magic_enum
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/magic_enum/include)
 
 # Compile Opus
 set(BUILD_SHARED_LIBS ON)

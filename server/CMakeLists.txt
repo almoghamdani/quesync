@@ -16,6 +16,9 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/json/include)
 # Include termcolor
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/termcolor/include)
 
+# Include magic_enum
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/magic_enum/include)
+
 # Include cxxopts
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/cxxopts/include)
 
