@@ -147,10 +147,8 @@ void quesync::client::voice::manager::set_input_device(unsigned int device_id) {
     // Set the device
     _input_device_id = device_id;
 
-    // If the stream is open, re-init it
-    if (_rt_audio.isStreamOpen()) {
-        init_stream();
-    }
+    // Re-init the stream
+    init_stream();
 }
 
 void quesync::client::voice::manager::set_output_device(unsigned int device_id) {
@@ -176,10 +174,8 @@ void quesync::client::voice::manager::set_output_device(unsigned int device_id) 
     // Set the device
     _output_device_id = device_id;
 
-    // If the stream is open, re-init it
-    if (_rt_audio.isStreamOpen()) {
-        init_stream();
-    }
+    // Re-init the stream
+    init_stream();
 }
 
 void quesync::client::voice::manager::init() {
@@ -252,6 +248,11 @@ void quesync::client::voice::manager::set_state(bool mute, bool deafen) {
 void quesync::client::voice::manager::init_stream() {
     unsigned int frame_size = FRAME_SIZE;
 
+    // If the stream is running stop it
+    if (_rt_audio.isStreamRunning()) {
+        _rt_audio.stopStream();
+    }
+
     // Close open stream
     if (_rt_audio.isStreamOpen()) {
         _rt_audio.closeStream();
@@ -273,6 +274,11 @@ void quesync::client::voice::manager::init_stream() {
     // Open the stream
     _rt_audio.openStream(&output_stream_params, &input_stream_params, RTAUDIO_SINT16,
                          RECORD_FREQUENCY, &frame_size, &rt_callback, this, &stream_options);
+
+    // If enabled, start the stream
+    if (_enabled) {
+        _rt_audio.startStream();
+    }
 }
 
 void quesync::client::voice::manager::voice_activation_thread() {
