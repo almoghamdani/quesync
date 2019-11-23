@@ -33,12 +33,19 @@ class SoundSettingsMenu extends Component {
 					device.name + (device.isDefault ? " (Default)" : ""))
 		);
 
-		const selectedInputDevice = inputDevices
-			.filter(({ isSelected }) => isSelected)[0]
-			.id.toString();
-		const selectedOutputDevice = outputDevices
-			.filter(({ isSelected }) => isSelected)[0]
-			.id.toString();
+		let selectedInputDevice = inputDevices.filter(
+			({ isSelected }) => isSelected
+		);
+		selectedInputDevice = selectedInputDevice.length
+			? selectedInputDevice[0].id.toString()
+			: 0;
+
+		let selectedOutputDevice = outputDevices.filter(
+			({ isSelected }) => isSelected
+		);
+		selectedOutputDevice = selectedOutputDevice.length
+			? selectedOutputDevice[0].id.toString()
+			: 0;
 
 		return (
 			<Dialog
