@@ -578,7 +578,6 @@ void quesync::client::modules::files::clean_connection() {
     // Stop the I/O threads
     if (_io_context) {
         _io_context->stop();
-        _io_context = nullptr;
     }
 
     // Signal the threads to exit
@@ -608,6 +607,9 @@ void quesync::client::modules::files::clean_connection() {
         // Reset socket ptr
         _socket = nullptr;
     }
+
+    // Free the I/O Context
+    _io_context = nullptr;
 
     // Clear the files data
     _uploads_progress.clear();
