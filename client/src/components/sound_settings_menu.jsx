@@ -44,7 +44,8 @@ class SoundSettingsMenu extends Component {
 			<Dialog
 				className="quesync-sound-settings-dialog"
 				preventOutsideDismiss
-				{...this.props}
+				open={this.props.open}
+				onClose={this.props.onClose}
 			>
 				<DialogTitle>
 					<b>Sound Settings</b>
