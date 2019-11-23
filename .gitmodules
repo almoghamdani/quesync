@@ -22,3 +22,6 @@
 [submodule "vendor/magic_enum"]
 	path = vendor/magic_enum
 	url = https://github.com/Neargye/magic_enum
+[submodule "vendor/sole"]
+	path = vendor/sole
+	url = https://github.com/r-lyeh-archived/sole

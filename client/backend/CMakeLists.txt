@@ -25,6 +25,9 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/json/include)
 # Include magic_enum
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/magic_enum/include)
 
+# Include sole
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/sole)
+
 # Compile Opus
 set(BUILD_SHARED_LIBS ON)
 set(BUILD_TESTING OFF)
