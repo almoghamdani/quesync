@@ -29,6 +29,13 @@ class App extends Component {
 		isSoundSettingsOpen: false
 	};
 
+	constructor(props) {
+		super(props);
+		
+		// Clear the queue array
+		queue.messages.array = [];
+	}
+
 	render() {
 		return (
 			<ThemeProvider
