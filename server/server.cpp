@@ -1,17 +1,29 @@
 #include "server.h"
 
 #include <iostream>
+#include <sstream>
 #include <termcolor/termcolor.hpp>
 
 #include "session.h"
 
-quesync::server::server::server(asio::io_context &io_context)
+quesync::server::server::server(asio::io_context &io_context, std::string sql_server_ip,
+                                std::string sql_username, std::string sql_password)
     : _acceptor(io_context, tcp::endpoint(tcp::v4(), MAIN_SERVER_PORT)),
       _context(asio::ssl::context::sslv23),
-      _sql_cli("server:123456789@localhost/quesync") {
+      _sql_cli(server::format_uri(sql_server_ip, sql_username, sql_password)) {
     _context.set_options(asio::ssl::context::default_workarounds | asio::ssl::context::no_sslv2);
     _context.use_certificate_chain_file("server.pem");
     _context.use_private_key_file("server.pem", asio::ssl::context::pem);
+}
+
+std::string quesync::server::server::format_uri(std::string sql_server_ip, std::string sql_username,
+                                                std::string sql_password) {
+    std::stringstream uri;
+
+    // Format URI
+    uri << sql_username << ":" << sql_password << "@" << sql_server_ip << "/quesync";
+
+    return uri.str();
 }
 
 quesync::server::server::~server() {

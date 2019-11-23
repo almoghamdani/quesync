@@ -4,6 +4,7 @@
 #include <asio/ssl.hpp>
 #include <map>
 #include <memory>
+#include <string>
 
 #include <mysqlx/xdevapi.h>
 namespace sql = mysqlx;
@@ -24,7 +25,7 @@ namespace quesync {
 namespace server {
 class server : public std::enable_shared_from_this<server> {
    public:
-    server(asio::io_context &io_context);
+    server(asio::io_context &io_context, std::string sql_server_ip, std::string sql_username, std::string sql_password);
     ~server();
 
     void start();
@@ -58,6 +59,8 @@ class server : public std::enable_shared_from_this<server> {
     std::shared_ptr<quesync::server::file_manager> _file_manager;
 
     void accept_client();
+
+    static std::string format_uri(std::string sql_server_ip, std::string sql_username, std::string sql_password);
 };
 };  // namespace server
 };  // namespace quesync
