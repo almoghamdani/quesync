@@ -7,13 +7,16 @@ add_definitions (-DQUESYNC_SERVER)
 # Add the thirdparty as include folder
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../thirdparty)
 
-# Include ASIO
+# Include asio
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/asio/asio/include)
 
 # Include nlohmann::json
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/json/include)
 
-# Include CXXOPTS
+# Include termcolor
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/termcolor/include)
+
+# Include cxxopts
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/cxxopts/include)
 
 # Windows dependencies

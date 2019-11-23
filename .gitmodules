@@ -16,3 +16,6 @@
 [submodule "vendor/json"]
 	path = vendor/json
 	url = https://github.com/nlohmann/json
+[submodule "vendor/termcolor"]
+	path = vendor/termcolor
+	url = https://github.com/ikalnytskyi/termcolor
