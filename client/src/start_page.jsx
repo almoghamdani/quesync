@@ -26,14 +26,17 @@ import "./start_page.scss";
 
 const electron = window.require("electron");
 
+const INITIAL_STATE = {
+	signInVisible: true,
+	registerVisible: false,
+	connecting: true,
+	loggingOut: false,
+	currentForm: LoginForm,
+	key: new Date().getTime()
+};
+
 class StartPage extends Component {
-	state = {
-		signInVisible: true,
-		registerVisible: false,
-		connecting: true,
-		loggingOut: false,
-		currentForm: LoginForm
-	};
+	state = INITIAL_STATE;
 
 	componentDidMount() {
 		// Set the app as loading
@@ -126,8 +129,10 @@ class StartPage extends Component {
 						// Update user's data
 						await updater.update();
 
-						// Transition to app
-						this.transitionToApp();
+						if (this.props.connected) {
+							// Transition to app
+							this.transitionToApp();
+						}
 					} else if (sessionId && sessionId.length) {
 						// Try to connect via the session
 						await this.props
@@ -136,15 +141,19 @@ class StartPage extends Component {
 								// Update user's data
 								await updater.update();
 
-								// Transition to app
-								this.transitionToApp();
+								if (this.props.connected) {
+									// Transition to app
+									this.transitionToApp();
+								}
 							})
 							.catch(() => {
-								// Remove the invalid session id
-								localStorage.removeItem("_qpsid");
+								if (this.props.connected) {
+									// Remove the invalid session id
+									localStorage.removeItem("_qpsid");
 
-								// Stop the loading animation
-								this.stopLoadingAnimation(null);
+									// Stop the loading animation
+									this.stopLoadingAnimation(null);
+								}
 							});
 					} else {
 						// Stop the loading animation when connection is successful
@@ -307,8 +316,16 @@ class StartPage extends Component {
 			easing: "easeInOutCirc",
 			delay: 250,
 			complete: () => {
-				// Animate to the app
-				this.props.transitionToApp();
+				if (this.props.connected) {
+					// Animate to the app
+					this.props.transitionToApp();
+				} else {
+					// Reset loading
+					this.setState({
+						...INITIAL_STATE,
+						key: new Date().getTime()
+					});
+				}
 			}
 		});
 
@@ -415,6 +432,7 @@ class StartPage extends Component {
 				className="quesync-start-page"
 				options={{ primary: "#007EA7", secondary: "#e0e0e0" }}
 				style={{ position: "relative", top: 0, left: 0 }}
+				key={this.state.key}
 			>
 				<BackgroundParticles
 					style={{
