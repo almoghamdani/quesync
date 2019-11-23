@@ -10,3 +10,6 @@
 [submodule "vendor/asio"]
 	path = vendor/asio
 	url = https://github.com/chriskohlhoff/asio
+[submodule "vendor/cxxopts"]
+	path = vendor/cxxopts
+	url = https://github.com/jarro2783/cxxopts
