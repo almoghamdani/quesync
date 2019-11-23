@@ -1,0 +1,44 @@
+@import "@material/dialog/mixins";
+@import "@material/select/mixins";
+@import "@material/ripple/mixins";
+
+.quesync-sound-settings-dialog {
+	@include mdc-dialog-content-ink-color(#242424);
+	@include mdc-dialog-container-fill-color(#242424);
+	@include mdc-dialog-title-ink-color(white);
+	@include mdc-dialog-max-width(700px, 16px);
+}
+
+.quesync-sound-settings-dialog-content {
+	display: flex;
+	flex-direction: column;
+}
+
+.quesync-sound-settings-select {
+	@include mdc-select-container-fill-color(#343434);
+	@include mdc-select-ink-color(white);
+	@include mdc-select-label-color(var(--mdc-theme-primary));
+	@include mdc-select-focused-label-color(var(--mdc-theme-primary));
+
+	flex-grow: 1;
+
+	margin-top: 20px;
+}
+
+.mdc-select--focused .mdc-select__dropdown-icon {
+	@include mdc-select-dd-arrow-svg-bg_(#00b0ff, 1);
+}
+
+.mdc-menu {
+	background: #454545;
+}
+
+.mdc-menu .mdc-list-item {
+	&--activated, &--selected {
+		&:before, &:after {
+			background-color: #000 !important;
+		}
+	}
+
+	color: white;
+}

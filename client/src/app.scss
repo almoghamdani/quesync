@@ -78,7 +78,7 @@
 	background-color: var(--mdc-theme-primary);
 }
 
-.quesync-logout-button {
+.quesync-app-bar-button {
 	width: 36px;
 	height: 36px;
 	font-size: 24px;
@@ -87,7 +87,9 @@
 	margin: 2px;
 
 	padding-left: 7px;
+}
 
+.quesync-logout-button {
 	color: #ff1744;
 }
 

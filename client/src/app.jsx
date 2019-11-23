@@ -4,6 +4,7 @@ import ConnectionStatus from "./components/connection_status";
 import PageContainer from "./components/page_container";
 import SearchField from "./components/search_field";
 import FriendsPage from "./pages/friends_page";
+import SoundSettingsMenu from "./components/sound_settings_menu";
 
 import {
 	TopAppBar,
@@ -22,7 +23,8 @@ import "./app.scss";
 
 class App extends Component {
 	state = {
-		isSearchMenuOpen: false
+		isSearchMenuOpen: false,
+		isSoundSettingsOpen: false
 	};
 
 	render() {
@@ -39,6 +41,10 @@ class App extends Component {
 					onSurface: "rgba(255,255,255,.87)"
 				}}
 			>
+				<SoundSettingsMenu
+					open={this.state.isSoundSettingsOpen}
+					onClose={() => this.setState({ isSoundSettingsOpen: false })}
+				/>
 				<SnackbarQueue
 					className="quesync-notifications-queue"
 					messages={queue.messages}
@@ -56,9 +62,14 @@ class App extends Component {
 							<SearchField />
 						</TopAppBarSection>
 						<TopAppBarSection alignEnd>
+							<IconButton
+								className="quesync-app-bar-button quesync-settings-button"
+								icon="settings"
+								onClick={() => this.setState({ isSoundSettingsOpen: true })}
+							/>
 							<ConnectionStatus />
 							<IconButton
-								className="quesync-logout-button"
+								className="quesync-app-bar-button quesync-logout-button"
 								icon="exit_to_app"
 								onClick={() => this.props.transitionToStartPage()}
 							/>
