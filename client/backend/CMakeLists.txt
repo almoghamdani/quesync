@@ -19,6 +19,9 @@ ENDIF()
 # Include ASIO
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/asio/asio/include)
 
+# Include nlohmann::json
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/json/include)
+
 # Compile Opus
 set(BUILD_SHARED_LIBS ON)
 set(BUILD_TESTING OFF)

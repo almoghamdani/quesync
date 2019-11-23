@@ -10,6 +10,9 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/../thirdparty)
 # Include ASIO
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/asio/asio/include)
 
+# Include nlohmann::json
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/json/include)
+
 # Include CXXOPTS
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/cxxopts/include)
 
