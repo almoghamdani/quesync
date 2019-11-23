@@ -86,9 +86,13 @@ class Layout extends Component {
 						style={{ opacity: isMacOS ? 0 : 1 }}
 					/>
 				</div>
-				<FadeTransition in={this.state.inStartPage} timeout={800} unmountOnExit>
+				<FadeTransition
+					in={this.state.inStartPage}
+					timeout={300}
+					easing="easeInOutCirc"
+					unmountOnExit
+				>
 					<StartPage
-						easing="easeInOutCirc"
 						transitionToApp={() =>
 							this.setState({
 								inStartPage: false
@@ -98,7 +102,7 @@ class Layout extends Component {
 				</FadeTransition>
 				<FadeTransition
 					in={!this.state.inStartPage}
-					timeout={800}
+					timeout={300}
 					easing="easeInOutCirc"
 					unmountOnExit
 				>
