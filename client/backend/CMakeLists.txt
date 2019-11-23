@@ -16,6 +16,9 @@ IF (WIN32)
     set(CMAKE_CXX_FLAGS_DEBUG "/MDd")
 ENDIF()
 
+# Include zxcvbn
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/zxcvbn)
+
 # Include asio
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../../vendor/asio/asio/include)
 
@@ -86,7 +89,7 @@ file(GLOB_RECURSE SOURCES "backend.cpp" "src/*/**.cpp" "src/*/**.h")
 file(GLOB_RECURSE SHARED_SOURCES "../../shared/*/**.cpp" "../../shared/*/**.h")
 
 # Get all c++ files that are associated with the libraries used
-file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../../thirdparty/*.cpp" "../../thirdparty/*.h")
+file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../../vendor/zxcvbn/**/*.cpp")
 
 # Add the backend as a library
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP} ${CMAKE_JS_SRC})

@@ -4,8 +4,8 @@ project(Quesync)
 # Make the shared headers compile for the server
 add_definitions (-DQUESYNC_SERVER)
 
-# Add the thirdparty as include folder
-include_directories(${CMAKE_CURRENT_LIST_DIR}/../thirdparty)
+# Include zxcvbn
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/zxcvbn)
 
 # Include asio
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/asio/asio/include)
@@ -77,7 +77,7 @@ file(GLOB SOURCES "*.cpp")
 file(GLOB_RECURSE SHARED_SOURCES "../shared/*/**.cpp")
 
 # Get all c++ files that are associated with the libraries used
-file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../thirdparty/*.cpp")
+file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../vendor/zxcvbn/**/*.cpp")
 
 # Add the server as an executable to be compiled
 add_executable(server ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})
