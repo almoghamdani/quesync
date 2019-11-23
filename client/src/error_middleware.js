@@ -37,9 +37,9 @@ const errorMiddleware = _ => next => action => {
 		|| action.type.includes("REGISTER"))
 		&& result instanceof Promise) {
 		result.catch(ex => queue.notify({
-			title: <b>Error</b>,
+			title: <b style={{ color: "#ff1744" }}>Error</b>,
 			body: `${textForError(ex.error)} (Error code: ${ex.error})`,
-			icon: "error",
+			icon: <span style={{ color: "#ff1744" }}>error</span>,
 			actions: [
 				{
 					title: "Dismiss"
