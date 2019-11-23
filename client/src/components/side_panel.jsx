@@ -5,6 +5,8 @@ import { connect } from "react-redux";
 import { Elevation } from "@rmwc/elevation";
 import { Typography } from "@rmwc/typography";
 import { IconButton } from "@rmwc/icon-button";
+import { Tooltip } from "@rmwc/tooltip";
+import "@rmwc/tooltip/tooltip.css";
 
 import anime from "animejs";
 import { Transition } from "react-transition-group";
@@ -111,32 +113,44 @@ class SidePanel extends Component {
 						</Typography>
 					</div>
 					<div className="quesync-user-actions">
-						<IconButton
-							className={
-								this.props.muted
-									? "quesync-user-action-button quesync-user-action-button-disabled"
-									: "quesync-user-action-button"
-							}
-							icon={this.props.muted ? "mic_off" : "mic"}
-							onClick={() =>
-								this.props.dispatch(
-									setVoiceState(!this.props.muted, this.props.deafen)
-								)
-							}
-						/>
-						<IconButton
-							className={
-								this.props.deafen
-									? "quesync-user-action-button quesync-user-action-button-disabled"
-									: "quesync-user-action-button"
-							}
-							icon={this.props.deafen ? "volume_off" : "volume_up"}
-							onClick={() =>
-								this.props.dispatch(
-									setVoiceState(this.props.muted, !this.props.deafen)
-								)
-							}
-						/>
+						<Tooltip
+							className="quesync-tooltip"
+							content={this.props.muted ? "Unmute" : "Mute"}
+							showArrow
+						>
+							<IconButton
+								className={
+									this.props.muted
+										? "quesync-user-action-button quesync-user-action-button-disabled"
+										: "quesync-user-action-button"
+								}
+								icon={this.props.muted ? "mic_off" : "mic"}
+								onClick={() =>
+									this.props.dispatch(
+										setVoiceState(!this.props.muted, this.props.deafen)
+									)
+								}
+							/>
+						</Tooltip>
+						<Tooltip
+							className="quesync-tooltip"
+							content={this.props.deafen ? "Undeafen" : "Deafen"}
+							showArrow
+						>
+							<IconButton
+								className={
+									this.props.deafen
+										? "quesync-user-action-button quesync-user-action-button-disabled"
+										: "quesync-user-action-button"
+								}
+								icon={this.props.deafen ? "volume_off" : "volume_up"}
+								onClick={() =>
+									this.props.dispatch(
+										setVoiceState(this.props.muted, !this.props.deafen)
+									)
+								}
+							/>
+						</Tooltip>
 					</div>
 				</Elevation>
 			</Elevation>

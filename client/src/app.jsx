@@ -16,6 +16,8 @@ import { IconButton } from "@rmwc/icon-button";
 import { ThemeProvider } from "@rmwc/theme";
 import { SnackbarQueue } from "@rmwc/snackbar";
 import { Typography } from "@rmwc/typography";
+import { Tooltip } from "@rmwc/tooltip";
+import "@rmwc/tooltip/tooltip.css";
 
 import { queue } from "./notifications_queue";
 
@@ -62,17 +64,31 @@ class App extends Component {
 							<SearchField />
 						</TopAppBarSection>
 						<TopAppBarSection alignEnd>
-							<IconButton
-								className="quesync-app-bar-button quesync-settings-button"
-								icon="settings"
-								onClick={() => this.setState({ isSoundSettingsOpen: true })}
-							/>
+							<Tooltip
+								className="quesync-tooltip"
+								content="Sound Settings"
+								align="bottom"
+								showArrow
+							>
+								<IconButton
+									className="quesync-app-bar-button quesync-settings-button"
+									icon="settings"
+									onClick={() => this.setState({ isSoundSettingsOpen: true })}
+								/>
+							</Tooltip>
 							<ConnectionStatus />
-							<IconButton
-								className="quesync-app-bar-button quesync-logout-button"
-								icon="exit_to_app"
-								onClick={() => this.props.transitionToStartPage()}
-							/>
+							<Tooltip
+								className="quesync-tooltip"
+								content="Logout"
+								align="bottom"
+								showArrow
+							>
+								<IconButton
+									className="quesync-app-bar-button quesync-logout-button"
+									icon="exit_to_app"
+									onClick={() => this.props.transitionToStartPage()}
+								/>
+							</Tooltip>
 						</TopAppBarSection>
 					</TopAppBarRow>
 				</TopAppBar>
