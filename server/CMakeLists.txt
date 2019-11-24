@@ -4,6 +4,9 @@ project(Quesync)
 # Make the shared headers compile for the server
 add_definitions (-DQUESYNC_SERVER)
 
+# Build into bin folder
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 # Include zxcvbn
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/zxcvbn)
 
@@ -27,16 +30,18 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/cxxopts/include)
 
 # Windows dependencies
 IF (WIN32)
-    set (OPENSLL_DIR C:/OpenSSL-Win64)
-    set (OPENSSL_LIBS VC/libeay32MT VC/ssleay32MT)
+    set (OPENSLL_INCLUDE_DIR C:/OpenSSL-Win64/include)
+    set (OPENSLL_LIBS_DIR C:/OpenSSL-Win64)
+    set (OPENSSL_LIBS lib/VC/libeay32MT lib/VC/ssleay32MT)
 
     set (MYSQL_DIR "C:/Program Files/MySQL/Connector C++ 8.0")
     set (MYSQL_LIBS vs14/mysqlcppconn8-static)
 ENDIF()
 
-# Macos dependencies
-IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set (OPENSLL_DIR /usr/local/opt/openssl)
+# macOS dependencies
+IF (APPLE)
+    set (OPENSLL_INCLUDE_DIR /usr/local/opt/openssl/include)
+    set (OPENSLL_LIBS_DIR /usr/local/opt/openssl/lib)
     set (OPENSSL_LIBS ssl crypto)
 
     set (MYSQL_DIR /usr/local/mysql-connector-c++)
@@ -44,9 +49,9 @@ IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 ENDIF()
 
 # If there is an openssl dir, set the include and lib directory
-IF (OPENSLL_DIR)
-    include_directories(${OPENSLL_DIR}/include)
-    link_directories(${OPENSLL_DIR}/lib)
+IF (OPENSLL_INCLUDE_DIR AND OPENSLL_LIBS_DIR)
+    include_directories(${OPENSLL_INCLUDE_DIR})
+    link_directories(${OPENSLL_LIBS_DIR})
 ENDIF()
 
 IF (MYSQL_DIR)
@@ -84,3 +89,15 @@ add_executable(server ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})
 
 # Link the server to the dependencies' libs
 target_link_libraries(server ${OPENSSL_LIBS} ${MYSQL_LIBS})
+
+# Copy OpenSSL dlls after build
+if (WIN32 AND OPENSLL_LIBS_DIR)
+    file(GLOB WIN_OPENSSL_DLLS "${OPENSLL_LIBS_DIR}/*.dll")
+
+    foreach (OPENSSL_DLL ${WIN_OPENSSL_DLLS})
+        add_custom_command(TARGET server POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${OPENSSL_DLL}
+                $<TARGET_FILE_DIR:server>)
+    endforeach()
+endif()
