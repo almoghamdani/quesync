@@ -31,8 +31,8 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/cxxopts/include)
 # Windows dependencies
 IF (WIN32)
     set (OPENSLL_INCLUDE_DIR C:/OpenSSL-Win64/include)
-    set (OPENSLL_LIBS_DIR C:/OpenSSL-Win64)
-    set (OPENSSL_LIBS lib/VC/libeay32MT lib/VC/ssleay32MT)
+    set (OPENSLL_LIBS_DIR C:/OpenSSL-Win64/lib)
+    set (OPENSSL_LIBS VC/libeay32MT VC/ssleay32MT)
 
     set (MYSQL_DIR "C:/Program Files/MySQL/Connector C++ 8.0")
     set (MYSQL_LIBS vs14/mysqlcppconn8-static)

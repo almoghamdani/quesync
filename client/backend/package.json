@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"build": "run-script-os",
-		"build:win32": "cmake-js build -G \"Visual Studio 15 2017 Win64\" /MP",
+		"build:win32": "cmake-js build -G \"Visual Studio 15 2017 Win64\" /MP || rmdir build /s /q && cmake-js build -G \"Visual Studio 16 2019\" /MP",
 		"build:darwin": "cmake-js build -G Ninja",
 		"build:linux": "CC=clang CXX=clang++ cmake-js build -G Ninja"
 	},
@@ -22,11 +22,11 @@
 	"dependencies": {
 		"cmake-js": "^6.0.0",
 		"glob": "^7.1.4",
-		"node-addon-api": "^1.7.1"
+		"node-addon-api": "^2.0.0"
 	},
 	"cmake-js": {
 		"runtime": "electron",
-		"runtimeVersion": "7.1.1",
+		"runtimeVersion": "7.1.7",
 		"arch": "x64"
 	},
 	"devDependencies": {

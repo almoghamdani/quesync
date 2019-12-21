@@ -7,9 +7,6 @@ add_definitions(-DQUESYNC_CLIENT)
 # Ignore all C++17 deprecation warnings on windows
 add_definitions(-D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
 
-# Add the thirdparty as include folder
-include_directories(${CMAKE_CURRENT_LIST_DIR}/../../thirdparty)
-
 # Change runtime library to MD
 IF (WIN32)
     set(CMAKE_CXX_FLAGS_RELEASE "/MD")
@@ -50,8 +47,8 @@ include_directories(../../vendor/rtaudio)
 # Windows dependencies
 IF (WIN32)
     set (OPENSLL_INCLUDE_DIR C:/OpenSSL-Win64/include)
-    set (OPENSLL_LIBS_DIR C:/OpenSSL-Win64)
-    set (OPENSSL_LIBS lib/VC/libeay32MT lib/VC/ssleay32MT)
+    set (OPENSLL_LIBS_DIR C:/OpenSSL-Win64/lib)
+    set (OPENSSL_LIBS VC/libeay32MT VC/ssleay32MT)
 ENDIF()
 
 # macOS dependencies
