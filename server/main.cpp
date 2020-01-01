@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
         "p,sql-password", "MySQL User Password",
         cxxopts::value<std::string>()->default_value("123456789"))("help", "Print help");
 
-    std::cout << termcolor::green << termcolor::bold << "Quesync Server v0.1.0"
+    std::cout << termcolor::green << termcolor::bold << "Quesync Server v1.0.0"
               << "\n";
     std::cout << termcolor::green << termcolor::underline << "All Rights Reserved to Almog Hamdani."
               << "\n";
