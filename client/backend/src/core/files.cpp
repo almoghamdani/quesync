@@ -162,10 +162,6 @@ void quesync::client::modules::files::stop_file_transmission(std::string file_id
     _uploads_progress.erase(file_id);
     _download_files.erase(file_id);
     _download_paths.erase(file_id);
-
-    // Unlock the data mutex
-    downloads_lk.unlock();
-    uploads_lk.unlock();
 }
 
 std::shared_ptr<quesync::file> quesync::client::modules::files::get_file_info(std::string file_id) {

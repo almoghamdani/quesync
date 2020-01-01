@@ -39,6 +39,8 @@ class file_session : public std::enable_shared_from_this<file_session> {
 
     asio::ssl::stream<tcp::socket> _socket;
 
+    asio::io_context::strand _strand;
+
     void handshake();
     void recv();
     void send(std::string data);

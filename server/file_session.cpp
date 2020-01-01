@@ -11,7 +11,8 @@ quesync::server::file_session::file_session(tcp::socket socket, asio::ssl::conte
                                             std::shared_ptr<quesync::server::server> server)
     : _socket(std::move(socket), context),  // Copy the client's socket
       _server(server),
-      _user(nullptr) {}
+      _user(nullptr),
+      _strand(_server->get_io_context()) {}
 
 quesync::server::file_session::~file_session() {
     // Close the client's socket in case it's not closed
@@ -77,11 +78,11 @@ void quesync::server::file_session::add_download_file(std::shared_ptr<quesync::f
     // Send async the file chunk packet
     asio::async_write(
         _socket, asio::buffer(packet_buf.get(), file_chunk_packet_encoded.size() + sizeof(header)),
-        [this, file_info, packet_buf](std::error_code ec, std::size_t) {
+        _strand.wrap([this, file_info, packet_buf](std::error_code ec, std::size_t) {
             if (!ec) {
                 handle_download_chunk_sent(file_info);
             }
-        });
+        }));
 }
 
 void quesync::server::file_session::remove_file(std::string file_id) {
@@ -115,7 +116,7 @@ void quesync::server::file_session::recv() {
     // Get the header of the packet
     asio::async_read(
         _socket, asio::buffer(header_buf.get(), sizeof(header)),
-        [this, self, header_buf](std::error_code ec, std::size_t length) {
+        _strand.wrap([this, self, header_buf](std::error_code ec, std::size_t length) {
             if (ec) return;
 
             header packet_header = utils::parser::decode_header(header_buf.get());
@@ -124,7 +125,7 @@ void quesync::server::file_session::recv() {
             // Get a packet from the user
             asio::async_read(
                 _socket, asio::buffer(buf.get(), packet_header.size),
-                [this, self, buf, packet_header](std::error_code ec, std::size_t length) {
+                _strand.wrap([this, self, buf, packet_header](std::error_code ec, std::size_t length) {
                     header header{1, 0};
                     std::string header_str;
 
@@ -151,10 +152,9 @@ void quesync::server::file_session::recv() {
                         } else {
                             recv();
                         }
-                    } else {
                     }
-                });
-        });
+                }));
+        }));
 }
 
 void quesync::server::file_session::send(std::string data) {
@@ -166,13 +166,12 @@ void quesync::server::file_session::send(std::string data) {
 
     // Send the data to the client
     asio::async_write(_socket, asio::buffer(buf.get(), data.length()),
-                      [this, self, buf](std::error_code ec, std::size_t) {
+                      _strand.wrap([this, self, buf](std::error_code ec, std::size_t) {
                           // If no error occurred, return to the receiving function
                           if (!ec) {
                               recv();
-                          } else {
                           }
-                      });
+                      }));
 }
 
 std::string quesync::server::file_session::handle_packet(std::string buf) {
@@ -289,11 +288,11 @@ void quesync::server::file_session::handle_download_chunk_sent(
             asio::async_write(
                 _socket,
                 asio::buffer(packet_buf.get(), file_chunk_packet_encoded.size() + sizeof(header)),
-                [this, file_info, packet_buf](std::error_code ec, std::size_t) {
+                _strand.wrap([this, file_info, packet_buf](std::error_code ec, std::size_t) {
                     if (!ec) {
                         handle_download_chunk_sent(file_info);
                     }
-                });
+                }));
         } else {
             // Lock the downloads mutex
             downloads_lk.lock();
