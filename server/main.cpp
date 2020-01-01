@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<quesync::server::server> server;
 
     cxxopts::Options options("Quesync Server",
-                             "Secured VoIP application server optimized for Low Latency");
+                             "Cross-Platform Secured VoIP application server optimized for Low Latency");
 
     // Add default options
     options.add_options()("h,sql-host", "MySQL Server Host / IP",
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
         "u,sql-username", "MySQL User Name",
         cxxopts::value<std::string>()->default_value("server"))(
         "p,sql-password", "MySQL User Password",
-        cxxopts::value<std::string>()->default_value("123456789"));
+        cxxopts::value<std::string>()->default_value("123456789"))("help", "Print help");
 
     std::cout << termcolor::green << termcolor::bold << "Quesync Server v0.1.0"
               << "\n";
@@ -36,6 +36,12 @@ int main(int argc, char *argv[]) {
     try {
         // Parse options
         auto opts_res = options.parse(argc, argv);
+
+        // Print help
+        if (opts_res.count("help")) {
+            std::cout << options.help({"", "Group"}) << std::endl;
+            return 0;
+        }
 
         std::cout << termcolor::blue << "Initializing Quesync server.." << termcolor::reset << "\n";
 
