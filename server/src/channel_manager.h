@@ -6,7 +6,7 @@
 #include <mysqlx/xdevapi.h>
 namespace sql = mysqlx;
 
-#include "../shared/channel.h"
+#include "../../shared/channel.h"
 
 namespace quesync {
 namespace server {

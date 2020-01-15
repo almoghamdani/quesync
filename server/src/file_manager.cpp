@@ -17,10 +17,10 @@
 #include "server.h"
 #include "session.h"
 
-#include "../shared/exception.h"
-#include "../shared/packets/file_chunk_packet.h"
-#include "../shared/utils/files.h"
-#include "../shared/utils/memory.h"
+#include "../../shared/exception.h"
+#include "../../shared/packets/file_chunk_packet.h"
+#include "../../shared/utils/files.h"
+#include "../../shared/utils/memory.h"
 
 quesync::server::file_manager::file_manager(std::shared_ptr<quesync::server::server> server)
     : manager(server),

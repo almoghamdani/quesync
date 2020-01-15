@@ -8,9 +8,9 @@
 #include <mysqlx/xdevapi.h>
 namespace sql = mysqlx;
 
-#include "../shared/friend_request.h"
-#include "../shared/profile.h"
-#include "../shared/user.h"
+#include "../../shared/friend_request.h"
+#include "../../shared/profile.h"
+#include "../../shared/user.h"
 
 #define PHOTO_FILE_MAX_SIZE 5 * 1000000
 namespace quesync {

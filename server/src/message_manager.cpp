@@ -7,8 +7,8 @@
 #include "server.h"
 #include "session.h"
 
-#include "../shared/events/message_event.h"
-#include "../shared/exception.h"
+#include "../../shared/events/message_event.h"
+#include "../../shared/exception.h"
 
 quesync::server::message_manager::message_manager(std::shared_ptr<quesync::server::server> server)
     : manager(server) {}

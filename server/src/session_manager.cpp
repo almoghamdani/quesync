@@ -7,7 +7,7 @@
 #include "session.h"
 #include "user_manager.h"
 
-#include "../shared/exception.h"
+#include "../../shared/exception.h"
 
 quesync::server::session_manager::session_manager(std::shared_ptr<quesync::server::server> server)
     : manager(server) {}

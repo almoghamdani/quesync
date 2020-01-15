@@ -6,14 +6,14 @@
 #include "server.h"
 #include "session.h"
 
-#include "../shared/events/friend_request_event.h"
-#include "../shared/events/friendship_status_event.h"
-#include "../shared/exception.h"
-#include "../shared/utils/crypto/base64.h"
-#include "../shared/utils/crypto/pbkdf2.h"
-#include "../shared/utils/rand.h"
-#include "../shared/utils/server.h"
-#include "../shared/utils/validation.h"
+#include "../../shared/events/friend_request_event.h"
+#include "../../shared/events/friendship_status_event.h"
+#include "../../shared/exception.h"
+#include "../../shared/utils/crypto/base64.h"
+#include "../../shared/utils/crypto/pbkdf2.h"
+#include "../../shared/utils/rand.h"
+#include "../../shared/utils/server.h"
+#include "../../shared/utils/validation.h"
 
 quesync::server::user_manager::user_manager(std::shared_ptr<quesync::server::server> server)
     : manager(server) {}

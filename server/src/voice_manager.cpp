@@ -6,15 +6,15 @@
 #include "server.h"
 #include "session.h"
 
-#include "../shared/events/call_ended_event.h"
-#include "../shared/events/voice_state_event.h"
-#include "../shared/exception.h"
-#include "../shared/packets/voice_otp_packet.h"
-#include "../shared/packets/voice_packet.h"
-#include "../shared/packets/voice_participant_packet.h"
-#include "../shared/utils/encryption.h"
-#include "../shared/utils/memory.h"
-#include "../shared/utils/rand.h"
+#include "../../shared/events/call_ended_event.h"
+#include "../../shared/events/voice_state_event.h"
+#include "../../shared/exception.h"
+#include "../../shared/packets/voice_otp_packet.h"
+#include "../../shared/packets/voice_packet.h"
+#include "../../shared/packets/voice_participant_packet.h"
+#include "../../shared/utils/encryption.h"
+#include "../../shared/utils/memory.h"
+#include "../../shared/utils/rand.h"
 
 quesync::server::voice_manager::voice_manager(std::shared_ptr<quesync::server::server> server)
     : manager(server),

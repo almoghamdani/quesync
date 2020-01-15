@@ -6,7 +6,7 @@
 #include "server.h"
 #include "session.h"
 
-#include "../shared/exception.h"
+#include "../../shared/exception.h"
 
 quesync::server::channel_manager::channel_manager(std::shared_ptr<quesync::server::server> server)
     : manager(server) {}

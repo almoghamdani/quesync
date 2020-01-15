@@ -4,7 +4,7 @@
 
 // Only include quesync server if built with server
 #ifdef QUESYNC_SERVER
-#include "../server/session.h"
+#include "../server/src/session.h"
 #endif
 
 #include "packet_type.h"

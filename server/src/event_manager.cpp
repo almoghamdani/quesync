@@ -2,7 +2,7 @@
 
 #include "server.h"
 
-#include "../shared/packets/event_packet.h"
+#include "../../shared/packets/event_packet.h"
 
 quesync::server::event_manager::event_manager(std::shared_ptr<quesync::server::server> server)
     : manager(server) {}

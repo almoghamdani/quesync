@@ -1,7 +1,7 @@
 #pragma once
 #include "manager.h"
 
-#include "../shared/user.h"
+#include "../../shared/user.h"
 
 namespace quesync {
 namespace server {

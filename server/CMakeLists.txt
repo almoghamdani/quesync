@@ -76,7 +76,7 @@ set (CMAKE_CXX_STANDARD 17)
 add_definitions(-D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS) # Silence warnings on windows
 
 # Get all the cpp files for the server
-file(GLOB SOURCES "*.cpp")
+file(GLOB SOURCES "src/*.cpp")
 
 # Get all the cpp files for the shared source
 file(GLOB_RECURSE SHARED_SOURCES "../shared/*/**.cpp")

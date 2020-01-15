@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "../shared/message.h"
+#include "../../shared/message.h"
 
 #define MAX_MESSAGES_AMOUNT 250
 

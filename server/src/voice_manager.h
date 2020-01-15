@@ -8,9 +8,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../shared/call_details.h"
-#include "../shared/event.h"
-#include "../shared/voice_state.h"
+#include "../../shared/call_details.h"
+#include "../../shared/event.h"
+#include "../../shared/voice_state.h"
 
 #define VOICE_SERVER_PORT 61111
 

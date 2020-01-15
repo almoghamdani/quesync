@@ -7,7 +7,7 @@
 
 #include "server.h"
 
-#include "../shared/user.h"
+#include "../../shared/user.h"
 
 using asio::ip::tcp;
 

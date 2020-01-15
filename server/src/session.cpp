@@ -3,10 +3,10 @@
 #include <iostream>
 #include <termcolor/termcolor.hpp>
 
-#include "../shared/header.h"
-#include "../shared/packet.h"
-#include "../shared/packets/error_packet.h"
-#include "../shared/utils/parser.h"
+#include "../../shared/header.h"
+#include "../../shared/packet.h"
+#include "../../shared/packets/error_packet.h"
+#include "../../shared/utils/parser.h"
 
 quesync::server::session::session(tcp::socket socket, asio::ssl::context &context,
                                   std::shared_ptr<quesync::server::server> server)
