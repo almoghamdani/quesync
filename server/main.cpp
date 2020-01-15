@@ -8,13 +8,14 @@
 // Include this after the server to avoid duplicate includes of WinSock on windows
 #include <termcolor/termcolor.hpp>
 
-#define NUM_OF_THREADS 10
-
 int main(int argc, char *argv[]) {
     asio::io_context io_context;
     std::vector<std::thread> threads;
 
     std::shared_ptr<quesync::server::server> server;
+
+    // Get the max amount of threads and dividing 1 from it because of the voice states thread
+    unsigned int amount_of_threads = std::thread::hardware_concurrency() - 1;
 
     cxxopts::Options options("Quesync Server",
                              "Cross-Platform Secured VoIP application server optimized for Low Latency");
@@ -58,7 +59,7 @@ int main(int argc, char *argv[]) {
         std::cout << termcolor::blue << "Starting threads.." << termcolor::reset << "\n";
 
         // Start the threads
-        for (int i = 0; i < NUM_OF_THREADS; i++) {
+        for (int i = 0; i < amount_of_threads; i++) {
             std::cout << termcolor::blue << "Starting thread no. " << i + 1 << ".."
                       << termcolor::reset << "\n";
 
