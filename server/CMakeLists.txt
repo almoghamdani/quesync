@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(Quesync)
+project(server)
 
 # Make the shared headers compile for the server
 add_definitions (-DQUESYNC_SERVER)
@@ -86,19 +86,28 @@ file(GLOB_RECURSE SHARED_SOURCES "../shared/*/**.cpp")
 file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../vendor/zxcvbn/**/*.cpp")
 
 # Add the server as an executable to be compiled
-add_executable(server ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})
+add_executable(${PROJECT_NAME} ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})
 
 # Link the server to the dependencies' libs
-target_link_libraries(server ${OPENSSL_LIBS} ${MYSQL_LIBS})
+target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBS} ${MYSQL_LIBS})
 
 # Copy OpenSSL dlls after build
 if (WIN32 AND OPENSSL_DLLS_DIR)
     file(GLOB WIN_OPENSSL_DLLS "${OPENSSL_DLLS_DIR}/*.dll")
 
     foreach (OPENSSL_DLL ${WIN_OPENSSL_DLLS})
-        add_custom_command(TARGET server POST_BUILD
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${OPENSSL_DLL}
-                $<TARGET_FILE_DIR:server>)
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>)
     endforeach()
+endif()
+
+# Delete PDB and ILK after build since they aren't needed
+if (WIN32)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE_DIR:${PROJECT_NAME}>/${PROJECT_NAME}.ilk)
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE_DIR:${PROJECT_NAME}>/${PROJECT_NAME}.pdb)
 endif()

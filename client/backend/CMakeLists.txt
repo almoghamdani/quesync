@@ -122,3 +122,12 @@ if (WIN32 AND OPENSSL_DLLS_DIR)
                 $<TARGET_FILE_DIR:${PROJECT_NAME}>)
     endforeach()
 endif()
+
+# Delete LIB and EXP after build since they aren't needed
+if (WIN32)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE_DIR:${PROJECT_NAME}>/${PROJECT_NAME}.lib)
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE_DIR:${PROJECT_NAME}>/${PROJECT_NAME}.exp)
+endif()
