@@ -20,7 +20,7 @@ std::string quesync::utils::crypto::base64::encode(std::string data) {
     BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
 
     // Encode the data
-    BIO_write(bio, data.c_str(), data.length());
+    BIO_write(bio, data.c_str(), (int)data.length());
     BIO_flush(bio);
 
     // Get the pointer to the data
@@ -50,12 +50,12 @@ std::string quesync::utils::crypto::base64::decode(std::string data) {
 
     BIO *bio, *b64;
 
-    int decode_len = calcDecodeLength(data), len = 0;
-    ;
+    int decode_len = (int)calcDecodeLength(data), len = 0;
+    
     std::shared_ptr<char> buf(new char[data.length()]);
 
     // Initialize base64 decoder
-    bio = BIO_new_mem_buf(data.c_str(), data.length());
+    bio = BIO_new_mem_buf(data.c_str(), (int)data.length());
     b64 = BIO_new(BIO_f_base64());
     bio = BIO_push(b64, bio);
 
@@ -63,7 +63,7 @@ std::string quesync::utils::crypto::base64::decode(std::string data) {
     BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
 
     // Decode the base64
-    len = BIO_read(bio, buf.get(), data.length());
+    len = BIO_read(bio, buf.get(), (int)data.length());
 
     // Free BIO
     BIO_free_all(bio);

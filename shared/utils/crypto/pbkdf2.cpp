@@ -10,7 +10,7 @@ std::string quesync::utils::crypto::pbkdf2::sha512(std::string password, unsigne
     std::shared_ptr<unsigned char> hash(new unsigned char[PBKDF2_HASH_SIZE]);
 
     // Hash using PBKDF2
-    PKCS5_PBKDF2_HMAC(password.data(), password.length(), salt, PBKDF2_SALT_SIZE, PBKDF2_ITERATIONS,
+    PKCS5_PBKDF2_HMAC(password.data(), (int)password.length(), salt, PBKDF2_SALT_SIZE, PBKDF2_ITERATIONS,
                       EVP_sha512(), PBKDF2_HASH_SIZE, hash.get());
 
     // Encode the hash with base64 and combine it with the salt

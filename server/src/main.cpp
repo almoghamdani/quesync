@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
         std::cout << termcolor::blue << "Starting threads.." << termcolor::reset << "\n";
 
         // Start the threads
-        for (int i = 0; i < amount_of_threads; i++) {
+        for (unsigned int i = 0; i < amount_of_threads; i++) {
             std::cout << termcolor::blue << "Starting thread no. " << i + 1 << ".."
                       << termcolor::reset << "\n";
 
