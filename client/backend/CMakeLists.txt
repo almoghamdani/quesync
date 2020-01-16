@@ -46,29 +46,30 @@ include_directories(../../vendor/rtaudio)
 
 # Windows dependencies
 IF (WIN32)
-    set (OPENSLL_INCLUDE_DIR C:/OpenSSL-Win64/include)
-    set (OPENSLL_LIBS_DIR C:/OpenSSL-Win64/lib)
+    set (OPENSSL_INCLUDE_DIR C:/OpenSSL-Win64/include)
+    set (OPENSSL_LIBS_DIR C:/OpenSSL-Win64/lib)
     set (OPENSSL_LIBS VC/libeay32MT VC/ssleay32MT)
+    set (OPENSSL_DLLS_DIR C:/OpenSSL-Win64)
 ENDIF()
 
 # macOS dependencies
 IF (APPLE)
-    set (OPENSLL_INCLUDE_DIR /usr/local/opt/openssl/include)
-    set (OPENSLL_LIBS_DIR /usr/local/opt/openssl/lib)
+    set (OPENSSL_INCLUDE_DIR /usr/local/opt/openssl/include)
+    set (OPENSSL_LIBS_DIR /usr/local/opt/openssl/lib)
     set (OPENSSL_LIBS ssl crypto)
 ENDIF()
 
 # Linux dependencies
 IF (UNIX AND NOT APPLE)
-    set (OPENSLL_INCLUDE_DIR /usr/include/openssl)
-    set (OPENSLL_LIBS_DIR /usr/lib)
+    set (OPENSSL_INCLUDE_DIR /usr/include/openssl)
+    set (OPENSSL_LIBS_DIR /usr/lib)
     set (OPENSSL_LIBS ssl crypto)
 ENDIF()
 
 # If there is an openssl dir, set the include and lib directory
-IF (OPENSLL_INCLUDE_DIR AND OPENSLL_LIBS_DIR)
-    include_directories(${OPENSLL_INCLUDE_DIR})
-    link_directories(${OPENSLL_LIBS_DIR})
+IF (OPENSSL_INCLUDE_DIR AND OPENSSL_LIBS_DIR)
+    include_directories(${OPENSSL_INCLUDE_DIR})
+    link_directories(${OPENSSL_LIBS_DIR})
 ENDIF()
 
 # Preprocessor defines
@@ -111,8 +112,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
 target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBS} ${CMAKE_JS_LIB} opus rtaudio rnnoise)
 
 # Copy OpenSSL dlls after build
-if (WIN32 AND OPENSLL_LIBS_DIR)
-    file(GLOB WIN_OPENSSL_DLLS "${OPENSLL_LIBS_DIR}/*.dll")
+if (WIN32 AND OPENSSL_DLLS_DIR)
+    file(GLOB WIN_OPENSSL_DLLS "${OPENSSL_DLLS_DIR}/*.dll")
 
     foreach (OPENSSL_DLL ${WIN_OPENSSL_DLLS})
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

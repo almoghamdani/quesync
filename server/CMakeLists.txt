@@ -30,9 +30,10 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/../vendor/cxxopts/include)
 
 # Windows dependencies
 IF (WIN32)
-    set (OPENSLL_INCLUDE_DIR C:/OpenSSL-Win64/include)
-    set (OPENSLL_LIBS_DIR C:/OpenSSL-Win64/lib)
+    set (OPENSSL_INCLUDE_DIR C:/OpenSSL-Win64/include)
+    set (OPENSSL_LIBS_DIR C:/OpenSSL-Win64/lib)
     set (OPENSSL_LIBS VC/libeay32MT VC/ssleay32MT)
+    set (OPENSSL_DLLS_DIR C:/OpenSSL-Win64)
 
     set (MYSQL_DIR "C:/Program Files/MySQL/Connector C++ 8.0")
     set (MYSQL_LIBS vs14/mysqlcppconn8-static)
@@ -40,8 +41,8 @@ ENDIF()
 
 # macOS dependencies
 IF (APPLE)
-    set (OPENSLL_INCLUDE_DIR /usr/local/opt/openssl/include)
-    set (OPENSLL_LIBS_DIR /usr/local/opt/openssl/lib)
+    set (OPENSSL_INCLUDE_DIR /usr/local/opt/openssl/include)
+    set (OPENSSL_LIBS_DIR /usr/local/opt/openssl/lib)
     set (OPENSSL_LIBS ssl crypto)
 
     set (MYSQL_DIR /usr/local/mysql-connector-c++)
@@ -49,9 +50,9 @@ IF (APPLE)
 ENDIF()
 
 # If there is an openssl dir, set the include and lib directory
-IF (OPENSLL_INCLUDE_DIR AND OPENSLL_LIBS_DIR)
-    include_directories(${OPENSLL_INCLUDE_DIR})
-    link_directories(${OPENSLL_LIBS_DIR})
+IF (OPENSSL_INCLUDE_DIR AND OPENSSL_LIBS_DIR)
+    include_directories(${OPENSSL_INCLUDE_DIR})
+    link_directories(${OPENSSL_LIBS_DIR})
 ENDIF()
 
 IF (MYSQL_DIR)
@@ -91,8 +92,8 @@ add_executable(server ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})
 target_link_libraries(server ${OPENSSL_LIBS} ${MYSQL_LIBS})
 
 # Copy OpenSSL dlls after build
-if (WIN32 AND OPENSLL_LIBS_DIR)
-    file(GLOB WIN_OPENSSL_DLLS "${OPENSLL_LIBS_DIR}/*.dll")
+if (WIN32 AND OPENSSL_DLLS_DIR)
+    file(GLOB WIN_OPENSSL_DLLS "${OPENSSL_DLLS_DIR}/*.dll")
 
     foreach (OPENSSL_DLL ${WIN_OPENSSL_DLLS})
         add_custom_command(TARGET server POST_BUILD
