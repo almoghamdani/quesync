@@ -12,6 +12,7 @@
 #include "../../../../shared/packets/file_transmission_stop_packet.h"
 #include "../../../../shared/packets/get_file_info_packet.h"
 #include "../../../../shared/packets/session_auth_packet.h"
+#include "../../../../shared/packets/shutdown_file_session_packet.h"
 #include "../../../../shared/packets/upload_file_packet.h"
 #include "../../../../shared/utils/files.h"
 #include "../../../../shared/utils/parser.h"
@@ -516,6 +517,11 @@ void quesync::client::modules::files::check_if_idle() {
     std::unique_lock downloads_lk(_downloads_mutex, std::defer_lock);
     std::unique_lock uploads_lk(_uploads_mutex, std::defer_lock);
 
+    // If threads are stopped, return
+    if (_stop_threads) {
+        return;
+    }
+
     // Lock the data mutexes
     std::lock(downloads_lk, uploads_lk);
 
@@ -529,7 +535,7 @@ void quesync::client::modules::files::check_if_idle() {
     uploads_lk.unlock();
 
     // If reached here, it means both uploads and downloads are empty, so clean connection
-    clean_connection();
+    shutdown_socket_async();
 }
 
 void quesync::client::modules::files::save_file(std::shared_ptr<quesync::memory_file> file,
@@ -577,10 +583,41 @@ std::string quesync::client::modules::files::get_file_name(std::string file_path
     return file_path.substr(file_path.find_last_of("/\\") + 1);
 }
 
+void quesync::client::modules::files::shutdown_socket_async() {
+    header header;
+
+    packets::shutdown_file_session_packet shutdown_file_session_packet;
+    std::string shutdown_file_session_packet_encoded = shutdown_file_session_packet.encode();
+
+    std::shared_ptr<char> buf = nullptr;
+
+    // If the socket is open
+    if (_socket && _socket->lowest_layer().is_open()) {
+        // Set packet size in header
+        header.size = shutdown_file_session_packet_encoded.size();
+
+        // Convert the packet to buffer
+        buf = utils::memory::convert_to_buffer<char>(utils::parser::encode_header(header) +
+                                                     shutdown_file_session_packet_encoded);
+
+        // Tell the server to shutdown the socket
+        asio::async_write(*_socket, asio::buffer(buf.get(), sizeof(header) + header.size),
+                          [this, buf](std::error_code ec, std::size_t) {
+                              // Shutdown async the SSL Stream (The callback will not be called
+                              // since the server is going to close the socket)
+                              _socket->async_shutdown([](std::error_code) {});
+                          });
+    } else {
+        // Clean the connection
+        clean_connection();
+    }
+}
+
 void quesync::client::modules::files::clean_connection() {
-    // Shutdown the socket SSL stream and TCP stream
-    _socket->shutdown();
-    _socket->lowest_layer().shutdown(asio::socket_base::shutdown_both);
+    // If threads are stopped, return
+    if (_stop_threads) {
+        return;
+    }
 
     // Stop the I/O threads
     if (_io_context) {
@@ -601,28 +638,32 @@ void quesync::client::modules::files::clean_connection() {
         _events_thread.join();
     }
 
-    // If the I/O thread is still alive, join it
-    if (_io_thread.joinable() && std::this_thread::get_id() != _io_thread.get_id()) {
-        _io_thread.join();
-    }
+    // Start a thread that will stop the I/O
+    std::thread([this]() {
+        // If the I/O thread is still alive, join it
+        if (_io_thread.joinable()) {
+            _io_thread.join();
+        }
 
-    // If the socket object exists
-    if (_socket) {
-        // Free the socket
-        delete _socket;
+        // If the socket object exists
+        if (_socket) {
+            // Free the socket
+            delete _socket;
 
-        // Reset socket ptr
-        _socket = nullptr;
-    }
+            // Reset socket ptr
+            _socket = nullptr;
+        }
 
-    // Free the I/O Context
-    _io_context = nullptr;
+        // Free the I/O context
+        _io_context = nullptr;
 
-    // Clear the files data
-    _uploads_progress.clear();
-    _download_files.clear();
-    _download_paths.clear();
-    _events.clear();
+        // Clear the files data
+        _uploads_progress.clear();
+        _download_files.clear();
+        _download_paths.clear();
+        _events.clear();
+    })
+        .detach();
 }
 
 void quesync::client::modules::files::logged_out() { clean_connection(); }

@@ -4,6 +4,7 @@
 #include "../../shared/packets/error_packet.h"
 #include "../../shared/packets/file_chunk_packet.h"
 #include "../../shared/packets/session_auth_packet.h"
+#include "../../shared/packets/shutdown_file_session_packet.h"
 #include "../../shared/response_packet.h"
 #include "../../shared/utils/files.h"
 
@@ -15,8 +16,8 @@ quesync::server::file_session::file_session(tcp::socket socket, asio::ssl::conte
       _strand(_server->get_io_context()) {}
 
 quesync::server::file_session::~file_session() {
-    // Close the client's socket in case it's not closed
     try {
+        // Close the client's socket in case it's not closed
         _socket.lowest_layer().close();
     } catch (...) {
     }
@@ -123,37 +124,37 @@ void quesync::server::file_session::recv() {
             std::shared_ptr<char> buf = std::shared_ptr<char>(new char[packet_header.size]);
 
             // Get a packet from the user
-            asio::async_read(
-                _socket, asio::buffer(buf.get(), packet_header.size),
-                _strand.wrap([this, self, buf, packet_header](std::error_code ec, std::size_t length) {
-                    header header{1, 0};
-                    std::string header_str;
+            asio::async_read(_socket, asio::buffer(buf.get(), packet_header.size),
+                             _strand.wrap([this, self, buf, packet_header](std::error_code ec,
+                                                                           std::size_t length) {
+                                 header header{1, 0};
+                                 std::string header_str;
 
-                    std::string buf_str;
-                    std::string res;
+                                 std::string buf_str;
+                                 std::string res;
 
-                    // If no error occurred, parse the packet
-                    if (!ec) {
-                        buf_str = std::string(buf.get(), packet_header.size);
+                                 // If no error occurred, parse the packet
+                                 if (!ec) {
+                                     buf_str = std::string(buf.get(), packet_header.size);
 
-                        // Handle the packet
-                        res = handle_packet(buf_str);
+                                     // Handle the packet
+                                     res = handle_packet(buf_str);
 
-                        // If the resposne isn't empty
-                        if (!res.empty()) {
-                            // Set the size of the response
-                            header.size = (unsigned int)res.size();
+                                     // If the resposne isn't empty
+                                     if (!res.empty()) {
+                                         // Set the size of the response
+                                         header.size = (unsigned int)res.size();
 
-                            // Encode the header in a string
-                            header_str = utils::parser::encode_header(header);
+                                         // Encode the header in a string
+                                         header_str = utils::parser::encode_header(header);
 
-                            // Send the header + server's response to the server
-                            send(header_str + res);
-                        } else {
-                            recv();
-                        }
-                    }
-                }));
+                                         // Send the header + server's response to the server
+                                         send(header_str + res);
+                                     } else {
+                                         recv();
+                                     }
+                                 }
+                             }));
         }));
 }
 
@@ -177,6 +178,7 @@ void quesync::server::file_session::send(std::string data) {
 std::string quesync::server::file_session::handle_packet(std::string buf) {
     packets::session_auth_packet session_auth_packet;
     packets::file_chunk_packet file_chunk_packet;
+    packets::shutdown_file_session_packet shutdown_file_session_packet;
 
     std::string res;
 
@@ -204,6 +206,15 @@ std::string quesync::server::file_session::handle_packet(std::string buf) {
         } catch (exception &ex) {
             res = packets::error_packet(ex.error_code()).encode();
         }
+    } else if (shutdown_file_session_packet.decode(buf)) {
+        // Shutdown the socket's SSL stream
+        _socket.async_shutdown([this, self = shared_from_this()](std::error_code) {
+            // Shutdown the socket TCP stream
+            _socket.lowest_layer().shutdown(asio::socket_base::shutdown_both);
+
+            // Clear the user's file session
+            _server->file_manager()->clear_all_user_memory_files(_user->id);
+        });
     } else if (!_user)  // Check if the user is not authenticated
     {
         res = packets::error_packet(error::not_authenticated).encode();

@@ -68,6 +68,7 @@ class files : public module {
     void handle_upload_chunk_sent(std::shared_ptr<memory_file> file_info);
 
     void check_if_idle();
+    void shutdown_socket_async();
 
     void save_file(std::shared_ptr<memory_file> file, std::string download_path);
     std::string get_file_name(std::string file_path);
