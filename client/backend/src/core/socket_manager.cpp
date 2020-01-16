@@ -34,7 +34,7 @@ std::string quesync::client::socket_manager::get_binary_path() {
     uint32_t path_size = MAX_PATH_LEN;
 
 #if defined(_WIN32)
-    path_size = ::GetModuleFileName(NULL, path_buf, MAX_PATH_LEN);
+    path_size = ::GetModuleFileNameA(NULL, (LPSTR)path_buf, MAX_PATH_LEN);
 #elif defined(__APPLE__)
     _NSGetExecutablePath(path_buf, &path_size);
 #endif
@@ -63,10 +63,9 @@ void quesync::client::socket_manager::send(asio::ssl::stream<tcp::socket> &socke
                                            std::string data) {
     header header = {1, 0};
     std::string full_packet;
-    error error;
 
     // Set data size
-    header.size = data.size();
+    header.size = (uint32_t)data.size();
 
     // Combine the header and the packet
     full_packet = utils::parser::encode_header(header) + data;
