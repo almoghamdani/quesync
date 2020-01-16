@@ -301,6 +301,12 @@ void quesync::client::modules::files::connect_to_file_server() {
 
         // Try to handshake
         _socket->handshake(asio::ssl::stream_base::client);
+
+        // Set size of send and receive buffers
+        _socket->lowest_layer().set_option(asio::socket_base::send_buffer_size(
+            (sizeof(header) + sizeof(packets::file_chunk_packet_format)) * MAX_PACKETS_IN_BUFFER));
+        _socket->lowest_layer().set_option(asio::socket_base::receive_buffer_size(
+            (sizeof(header) + sizeof(packets::file_chunk_packet_format)) * MAX_PACKETS_IN_BUFFER));
     } catch (std::system_error& ex) {
         throw exception(socket_manager::error_for_system_error(ex));
     } catch (...) {
@@ -479,7 +485,8 @@ void quesync::client::modules::files::handle_upload_chunk_sent(
             asio::async_write(
                 *_socket,
                 asio::buffer(packet_buf.get(), file_chunk_packet_encoded.size() + sizeof(header)),
-                [this, file_info, packet_buf](std::error_code ec, std::size_t) {
+                [this, file_info, packet_buf, index = file_chunk_packet.chunk().index](
+                    std::error_code ec, std::size_t) {
                     // On error, clean connection
                     if (ec) {
                         clean_connection();
@@ -571,6 +578,10 @@ std::string quesync::client::modules::files::get_file_name(std::string file_path
 }
 
 void quesync::client::modules::files::clean_connection() {
+    // Shutdown the socket SSL stream and TCP stream
+    _socket->shutdown();
+    _socket->lowest_layer().shutdown(asio::socket_base::shutdown_both);
+
     // Stop the I/O threads
     if (_io_context) {
         _io_context->stop();

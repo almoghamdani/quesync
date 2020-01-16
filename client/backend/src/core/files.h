@@ -17,6 +17,8 @@
 
 #define FILES_SERVER_PORT 61112
 
+#define MAX_PACKETS_IN_BUFFER 100
+
 #define EVENTS_THREAD_SLEEP 60
 
 namespace quesync {

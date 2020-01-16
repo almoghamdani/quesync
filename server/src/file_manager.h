@@ -16,6 +16,8 @@ using asio::ip::tcp;
 
 #define FILE_SERVER_PORT 61112
 
+#define MAX_PACKETS_IN_BUFFER 100
+
 namespace quesync {
 namespace packets {
 class file_chunk_packet;

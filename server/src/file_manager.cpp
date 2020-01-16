@@ -18,6 +18,7 @@
 #include "session.h"
 
 #include "../../shared/exception.h"
+#include "../../shared/header.h"
 #include "../../shared/packets/file_chunk_packet.h"
 #include "../../shared/utils/files.h"
 #include "../../shared/utils/memory.h"
@@ -41,6 +42,12 @@ void quesync::server::file_manager::accept_client() {
     _acceptor.async_accept([this](std::error_code ec, tcp::socket socket) {
         // If no error occurred during the connection to the client start a session with it
         if (!ec) {
+            // Set size of send and receive buffers
+            socket.set_option(asio::socket_base::send_buffer_size(
+                (sizeof(header) + sizeof(packets::file_chunk_packet_format)) * MAX_PACKETS_IN_BUFFER));
+            socket.set_option(asio::socket_base::receive_buffer_size(
+                (sizeof(header) + sizeof(packets::file_chunk_packet_format)) * MAX_PACKETS_IN_BUFFER));
+
             // Create a shared file session for the client socket
             std::make_shared<file_session>(std::move(socket), _server->get_ssl_context(), _server)
                 ->start();
@@ -153,7 +160,7 @@ void quesync::server::file_manager::stop_file_transmission(
     _users_file_sessions[sess->user()->id]->remove_file(file_id);
 }
 
-bool quesync::server::file_manager::does_file_exists(std::string file_id) { 
+bool quesync::server::file_manager::does_file_exists(std::string file_id) {
     sql::Session sql_sess = _server->get_sql_session();
     sql::Table files_table(_server->get_sql_schema(sql_sess), "files");
 
