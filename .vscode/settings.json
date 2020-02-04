@@ -109,10 +109,11 @@
 		"hashtable": "cpp",
 		"memory_resource": "cpp",
 		"__functional_03": "cpp",
-		"__memory": "cpp"
+		"__memory": "cpp",
+		"bit": "cpp"
 	},
 	"cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/",
 	"python.pythonPath": "C:\\Users\\Almog\\AppData\\Local\\Programs\\Python\\Python37\\python.exe",
-	"C_Cpp.clang_format_style": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 100 }",
+	"C_Cpp.clang_format_style": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 100, IncludeBlocks: Preserve }",
 	"C_Cpp.clang_format_sortIncludes": true
 }
