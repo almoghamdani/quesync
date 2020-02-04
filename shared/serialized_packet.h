@@ -10,6 +10,11 @@
 namespace quesync {
 class serialized_packet : public packet {
    public:
+    /**
+     * Serialized packet constructor.
+     *
+     * @param type The type of the packet.
+     */
     serialized_packet(packet_type type) : packet(type){};
 
     virtual std::string encode() {
@@ -49,6 +54,11 @@ class serialized_packet : public packet {
         return true;
     };
 
+    /**
+     * Verifies that the json has all required fields.
+     * 
+     * @return True if the json has all required fields or false otherwise.
+     */
     virtual bool verify() const = 0;
 
    protected:

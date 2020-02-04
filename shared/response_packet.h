@@ -10,10 +10,27 @@
 namespace quesync {
 class response_packet : public packet {
    public:
+    /**
+     * Response packet constructor.
+     *
+     * @param type The type of packet.
+     */
     response_packet(packet_type type) : response_packet(type, std::string()){};
 
+    /**
+     * Response packet constructor.
+     *
+     * @param type The type of packet.
+     * @param data The data of the response packet.
+     */
     response_packet(packet_type type, std::string data) : packet(type), _data(data){};
 
+    /**
+     * Response packet constructor.
+     *
+     * @param type The type of packet.
+     * @param json The json to be encoded in the response packet's data.
+     */
     response_packet(packet_type type, nlohmann::json json) : packet(type), _data(json.dump()){};
 
     virtual std::string encode() {
@@ -58,7 +75,18 @@ class response_packet : public packet {
     virtual std::string handle(std::shared_ptr<server::session> session) { return nullptr; };
 #endif
 
+    /**
+     * Gets the data of the response packet.
+     *
+     * @return The data of the response packet.
+     */
     std::string data() const { return _data; };
+
+    /**
+     * Gets the json encoded in the response packet.
+     *
+     * @return The json content of the response packet.
+     */
     nlohmann::json json() const { return _json; };
 
    protected:

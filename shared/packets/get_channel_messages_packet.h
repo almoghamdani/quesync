@@ -1,8 +1,8 @@
 #pragma once
 #include "../serialized_packet.h"
 
-#include "error_packet.h"
 #include "../response_packet.h"
+#include "error_packet.h"
 
 #include "../exception.h"
 #include "../message.h"
@@ -11,8 +11,16 @@ namespace quesync {
 namespace packets {
 class get_channel_messages_packet : public serialized_packet {
    public:
+    /// Default constructor.
     get_channel_messages_packet() : get_channel_messages_packet("", 0, 0){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param channel_id The id of the channel.
+     * @param amount The amount of messages to request from the server.
+     * @param offset The offset in the list of messages.
+     */
     get_channel_messages_packet(std::string channel_id, unsigned int amount, unsigned int offset)
         : serialized_packet(packet_type::get_channel_messages_packet) {
         _data["channelId"] = channel_id;
@@ -40,8 +48,7 @@ class get_channel_messages_packet : public serialized_packet {
                 session->get_shared(), _data["channelId"], _data["amount"], _data["offset"]);
 
             // Return response packet with the messages
-            return response_packet(packet_type::channel_messages_packet,
-                                   (nlohmann::json)messages)
+            return response_packet(packet_type::channel_messages_packet, (nlohmann::json)messages)
                 .encode();
         } catch (exception &ex) {
             // Return the error code

@@ -11,8 +11,15 @@ namespace quesync {
 namespace packets {
 class upload_file_packet : public serialized_packet {
    public:
+    /// Default constructor.
     upload_file_packet() : upload_file_packet("", 0){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param name The name of the file.
+     * @param size The size of the file.
+     */
     upload_file_packet(std::string name, unsigned long long size)
         : serialized_packet(packet_type::upload_file_packet) {
         _data["name"] = name;

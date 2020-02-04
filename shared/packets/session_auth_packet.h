@@ -1,8 +1,8 @@
 #pragma once
 #include "../serialized_packet.h"
 
-#include "error_packet.h"
 #include "../response_packet.h"
+#include "error_packet.h"
 
 #include "../exception.h"
 #include "../user.h"
@@ -11,16 +11,25 @@ namespace quesync {
 namespace packets {
 class session_auth_packet : public serialized_packet {
    public:
+    /// Default constructor.
     session_auth_packet() : session_auth_packet(""){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param session_id The id of the session.
+     */
     session_auth_packet(std::string session_id)
         : serialized_packet(packet_type::session_auth_packet) {
         _data["sessionId"] = session_id;
     };
 
-    std::string session_id() {
-        return _data["sessionId"];
-    }
+    /**
+     * Get the session id.
+     *
+     * @return The id of the session.
+     */
+    std::string session_id() { return _data["sessionId"]; }
 
     virtual bool verify() const { return exists("sessionId"); };
 

@@ -5,12 +5,32 @@
 
 namespace quesync {
 struct call {
+    /// Default constructor.
     call() : call("", "", "", (std::time_t)0, (std::time_t)0, false){};
 
+    /**
+     * Call constructor.
+     *
+     * @param id The id of the call.
+     * @param caller_id The id of the caller.
+     * @param channel_id The id of the channel.
+     * @param start_date The date the call started.
+     * @param joined Did the user join the call.
+     */
     call(std::string id, std::string caller_id, std::string channel_id, std::time_t start_date,
          bool joined)
         : call(id, caller_id, channel_id, start_date, (std::time_t)0, joined) {}
 
+    /**
+     * Call constructor.
+     *
+     * @param id The id of the call.
+     * @param caller_id The id of the caller.
+     * @param channel_id The id of the channel.
+     * @param start_date The date the call started.
+     * @param end_date The date the call ended.
+     * @param joined Did the user join the call.
+     */
     call(std::string id, std::string caller_id, std::string channel_id, std::time_t start_date,
          std::time_t end_date, bool joined) {
         this->id = id;
@@ -21,11 +41,22 @@ struct call {
         this->joined = joined;
     };
 
+    /// The id of the call.
     std::string id;
+
+    /// The id of the caller.
     std::string caller_id;
+
+    /// The id of the channel.
     std::string channel_id;
+
+    /// The date the call started.
     std::time_t start_date;
+
+    /// The date the call ended.
     std::time_t end_date;
+
+    /// Did the user join the call.
     bool joined;
 };
 

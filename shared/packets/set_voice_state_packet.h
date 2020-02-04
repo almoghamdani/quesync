@@ -1,8 +1,8 @@
 #pragma once
 #include "../serialized_packet.h"
 
-#include "error_packet.h"
 #include "../response_packet.h"
+#include "error_packet.h"
 
 #include "../exception.h"
 
@@ -10,8 +10,15 @@ namespace quesync {
 namespace packets {
 class set_voice_state_packet : public serialized_packet {
    public:
+    /// Default constructor.
     set_voice_state_packet() : set_voice_state_packet(false, false){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param muted The mute status of the input device.
+     * @param deafen The mute status of the output device.
+     */
     set_voice_state_packet(bool muted, bool deafen)
         : serialized_packet(packet_type::set_voice_state_packet) {
         _data["muted"] = muted;
@@ -32,8 +39,8 @@ class set_voice_state_packet : public serialized_packet {
 
         try {
             // Set the voice state of the user
-            session->server()->voice_manager()->set_voice_state(session->user()->id,
-                                                                _data["muted"], _data["deafen"]);
+            session->server()->voice_manager()->set_voice_state(session->user()->id, _data["muted"],
+                                                                _data["deafen"]);
 
             return response_packet(packet_type::voice_state_set_packet).encode();
         } catch (exception &ex) {

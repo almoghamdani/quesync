@@ -12,6 +12,15 @@ namespace quesync {
 namespace utils {
 class encryption {
    public:
+    /**
+     * Encrypts a voice packet
+     * 
+     * @tparam T The type of the voice packet.
+     * @param packet The packet to be encrypted.
+     * @param aes_key The AES key to encrypt the packet with.
+     * @param hmac_key The HMAC key to verify the packet with.
+     * @return String with the packet's data encrypted.
+     */
     template <typename T>
     static std::string encrypt_voice_packet(T *packet, unsigned char *aes_key,
                                             unsigned char *hmac_key) {
@@ -33,6 +42,15 @@ class encryption {
         return std::string((char *)&voice_header, sizeof(voice::header)) + encrypted;
     }
 
+    /**
+     * Decrypts a voice packet
+     * 
+     * @tparam T The type of the voice packet.
+     * @param data String with the packet's data encrypted.
+     * @param aes_key The AES key to decrypt the packet with.
+     * @param hmac_key The HMAC key to verify the packet with.
+     * @return A shared pointer to the packet object.
+     */
     template <typename T>
     static std::shared_ptr<T> decrypt_voice_packet(std::string data, unsigned char *aes_key,
                                                    unsigned char *hmac_key) {

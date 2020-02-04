@@ -1,19 +1,18 @@
 #pragma once
 #include "module.h"
 
-#include <string>
-#include <unordered_map>
-#include <memory>
-#include <fstream>
-#include <thread>
-#include <mutex>
 #include <atomic>
-
-#include "socket_manager.h"
+#include <fstream>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <unordered_map>
 
 #include "../../../../shared/events/file_transmission_progress_event.h"
 #include "../../../../shared/file.h"
 #include "../../../../shared/memory_file.h"
+#include "socket_manager.h"
 
 #define FILES_SERVER_PORT 61112
 
@@ -26,13 +25,42 @@ namespace client {
 namespace modules {
 class files : public module {
    public:
+    /**
+     * Files module constructor.
+     *
+     * @param client A sharted pointer to the client object.
+     */
     files(std::shared_ptr<client> client);
 
+    /**
+     * Starts to upload a file to the file server.
+     *
+     * @param file_path The path of the file in the local filesystem.
+     * @return A shared pointer to the generated file object.
+     */
     std::shared_ptr<file> start_upload(std::string file_path);
+
+    /**
+     * Starts to download a file from the file server.
+     *
+     * @param file_id The id of the file.
+     * @param download_path The path to download the file to.
+     */
     void start_download(std::string file_id, std::string download_path);
 
+    /**
+     * Stops file upload/download.
+     *
+     * @param file_id The id of the file to stop it's transmission.
+     */
     void stop_file_transmission(std::string file_id);
 
+    /**
+     * Gets the info of a file.
+     *
+     * @param file_id The id of the file.
+     * @return A shared pointer to the file object.
+     */
     std::shared_ptr<file> get_file_info(std::string file_id);
 
     virtual void clean_connection();
@@ -49,9 +77,10 @@ class files : public module {
     std::mutex _downloads_mutex;
     std::unordered_map<std::string, std::shared_ptr<memory_file>> _download_files;
     std::unordered_map<std::string, std::string> _download_paths;
-    
+
     std::mutex _events_mutex;
-    std::unordered_map<std::string, std::shared_ptr<events::file_transmission_progress_event>> _events;
+    std::unordered_map<std::string, std::shared_ptr<events::file_transmission_progress_event>>
+        _events;
 
     std::thread _events_thread;
     std::thread _io_thread;

@@ -11,8 +11,16 @@ namespace quesync {
 namespace packets {
 class get_channel_calls_packet : public serialized_packet {
    public:
+    /// Default constructor.
     get_channel_calls_packet() : get_channel_calls_packet("", 0, 0){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param channel_id The id of the channel.
+     * @param amount The amount of calls to request from the server.
+     * @param offset The offset in the list of calls.
+     */
     get_channel_calls_packet(std::string channel_id, unsigned int amount, unsigned int offset)
         : serialized_packet(packet_type::get_channel_calls_packet) {
         _data["channelId"] = channel_id;

@@ -15,8 +15,16 @@ namespace quesync {
 namespace packets {
 class call_request_packet : public serialized_packet {
    public:
+    /// Default constructor.
     call_request_packet() : call_request_packet("", false, false){};
 
+    /**
+     * Packet constructor.
+     * 
+     * @param channel_id The id of the channel.
+     * @param muted The mute status of the input device.
+     * @param deafen The mute status of the output device.
+     */
     call_request_packet(std::string channel_id, bool muted, bool deafen)
         : serialized_packet(packet_type::call_request_packet) {
         _data["channelId"] = channel_id;

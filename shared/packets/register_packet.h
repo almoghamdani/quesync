@@ -1,8 +1,8 @@
 #pragma once
 #include "../serialized_packet.h"
 
-#include "error_packet.h"
 #include "../response_packet.h"
+#include "error_packet.h"
 
 #include "../exception.h"
 #include "../user.h"
@@ -11,8 +11,17 @@ namespace quesync {
 namespace packets {
 class register_packet : public serialized_packet {
    public:
+    /// Default constructor.
     register_packet() : register_packet("", "", "", ""){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param username The username of the new user.
+     * @param password The password of the new user.
+     * @param email The email of the new user.
+     * @param nickname The nickname of the new user.
+     */
     register_packet(std::string username, std::string password, std::string email,
                     std::string nickname)
         : serialized_packet(packet_type::register_packet) {

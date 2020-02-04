@@ -9,8 +9,16 @@ enum class state_type { disconnected, connected, pending };
 
 class state {
    public:
+    /// Default constructor.
     state() : state(state_type::pending, false, false) {}
 
+    /**
+     * Voice state constructor.
+     *
+     * @param voice_state The current state type.
+     * @param muted The mute status of the input device.
+     * @param deafen The mute status of the output device.
+     */
     state(state_type voice_state, bool muted, bool deafen)
         : _voice_state(voice_state),
           _state_change_time(std::time(nullptr)),
@@ -26,18 +34,52 @@ class state {
 
     bool operator==(const state_type &voice_state) { return _voice_state == voice_state; }
 
+    /**
+     * Get the voice state type.
+     *
+     * @return The voice state type.
+     */
     state_type voice_state() const { return _voice_state; }
 
+    /**
+     * Get the last change time.
+     *
+     * @return The last change time.
+     */
     std::time_t change_time() const { return _state_change_time; }
 
+    /**
+     * Get if the voice input is muted.
+     *
+     * @return The mute status of the input device.
+     */
     bool muted() const { return _muted; }
 
+    /**
+     * Mute the input device.
+     */
     void mute() { _muted = true; }
+
+    /**
+     * Unmute the input device.
+     */
     void unmute() { _muted = false; }
 
+    /**
+     * Get if the voice output is muted.
+     *
+     * @return The mute status of the output device.
+     */
     bool deafen() const { return _deafen; }
 
+    /**
+     * Mute the output device.
+     */
     void deaf() { _deafen = true; }
+
+    /**
+     * Unmute the output device.
+     */
     void undeaf() { _deafen = false; }
 
    private:

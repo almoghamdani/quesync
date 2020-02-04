@@ -25,7 +25,10 @@ using asio::ip::udp;
 namespace quesync {
 namespace voice {
 struct encryption_info {
+    /// The buffer containing the AES key.
     std::shared_ptr<unsigned char> aes_key;
+
+    /// The buffer containing the HMAC key.
     std::shared_ptr<unsigned char> hmac_key;
 };
 };  // namespace voice
@@ -36,21 +39,98 @@ class session;
 
 class voice_manager : manager {
    public:
+    /**
+     * Voice manager constructor.
+     *
+     * @param server A shared pointer to the server object.
+     */
     voice_manager(std::shared_ptr<server> server);
 
+    /**
+     * Creates a voice session for a user.
+     *
+     * @param user_id The id of the user.
+     * @return A pair with the session id and trhe encryption info of the voice stream.
+     */
     std::pair<std::string, voice::encryption_info> create_voice_session(std::string user_id);
+
+    /**
+     * Delete user's voice session.
+     *
+     * @param user_id The id of the user.
+     */
     void delete_voice_session(std::string user_id);
+
+    /**
+     * Generate OTP for a user's voice session.
+     *
+     * @param session_id The id of the session.
+     * @return The OTP for the user's voice session.
+     */
     std::string generate_otp(std::string session_id);
 
+    /**
+     * Initialize a voice channel.
+     *
+     * @param caller_id The id of the caller.
+     * @param channel_id The id of the channel.
+     * @param users The users in the channel.
+     * @return A shared pointer to the call details object.
+     */
     std::shared_ptr<call_details> init_voice_channel(std::string caller_id, std::string channel_id,
                                                      std::vector<std::string> users);
+
+    /**
+     * Checks if a voice channel is active.
+     *
+     * @param channel_id The id of the channel.
+     * @return True if the voice channel is active or false otherwise.
+     */
     bool is_voice_channel_active(std::string channel_id);
+
+    /**
+     * Joins user to a voice channel.
+     *
+     * @param user_id The id of the user.
+     * @param channel_id The id of the channel.
+     * @param muted The mute status of the input device for the user.
+     * @param deafen The mute status of the output device for the user.
+     */
     void join_voice_channel(std::string user_id, std::string channel_id, bool muted, bool deafen);
+
+    /**
+     * Removes user from voice channel.
+     *
+     * @param user_id The id of the user.
+     */
     void leave_voice_channel(std::string user_id);
 
+    /**
+     * Sets the user's voice state.
+     *
+     * @param user_id The id of the user.
+     * @param muted The mute status of the input device for the user.
+     * @param deafen The mute status of the output device for the user.
+     */
     void set_voice_state(std::string user_id, bool muted, bool deafen);
+
+    /**
+     * Get the voice states of a channel.
+     *
+     * @param channel_id The id of the channel.
+     * @return A map containing the voice states.
+     */
     std::unordered_map<std::string, voice::state> get_voice_states(std::string channel_id);
 
+    /**
+     * Get channel calls history.
+     *
+     * @param sess A shared pointer to the session object of the user.
+     * @param channel_id The id of the channel.
+     * @param amount The amount of calls to request from the server.
+     * @param offset The offset in the list of calls.
+     * @return A vector containing the calls from the channel.
+     */
     std::vector<call> get_channel_calls(std::shared_ptr<session> sess, std::string channel_id,
                                         int amount, int offset);
 

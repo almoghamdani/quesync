@@ -10,6 +10,7 @@ namespace quesync {
 namespace packets {
 class ping_packet : public packet {
    public:
+    /// Default constructor.
     ping_packet() : packet(packet_type::ping_packet) {}
 
     virtual std::string encode() {

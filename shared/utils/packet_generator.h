@@ -18,6 +18,12 @@ namespace quesync {
 namespace utils {
 class packet_generator {
    public:
+    /**
+     * Generate a packet object.
+     *
+     * @param type The type of the packet.
+     * @return A shared pointer to the new packet object.
+     */
     static std::shared_ptr<packet> generate_packet(packet_type type) {
         try {
             return packet_initalizers.at(type)();
@@ -25,6 +31,10 @@ class packet_generator {
             return nullptr;
         }
     }
+
+   private:
+    static const std::unordered_map<packet_type, std::function<std::shared_ptr<packet>()>>
+        packet_initalizers;
 
     template <typename T, int type = -1, typename std::enable_if<type == -1, T>::type* = nullptr>
     static std::shared_ptr<packet> init_packet() {
@@ -35,10 +45,6 @@ class packet_generator {
     static std::shared_ptr<packet> init_packet() {
         return std::shared_ptr<packet>(new T((packet_type)type, std::string()));
     }
-
-   private:
-    static const std::unordered_map<packet_type, std::function<std::shared_ptr<packet>()>>
-        packet_initalizers;
 };
 };  // namespace utils
 };  // namespace quesync

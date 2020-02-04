@@ -8,12 +8,11 @@
 #include <mutex>
 #include <thread>
 
-#include "event_handler.h"
-#include "socket_manager.h"
-
 #include "../../../../shared/packets/event_packet.h"
 #include "../../../../shared/response_packet.h"
 #include "../../../../shared/serialized_packet.h"
+#include "event_handler.h"
+#include "socket_manager.h"
 
 #define SERVER_PORT 61110
 
@@ -22,19 +21,57 @@ namespace client {
 namespace modules {
 class communicator : public module {
    public:
+    /**
+     * Communicator module constructor.
+     *
+     * @param client A shared pointer to the client object.
+     */
     communicator(std::shared_ptr<client> client);
 
+    /**
+     * Connect to a server.
+     *
+     * @param server_ip The server IP to connect to.
+     */
     void connect(std::string server_ip);
 
+    /**
+     * Gets the server IP that the client is connected to.
+     *
+     * @return The server IP.
+     */
     std::string server_ip();
 
+    /**
+     * Sends a packet to the server and get a response from it.
+     *
+     * @param packet The serialized packet object.
+     * @return A shared pointer to a response packet from the server.
+     */
     std::shared_ptr<response_packet> send(serialized_packet *packet);
+
+    /**
+     * Sends a packet to the server, get a response from it and verify it's type.
+     *
+     * @param packet The serialized packet object.
+     * @param response_type The type of the response.
+     * @return A shared pointer to a response packet from the server.
+     */
     std::shared_ptr<response_packet> send_and_verify(serialized_packet *packet,
                                                      packet_type response_type);
 
+    /**
+     * Gets the event handler object.
+     *
+     * @return The event handler object.
+     */
     event_handler &event_handler();
 
-    // Clean Connection
+    /**
+     * Cleans the connection with the server.
+     *
+     * @param join_recv_thread Should the recv thread be joined.
+     */
     void clean_connection(bool join_recv_thread = true);
 
    private:

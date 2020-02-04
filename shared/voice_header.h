@@ -6,7 +6,10 @@
 namespace quesync {
 namespace voice {
 struct header {
+    /// The initialization vector.
     unsigned char iv[AES_IV_SIZE];
+
+    /// The HMAC of the data.
     unsigned char hmac[HMAC_KEY_SIZE];
 };
 };  // namespace voice

@@ -11,7 +11,22 @@ namespace utils {
 namespace crypto {
 class pbkdf2 {
    public:
+    /**
+     * Calculates PBKDF2-SHA512 for a password.
+     *
+     * @param password The raw password.
+     * @param salt The salt to be using for the hashing.
+     * @return The hashed password.
+     */
     static std::string sha512(std::string password, unsigned char *salt);
+
+    /**
+     * Validates a password using PBKDF2-SHA512.
+     *
+     * @param password The raw password.
+     * @param hash The hashed password.
+     * @return True if the passwords match or false otherwise.
+     */
     static bool sha512_compare(std::string password, std::string hash);
 };
 };  // namespace crypto

@@ -1,8 +1,8 @@
 #pragma once
 #include "../serialized_packet.h"
 
-#include "error_packet.h"
 #include "../response_packet.h"
+#include "error_packet.h"
 
 #include "../exception.h"
 
@@ -10,8 +10,15 @@ namespace quesync {
 namespace packets {
 class friendship_status_packet : public serialized_packet {
    public:
+    /// Default constructor.
     friendship_status_packet() : friendship_status_packet("", false){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param friend_id The id of the friend.
+     * @param status The new friendship status.
+     */
     friendship_status_packet(std::string friend_id, bool status)
         : serialized_packet(packet_type::friendship_status_packet) {
         _data["friendId"] = friend_id;

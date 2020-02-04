@@ -13,7 +13,18 @@ namespace quesync {
 namespace packets {
 class voice_packet {
    public:
+    /// Default constructor.
     voice_packet(){};
+
+    /**
+     * Packet constructor.
+     *
+     * @param user_id The id of the user.
+     * @param session_id The id of the voice session.
+     * @param channel_id The id of the channel.
+     * @param voice_data The encoded opus data.
+     * @param voice_data_len The length of the encoded opus data.
+     */
     voice_packet(std::string user_id, std::string session_id, std::string channel_id,
                  char *voice_data, unsigned int voice_data_len)
         : _user_id(user_id),
@@ -24,6 +35,11 @@ class voice_packet {
         memcpy(_voice_data, voice_data, voice_data_len);
     }
 
+    /**
+     * Encode the packet.
+     *
+     * @return The packet encoded.
+     */
     std::string encode() {
         std::stringstream encoded_packet;
 
@@ -35,6 +51,12 @@ class voice_packet {
         return encoded_packet.str();
     }
 
+    /**
+     * Decode the packet.
+     *
+     * @param buf The packet's encoded data.
+     * @return True if the packet was decoded successfully or false otherwise.
+     */
     bool decode(std::string buf) {
         // Split the packet
         std::vector<std::string> params = utils::parser::split(buf, PACKET_DELIMETER);
@@ -61,14 +83,39 @@ class voice_packet {
         return true;
     }
 
+    /**
+     * Get the user id.
+     *
+     * @return The user id.
+     */
     std::string user_id() { return _user_id; }
 
+    /**
+     * Get the session id.
+     *
+     * @return The session id.
+     */
     std::string session_id() { return _session_id; }
 
+    /**
+     * Get the channel id.
+     *
+     * @return The channel id.
+     */
     std::string channel_id() { return _channel_id; }
 
+    /**
+     * Get the voice data which is the encoded opus data.
+     *
+     * @return The voice data.
+     */
     char *voice_data() { return _voice_data; }
 
+    /**
+     * Get the voice data length.
+     *
+     * @return The voice data length.
+     */
     unsigned int voice_data_len() { return _voice_data_len; }
 
    private:

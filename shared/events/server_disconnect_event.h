@@ -6,6 +6,7 @@
 namespace quesync {
 namespace events {
 struct server_disconnect_event : public event {
+    /// Default constructor.
     server_disconnect_event() : event(event_type::server_disconnect_event) {}
 
     virtual nlohmann::json encode() const { return {{"eventType", type}}; }

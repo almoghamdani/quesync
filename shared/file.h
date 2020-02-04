@@ -5,8 +5,18 @@
 
 namespace quesync {
 struct file {
+    /// Default constructor.
     file() : file("", "", "", 0, (std::time_t)0){};
 
+    /**
+     * File constructor.
+     *
+     * @param id The id of the file.
+     * @param uploader_id The id of the uploader.
+     * @param name The name of the file.
+     * @param size The size of the file.
+     * @param uploaded_at The date the file was uploaded.
+     */
     file(std::string id, std::string uploader_id, std::string name, unsigned long long size,
          std::time_t uploaded_at) {
         this->id = id;
@@ -16,10 +26,19 @@ struct file {
         this->uploaded_at = uploaded_at;
     };
 
+    /// The id of the file.
     std::string id;
+
+    /// The id of the uploader.
     std::string uploader_id;
+
+    /// The name of the file.
     std::string name;
+
+    /// The size of the file.
     unsigned long long size;
+
+    /// The date the file was uploaded.
     std::time_t uploaded_at;
 };
 

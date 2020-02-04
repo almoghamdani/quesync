@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 
-#include "error_packet.h"
 #include "../response_packet.h"
+#include "error_packet.h"
 
 #include "../exception.h"
 
@@ -13,8 +13,15 @@ namespace quesync {
 namespace packets {
 class search_packet : public serialized_packet {
    public:
+    /// Default constructor.
     search_packet() : search_packet("", -1){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param nickname The nickname to search for.
+     * @param tag The tag to search for.
+     */
     search_packet(std::string nickname, int tag) : serialized_packet(packet_type::search_packet) {
         _data["nickname"] = nickname;
         _data["tag"] = tag;

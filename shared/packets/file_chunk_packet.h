@@ -13,17 +13,37 @@
 namespace quesync {
 namespace packets {
 struct file_chunk_packet_format {
+    /// The header of the packet.
     const char header[sizeof(FILE_CHUNK_PACKET_HEADER)] = FILE_CHUNK_PACKET_HEADER;
+
+    /// The id of the file.
     char file_id[FILE_ID_SIZE];
+
+    /// The data of the file chunk.
     char data[FILE_CHUNK_SIZE];
+
+    /// The index of the file chunk.
     unsigned long long index;
 };
 
 class file_chunk_packet {
    public:
+    /// Default constructor.
     file_chunk_packet(){};
+
+    /**
+     * Packet constructor.
+     *
+     * @param file_id The id of the file.
+     * @param chunk The file chunk.
+     */
     file_chunk_packet(std::string file_id, file_chunk chunk) : _file_id(file_id), _chunk(chunk) {}
 
+    /**
+     * Encodes the packet.
+     *
+     * @return The packet encoded.
+     */
     std::string encode() {
         file_chunk_packet_format format;
 
@@ -35,6 +55,12 @@ class file_chunk_packet {
         return std::string((char *)&format, sizeof(file_chunk_packet_format));
     }
 
+    /**
+     * Decode the packet.
+     *
+     * @param buf The packet's encoded data.
+     * @return True if the packet was decoded successfully or false otherwise.
+     */
     bool decode(std::string buf) {
         file_chunk_packet_format format;
 
@@ -42,7 +68,7 @@ class file_chunk_packet {
         if (buf.length() != sizeof(file_chunk_packet_format)) {
             return false;
         } else if (buf.substr(0, sizeof(FILE_CHUNK_PACKET_HEADER) - 1) !=
-                       FILE_CHUNK_PACKET_HEADER)  // Check header
+                   FILE_CHUNK_PACKET_HEADER)  // Check header
         {
             return false;
         }
@@ -59,7 +85,18 @@ class file_chunk_packet {
         return true;
     }
 
+    /**
+     * Get the file chunk.
+     *
+     * @return The file chunk.
+     */
     const file_chunk &chunk() const { return _chunk; }
+
+    /**
+     * Get the file id.
+     *
+     * @return The file id.
+     */
     std::string file_id() const { return _file_id; }
 
    private:

@@ -20,6 +20,12 @@ namespace quesync {
 namespace utils {
 class event_generator {
    public:
+    /**
+     * Generate an event object.
+     *
+     * @param type The type of the event.
+     * @return A shared pointer to the new event object.
+     */
     static std::shared_ptr<event> generate_event(event_type type) {
         try {
             return event_initalizers.at(type)();
@@ -28,14 +34,14 @@ class event_generator {
         }
     }
 
+   private:
+    static const std::unordered_map<event_type, std::function<std::shared_ptr<event>()>>
+        event_initalizers;
+
     template <typename T>
     static std::shared_ptr<event> init_event() {
         return std::shared_ptr<event>(new T);
     }
-
-   private:
-    static const std::unordered_map<event_type, std::function<std::shared_ptr<event>()>>
-        event_initalizers;
 };
 };  // namespace utils
 };  // namespace quesync

@@ -11,8 +11,14 @@ namespace quesync {
 namespace packets {
 class event_packet : public response_packet {
    public:
+    /// Default constructor.
     event_packet() : response_packet(packet_type::event_packet, std::string()){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param evt A shared pointer to the event object.
+     */
     event_packet(std::shared_ptr<quesync::event> evt)
         : _evt(evt),
           response_packet(packet_type::event_packet,
@@ -45,6 +51,11 @@ class event_packet : public response_packet {
         return true;
     };
 
+    /**
+     * Get the event object.
+     *
+     * @return A shared pointer to the event object.
+     */
     std::shared_ptr<quesync::event> event() const { return _evt; };
 
    protected:

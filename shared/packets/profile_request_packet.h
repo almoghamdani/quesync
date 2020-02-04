@@ -11,8 +11,14 @@ namespace quesync {
 namespace packets {
 class profile_request_packet : public serialized_packet {
    public:
+    /// Default constructor.
     profile_request_packet() : profile_request_packet(""){};
 
+    /**
+     * Packet constructor.
+     * 
+     * @param user_id The id of the user.
+     */
     profile_request_packet(std::string user_id)
         : serialized_packet(packet_type::profile_request_packet) {
         _data["userId"] = user_id;

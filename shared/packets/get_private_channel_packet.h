@@ -1,8 +1,8 @@
 #pragma once
 #include "../serialized_packet.h"
 
-#include "error_packet.h"
 #include "../response_packet.h"
+#include "error_packet.h"
 
 #include "../channel.h"
 #include "../exception.h"
@@ -11,8 +11,14 @@ namespace quesync {
 namespace packets {
 class get_private_channel_packet : public serialized_packet {
    public:
+    /// Default constructor.
     get_private_channel_packet() : get_private_channel_packet(""){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param user_id The id of the user.
+     */
     get_private_channel_packet(std::string user_id)
         : serialized_packet(packet_type::get_private_channel_packet) {
         _data["userId"] = user_id;

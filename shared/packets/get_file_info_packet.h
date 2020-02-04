@@ -11,8 +11,14 @@ namespace quesync {
 namespace packets {
 class get_file_info_packet : public serialized_packet {
    public:
+    /// Default constructor.
     get_file_info_packet() : get_file_info_packet(""){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param file_id The id of the file.
+     */
     get_file_info_packet(std::string file_id)
         : serialized_packet(packet_type::get_file_info_packet) {
         _data["fileId"] = file_id;

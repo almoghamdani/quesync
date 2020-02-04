@@ -11,8 +11,14 @@ namespace quesync {
 namespace packets {
 class download_file_packet : public serialized_packet {
    public:
+    /// Default constructor.
     download_file_packet() : download_file_packet(""){};
 
+    /**
+     * Packet constructor.
+     * 
+     * @param file_id The id of the file.
+     */
     download_file_packet(std::string file_id)
         : serialized_packet(packet_type::download_file_packet) {
         _data["fileId"] = file_id;

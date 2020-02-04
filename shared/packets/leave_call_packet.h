@@ -10,6 +10,7 @@ namespace quesync {
 namespace packets {
 class leave_call_packet : public serialized_packet {
    public:
+    /// Default constructor.
     leave_call_packet() : serialized_packet(packet_type::leave_call_packet){};
 
     virtual bool verify() const { return true; };

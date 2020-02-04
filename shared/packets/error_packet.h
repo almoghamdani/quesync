@@ -9,8 +9,14 @@ namespace quesync {
 namespace packets {
 class error_packet : public response_packet {
    public:
+    /// Default constructor.
     error_packet() : response_packet(packet_type::error_packet, std::string()){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param ec The error code.
+     */
     error_packet(error ec)
         : _ec(ec),
           response_packet(packet_type::error_packet,
@@ -32,6 +38,11 @@ class error_packet : public response_packet {
         return true;
     };
 
+    /**
+     * Get the error code.
+     *
+     * @return The error code.
+     */
     quesync::error error() const { return _ec; };
 
    protected:

@@ -10,6 +10,7 @@ namespace quesync {
 namespace packets {
 class logout_packet : public serialized_packet {
    public:
+    /// Default constructor.
     logout_packet() : serialized_packet(packet_type::logout_packet){};
 
     virtual bool verify() const { return true; };

@@ -1,8 +1,8 @@
 #pragma once
 #include "../serialized_packet.h"
 
-#include "error_packet.h"
 #include "../response_packet.h"
+#include "error_packet.h"
 
 #include "../exception.h"
 
@@ -10,8 +10,14 @@ namespace quesync {
 namespace packets {
 class set_profile_photo_packet : public serialized_packet {
    public:
+    /// Default constructor.
     set_profile_photo_packet() : set_profile_photo_packet(""){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param file_id The id of the profile photo id.
+     */
     set_profile_photo_packet(std::string file_id)
         : serialized_packet(packet_type::set_profile_photo_packet) {
         _data["fileId"] = file_id;
@@ -28,7 +34,7 @@ class set_profile_photo_packet : public serialized_packet {
         }
 
         try {
-			// Set the profile photo for the user
+            // Set the profile photo for the user
             session->server()->user_manager()->set_profile_photo(session, _data["fileId"]);
 
             // Return confirmation for the profile photo

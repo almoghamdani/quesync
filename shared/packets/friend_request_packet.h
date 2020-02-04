@@ -1,8 +1,8 @@
 #pragma once
 #include "../serialized_packet.h"
 
-#include "error_packet.h"
 #include "../response_packet.h"
+#include "error_packet.h"
 
 #include "../exception.h"
 
@@ -10,8 +10,14 @@ namespace quesync {
 namespace packets {
 class friend_request_packet : public serialized_packet {
    public:
+    /// Default constructor.
     friend_request_packet() : friend_request_packet(""){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param recipient_id The id of the recipient.
+     */
     friend_request_packet(std::string recipient_id)
         : serialized_packet(packet_type::friend_request_packet) {
         _data["recipientId"] = recipient_id;

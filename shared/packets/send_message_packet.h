@@ -11,8 +11,16 @@ namespace quesync {
 namespace packets {
 class send_message_packet : public serialized_packet {
    public:
+    /// Default constructor.
     send_message_packet() : send_message_packet("", "", ""){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param content The content of the message.
+     * @param channel_id The id of the channel to send the message to.
+     * @param attachment_id The id of attachment to attach to the message. This can be null.
+     */
     send_message_packet(std::string content, std::string attachment_id, std::string channel_id)
         : serialized_packet(packet_type::send_message_packet) {
         _data["content"] = content;

@@ -11,8 +11,14 @@ namespace quesync {
 namespace packets {
 class file_transmission_stop_packet : public serialized_packet {
    public:
+    /// Default constructor.
     file_transmission_stop_packet() : file_transmission_stop_packet(""){};
 
+    /**
+     * Packet constructor.
+     *
+     * @param file_id The id of the file.
+     */
     file_transmission_stop_packet(std::string file_id)
         : serialized_packet(packet_type::file_transmission_stop_packet) {
         _data["fileId"] = file_id;

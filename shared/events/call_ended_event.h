@@ -4,8 +4,14 @@
 namespace quesync {
 namespace events {
 struct call_ended_event : public event {
+    /// Default constructor.
     call_ended_event() : event(event_type::call_ended_event) {}
 
+    /**
+     * Event constructor.
+     *
+     * @param channel_id The id of the channel.
+     */
     call_ended_event(std::string channel_id) : event(event_type::call_ended_event) {
         this->channel_id = channel_id;
     }
@@ -18,6 +24,7 @@ struct call_ended_event : public event {
         channel_id = j["channelId"];
     }
 
+    /// The id of the channel.
     std::string channel_id;
 };
 };  // namespace events

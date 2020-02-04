@@ -9,6 +9,11 @@ class server;
 
 class manager {
    public:
+    /**
+     * Manager constructor.
+     *
+     * @param server A shared pointer to the server object.
+     */
     manager(std::shared_ptr<server> server) : _server(server) {}
 
    protected:
