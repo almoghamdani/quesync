@@ -17,6 +17,7 @@ class manager {
     manager(std::shared_ptr<server> server) : _server(server) {}
 
    protected:
+    /// A shared pointer to the server object.
     std::shared_ptr<server> _server;
 };
 };  // namespace server

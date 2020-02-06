@@ -75,23 +75,37 @@ class communicator : public module {
     void clean_connection(bool join_recv_thread = true);
 
    private:
+    /// The client's event handler object.
     quesync::client::event_handler _event_handler;
 
+    /// The incoming event packets queue.
     std::vector<std::shared_ptr<packets::event_packet>> _event_packets;
+
+    /// The incoming response packets queue.
     std::vector<std::shared_ptr<response_packet>> _response_packets;
 
-    // Locks
+    /// Socker recv lock
     std::mutex _socket_get_mutex;
+
+    /// Socker send lock
     std::mutex _socket_send_mutex;
+
+    /// Events lock
     std::mutex _events_mutex;
 
-    // Condition Variables
+    /// Response packets condition variable
     std::condition_variable _response_cv;
+
+    /// event packets condition variable
     std::condition_variable _events_cv;
 
-    // Socket
+    /// The IP of the server
     std::string _server_ip;
+
+    /// Is the client connected to the server.
     bool _connected;
+
+    /// A pointer to the socket.
     asio::ssl::stream<tcp::socket> *_socket;
 
     // Threads
@@ -102,6 +116,7 @@ class communicator : public module {
     void recv();
     void events_handler();
 
+    /// Should the threads stop.
     std::atomic<bool> _stop_threads;
 
     // Helper functions

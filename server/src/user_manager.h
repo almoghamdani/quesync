@@ -61,7 +61,7 @@ class user_manager : manager {
 
     /**
      * Authenticate a client using username and password.
-     * 
+     *
      * @param sess A shared pointer to the session object of the user.
      * @param username The username of the user.
      * @param password The password of the user.
@@ -72,23 +72,23 @@ class user_manager : manager {
 
     /**
      * Gets the session of an authenticated user.
-     * 
+     *
      * @param user_id The id of the user.
      * @return A shared pointer to the session object of the user.
-     */                                            
+     */
     std::shared_ptr<quesync::server::session> get_authenticated_session_of_user(
         std::string user_id);
 
     /**
      * Unauthenticate a user's session.
-     * 
+     *
      * @param user_id The id of the user.
      */
     void unauthenticate_session(std::string user_id);
 
     /**
      * Sets the profile photo of a user.
-     * 
+     *
      * @param sess A shared pointer to the session object of the user.
      * @param file_id The id of the profile photo file.
      */
@@ -96,7 +96,7 @@ class user_manager : manager {
 
     /**
      * Get the user profile of a user.
-     * 
+     *
      * @param id The id of the user.
      * @return A shared pointer to the user's profile object.
      */
@@ -104,7 +104,7 @@ class user_manager : manager {
 
     /**
      * Sends a friend request to a user.
-     * 
+     *
      * @param requester_id The id of the requester.
      * @param recipient_id The id of the recipient.
      */
@@ -112,7 +112,7 @@ class user_manager : manager {
 
     /**
      * Sets the friendship status between 2 users.
-     * 
+     *
      * @param requester_id The id of the requester.
      * @param friend_id The id of the friend.
      * @param status The new friendship status.
@@ -131,8 +131,11 @@ class user_manager : manager {
                                 std::string nickname, int tag);
 
    private:
-    std::mutex _sessions_mutex;
+    /// A map of authenticated sessions.
     std::unordered_map<std::string, std::weak_ptr<session>> _authenticated_sessions;
+
+    /// Authenticated sessions lock.
+    std::mutex _sessions_mutex;
 
     std::string get_profile_photo(std::string photo_id);
 

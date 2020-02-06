@@ -65,16 +65,22 @@ class output {
     void callback_handler(void *output_buffer);
 
    private:
+    /// A shared pointer to the voice manager object.
     std::shared_ptr<manager> _manager;
 
+    /// A queue of the output data buffers
     std::queue<std::shared_ptr<int16_t>> _output_data;
     std::mutex _data_mutex;
 
     std::thread _thread;
 
+    /// A pointer to the opus decoder.
     OpusDecoder *_opus_decoder;
 
+    /// Is the output enabled.
     bool _enabled;
+
+    // Is the output muted.
     bool _deafen;
 
     void output_thread();

@@ -65,7 +65,10 @@ class auth : public module {
     virtual void logged_out();
 
    private:
+    /// A shared pointer to the authenticated user.
     std::shared_ptr<quesync::user> _user;
+
+    /// The session id.
     std::string _session_id;
 };
 };  // namespace modules

@@ -67,24 +67,32 @@ class files : public module {
     virtual void logged_out();
 
    private:
+    /// The files I/O context.
     std::shared_ptr<asio::io_context> _io_context;
 
+    /// A pointer to the files socket.
     asio::ssl::stream<tcp::socket> *_socket;
 
-    std::mutex _uploads_mutex;
+    /// A map of uploads progresses.
     std::unordered_map<std::string, unsigned long long> _uploads_progress;
+    std::mutex _uploads_mutex;
 
-    std::mutex _downloads_mutex;
+    /// A map of memory download files.
     std::unordered_map<std::string, std::shared_ptr<memory_file>> _download_files;
+    std::mutex _downloads_mutex;
+
+    /// A map of download files paths.
     std::unordered_map<std::string, std::string> _download_paths;
 
-    std::mutex _events_mutex;
+    /// A map of events to be passed to the frontend.
     std::unordered_map<std::string, std::shared_ptr<events::file_transmission_progress_event>>
         _events;
+    std::mutex _events_mutex;
 
     std::thread _events_thread;
     std::thread _io_thread;
 
+    /// Should the threads stop.
     std::atomic<bool> _stop_threads;
 
     void connect_to_file_server();

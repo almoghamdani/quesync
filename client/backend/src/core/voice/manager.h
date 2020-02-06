@@ -200,28 +200,42 @@ class manager : public std::enable_shared_from_this<manager> {
     std::atomic<bool> &stop_threads();
 
    private:
+    /// A shared pointer to the client object.
     std::shared_ptr<client> _client;
 
+    /// A shared pointer to the voice input object.
     std::shared_ptr<quesync::client::voice::input> _input;
+
+    /// A shared pointer to the voice output object.
     std::shared_ptr<quesync::client::voice::output> _output;
 
+    /// The AES key buffer.
     std::shared_ptr<unsigned char> _aes_key;
+
+    /// The HMAC key buffer.
     std::shared_ptr<unsigned char> _hmac_key;
 
+    /// The session id.
     std::string _session_id;
+
+    /// The channel id.
     std::string _channel_id;
 
+    /// The voice socket.
     udp::socket _socket;
     udp::endpoint _endpoint;
 
-    std::mutex _activation_mutex;
+    /// A map of users' voice activations.
     std::unordered_map<std::string, activation> _voice_activation;
     std::unordered_map<std::string, bool> _changed_voice_activity;
+    std::mutex _activation_mutex;
 
     std::thread _activation_thread;
 
+    /// Should the threads stop.
     std::atomic<bool> _stop_threads;
 
+    /// The RtAudio object used to play and record audio.
     RtAudio _rt_audio;
 
     unsigned int _input_device_id;

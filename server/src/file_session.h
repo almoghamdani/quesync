@@ -54,17 +54,24 @@ class file_session : public std::enable_shared_from_this<file_session> {
     void remove_file(std::string file_id);
 
    private:
+    /// A shared pointer to the user object.
     std::shared_ptr<quesync::user> _user;
+
+    /// A shared pointer to the server object.
     std::shared_ptr<quesync::server::server> _server;
 
-    std::mutex _downloads_mutex;
+    /// A map of the user's downloads progresses.
     std::unordered_map<std::string, unsigned long long> _downloads_progress;
+    std::mutex _downloads_mutex;
 
-    std::mutex _uploads_mutex;
+    /// A map of the user's upload files.
     std::unordered_map<std::string, std::shared_ptr<memory_file>> _upload_files;
+    std::mutex _uploads_mutex;
 
+    /// The socket with the user.
     asio::ssl::stream<tcp::socket> _socket;
 
+    /// A strand used to sync send and recv on the socket.
     asio::io_context::strand _strand;
 
     void handshake();

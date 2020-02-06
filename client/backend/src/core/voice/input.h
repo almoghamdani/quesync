@@ -67,18 +67,26 @@ class input {
     void callback_handler(void *input_buffer);
 
    private:
+    /// A shared pointer to the voice manager object.
     std::shared_ptr<manager> _manager;
 
+    /// A queue of the input data buffers
     std::queue<std::shared_ptr<int16_t>> _input_data;
     std::mutex _data_mutex;
     std::condition_variable _data_cv;
 
     std::thread _thread;
 
+    /// A pointer to the opus encoder.
     OpusEncoder *_opus_encoder;
+
+    /// A pointer to the RNNoise object.
     DenoiseState *_rnnoise_state;
 
+    /// Is the input enabled.
     bool _enabled;
+
+    // Is the input muted.
     bool _muted;
 
     void input_thread();

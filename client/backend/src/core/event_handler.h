@@ -52,10 +52,12 @@ class event_handler {
     void clear_all_event_handlers();
 
    private:
+    /// A map of event type and it's handlers.
     std::unordered_map<quesync::event_type,
                        std::vector<std::function<void(std::shared_ptr<quesync::event>)>>>
         _event_handlers;
 
+    /// A map of event type and it's core handlers.
     std::unordered_map<quesync::event_type, std::function<void(std::shared_ptr<quesync::event>)>>
         _core_event_handlers;
 };

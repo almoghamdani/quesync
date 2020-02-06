@@ -104,13 +104,28 @@ class client : public std::enable_shared_from_this<client> {
     void logged_out();
 
    private:
+    /// A shared pointer to the communicator module.
     std::shared_ptr<modules::communicator> _communicator;
+
+    /// A shared pointer to the auth module.
     std::shared_ptr<modules::auth> _auth;
+
+    /// A shared pointer to the users module.
     std::shared_ptr<modules::users> _users;
+
+    /// A shared pointer to the channels module.
     std::shared_ptr<modules::channels> _channels;
+
+    /// A shared pointer to the messages module.
     std::shared_ptr<modules::messages> _messages;
+
+    /// A shared pointer to the voice module.
     std::shared_ptr<modules::voice> _voice;
+
+    /// A shared pointer to the files module.
     std::shared_ptr<modules::files> _files;
+
+    /// A shared pointer to the user module.
     std::shared_ptr<modules::user> _user;
 };
 };  // namespace client

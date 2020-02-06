@@ -95,6 +95,7 @@ class voice : public module {
     virtual void connected(std::string server_ip);
 
    private:
+    /// A shared pointer to the voice manager object.
     std::shared_ptr<quesync::client::voice::manager> _voice_manager;
 };
 };  // namespace modules

@@ -119,17 +119,34 @@ class server : public std::enable_shared_from_this<server> {
     sql::Schema get_sql_schema(sql::Session &session);
 
    private:
+    /// The main TCP acceptor for the server.
     tcp::acceptor _acceptor;
+
+    /// The SSL/TLS context.
     asio::ssl::context _context;
 
+    /// The SQL client used to create sessions with the SQL server.
     sql::Client _sql_cli;
 
+    /// A shared pointer to the user manager object.
     std::shared_ptr<quesync::server::user_manager> _user_manager;
+
+    /// A shared pointer to the event manager object.
     std::shared_ptr<quesync::server::event_manager> _event_manager;
+
+    /// A shared pointer to the channel manager object.
     std::shared_ptr<quesync::server::channel_manager> _channel_manager;
+
+    /// A shared pointer to the message manager object.
     std::shared_ptr<quesync::server::message_manager> _message_manager;
+
+    /// A shared pointer to the session manager object.
     std::shared_ptr<quesync::server::session_manager> _session_manager;
+
+    /// A shared pointer to the voice manager object.
     std::shared_ptr<quesync::server::voice_manager> _voice_manager;
+
+    /// A shared pointer to the file manager object.
     std::shared_ptr<quesync::server::file_manager> _file_manager;
 
     void accept_client();

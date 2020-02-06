@@ -120,10 +120,14 @@ class file_manager : manager {
     void register_user_file_session(std::shared_ptr<file_session> sess, std::string user_id);
 
    private:
+    /// The TCP acceptor for the file server.
     tcp::acceptor _acceptor;
 
-    std::mutex _sessions_mutex;
+    /// A map of connected users' file sessions.
     std::unordered_map<std::string, std::shared_ptr<file_session>> _users_file_sessions;
+
+    /// Users' file sessions map lock.
+    std::mutex _sessions_mutex;
 
     void accept_client();
 };

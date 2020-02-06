@@ -73,12 +73,19 @@ class session : public std::enable_shared_from_this<session> {
     std::shared_ptr<user> user() const;
 
    private:
-    mutable std::mutex _user_mutex;
+    /// A shared pointer to the user object.
     std::shared_ptr<quesync::user> _user;
 
+    /// Lock for the user object.
+    mutable std::mutex _user_mutex;
+
+    /// A shared pointer to the server object.
     std::shared_ptr<quesync::server::server> _server;
 
+    /// The socket for the user's session.
     asio::ssl::stream<tcp::socket> _socket;
+
+    /// The endpoint of the user.
     tcp::endpoint _endpoint;
 
     void clean_user_session();

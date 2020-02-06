@@ -135,17 +135,31 @@ class voice_manager : manager {
                                         int amount, int offset);
 
    private:
+    /// The voice server's socket.
     udp::socket _socket;
+
+    /// The last sender endpoint.
     udp::endpoint _sender_endpoint;
+
+    /// The buffer for recv messages.
     char _buf[MAX_DATA_LEN];
 
+    /// A map of all voice channels.
     std::unordered_map<std::string, std::shared_ptr<call_details>> _voice_channels;
+
+    /// A map of users' joined voice channels.
     std::unordered_map<std::string, std::string> _joined_voice_channels;
 
+    /// A map of all users' endpoints.
     std::unordered_map<std::string, udp::endpoint> _session_endpoints;
+
+    /// A map of all session keys for each user.
     std::unordered_map<std::string, voice::encryption_info> _session_keys;
+
+    /// A map of all sessions.
     std::unordered_map<std::string, std::string> _sessions;
 
+    /// A map of OTPs for each user.
     std::unordered_map<std::string, std::string> _otps;
 
     std::mutex _mutex;
