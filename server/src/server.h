@@ -153,6 +153,9 @@ class server : public std::enable_shared_from_this<server> {
 
     static std::string format_uri(std::string sql_server_ip, std::string sql_username,
                                   std::string sql_password);
+    static std::string format_import_string(std::string sql_server_ip, std::string sql_username,
+                                            std::string sql_password);
+    static std::string to_hex_string(std::string str);
 };
 };  // namespace server
 };  // namespace quesync

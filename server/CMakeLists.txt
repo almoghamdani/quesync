@@ -63,6 +63,12 @@ IF (MYSQL_DIR)
     add_definitions(-DSTATIC_CONCPP)
 ENDIF()
 
+# Generate header file with database dump content
+file(WRITE ${PROJECT_BINARY_DIR}/database_dump.c "")
+file(READ database-dump.sql filedata HEX)
+string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
+file(APPEND ${PROJECT_BINARY_DIR}/database_dump.c "const unsigned char database_dump[] = {${filedata}};const unsigned database_dump_size = sizeof(database_dump);\n")
+
 # Change runtime library to MD
 set(CMAKE_CXX_FLAGS_RELEASE "/MD")
 set(CMAKE_CXX_FLAGS_DEBUG "/MD")
@@ -83,7 +89,7 @@ file(GLOB SOURCES "src/*.cpp")
 file(GLOB_RECURSE SHARED_SOURCES "../shared/*/**.cpp")
 
 # Get all c++ files that are associated with the libraries used
-file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../vendor/zxcvbn/**/*.cpp")
+file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../vendor/zxcvbn/**/*.cpp" ${PROJECT_BINARY_DIR}/database_dump.c)
 
 # Add the server as an executable to be compiled
 add_executable(${PROJECT_NAME} ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})

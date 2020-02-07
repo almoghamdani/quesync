@@ -1,9 +1,11 @@
 #include "server.h"
 
 #include <iostream>
+#include <regex>
 #include <sstream>
 #include <termcolor/termcolor.hpp>
 
+#include "database_dump.h"
 #include "session.h"
 
 quesync::server::server::server(asio::io_context &io_context, std::string sql_server_ip,
@@ -11,9 +13,13 @@ quesync::server::server::server(asio::io_context &io_context, std::string sql_se
     : _acceptor(io_context, tcp::endpoint(tcp::v4(), MAIN_SERVER_PORT)),
       _context(asio::ssl::context::sslv23),
       _sql_cli(server::format_uri(sql_server_ip, sql_username, sql_password)) {
+    // Init SSL context
     _context.set_options(asio::ssl::context::default_workarounds | asio::ssl::context::no_sslv2);
     _context.use_certificate_chain_file("server.pem");
     _context.use_private_key_file("server.pem", asio::ssl::context::pem);
+
+    // Import database dump
+    system(format_import_string(sql_server_ip, sql_username, sql_password).c_str());
 }
 
 std::string quesync::server::server::format_uri(std::string sql_server_ip, std::string sql_username,
@@ -24,6 +30,38 @@ std::string quesync::server::server::format_uri(std::string sql_server_ip, std::
     uri << sql_username << ":" << sql_password << "@" << sql_server_ip << "/quesync";
 
     return uri.str();
+}
+
+std::string quesync::server::server::format_import_string(std::string sql_server_ip,
+                                                          std::string sql_username,
+                                                          std::string sql_password) {
+    std::string database_dump_esacped =
+        to_hex_string(std::string((char *)database_dump, database_dump_size));
+    std::stringstream import_str;
+
+    // Format Mysql import string
+    import_str << "echo '" << database_dump_esacped << "' | mysql -u" << sql_username << " -p"
+               << sql_password << " -h" << sql_server_ip;
+
+    // Redirect to null
+#ifdef _WIN32
+    import_str << " > NUL 2>&1";
+#else
+    import_str << " > /dev/null 2>&1";
+#endif
+
+
+    return import_str.str();
+}
+
+std::string quesync::server::server::to_hex_string(std::string str) {
+    std::stringstream hex;
+
+    for (char &c : str) {
+        hex << "\\x" << std::hex << (int)c;
+    }
+
+    return hex.str();
 }
 
 quesync::server::server::~server() {
