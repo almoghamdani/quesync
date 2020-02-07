@@ -1,7 +1,8 @@
 #include "server.h"
 
+#include <cstdio>
+#include <fstream>
 #include <iostream>
-#include <regex>
 #include <sstream>
 #include <termcolor/termcolor.hpp>
 
@@ -19,7 +20,26 @@ quesync::server::server::server(asio::io_context &io_context, std::string sql_se
     _context.use_private_key_file("server.pem", asio::ssl::context::pem);
 
     // Import database dump
-    system(format_import_string(sql_server_ip, sql_username, sql_password).c_str());
+    import_database(sql_server_ip, sql_username, sql_password);
+}
+
+void quesync::server::server::import_database(std::string sql_server_ip, std::string sql_username,
+                                              std::string sql_password) {
+#ifdef _WIN32
+    std::ofstream sql_file(DATABASE_DUMP_TEMP_FILE_NAME);
+
+    // Write the database dump to the file and close it
+    sql_file << std::string((char *)database_dump, database_dump_size);
+    temp_dump.close();
+
+    // Import the database
+    system(format_import_string_win(sql_server_ip, sql_username, sql_password).c_str());
+
+    // Remove the file
+    std::remove(DATABASE_DUMP_TEMP_FILE_NAME);
+#else
+    system(format_import_string_unix(sql_server_ip, sql_username, sql_password).c_str());
+#endif
 }
 
 std::string quesync::server::server::format_uri(std::string sql_server_ip, std::string sql_username,
@@ -32,24 +52,28 @@ std::string quesync::server::server::format_uri(std::string sql_server_ip, std::
     return uri.str();
 }
 
-std::string quesync::server::server::format_import_string(std::string sql_server_ip,
-                                                          std::string sql_username,
-                                                          std::string sql_password) {
+std::string quesync::server::server::format_import_string_unix(std::string sql_server_ip,
+                                                               std::string sql_username,
+                                                               std::string sql_password) {
     std::string database_dump_esacped =
         to_hex_string(std::string((char *)database_dump, database_dump_size));
     std::stringstream import_str;
 
-    // Format Mysql import string
-    import_str << "echo '" << database_dump_esacped << "' | mysql -u" << sql_username << " -p"
-               << sql_password << " -h" << sql_server_ip;
+    // Format MySQL import string
+    import_str << "echo -e '" << database_dump_esacped << "' | mysql -u" << sql_username << " -p"
+               << sql_password << " -h" << sql_server_ip << " > /dev/null 2>&1";
 
-    // Redirect to null
-#ifdef _WIN32
-    import_str << " > NUL 2>&1";
-#else
-    import_str << " > /dev/null 2>&1";
-#endif
+    return import_str.str();
+}
 
+std::string quesync::server::server::format_import_string_win(std::string sql_server_ip,
+                                                              std::string sql_username,
+                                                              std::string sql_password) {
+    std::stringstream import_str;
+
+    // Format MySQL import string
+    import_str << "mysql -u" << sql_username << " -p" << sql_password << " -h" << sql_server_ip
+               << " < " << DATABASE_DUMP_TEMP_FILE_NAME << " > NUL 2>&1";
 
     return import_str.str();
 }
