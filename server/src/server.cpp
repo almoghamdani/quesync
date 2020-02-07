@@ -60,8 +60,13 @@ std::string quesync::server::server::format_import_string_unix(std::string sql_s
     std::stringstream import_str;
 
     // Format MySQL import string
+#ifdef __APPLE__
+    import_str << "echo '" << database_dump_esacped << "' | mysql -u" << sql_username << " -p"
+               << sql_password << " -h" << sql_server_ip << " > /dev/null 2>&1";
+#else
     import_str << "echo -e '" << database_dump_esacped << "' | mysql -u" << sql_username << " -p"
                << sql_password << " -h" << sql_server_ip << " > /dev/null 2>&1";
+#endif
 
     return import_str.str();
 }
