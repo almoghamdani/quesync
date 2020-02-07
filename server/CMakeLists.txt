@@ -67,7 +67,7 @@ ENDIF()
 file(WRITE ${PROJECT_BINARY_DIR}/database_dump.c "")
 file(READ database-dump.sql filedata HEX)
 string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
-file(APPEND ${PROJECT_BINARY_DIR}/database_dump.c "const unsigned char database_dump[] = {${filedata}};const unsigned database_dump_size = sizeof(database_dump);\n")
+file(APPEND ${PROJECT_BINARY_DIR}/database_dump.c "const unsigned char database_dump[] = {${filedata}};\nconst unsigned database_dump_size = sizeof(database_dump);\n")
 
 # Change runtime library to MD
 set(CMAKE_CXX_FLAGS_RELEASE "/MD")
