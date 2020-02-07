@@ -1,13 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.15, for macos10.14 (x86_64)
---
--- Host: localhost    Database: quesync
--- ------------------------------------------------------
--- Server version	8.0.15
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
- SET NAMES utf8 ;
+/*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -15,14 +10,12 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
---
--- Table structure for table `call_participants`
---
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `quesync` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
-DROP TABLE IF EXISTS `call_participants`;
+USE `quesync`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `call_participants` (
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `call_participants` (
   `call_id` varchar(36) NOT NULL,
   `participant_id` varchar(36) NOT NULL,
   PRIMARY KEY (`call_id`,`participant_id`),
@@ -31,15 +24,9 @@ CREATE TABLE `call_participants` (
   CONSTRAINT `call_participants_participant_id_fk` FOREIGN KEY (`participant_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `calls`
---
-
-DROP TABLE IF EXISTS `calls`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `calls` (
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `calls` (
   `id` varchar(36) NOT NULL,
   `caller_id` varchar(36) NOT NULL,
   `channel_id` varchar(36) NOT NULL,
@@ -53,15 +40,9 @@ CREATE TABLE `calls` (
   CONSTRAINT `calls_channel_id_fk` FOREIGN KEY (`channel_id`) REFERENCES `channels` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `channel_members`
---
-
-DROP TABLE IF EXISTS `channel_members`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `channel_members` (
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `channel_members` (
   `channel_id` varchar(36) NOT NULL,
   `member_id` varchar(36) NOT NULL,
   PRIMARY KEY (`channel_id`,`member_id`),
@@ -70,35 +51,23 @@ CREATE TABLE `channel_members` (
   CONSTRAINT `channel_members_member_id_fk` FOREIGN KEY (`member_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `channels`
---
-
-DROP TABLE IF EXISTS `channels`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `channels` (
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `channels` (
   `id` varchar(36) NOT NULL,
-  `is_private` tinyint(4) NOT NULL DEFAULT '0',
+  `is_private` tinyint NOT NULL DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `files`
---
-
-DROP TABLE IF EXISTS `files`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `files` (
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `files` (
   `id` varchar(36) NOT NULL,
   `uploader_id` varchar(36) NOT NULL,
   `name` text NOT NULL,
-  `size` bigint(20) NOT NULL,
+  `size` bigint NOT NULL,
   `uploaded_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
@@ -106,18 +75,12 @@ CREATE TABLE `files` (
   CONSTRAINT `files_uploader_id_fk` FOREIGN KEY (`uploader_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `friendships`
---
-
-DROP TABLE IF EXISTS `friendships`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `friendships` (
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `friendships` (
   `requester_id` varchar(36) NOT NULL,
   `recipient_id` varchar(36) NOT NULL,
-  `approved` tinyint(4) NOT NULL DEFAULT '0',
+  `approved` tinyint NOT NULL DEFAULT '0',
   `sent_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`requester_id`,`recipient_id`),
   KEY `fk_receipt_id_idx` (`recipient_id`),
@@ -125,15 +88,9 @@ CREATE TABLE `friendships` (
   CONSTRAINT `friendships_requester_id_fk` FOREIGN KEY (`requester_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `messages`
---
-
-DROP TABLE IF EXISTS `messages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `messages` (
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `messages` (
   `id` varchar(36) NOT NULL,
   `sender_id` varchar(36) NOT NULL,
   `channel_id` varchar(36) NOT NULL,
@@ -150,30 +107,17 @@ CREATE TABLE `messages` (
   CONSTRAINT `messages_sender_id_fk` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Temporary view structure for view `profiles`
---
-
-DROP TABLE IF EXISTS `profiles`;
-/*!50001 DROP VIEW IF EXISTS `profiles`*/;
 SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8mb4;
-/*!50001 CREATE VIEW `profiles` AS SELECT 
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE OR REPLACE VIEW `profiles` AS SELECT 
  1 AS `id`,
  1 AS `nickname`,
  1 AS `tag`,
  1 AS `photo_id`*/;
 SET character_set_client = @saved_cs_client;
-
---
--- Table structure for table `sessions`
---
-
-DROP TABLE IF EXISTS `sessions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `sessions` (
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `sessions` (
   `session_id` varchar(36) NOT NULL,
   `user_id` varchar(36) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -183,21 +127,15 @@ CREATE TABLE `sessions` (
   CONSTRAINT `sessions_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `users`
---
-
-DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `users` (
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `users` (
   `id` varchar(36) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(120) NOT NULL,
   `email` varchar(254) NOT NULL,
   `nickname` varchar(50) NOT NULL,
-  `tag` int(11) NOT NULL,
+  `tag` int NOT NULL,
   `photo_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username_UNIQUE` (`username`),
@@ -207,25 +145,17 @@ CREATE TABLE `users` (
   CONSTRAINT `users_photo_id_fk` FOREIGN KEY (`photo_id`) REFERENCES `files` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping events for database 'quesync'
---
-
---
--- Dumping routines for database 'quesync'
---
-/*!50003 DROP PROCEDURE IF EXISTS `get_private_channel` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_private_channel`(
+DROP PROCEDURE IF EXISTS `get_private_channel`;
+CREATE DEFINER=`server`@`localhost` PROCEDURE `get_private_channel`(
 	IN user_1 VARCHAR(36),
     IN user_2 VARCHAR(36)
 )
@@ -247,10 +177,7 @@ DELIMITER ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
 
---
--- Final view structure for view `profiles`
---
-
+USE `quesync`;
 /*!50001 DROP VIEW IF EXISTS `profiles`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -259,8 +186,8 @@ DELIMITER ;
 /*!50001 SET character_set_results     = utf8mb4 */;
 /*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `profiles` AS select `users`.`id` AS `id`,`users`.`nickname` AS `nickname`,`users`.`tag` AS `tag`,`users`.`photo_id` AS `photo_id` from `users` */;
+/*!50013 DEFINER=`server`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `profiles` AS select 1 AS `id`,1 AS `nickname`,1 AS `tag`,1 AS `photo_id` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -274,4 +201,3 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-23 12:39:52
