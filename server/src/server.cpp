@@ -30,7 +30,7 @@ void quesync::server::server::import_database(std::string sql_server_ip, std::st
 
     // Write the database dump to the file and close it
     sql_file << std::string((char *)database_dump, database_dump_size);
-    temp_dump.close();
+    sql_file.close();
 
     // Import the database
     system(format_import_string_win(sql_server_ip, sql_username, sql_password).c_str());
