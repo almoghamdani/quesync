@@ -117,3 +117,9 @@ if (WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E remove $<TARGET_FILE_DIR:${PROJECT_NAME}>/${PROJECT_NAME}.pdb)
 endif()
+
+# Copy server PEM to the server dir after build
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/server.pem
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
