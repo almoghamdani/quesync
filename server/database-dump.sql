@@ -187,7 +187,7 @@ USE `quesync`;
 /*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`server`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `profiles` AS select 1 AS `id`,1 AS `nickname`,1 AS `tag`,1 AS `photo_id` */;
+/*!50001 VIEW `profiles` AS select `users`.`id` AS `id`,`users`.`nickname` AS `nickname`,`users`.`tag` AS `tag`,`users`.`photo_id` AS `photo_id` from `users` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
