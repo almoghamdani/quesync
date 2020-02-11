@@ -4,6 +4,9 @@ project(server)
 # Make the shared headers compile for the server
 add_definitions (-DQUESYNC_SERVER)
 
+# Compile against threads library
+find_package(Threads REQUIRED)
+
 # Build into bin folder
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -95,7 +98,7 @@ file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../vendor/zxcv
 add_executable(${PROJECT_NAME} ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})
 
 # Link the server to the dependencies' libs
-target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBS} ${MYSQL_LIBS})
+target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBS} ${MYSQL_LIBS})
 
 # Copy OpenSSL dlls after build
 if (WIN32 AND OPENSSL_DLLS_DIR)

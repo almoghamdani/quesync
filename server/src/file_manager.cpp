@@ -132,7 +132,7 @@ void quesync::server::file_manager::init_download_file(
 
     // Create the file object
     file = std::make_shared<quesync::file>((std::string)res[0], (std::string)res[1],
-                                           (std::string)res[2], (unsigned long long)res[3],
+                                           (std::string)res[2], res[3].get<unsigned long long>(),
                                            (int)res[4]);
 
     // Lock the mutex
@@ -197,7 +197,7 @@ std::shared_ptr<quesync::file> quesync::server::file_manager::get_file_info(std:
 
     // Create the file object
     file = std::make_shared<quesync::file>((std::string)res[0], (std::string)res[1],
-                                           (std::string)res[2], (unsigned long long)res[3],
+                                           (std::string)res[2], res[3].get<unsigned long long>(),
                                            (int)res[4]);
 
     return file;
