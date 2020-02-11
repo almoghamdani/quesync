@@ -52,6 +52,14 @@ IF (APPLE)
     set (MYSQL_LIBS libmysqlcppconn8-static.a)
 ENDIF()
 
+# Linux dependencies
+IF (UNIX AND NOT APPLE)
+    set (OPENSSL_LIBS ssl crypto)
+
+    set (MYSQL_DIR /usr/include/mysql-cppconn-8)
+    set (MYSQL_LIBS libmysqlcppconn8-static.a)
+ENDIF()
+
 # If there is an openssl dir, set the include and lib directory
 IF (OPENSSL_INCLUDE_DIR AND OPENSSL_LIBS_DIR)
     include_directories(${OPENSSL_INCLUDE_DIR})
@@ -59,7 +67,11 @@ IF (OPENSSL_INCLUDE_DIR AND OPENSSL_LIBS_DIR)
 ENDIF()
 
 IF (MYSQL_DIR)
-    include_directories(${MYSQL_DIR}/include)
+    IF (UNIX AND NOT APPLE)
+        include_directories(${MYSQL_DIR})
+    ELSE()
+        include_directories(${MYSQL_DIR}/include)
+    ENDIF()
     link_directories(${MYSQL_DIR}/lib64)
 
     # Static compile of the library
@@ -98,7 +110,11 @@ file(GLOB_RECURSE INCLUDE_CPP RELATIVE ${CMAKE_CURRENT_LIST_DIR} "../vendor/zxcv
 add_executable(${PROJECT_NAME} ${SOURCES} ${SHARED_SOURCES} ${INCLUDE_CPP})
 
 # Link the server to the dependencies' libs
-target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBS} ${MYSQL_LIBS})
+if (UNIX AND NOT APPLE)
+    target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} resolv ${OPENSSL_LIBS} ${MYSQL_LIBS})
+else()
+    target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBS} ${MYSQL_LIBS})
+endif()
 
 # Copy OpenSSL dlls after build
 if (WIN32 AND OPENSSL_DLLS_DIR)
