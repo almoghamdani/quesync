@@ -130,10 +130,17 @@ void quesync::server::file_manager::init_download_file(
         throw exception(error::file_not_found);
     }
 
+#ifdef _WIN32
     // Create the file object
     file = std::make_shared<quesync::file>((std::string)res[0], (std::string)res[1],
                                            (std::string)res[2], res[3],
                                            (int)res[4]);
+#else
+    // Create the file object
+    file = std::make_shared<quesync::file>((std::string)res[0], (std::string)res[1],
+                                           (std::string)res[2], (unsigned long)res[3],
+                                           (int)res[4]);
+#endif
 
     // Lock the mutex
     lk.lock();
@@ -195,10 +202,17 @@ std::shared_ptr<quesync::file> quesync::server::file_manager::get_file_info(std:
         throw exception(error::file_not_found);
     }
 
+#ifdef _WIN32
     // Create the file object
     file = std::make_shared<quesync::file>((std::string)res[0], (std::string)res[1],
                                            (std::string)res[2], res[3],
                                            (int)res[4]);
+#else
+    // Create the file object
+    file = std::make_shared<quesync::file>((std::string)res[0], (std::string)res[1],
+                                           (std::string)res[2], (unsigned long)res[3],
+                                           (int)res[4]);
+#endif
 
     return file;
 }
